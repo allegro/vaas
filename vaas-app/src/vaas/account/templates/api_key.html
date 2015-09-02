@@ -1,0 +1,15 @@
+{% extends "admin/index.html" %}
+{% block content %}
+<div class="container">
+    <div class="jumbotron text-center">
+        {% if api_key %}
+            <p class="lead">Your api key:</p>
+            <strong>{{ api_key.key }}</strong>
+        {% else %}
+            <p class="lead">Generate api key:</p>
+            <a class="btn btn-large btn-success" href="{% url 'generate_api_key' %}">Generate</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

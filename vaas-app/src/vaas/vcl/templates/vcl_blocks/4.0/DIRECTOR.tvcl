@@ -1,0 +1,14 @@
+## START director {{director.name}} ###
+probe {{director.name}}_{{ director.probe.name }}_{{ director.probe.id }} {
+    .url = "{{ director.probe.url }}";
+    .expected_response = {{ director.probe.expected_response }};
+    .interval = {{ director.probe.interval }}s;
+    .timeout = {{ director.probe.timeout }}s;
+    .window = {{ director.probe.window }};
+    .threshold = {{ director.probe.threshold }};
+}
+
+{% for vcl_director in vcl_directors %}
+<BACKEND_DEFINITION_LIST_{{vcl_director.director.name}}_{{vcl_director.dc.symbol}}/>
+{% endfor %}
+## END director {{director.name}} ###

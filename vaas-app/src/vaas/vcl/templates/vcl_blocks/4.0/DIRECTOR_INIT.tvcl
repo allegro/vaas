@@ -1,0 +1,6 @@
+## START director init {{director.name}} ###
+
+{% for vcl_director in vcl_directors %}
+<DIRECTOR_DEFINITION_{{vcl_director.director.name}}_{{vcl_director.dc.symbol}}/>
+{% endfor %}    ## END director init {{director.name}} ###
+

@@ -1,0 +1,8 @@
+{% for backend in vcl_director.backends %}
+    {
+      .backend = {{ backend }};
+    {% if vcl_director.director.mode in ('random', 'hash') %}
+      .weight = {{ backend.weight }};
+    {% endif %}
+    }
+{% endfor %}

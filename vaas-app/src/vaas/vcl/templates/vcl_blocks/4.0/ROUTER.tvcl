@@ -1,0 +1,6 @@
+{% for director in directors %}
+    if ({{ director.router }} ~ "^{{ director.route_expression.replace('/', '\/') }}{{ director.suffix }}") {
+<SET_BACKEND_{{director.name}}/>
+        return(hash);
+    }
+{% endfor %}

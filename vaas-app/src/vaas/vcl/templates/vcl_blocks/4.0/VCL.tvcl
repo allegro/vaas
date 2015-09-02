@@ -1,0 +1,12 @@
+# Marker to tell the VCL compiler that this VCL has been adapted to the
+# new 4.0 format.
+vcl 4.0;
+
+import std;
+import directors;
+
+<HEADERS/>
+<ACL/>
+<DIRECTORS/>
+<RECV/>
+<OTHER_FUNCTIONS/>

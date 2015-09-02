@@ -1,0 +1,11 @@
+forge "https://forgeapi.puppetlabs.com"
+
+mod "stahnma/epel"
+
+mod "garethr/docker"
+
+mod "puppetlabs/apt"
+
+mod "puppetlabs/stdlib"
+
+mod "goldyfruit/grub2"

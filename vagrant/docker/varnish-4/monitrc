@@ -1,0 +1,6 @@
+set init
+
+check process varnishd with pidfile /var/run/varnishd.pid
+	start program = "/usr/sbin/service varnish start" 
+	stop program = "/usr/sbin/service varnish stop"
+

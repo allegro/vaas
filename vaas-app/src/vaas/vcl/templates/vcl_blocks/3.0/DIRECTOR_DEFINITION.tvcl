@@ -1,0 +1,7 @@
+{% if (vcl_director.director.mode == 'hash' and vcl_director.director.hashing_policy == 'req.http.cookie') %}
+# Directors hashing by req.http.cookie are not supported in varnish v3.
+# Falling back to director hashing by req.url.
+{% endif %}
+director {{ vcl_director.director.name }}_{{vcl_director.dc.symbol}} {{vcl_director.director.mode}} {
+<BACKEND_LIST_{{vcl_director.director.name}}_{{vcl_director.dc.symbol}}/>
+}

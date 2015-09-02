@@ -1,0 +1,19 @@
+{% for vcl_director in vcl_directors %}
+    {% if loop.index == 1 %}
+        {% if vcl_director.director.remove_path %}
+        set req.url = regsub(req.url, "^{{ vcl_director.director.route_expression }}(/)?", "/");
+        {% endif %}
+        remove req.http.X-VaaS-Prefix;
+        set req.http.X-VaaS-Prefix = "{{ vcl_director.director.route_expression }}";
+        {% if vcl_director.director.router == 'req.url' %}
+        set req.http.X-Forwarded-Prefix = "{{ vcl_director.director.route_expression }}";
+        {% endif %}
+        set req.http.X-VaaS-Director = "{{ vcl_director.dc.symbol }}/{{ vcl_director.director.name }}";
+        set req.backend = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }};
+    {% else %}
+        if (!req.backend.healthy) {
+            set req.http.X-VaaS-Director = "{{ vcl_director.dc.symbol }}/{{ vcl_director.director.name }}";
+            set req.backend = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }};
+        }
+    {% endif %}
+{% endfor %}

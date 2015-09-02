@@ -1,0 +1,11 @@
+{% for backend in vcl_director.backends %}
+backend {{ backend }} {
+    .host = "{{ backend.address }}";
+    .port = "{{ backend.port }}";
+    .max_connections = {{ backend.max_connections }};
+    .connect_timeout = {{ backend.connect_timeout }}s;
+    .first_byte_timeout = {{ backend.first_byte_timeout }}s;
+    .between_bytes_timeout = {{ backend.between_bytes_timeout }}s;
+    .probe = {{ vcl_director.director.name}}_{{ vcl_director.director.probe.name }}_{{ vcl_director.director.probe_id }};
+}
+{% endfor %}

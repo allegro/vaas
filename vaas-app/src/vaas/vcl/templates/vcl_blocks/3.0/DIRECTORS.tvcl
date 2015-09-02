@@ -1,0 +1,3 @@
+{% for director in directors %}
+<DIRECTOR_{{director.name}}/>
+{% endfor %}

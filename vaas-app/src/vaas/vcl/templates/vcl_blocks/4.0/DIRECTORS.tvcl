@@ -1,0 +1,9 @@
+{% for director in directors %}
+<DIRECTOR_{{director.name}}/>
+{% endfor %}
+
+sub vcl_init {
+    {% for director in directors %}
+    <DIRECTOR_INIT_{{director.name}}/>
+    {% endfor %}
+}

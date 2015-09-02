@@ -1,0 +1,12 @@
+[run]
+omit = 
+    *settings*
+    *api*
+    *views*
+    *models*
+    *admin*
+    *template*
+    *external*
+    *urls*
+    *vagrant_data*
+    *test*
