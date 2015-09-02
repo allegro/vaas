@@ -221,7 +221,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/third_service";
         set req.backend = third_service_dc1;
 
-        return(pass);
     }
     if (req.http.host ~ "^unusual.name.org") {
         remove req.http.X-VaaS-Prefix;
@@ -229,7 +228,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
         set req.backend = fourth_director_which_has_a_ridiculously_long_name_dc1;
 
-        return(pass);
     }
     if (req.url ~ "^\/first([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
@@ -238,7 +236,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc2/first_service";
         set req.backend = first_service_dc2;
 
-        return(pass);
     }
     if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
@@ -252,7 +249,6 @@ sub vcl_recv {
             set req.backend = second_service_dc1;
         }
 
-        return(pass);
     }
     if (req.url ~ "^\/fifth([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
@@ -261,7 +257,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/fifth_director_only_cluster1_siteA_test";
         set req.backend = fifth_director_only_cluster1_siteA_test_dc1;
 
-        return(pass);
     }
     if (req.url ~ "^\/sixth([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
@@ -270,7 +265,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/sixth_director_hashing_by_cookie";
         set req.backend = sixth_director_hashing_by_cookie_dc1;
 
-        return(pass);
     }
     if (req.url ~ "^\/seventh([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
@@ -279,8 +273,12 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
         set req.backend = seventh_director_hashing_by_url_dc1;
 
-        return(pass);
     }
 
+    # POST, PUT, DELETE are passed directly to backend
+    if (req.request != "GET") {
+        return (pass);
+    }
+    return (lookup);
 }
 ## other functions ##

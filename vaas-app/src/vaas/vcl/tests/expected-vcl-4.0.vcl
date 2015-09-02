@@ -198,7 +198,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/third_service";
         set req.backend_hint = third_service_dc1.backend();
 
-        return(hash);
     }
     if (req.http.host ~ "^unusual.name.org") {
         unset req.http.X-VaaS-Prefix;
@@ -206,7 +205,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
         set req.backend_hint = fourth_director_which_has_a_ridiculously_long_name_dc1.backend();
 
-        return(hash);
     }
     if (req.url ~ "^\/first([\/\?].*)?$") {
         unset req.http.X-VaaS-Prefix;
@@ -215,7 +213,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc2/first_service";
         set req.backend_hint = first_service_dc2.backend();
 
-        return(hash);
     }
     if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
@@ -229,7 +226,6 @@ sub vcl_recv {
             set req.backend_hint = second_service_dc1.backend();
         }
 
-        return(hash);
     }
     if (req.url ~ "^\/sixth([\/\?].*)?$") {
         unset req.http.X-VaaS-Prefix;
@@ -238,7 +234,6 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/sixth_director_hashing_by_cookie";
         set req.backend_hint = sixth_director_hashing_by_cookie_dc1.backend(req.http.cookie);
 
-        return(hash);
     }
     if (req.url ~ "^\/seventh([\/\?].*)?$") {
         unset req.http.X-VaaS-Prefix;
@@ -247,8 +242,12 @@ sub vcl_recv {
         set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
         set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
 
-        return(hash);
     }
 
+    # POST, PUT, DELETE are passed directly to backend
+    if (req.method != "GET") {
+        return (pass);
+    }
+    return (hash);
 }
 ## other functions ##
