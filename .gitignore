@@ -1,0 +1,13 @@
+db.sqlite3
+*.pyc
+.idea
+*.iml
+.vagrant
+.DS_Store
+*.egg
+coverage.xml
+nosetests.xml
+nohup.out
+vaas-app/src/vaas/static/
+vagrant/puppet/manifests/build/
+site/
