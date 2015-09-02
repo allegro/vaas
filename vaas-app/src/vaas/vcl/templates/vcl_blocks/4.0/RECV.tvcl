@@ -1,3 +1,8 @@
 sub vcl_recv {
 <ROUTER/>
+    # POST, PUT, DELETE are passed directly to backend
+    if (req.method != "GET") {
+        return (pass);
+    }
+    return (hash);
 }
