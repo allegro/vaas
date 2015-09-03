@@ -30,7 +30,7 @@ To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varn
 
 * **Ip:** IP address of the new Varnish server
 * **Hostname:** hostname or a descriptive name 
-* **Cluster weight:**
+* **Cluster weight:** unused
 * **Port:** Varnish API port number
 * **Secret:** contents of /etc/varnish/secret file
 * **Enabled:** enable / disable the server (only tells VaaS to update VCLs; does not start / stop Varnish service)
