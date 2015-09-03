@@ -10,7 +10,7 @@ Assuming you followed our quick-start instruction on [running VaaS in production
 ### Generating a startup VCL
 On each Varnish server controlled by VaaS, run the following job to save running VCL so that it is available immediately after Varnish restarts:
 
-    */5 * * * * bash -c "source /usr/local/bin/vcl_save.sh && save_vcl && put_vcl_in_place
+    */5 * * * * bash -c "source /usr/local/bin/vcl_save.sh && save_vcl && put_vcl_in_place"
 
 Aditionally, you may want to keep a backup of the last known good configuration - in case of an emergency:
 

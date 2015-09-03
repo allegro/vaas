@@ -27,11 +27,11 @@ If your service's backends reside in two (or more) DCs and you assign backends f
 
         if (req.url ~ "^\/service_one_path\/(.*)") {
 
-            set req.backend_hint = security_fraud_accounts_dc5.backend();
+            set req.backend_hint = service_one_dc1.backend();
 
             if (!std.healthy(req.backend_hint)) {
 
-                set req.backend_hint = security_fraud_accounts_dc4.backend();
+                set req.backend_hint = service_one_dc2.backend();
 
             }
         }

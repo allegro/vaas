@@ -6,7 +6,7 @@ How to run VaaS in Docker
 -------------------------
 First, create a data.yaml file that will only contain an admin user definition with a preconfigured password "admin" (do not copy directly copy and paste the data.yaml file contents below, use cat to generate it):
 
-    cat > ./data.yaml <<EOF
+    cat > /var/tmp/data.yaml <<EOF
     - fields:
         date_joined: 2014-12-08 09:23:38.799778+00:00
         email: admin@vaas.allegrogroup.com
@@ -29,7 +29,6 @@ First, create a data.yaml file that will only contain an admin user definition w
 
 Then, run the container as follows:
 
-    sudo docker login -p <username> -p <password> -e <email> hub.docker.allegrogroup.com
-    sudo docker run --name vaas -v /data/data.yaml:/var/tmp/data.yaml -p 80:80 -d -t hub.docker.allegrogroup.com/pluton/vaas
+    sudo docker run --name vaas -v /var/tmp/data.yaml:/data/data.yaml -p 80:80 -d -t allegro/vaas
 
 You will now be able to log in to your container pointing your browser to the IP of your docker host.
