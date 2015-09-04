@@ -26,7 +26,7 @@ Cluster app
 ## [Cluster] Varnish servers
 To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varnish server* and fill in the form:
 
-![Cluster - add Varnish server](/img/cluster_add_v_server.png)
+![Cluster - add Varnish server](img/cluster_add_v_server.png)
 
 * **Ip:** IP address of the new Varnish server
 * **Hostname:** hostname or a descriptive name 
@@ -41,7 +41,7 @@ To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varn
 ## [Cluster] Vcl templates
 To define a new Varnish VCL, click on *Cluster -> Vcl templates -> Add vcl template* and fill in the form:
 
-![Cluster - add VCL template](/img/cluster_add_vcl_template.png)
+![Cluster - add VCL template](img/cluster_add_vcl_template.png)
 
 * **Name:** name of the new VCL
 * **Content:** VCL content (see [VCL template documentation](../documentation/vcl.md))
