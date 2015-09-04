@@ -24,7 +24,7 @@ Authentication is required for all requests except schema. There is only one met
 
 To access VaaS API, first generate API key. Click on *Welcome, <username> -> Api Key* to achieve that. 
 
-![Api Key generation](/img/api_change_api_key.png)
+![Api Key generation](img/api_change_api_key.png)
 
 Sample API requests
 ===================
