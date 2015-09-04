@@ -26,7 +26,7 @@ Cluster app
 ## [Cluster] Varnish servers
 To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varnish server* and fill in the form:
 
-![Cluster - add Varnish server](/img/cluster_add_v_server.png)
+![Cluster - add Varnish server](img/cluster_add_v_server.png)
 
 * **Ip:** IP address of the new Varnish server
 * **Hostname:** hostname or a descriptive name 
@@ -41,7 +41,7 @@ To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varn
 ## [Cluster] Vcl templates
 To define a new Varnish VCL, click on *Cluster -> Vcl templates -> Add vcl template* and fill in the form:
 
-![Cluster - add VCL template](/img/cluster_add_vcl_template.png)
+![Cluster - add VCL template](img/cluster_add_vcl_template.png)
 
 * **Name:** name of the new VCL
 * **Content:** VCL content (see [VCL template documentation](../documentation/vcl.md))
@@ -50,7 +50,7 @@ To define a new Varnish VCL, click on *Cluster -> Vcl templates -> Add vcl templ
 ## [Cluster] Vcl template blocks
 To define a new Vcl template block, click on *Cluster -> Vcl template blocks -> Add template block* and fill in the form:
 
-![Cluster - add VCL template block](/img/cluster_add_vcl_template_block.png)
+![Cluster - add VCL template block](img/cluster_add_vcl_template_block.png)
 
 * **Tag:** where in the VCL is the template block to be inserted
 * **Template:** which template should use the template block
@@ -71,7 +71,7 @@ Manager app
 
 To define a new director, click on *Manager -> Directors -> Add director* and fill in the form:
 
-![Manager - add Director](/img/manager_add_director.png)
+![Manager - add Director](img/manager_add_director.png)
 
 * **Name:** specify a name of the new director
 * **Cluster:** select cluster(s) in which the director should be used
@@ -87,7 +87,7 @@ To define a new director, click on *Manager -> Directors -> Add director* and fi
 ## [Manager] Backends
 To define a new backend, click on *Manager -> Backends -> Add backend* and fill in the form:
 
-![Manager - add Backend](/img/manager_add_backend.png)
+![Manager - add Backend](img/manager_add_backend.png)
 
 * **Address:** IP address of the backend host
 * **Port:** IP port of the backend host
@@ -98,7 +98,7 @@ To define a new backend, click on *Manager -> Backends -> Add backend* and fill 
 ## [Manager] Probes
 To define a new probe, click on *Manager -> Probes -> Add probe* and fill in the form:
 
-![Manager - add Probe](/img/manager_add_probe.png)
+![Manager - add Probe](img/manager_add_probe.png)
 
 * **Name:** name of the probe
 * **Url:** url to test
