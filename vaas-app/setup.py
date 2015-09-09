@@ -106,7 +106,7 @@ setup(
         'futures==2.1.6',
         'django-log-request-id==1.0.0',
         'MarkupSafe==0.23',
-        'nose==1.3.3',
+        'nose==1.3.4',
         'django-simple-history==1.5.3',
         'django-secure==1.0.1'
         ],
