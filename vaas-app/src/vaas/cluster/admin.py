@@ -84,6 +84,6 @@ class VclTemplateBlockAdmin(admin.ModelAdmin):
 
 admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, SimpleHistoryAdmin)
-admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
+admin.site.register(VclTemplateBlock, SimpleHistoryAdmin)
 admin.site.register(Dc)
 admin.site.register(LogicalCluster)
