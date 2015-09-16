@@ -78,7 +78,7 @@ class VarnishServerAdmin(admin.ModelAdmin):
         )
 
 
-class VclTemplateBlockAdmin(admin.ModelAdmin):
+class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ['tag', 'template']
 
 
