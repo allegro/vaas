@@ -78,12 +78,12 @@ class VarnishServerAdmin(admin.ModelAdmin):
         )
 
 
-class VclTemplateBlockAdmin(admin.ModelAdmin):
+class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ['tag', 'template']
 
 
 admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, SimpleHistoryAdmin)
-admin.site.register(VclTemplateBlock, SimpleHistoryAdmin)
+admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
 admin.site.register(Dc)
 admin.site.register(LogicalCluster)
