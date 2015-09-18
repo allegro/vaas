@@ -1,6 +1,6 @@
 node default {
 
-  class { 'grub2': cmdline_linux => 'cgroup_enable=memory swapaccount=1'; } ->
+  class { 'grub2': cmdline_linux => 'apparmor=0 cgroup_enable=memory swapaccount=1'; } ->
   class { 'containers': } ->
   class { 'vaas_service': }
 

@@ -26,6 +26,8 @@ Point your browser to <http://192.168.200.11:3030/> and log in using the followi
 
 You will see a django admin GUI with two apps: Cluster and Manager. Configure your sample Varnish servers and VCL templates in Cluster app. Configure your backends, directors and probes in the Manager app. Reffer to [GUI](../documentation/gui.md) or [API](../documentation/api.md) documentation to see how to do this.
 
+Current VCL for the test Varnish instances can be previewed by clicking on Cluster -> Varnish servers -> Show vcl. HINT: Freshly after booting up VaaS in Vagrant, the configuration of the Varnish servers will not be loaded. Make some changes to the test backends or re-enable the test Varnish instances to trigger loading of the configuration.
+
 Entering the VaaS box
 ---------------------
 You can access the Vagrant box and make modifications as you require (eg. to run more Varnish or backend instances):
