@@ -17,16 +17,23 @@ class BackendModelForm(ModelForm):
     class Meta:
         model = Backend
 
+class ProbeModelForm(ModelForm):
+    class Meta:
+        model = Probe
 
 class ProbeResource(ModelResource):
     class Meta:
         queryset = Probe.objects.all()
         resource_name = 'probe'
-        excludes = ['id']
-        allowed_methods = ['get']
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
+        validation = ModelCleanedDataFormValidation(form_class=ProbeModelForm)
+        filtering = {
+            'name': ['exact'],
+            'url': ['exact'],
+            'expected_response': ['exact']
+        }
 
 
 class DirectorResource(ModelResource):
@@ -38,13 +45,13 @@ class DirectorResource(ModelResource):
     class Meta:
         queryset = Director.objects.all()
         resource_name = 'director'
-        excludes = ['id']
-        allowed_methods = ['get']
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         filtering = {
             'name': ['exact'],
+            'enabled': ['exact'],
+            'probe': ALL_WITH_RELATIONS
         }
 
 

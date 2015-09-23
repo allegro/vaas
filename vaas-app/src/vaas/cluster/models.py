@@ -80,3 +80,4 @@ class VclTemplateBlock(models.Model):
 class VarnishServerForm(ModelForm):
     class Meta:
         model = VarnishServer
+
