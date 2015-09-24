@@ -16,6 +16,9 @@
 - fields: {name: First datacenter, symbol: dc1}
   model: cluster.dc
   pk: 1
+- fields: {name: First datacenter, symbol: dc2}
+  model: cluster.dc
+  pk: 2
 - fields: {content: <VCL/>, name: vagrant_template_3, version: '3.0'}
   model: cluster.vcltemplate
   pk: 1
