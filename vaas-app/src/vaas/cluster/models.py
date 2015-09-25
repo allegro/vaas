@@ -75,9 +75,3 @@ class VclTemplateBlock(models.Model):
 
     class Meta:
         unique_together = (('tag', 'template'))
-
-
-class VarnishServerForm(ModelForm):
-    class Meta:
-        model = VarnishServer
-

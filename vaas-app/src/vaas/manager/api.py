@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.forms import ModelForm
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
 from tastypie.authorization import Authorization
 from tastypie import fields
@@ -9,17 +8,10 @@ from tastypie.authentication import ApiKeyAuthentication
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.api import DcResource
+from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm
 from vaas.manager.models import Backend, Probe, Director
 from vaas.monitor.models import BackendStatus
 
-
-class BackendModelForm(ModelForm):
-    class Meta:
-        model = Backend
-
-class ProbeModelForm(ModelForm):
-    class Meta:
-        model = Probe
 
 class ProbeResource(ModelResource):
     class Meta:
@@ -48,6 +40,7 @@ class DirectorResource(ModelResource):
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
+        validation = ModelCleanedDataFormValidation(form_class=DirectorModelForm)
         filtering = {
             'name': ['exact'],
             'enabled': ['exact'],

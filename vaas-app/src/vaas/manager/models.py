@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django.forms import ModelForm, CheckboxSelectMultiple
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
 
 from vaas.cluster.models import Dc, LogicalCluster
@@ -142,11 +141,3 @@ class Backend(models.Model):
 
     class Meta:
         unique_together = (('address', 'port', 'director'),)
-
-
-class DirectorForm(ModelForm):
-    class Meta:
-        widgets = {
-            'cluster': CheckboxSelectMultiple()
-        }
-        model = Director

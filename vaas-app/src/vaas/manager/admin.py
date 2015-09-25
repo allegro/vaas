@@ -1,5 +1,6 @@
 from django.contrib import admin
-from vaas.manager.models import Director, Backend, Probe, DirectorForm
+from vaas.manager.models import Director, Backend, Probe
+from vaas.manager.forms import DirectorModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from tastypie.models import ApiKey
@@ -41,7 +42,7 @@ def disable_director(modeladmin, request, queryset):
 
 class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
-    form = DirectorForm
+    form = DirectorModelForm
     list_display = ('name', 'get_clusters', 'route_expression', 'probe', 'custom_enabled')
     list_filter = ['cluster__name']
     actions = [enable_director, disable_director]
