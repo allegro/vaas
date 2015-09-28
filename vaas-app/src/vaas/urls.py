@@ -4,7 +4,8 @@ from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 from tastypie.api import Api
 
-from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlockResource, VclTemplateResource
+from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlockResource, VclTemplateResource, \
+    LogicalClusterResource
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource
 from django.contrib import admin
 
@@ -18,6 +19,7 @@ v01_api.register(DirectorResource())
 v01_api.register(BackendResource())
 v01_api.register(VclTemplateResource())
 v01_api.register(VclTemplateBlockResource())
+v01_api.register(LogicalClusterResource())
 
 
 urlpatterns = patterns(

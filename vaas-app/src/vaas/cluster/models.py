@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from tastypie import fields
 from django.db import models
-from django.forms import ModelForm
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
 from simple_history.models import HistoricalRecords
 
@@ -9,6 +9,7 @@ from simple_history.models import HistoricalRecords
 class LogicalCluster(models.Model):
     """Model representing a cluster of varnish servers"""
     name = models.CharField(max_length=20, validators=[validate_slug])
+    directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
 
     def __unicode__(self):
         return self.name
