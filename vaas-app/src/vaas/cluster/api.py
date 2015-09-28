@@ -98,4 +98,3 @@ class VclTemplateBlockResource(ModelResource):
             'name': ['exact'],
             'template': ALL_WITH_RELATIONS
         }
-
