@@ -23,7 +23,7 @@ if [ -e /data/data.yaml ] ; then
     DJANGO_SETTINGS_MODULE=$DSM django-admin.py loaddata /data/data.yaml"\
     ubuntu
 else
-    su - c"\
+    su -c "\
     source /home/ubuntu/prod-env/bin/activate &&
     echo \"from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@domain.invalid', 'admin')\" |\
     DJANGO_SETTINGS_MODULE=$DSM django-admin.py shell"\
