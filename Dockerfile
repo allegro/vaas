@@ -22,6 +22,7 @@ RUN cd /home/ubuntu &&\
     virtualenv prod-env &&\
     . prod-env/bin/activate &&\
     cd /home/ubuntu/vaas-app &&\
+    touch src/vaas/settings/__init__.py &&\
     pip install uwsgi &&\
     python setup.py install &&\
     cd &&\
