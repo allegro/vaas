@@ -9,7 +9,7 @@ ALLOWED_HOSTS = ["*"]
 STATIC_ROOT = '/home/ubuntu/static'
 DATABASES = {
     'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': '/tmp/db.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/db.sqlite3',
     }
 }
