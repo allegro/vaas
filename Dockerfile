@@ -11,7 +11,6 @@ RUN useradd -d /home/ubuntu ubuntu &&\
 ADD ./docker/vaas.conf /etc/nginx/sites-enabled/vaas.conf
 ADD ./docker/start.sh /var/tmp/start.sh
 ADD ./vaas-app/ /home/ubuntu/vaas-app/
-ADD ./docker/docker.yml /home/ubuntu/vaas-app/src/vaas/resources/docker.yml
 
 RUN chown -R ubuntu:ubuntu /home/ubuntu
 
