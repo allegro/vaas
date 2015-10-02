@@ -8,7 +8,7 @@ from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_b
 
 
 class Probe(models.Model):
-    name = models.CharField(unique=True, max_length=30, validators=[validate_slug])
+    name = models.CharField(max_length=30, validators=[validate_slug])
     url = models.CharField(max_length=50)
     expected_response = models.PositiveIntegerField(default='200')
     interval = models.PositiveIntegerField(
@@ -52,7 +52,7 @@ class Director(models.Model):
         ('req.http.cookie', 'Cookie'),
         ('req.url', 'Url')
     )
-    name = models.CharField(unique=True, max_length=50, validators=[validate_slug])
+    name = models.CharField(max_length=50, validators=[validate_slug])
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     hashing_policy = models.CharField(

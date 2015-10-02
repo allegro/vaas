@@ -77,7 +77,7 @@ class VarnishServerResource(ModelResource):
 
 class VclTemplateBlockResource(ModelResource):
 
-    template = fields.ForeignKey(VclTemplateResource, 'template', full=True)
+    template = fields.ForeignKey(VclTemplateResource, 'template')
 
     def build_schema(self):
         base_schema = super(VclTemplateBlockResource, self).build_schema()
