@@ -8,7 +8,7 @@ from simple_history.models import HistoricalRecords
 
 class LogicalCluster(models.Model):
     """Model representing a cluster of varnish servers"""
-    name = models.CharField(max_length=20, validators=[validate_slug])
+    name = models.CharField(unique=True, max_length=20, validators=[validate_slug])
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
 
     def __unicode__(self):
@@ -23,7 +23,7 @@ class LogicalCluster(models.Model):
 
 class Dc(models.Model):
     name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=9, validators=[validate_slug])
+    symbol = models.CharField(unique=True, max_length=9, validators=[validate_slug])
 
     def __unicode__(self):
         return self.symbol

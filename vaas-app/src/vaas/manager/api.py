@@ -31,7 +31,10 @@ class ProbeResource(ModelResource):
 class DirectorResource(ModelResource):
     probe = fields.ForeignKey(ProbeResource, 'probe', full=True)
     backends = fields.ToManyField(
-        'vaas.manager.api.BackendResource', 'backends', null=True,
+        'vaas.manager.api.BackendResource', 'backends', null=True
+    )
+    cluster = fields.ToManyField(
+        'vaas.cluster.api.LogicalClusterResource', 'cluster', null=False
     )
 
     class Meta:

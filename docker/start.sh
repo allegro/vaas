@@ -30,6 +30,7 @@ else
     ubuntu
 fi
 
+/var/tmp/backend_statuses.sh &
 nginx &
 /home/ubuntu/prod-env/bin/uwsgi --env DJANGO_SETTINGS_MODULE=$DSM --uid ubuntu --master --processes 8 --die-on-term --socket /tmp/vaas.sock -H /home/ubuntu/prod-env --module vaas.external.wsgi --chmod-socket=666 --logto /tmp/uwsgi.log &
 tail -f /tmp/uwsgi.log

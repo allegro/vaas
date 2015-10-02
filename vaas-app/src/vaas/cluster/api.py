@@ -16,6 +16,7 @@ from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, 
 class LogicalClusterResource(ModelResource):
     class Meta:
         queryset = LogicalCluster.objects.all()
+        resource_name = 'logical_cluster'
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
         validation = ModelCleanedDataFormValidation(form_class=LogicalCLusterModelForm)
