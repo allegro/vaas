@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.forms import ModelForm
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
 from tastypie.authorization import Authorization
 from tastypie import fields
@@ -9,42 +8,46 @@ from tastypie.authentication import ApiKeyAuthentication
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.api import DcResource
+from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm
 from vaas.manager.models import Backend, Probe, Director
 from vaas.monitor.models import BackendStatus
-
-
-class BackendModelForm(ModelForm):
-    class Meta:
-        model = Backend
 
 
 class ProbeResource(ModelResource):
     class Meta:
         queryset = Probe.objects.all()
         resource_name = 'probe'
-        excludes = ['id']
-        allowed_methods = ['get']
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
+        validation = ModelCleanedDataFormValidation(form_class=ProbeModelForm)
+        filtering = {
+            'name': ['exact'],
+            'url': ['exact'],
+            'expected_response': ['exact']
+        }
 
 
 class DirectorResource(ModelResource):
     probe = fields.ForeignKey(ProbeResource, 'probe', full=True)
     backends = fields.ToManyField(
-        'vaas.manager.api.BackendResource', 'backends', null=True,
+        'vaas.manager.api.BackendResource', 'backends', null=True
+    )
+    cluster = fields.ToManyField(
+        'vaas.cluster.api.LogicalClusterResource', 'cluster', null=False
     )
 
     class Meta:
         queryset = Director.objects.all()
         resource_name = 'director'
-        excludes = ['id']
-        allowed_methods = ['get']
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
+        validation = ModelCleanedDataFormValidation(form_class=DirectorModelForm)
         filtering = {
             'name': ['exact'],
+            'enabled': ['exact'],
+            'probe': ALL_WITH_RELATIONS
         }
 
 

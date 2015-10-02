@@ -10,11 +10,11 @@ RUN useradd -d /home/ubuntu ubuntu &&\
 
 ADD ./docker/vaas.conf /etc/nginx/sites-enabled/vaas.conf
 ADD ./docker/start.sh /var/tmp/start.sh
+ADD ./docker/backend_statuses.sh /var/tmp/backend_statuses.sh
 ADD ./vaas-app/ /home/ubuntu/vaas-app/
 
-RUN chown -R ubuntu:ubuntu /home/ubuntu
-
-RUN chmod 755 /var/tmp/start.sh
+RUN chown -R ubuntu:ubuntu /home/ubuntu &&\
+    chmod 755 /var/tmp/*.sh
 
 USER ubuntu
 
