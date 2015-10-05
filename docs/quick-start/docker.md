@@ -4,7 +4,16 @@ VaaS in Docker is a preconfigured instance of VaaS varnish configuration tool. I
 
 How to run VaaS in Docker
 -------------------------
-First, create a data.yaml file that will only contain an admin user definition with a preconfigured password "admin" (do not copy directly copy and paste the data.yaml file contents below, use cat to generate it):
+By default, the container starts with no data loaded and with admin user identified by admin password:
+
+    sudo docker run -p 80:80 -d -t allegro/vaas
+
+You will now be able to log in to your container pointing your browser to the IP of your docker host.
+
+Starting VaaS in Docker with API access
+---------------------------------------
+
+First, create a data.yaml file that will only contain an admin user definition with a preconfigured password "admin" and api key "vagrant_api_key" (do not copy directly copy and paste the data.yaml file contents below, use cat to generate it):
 
     cat > /var/tmp/data.yaml <<EOF
     - fields:
@@ -29,6 +38,6 @@ First, create a data.yaml file that will only contain an admin user definition w
 
 Then, run the container as follows:
 
-    sudo docker run --name vaas -v /var/tmp/data.yaml:/data/data.yaml -p 80:80 -d -t allegro/vaas
+    sudo docker run -v /var/tmp/data.yaml:/data/data.yaml -p 80:80 -d -t allegro/vaas
 
-You will now be able to log in to your container pointing your browser to the IP of your docker host.
+You can now start populating VaaS database with data, as described in [VaaS API](../documentation/api.md)
