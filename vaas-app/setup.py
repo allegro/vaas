@@ -108,7 +108,8 @@ setup(
         'MarkupSafe==0.23',
         'nose==1.3.4',
         'django-simple-history==1.5.3',
-        'django-secure==1.0.1'
+        'django-secure==1.0.1',
+        'lockfile==0.11.0',
         ],
     entry_points={
         'console_scripts': [
