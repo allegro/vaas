@@ -7,6 +7,7 @@ from tastypie.api import Api
 from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlockResource, VclTemplateResource, \
     LogicalClusterResource
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource
+from vaas.purger.api import PurgeUrl
 from django.contrib import admin
 
 admin.autodiscover()
@@ -20,6 +21,7 @@ v01_api.register(BackendResource())
 v01_api.register(VclTemplateResource())
 v01_api.register(VclTemplateBlockResource())
 v01_api.register(LogicalClusterResource())
+v01_api.register(PurgeUrl())
 
 
 urlpatterns = patterns(
