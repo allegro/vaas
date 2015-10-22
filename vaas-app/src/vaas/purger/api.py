@@ -9,12 +9,12 @@ from vaas.cluster.cluster import ServerExtractor
 from vaas.cluster.models import LogicalCluster
 from vaas.purger.purger import VarnishPurger
 
+
 class Purger(object):
     def __init__(self, url, clusters):
         self.url = url
         self.clusters = clusters
         self.resource_url = 1
-
 
 
 class PurgeUrl(Resource):
