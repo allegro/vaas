@@ -73,7 +73,7 @@ class VaaSEggInfo(org_egg_info):
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
     name='vaas',
-    version='0.9.0',
+    version='1.0.0',
     author='Grupa Allegro Sp. z o.o. and Contributors',
     author_email='pluton@allegro.pl',
     description="Vaas, Varnish as a Service - management tool",
