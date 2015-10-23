@@ -26,6 +26,7 @@ v01_api.register(PurgeUrl())
 
 urlpatterns = patterns(
     '',
+    url(r'^admin/purger/', include('vaas.purger.urls')),
     url(r'^$', RedirectView.as_view(url='/admin')),
     url(r'^manager/', include('vaas.manager.urls')),
     url(r'^account/', include('vaas.account.urls')),

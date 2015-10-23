@@ -39,7 +39,8 @@ INSTALLED_APPS = (
     'vaas.manager',
     'vaas.cluster',
     'vaas.monitor',
-    'vaas.account'
+    'vaas.account',
+    'vaas.purger'
 )
 
 MIDDLEWARE_CLASSES = (
