@@ -29,5 +29,5 @@ RUN cd /home/ubuntu &&\
     rm -r vaas-app
 
 USER root
-
-CMD ["/var/tmp/start.sh"]
+ENTRYPOINT ["/var/tmp/start.sh"]
+CMD ["admin", "admin@domain.example.com", "admin", "admin"]
