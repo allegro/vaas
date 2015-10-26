@@ -9,6 +9,11 @@ By default, the container starts with no data loaded and with admin user identif
     sudo docker run -p 80:80 -d -t allegro/vaas
 
 You will now be able to log in to your container pointing your browser to the IP of your docker host.
+If you want, You can start container with selected username and password as folows:
+
+    sudo docker run -p 80:80 -d -t allegro/vaas <username> <email> <password> <api_key>
+
+The last argument is optional. If you don't specify api_key, a random key will be generated.
 
 Starting VaaS in Docker with API access
 ---------------------------------------
