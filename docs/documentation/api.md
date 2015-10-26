@@ -18,6 +18,7 @@ The following resources are available:
 |*Varnish Servers*   |A Varnish server                                |preview, **add, edit, delete**|
 |*VCL Template Block*|A VCL template block                            |preview, **add, edit, delete**|
 |*VCL Template*      |A VCL template                                  |preview, **add, edit, delete**|
+|*Purger*            |purge object from varnishes from a given cluster|                              |
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -137,3 +138,11 @@ To list backends located in specified DC belonging to specified Director:
     }' \
     -H "Content-Type: application/json" \
     "http://192.168.200.11:3030/api/v0.1/backend/?username=admin&api_key=vagrant_api_key"
+
+
+### Purge object from varnishes from a given cluster
+
+    curl -X POST \
+    -d '{ "url": "http://example.com/contact", "clusters": "cluster1_siteA_test"  }' \
+    -H "Content-Type: application/json" \
+    "http://192.168.200.11:3030/api/v0.1/purger/?username=admin&api_key=vagrant_api_key"
