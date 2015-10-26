@@ -4,10 +4,8 @@ from tastypie.models import ApiKey
 
 
 class Command(BaseCommand):
-
     args = '<username email password api_key>'
     help = 'Creates superuser with specified username, email, password and (optional) api_key'
-
 
     def handle(self, *args, **options):
         if len(args) < 3:
