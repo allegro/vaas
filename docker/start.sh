@@ -1,5 +1,8 @@
 #!/bin/bash -
-
+USERNAME=$1
+EMAIL=$2
+PASSWORD=$3
+API_KEY=$4
 DSM=vaas.settings.docker
 touch /tmp/uwsgi.log
 
@@ -25,8 +28,7 @@ if [ -e /data/data.yaml ] ; then
 else
     su -c "\
     source /home/ubuntu/prod-env/bin/activate &&
-    echo \"from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@domain.invalid', 'admin')\" |\
-    DJANGO_SETTINGS_MODULE=$DSM django-admin.py shell"\
+    DJANGO_SETTINGS_MODULE=$DSM django-admin.py create_user_and_api_key $USERNAME $EMAIL $PASSWORD $API_KEY"\
     ubuntu
 fi
 
