@@ -3,6 +3,6 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
-    'vaas.manager.views',
-    url(r'^varnish/vcl/(?P<varnish_server_pk>\d+)/$', 'vcl'),
+    'vaas.purger.views',
+    url(r'^$', 'purge_view'),
 )
