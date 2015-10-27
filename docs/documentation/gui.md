@@ -107,7 +107,7 @@ To define a new probe, click on *Manager -> Probes -> Add probe* and fill in the
 ## [Manager] Purger
 To purge object from varnishes from a given cluster, click on *Manager -> Purger -> and fill in the form:
 
-![Manager - add Probe](img/manager_purger.png)
+![Manager - Purger](img/manager_purger.png)
 
 * **Url to purge:** url of object to purge eg. http://example.com/contact
 * **Varnish Cluster:** select cluster to purge
