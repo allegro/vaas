@@ -13,13 +13,17 @@ class VarnishPurger(object):
         return responses_summary
 
     def purge_url(self, url, servers):
-        headers = {"Host": urlparse(url).hostname}
+        parsed_url = urlparse(url)
+        headers = {"Host": parsed_url.hostname}
         data = {'success': {}, 'error': {}}
 
         for server in servers:
                 try:
                     conn = HTTPConnection(server.ip, 80)
-                    conn.request("PURGE", urlparse(url).path, body='', headers=headers)
+                    purge_url = parsed_url.path
+                    if parsed_url.query:
+                        purge_url = "{}?{}".format(parsed_url.path, parsed_url.query)
+                    conn.request("PURGE", purge_url, body='', headers=headers)
                     resp = conn.getresponse().status
                     data['success'][server.ip] = "varnish http response code: {}, url={}".format(resp, url)
                 except BadStatusLine:
