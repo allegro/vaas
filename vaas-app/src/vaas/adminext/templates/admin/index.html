@@ -71,11 +71,13 @@
                         </th>
                     </tr>
                 {% endfor %}
+                    {% if app.name == 'Manager' %}
                     <tr>
                         <th scope="row">
                             <a href="/admin/purger/">Purger</a>
                         </th>
                     </tr>
+                    {% endif %}
                 </table>
             {% empty %}
                 <p>{% trans "You don't have permission to edit anything." %}</p>
