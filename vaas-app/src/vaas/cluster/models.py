@@ -66,7 +66,7 @@ class VclTemplateBlock(models.Model):
         ('BACKENDS', 'VCL/BACKENDS'),
         ('DIRECTORS', 'VCL/DIRECTORS'),
         ('RECV', 'VCL/RECEIVE'),
-        ('ROUTER', 'VCL/REVEIVE/ROUTER'),
+        ('ROUTER', 'VCL/RECEIVE/ROUTER'),
         ('OTHER_FUNCTIONS', 'VCL/OTHER_FUNCTIONS'),
     )
     tag = models.CharField(max_length=20, choices=TAG_CHOICES)
