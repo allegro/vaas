@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from vaas.cluster.models import VarnishServer, Dc, LogicalCluster
 from vaas.cluster.cluster import VarnishCluster, ServerExtractor, ParallelRenderer, ParallelLoader, \
-    VarnishApiProvider, VclLoadException
+    VarnishApiProvider, VclLoadException, PartialParallelLoader
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, Vcl
 from vaas.api.client import VarnishApi
@@ -114,6 +114,14 @@ class ParallelLoaderTest(TestCase):
             with patch.object(VclLoader, 'load_new_vcl', return_value=VclStatus.ERROR):
                 ParallelLoader().load_vcl_list(vcl_list)
 
+    @raises(VclLoadException)
+    def test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server(self):
+        first_vcl = Vcl('Test-1', name='test-1')
+        vcl_list = [(servers[1], first_vcl)]
+
+        with patch.object(VarnishApiProvider, 'get_api'):
+            ParallelLoader().load_vcl_list(vcl_list)
+
     def assert_loaded_vcl_contains_proper_vcl_and_server(self, loaded_vcl_tuple, expected_vcl, expected_server):
         vcl, loader, server = loaded_vcl_tuple
         assert_equals(vcl, expected_vcl)
@@ -145,6 +153,20 @@ class ParallelLoaderTest(TestCase):
         ParallelLoader().use_vcl_list('test', vcl_loaded_list)
 
         assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
+
+
+class PartialParallelLoaderTest(TestCase):
+    def test_should_return_vcl_list_without_broken_server_items(self):
+        first_vcl = Vcl('Test-1', name='test-1')
+        vcl_list = [(servers[1], first_vcl)]
+
+        with patch.object(VarnishApiProvider, 'get_api', side_effect=VclLoadException):
+            # as opposed to test:
+            # PartialLoaderTest#test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server
+            # it DOES NOT raise any exception what is being tested implicitly there.
+            to_use = PartialParallelLoader().load_vcl_list(vcl_list)
+
+            self.assertListEqual([], to_use)
 
 
 class VarnishClusterTest(TestCase):

@@ -5,10 +5,20 @@ import time
 
 from concurrent.futures import ThreadPoolExecutor
 
+from django.conf import settings
+
 from vaas.api.client import VarnishApi
 from vaas.cluster.models import VarnishServer
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput
+
+
+def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
+                         partial=settings.VAAS_LOADER_PARTIAL_RELOAD):
+    if partial:
+        return PartialParallelLoader(max_workers)
+    else:
+        return ParallelLoader(max_workers)
 
 
 class VclLoadException(Exception):
@@ -29,7 +39,7 @@ class VarnishCluster(object):
     def load_vcl(self, vcl_name, clusters):
         servers = ServerExtractor().extract_servers_by_clusters(clusters)
         vcl_list = ParallelRenderer(self.max_workers).render_vcl_for_servers(vcl_name, servers)
-        parallel_loader = ParallelLoader(self.max_workers)
+        parallel_loader = make_parallel_loader(self.max_workers)
 
         try:
             loaded_vcl_list = parallel_loader.load_vcl_list(vcl_list)
@@ -110,15 +120,25 @@ class ParallelLoader(ParallelExecutor):
         ParallelExecutor.__init__(self, max_workers)
         self.api_provider = VarnishApiProvider()
 
+    def _append_vcl(self, vcl, server, future_results, executor):
+        loader = VclLoader(self.api_provider.get_api(server))
+        future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
+
+    def _format_vcl_list(self, to_use, aggregated_result):
+        if not aggregated_result:
+            raise VclLoadException
+
+        return to_use
+
     def load_vcl_list(self, vcl_list):
         to_use = []
         start = time.time()
         aggregated_result = True
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
+
             for server, vcl in vcl_list:
-                loader = VclLoader(self.api_provider.get_api(server))
-                future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
+                self._append_vcl(vcl, server, future_results, executor)
 
             for vcl, loader, server, future_result in future_results:
                 result = future_result.result()
@@ -127,12 +147,9 @@ class ParallelLoader(ParallelExecutor):
                 if result == VclStatus.OK:
                     to_use.append(tuple([vcl, loader, server]))
 
-        if aggregated_result is False:
-            raise VclLoadException
-
         self.logger.debug("vcl's loaded: %f" % (time.time() - start))
 
-        return to_use
+        return self._format_vcl_list(to_use, aggregated_result)
 
     def use_vcl_list(self, vcl_name, vcl_loaded_list):
         self.logger.info("Call use vcl for %d servers" % len(vcl_loaded_list))
@@ -154,3 +171,14 @@ class ParallelLoader(ParallelExecutor):
         self.logger.debug("vcl's used: %f" % (time.time() - start))
 
         return result
+
+
+class PartialParallelLoader(ParallelLoader):
+    def _format_vcl_list(self, to_use, aggregated_result):
+        return to_use
+
+    def _append_vcl(self, vcl, server, future_results, executor):
+        try:
+            super(PartialParallelLoader, self)._append_vcl(vcl, server, future_results, executor)
+        except VclLoadException:
+            pass
