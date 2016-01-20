@@ -222,14 +222,14 @@ sub vcl_recv {
         set req.backend = third_service_dc1;
 
     }
-    if (req.http.host ~ "^unusual.name.org") {
+    else if (req.http.host ~ "^unusual.name.org") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "unusual.name.org";
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
         set req.backend = fourth_director_which_has_a_ridiculously_long_name_dc1;
 
     }
-    if (req.url ~ "^\/first([\/\?].*)?$") {
+    else if (req.url ~ "^\/first([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/first";
         set req.http.X-Forwarded-Prefix = "/first";
@@ -237,7 +237,7 @@ sub vcl_recv {
         set req.backend = first_service_dc2;
 
     }
-    if (req.url ~ "^\/second([\/\?].*)?$") {
+    else if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/second";
@@ -250,7 +250,7 @@ sub vcl_recv {
         }
 
     }
-    if (req.url ~ "^\/fifth([\/\?].*)?$") {
+    else if (req.url ~ "^\/fifth([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/fifth";
         set req.http.X-Forwarded-Prefix = "/fifth";
@@ -258,7 +258,7 @@ sub vcl_recv {
         set req.backend = fifth_director_only_cluster1_siteA_test_dc1;
 
     }
-    if (req.url ~ "^\/sixth([\/\?].*)?$") {
+    else if (req.url ~ "^\/sixth([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/sixth";
         set req.http.X-Forwarded-Prefix = "/sixth";
@@ -266,7 +266,7 @@ sub vcl_recv {
         set req.backend = sixth_director_hashing_by_cookie_dc1;
 
     }
-    if (req.url ~ "^\/seventh([\/\?].*)?$") {
+    else if (req.url ~ "^\/seventh([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/seventh";
         set req.http.X-Forwarded-Prefix = "/seventh";

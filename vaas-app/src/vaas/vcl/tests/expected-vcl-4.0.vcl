@@ -199,14 +199,14 @@ sub vcl_recv {
         set req.backend_hint = third_service_dc1.backend();
 
     }
-    if (req.http.host ~ "^unusual.name.org") {
+    else if (req.http.host ~ "^unusual.name.org") {
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "unusual.name.org";
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
         set req.backend_hint = fourth_director_which_has_a_ridiculously_long_name_dc1.backend();
 
     }
-    if (req.url ~ "^\/first([\/\?].*)?$") {
+    else if (req.url ~ "^\/first([\/\?].*)?$") {
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/first";
         set req.http.X-Forwarded-Prefix = "/first";
@@ -214,7 +214,7 @@ sub vcl_recv {
         set req.backend_hint = first_service_dc2.backend();
 
     }
-    if (req.url ~ "^\/second([\/\?].*)?$") {
+    else if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/second";
@@ -227,7 +227,7 @@ sub vcl_recv {
         }
 
     }
-    if (req.url ~ "^\/sixth([\/\?].*)?$") {
+    else if (req.url ~ "^\/sixth([\/\?].*)?$") {
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/sixth";
         set req.http.X-Forwarded-Prefix = "/sixth";
@@ -235,7 +235,7 @@ sub vcl_recv {
         set req.backend_hint = sixth_director_hashing_by_cookie_dc1.backend(req.http.cookie);
 
     }
-    if (req.url ~ "^\/seventh([\/\?].*)?$") {
+    else if (req.url ~ "^\/seventh([\/\?].*)?$") {
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/seventh";
         set req.http.X-Forwarded-Prefix = "/seventh";
