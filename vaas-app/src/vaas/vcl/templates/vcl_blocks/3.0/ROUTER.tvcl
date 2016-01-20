@@ -1,5 +1,5 @@
 {% for director in directors %}
-    if ({{ director.router }} ~ "^{{ director.route_expression.replace('/', '\/') }}{{ director.suffix }}") {
+    {% if loop.index > 1 %}else {% endif %}if ({{ director.router }} ~ "^{{ director.route_expression.replace('/', '\/') }}{{ director.suffix }}") {
 <SET_BACKEND_{{director.name}}/>
     }
 {% endfor %}

@@ -258,7 +258,7 @@ sub vcl_recv {
         set req.backend = fifth_director_only_cluster1_siteA_test_dc1;
 
     }
-    if (req.url ~ "^\/sixth([\/\?].*)?$") {
+    else if (req.url ~ "^\/sixth([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/sixth";
         set req.http.X-Forwarded-Prefix = "/sixth";
@@ -266,7 +266,7 @@ sub vcl_recv {
         set req.backend = sixth_director_hashing_by_cookie_dc1;
 
     }
-    if (req.url ~ "^\/seventh([\/\?].*)?$") {
+    else if (req.url ~ "^\/seventh([\/\?].*)?$") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/seventh";
         set req.http.X-Forwarded-Prefix = "/seventh";
