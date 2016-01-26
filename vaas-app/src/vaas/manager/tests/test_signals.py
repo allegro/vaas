@@ -5,13 +5,15 @@ from mock import Mock, call, patch, MagicMock
 from django.conf import settings
 
 from vaas.manager.models import Director, Backend, Probe
-from vaas.cluster.models import Dc, LogicalCluster
+from vaas.cluster.models import Dc, LogicalCluster, VarnishServer, VclTemplate, VclTemplateBlock
 from vaas.manager.signals import switch_state_and_reload, regenerate_and_reload_vcl, vcl_update
 
 
 def test_switch_state_and_reload_cluster_filter_for_backend():
     cluster1 = LogicalCluster.objects.create(name="first cluster")
-    # Created, but not used, just to check if cluster filtering works.
+    """
+    Created, but not used, just to check if cluster filtering works.
+    """
     LogicalCluster.objects.create(name="second cluster")
     dc1 = Dc.objects.create(symbol='dc1', name='First datacenter')
     probe = Probe.objects.create(name='default_probe', url='/ts.1')
@@ -150,4 +152,61 @@ def test_vcl_update_if_sender_not_allowed():
     with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
         vcl_update(None)
         assert_equals([], regenerate_and_reload_vcl_mock.call_args_list)
+    settings.SIGNALS = 'off'
+
+
+def test_vcl_update_cluster_filter_for_vcltemplate():
+    settings.SIGNALS = 'on'
+
+    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    """
+    Created, but not used, just to check if cluster filtering works.
+    """
+    LogicalCluster.objects.create(name="second cluster")
+    template = VclTemplate.objects.create()
+
+    VarnishServer.objects.create(
+        ip='127.0.0.1',
+        port='6082',
+        hostname='localhost-1',
+        secret='secret-1',
+        dc=Dc.objects.create(name='Tokyo', symbol='dc2'),
+        cluster=cluster1,
+        template=template
+    )
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': template}
+        vcl_update(VclTemplate, **kwargs)
+        assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
+
+    settings.SIGNALS = 'off'
+
+
+def test_vcl_update_cluster_filter_for_vcltemplateblock():
+    settings.SIGNALS = 'on'
+
+    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    """
+    Created, but not used, just to check if cluster filtering works.
+    """
+    LogicalCluster.objects.create(name="second cluster")
+    template = VclTemplate.objects.create(name="template")
+    template_block = VclTemplateBlock.objects.create(template=template)
+
+    VarnishServer.objects.create(
+        ip='127.0.0.2',
+        port='6082',
+        hostname='localhost-1',
+        secret='secret-1',
+        dc=Dc.objects.create(name='Tokyo', symbol='dc2'),
+        cluster=cluster1,
+        template=template
+    )
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': template_block}
+        vcl_update(VclTemplateBlock, **kwargs)
+        assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
+
     settings.SIGNALS = 'off'
