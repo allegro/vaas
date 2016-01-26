@@ -7,7 +7,7 @@ from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 
 from vaas.external.request import get_current_request
-from vaas.cluster.models import VarnishServer
+from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe
 
@@ -62,7 +62,10 @@ def regenerate_and_reload_vcl(clusters):
 def vcl_update(sender, **kwargs):
     logger = logging.getLogger('vaas')
 
-    if sender not in [Probe, Backend, Director, VarnishServer]:
+    if sender is None:
+        return
+
+    if sender.__name__ not in settings.REFRESH_TRIGGERS_CLASS:
         return
 
     if settings.SIGNALS != 'on':
@@ -100,5 +103,17 @@ def vcl_update(sender, **kwargs):
         cluster = instance.cluster
         logger.debug("vcl_update(): %s" % str(cluster))
         clusters_to_refresh.append(cluster)
+    # VclTemplate
+    elif sender is VclTemplate:
+        for varnish in VarnishServer.objects.filter(template=instance):
+            if varnish.cluster not in clusters_to_refresh:
+                logger.debug("vcl_update(): %s" % str(varnish.cluster))
+                clusters_to_refresh.append(varnish.cluster)
+    # VclTemplateBlock
+    elif sender is VclTemplateBlock:
+        for varnish in VarnishServer.objects.filter(template=instance.template):
+            if varnish.cluster not in clusters_to_refresh:
+                logger.debug("vcl_update(): %s" % str(varnish.cluster))
+                clusters_to_refresh.append(varnish.cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
