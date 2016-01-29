@@ -57,6 +57,9 @@ class VarnishServer(models.Model):
     template = models.ForeignKey(VclTemplate, on_delete=models.PROTECT)
     cluster = models.ForeignKey(LogicalCluster, on_delete=models.PROTECT)
 
+    def __unicode__(self):
+        return "{}:{} ({})".format(self.ip, self.port, self.hostname)
+
 
 class VclTemplateBlock(models.Model):
     TAG_CHOICES = (
