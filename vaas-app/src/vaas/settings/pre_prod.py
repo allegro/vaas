@@ -10,4 +10,3 @@ TEMPLATE_DEBUG = True
 
 for key, value in YamlConfigLoader().get_config_tree('pre_prod.yml').iteritems():
     globals()[key] = value
-
