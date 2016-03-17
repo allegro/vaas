@@ -3,6 +3,7 @@
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
 from tastypie.authorization import Authorization
 from tastypie import fields
+from tastypie.fields import ListField
 from tastypie.authentication import ApiKeyAuthentication
 
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
@@ -54,6 +55,7 @@ class DirectorResource(ModelResource):
 class BackendResource(ModelResource):
     dc = fields.ForeignKey(DcResource, 'dc', full=True)
     director = fields.ForeignKey(DirectorResource, 'director')
+    tags = ListField()
 
     class Meta:
         queryset = Backend.objects.all()
@@ -66,7 +68,8 @@ class BackendResource(ModelResource):
             'dc': ALL_WITH_RELATIONS,
             'director': ALL_WITH_RELATIONS,
             'address': ['exact'],
-            'port': ['exact']
+            'port': ['exact'],
+            'tag': ALL_WITH_RELATIONS
         }
 
     def dehydrate(self, bundle):
@@ -77,3 +80,21 @@ class BackendResource(ModelResource):
         else:
             bundle.data['status'] = "Unknown"
         return bundle
+
+    def build_filters(self, filters=None):
+        if filters is None:
+            filters = {}
+
+        orm_filters = super(BackendResource, self).build_filters(filters)
+
+        if 'tag' in filters:
+            orm_filters['tags__name__in'] = filters['tag'].split(',')
+        return orm_filters
+
+    def dehydrate_tags(self, bundle):
+        return map(str, bundle.obj.tags.all())
+
+    def save_m2m(self, bundle):
+        tags = bundle.data.get('tags', [])
+        bundle.obj.tags.set(*tags)
+        return super(BackendResource, self).save_m2m(bundle)

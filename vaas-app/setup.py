@@ -110,6 +110,7 @@ setup(
         'django-simple-history==1.5.3',
         'django-secure==1.0.1',
         'lockfile==0.11.0',
+        'django-taggit==0.18.0'
         ],
     entry_points={
         'console_scripts': [

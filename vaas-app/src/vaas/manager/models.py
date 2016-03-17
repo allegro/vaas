@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
+from taggit.managers import TaggableManager
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_backend_name
@@ -135,6 +136,7 @@ class Backend(models.Model):
         on_delete=models.PROTECT
     )
     enabled = models.BooleanField(default=True)
+    tags = TaggableManager(blank=True)
 
     def __unicode__(self):
         return make_backend_name(self)
