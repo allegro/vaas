@@ -68,8 +68,7 @@ class BackendResource(ModelResource):
             'dc': ALL_WITH_RELATIONS,
             'director': ALL_WITH_RELATIONS,
             'address': ['exact'],
-            'port': ['exact'],
-            'tag': ALL_WITH_RELATIONS
+            'port': ['exact']
         }
 
     def dehydrate(self, bundle):
