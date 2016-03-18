@@ -3,7 +3,7 @@
 import logging
 
 from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.conf import settings
 
 from vaas.external.request import get_current_request
@@ -55,6 +55,15 @@ def regenerate_and_reload_vcl(clusters):
         logger.debug("PATH: %s" % request.path)
 
         VclRefreshState.set_refresh(request.id, clusters)
+
+
+def delete_unused_tags(backend):
+    logger = logging.getLogger('vaas')
+    for tag in backend.tags.all():
+        if tag.taggit_taggeditem_items.count() < 2:
+            tag_name = str(tag.name)
+            tag.delete()
+            logger.debug("delete_unused_tags(): %s" % tag_name)
 
 
 @receiver(post_save)
@@ -117,3 +126,9 @@ def vcl_update(sender, **kwargs):
                 clusters_to_refresh.append(varnish.cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
+
+
+@receiver(pre_delete)
+def clean_up_tags(sender, **kwargs):
+    if sender is Backend:
+        delete_unused_tags(sender)
