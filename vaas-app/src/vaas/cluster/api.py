@@ -63,6 +63,9 @@ class VclTemplateResource(ModelResource):
 
 
 class VarnishServerResource(ModelResource):
+
+    cluster = fields.ForeignKey(LogicalClusterResource, 'cluster')
+
     class Meta:
         queryset = VarnishServer.objects.all()
         resource_name = 'varnish_server'
