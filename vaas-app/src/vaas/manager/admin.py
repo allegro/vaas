@@ -3,6 +3,8 @@ from vaas.manager.models import Director, Backend, Probe
 from vaas.manager.forms import DirectorModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+from taggit.models import Tag
+from taggit.admin import TagAdmin
 from tastypie.models import ApiKey
 from django.utils.html import format_html
 from vaas.monitor.models import BackendStatus
@@ -13,6 +15,8 @@ try:
     admin.site.unregister(Group)
     admin.site.unregister(User)
     admin.site.unregister(ApiKey)
+    admin.site.unregister(Tag)
+    admin.site.unregister(TagAdmin)
 except:
     pass
 
@@ -74,13 +78,13 @@ class DirectorAdmin(admin.ModelAdmin):
 
 
 class BackendAdmin(admin.ModelAdmin):
-    search_fields = ['address', 'director__name']
-    list_display = ('address', 'port', 'director', 'dc', 'is_healthy', 'custom_enabled')
+    search_fields = ['address', 'director__name', 'tags__name']
+    list_display = ('address', 'port', 'director', 'dc', 'is_healthy', 'custom_enabled', 'get_tags')
     list_filter = ['director__name', 'director__cluster__name', 'dc__symbol']
     actions = [enable_backend, disable_backend, switch_backend_status]
     fieldsets = (
         (None, {
-            'fields': ('address', 'port', 'director', 'dc', 'weight')
+            'fields': ('address', 'port', 'director', 'dc', 'weight', 'tags')
         }),
         ('Advanced options', {
             'classes': ('collapse',),
@@ -97,6 +101,11 @@ class BackendAdmin(admin.ModelAdmin):
     def get_list_display(self, request):
         self.backend_status_list = BackendStatus.objects.all()
         return super(BackendAdmin, self).get_list_display(request)
+
+    def get_tags(self, obj):
+        return ", ".join([tag.name for tag in obj.tags.all()])
+
+    get_tags.short_description = 'Tags'
 
     def custom_enabled(self, obj):
         if obj.enabled:
