@@ -89,6 +89,9 @@ class vaas_service {
     'django-secure':
       ensure   => '1.0.1',
       provider => pip;
+    'django-taggit':
+      ensure   => '0.18.0',
+      provider => pip;
   } ->
   file {
     '/home/vagrant/vaas/vaas-app/src/vaas/resources/data.yaml':

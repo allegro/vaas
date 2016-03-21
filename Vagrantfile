@@ -7,8 +7,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "vaas", primary: true do |vaas|
 
-    vaas.vm.box_url = "http://box.allegro.tech/vaas_dev_v0.05.box"
-    vaas.vm.box = "vaas_dev_v0.05.box"
+    vaas.vm.box_url = "http://box.allegro.tech/vaas_dev_v0.06.box"
+    vaas.vm.box = "vaas_dev_v0.06.box"
 
     vaas.vm.synced_folder ".", "/home/vagrant/vaas"
 
