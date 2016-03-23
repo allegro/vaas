@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 
 from tastypie import fields
 from django.db import models
@@ -33,6 +34,7 @@ class VclTemplate(models.Model):
     name = models.CharField(max_length=50, unique=True)
     content = models.TextField()
     version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='3.0')
+    comment = models.CharField(max_length=64)
     history = HistoricalRecords()
 
     def __unicode__(self):

@@ -82,8 +82,12 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ['tag', 'template']
 
 
+class VclTemplateAdmin(SimpleHistoryAdmin):
+    object_history_template = "custom_simple_history/object_history.html"
+
+
 admin.site.register(VarnishServer, VarnishServerAdmin)
-admin.site.register(VclTemplate, SimpleHistoryAdmin)
+admin.site.register(VclTemplate, VclTemplateAdmin)
 admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
 admin.site.register(Dc)
 admin.site.register(LogicalCluster)
