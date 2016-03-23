@@ -93,6 +93,11 @@ class BackendResource(ModelResource):
     def dehydrate_tags(self, bundle):
         return map(str, bundle.obj.tags.all())
 
+    def hydrate_tags(self, bundle):
+        if bundle.data.get('tags') is None:
+            bundle.data['tags'] = ''
+        return bundle
+
     def save_m2m(self, bundle):
         tags = bundle.data.get('tags', [])
         bundle.obj.tags.set(*tags)
