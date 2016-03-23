@@ -81,9 +81,9 @@ class VarnishServerAdmin(admin.ModelAdmin):
 class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ['tag', 'template']
 
+
 class VclTemplateAdmin(SimpleHistoryAdmin):
     object_history_template = "custom_simple_history/object_history.html"
-
 
 
 admin.site.register(VarnishServer, VarnishServerAdmin)
