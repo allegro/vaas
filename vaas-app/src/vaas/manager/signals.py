@@ -130,5 +130,6 @@ def vcl_update(sender, **kwargs):
 
 @receiver(pre_delete)
 def clean_up_tags(sender, **kwargs):
+    instance = kwargs['instance']
     if sender is Backend:
-        delete_unused_tags(sender)
+        delete_unused_tags(instance)
