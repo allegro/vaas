@@ -96,7 +96,6 @@ class BackendResource(ModelResource):
     def hydrate_tags(self, bundle):
         if isinstance(bundle.data['tags'], list):
             bundle.data['tags'] = ','.join(bundle.data['tags'])
-
         return bundle
 
     def save_m2m(self, bundle):
