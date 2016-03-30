@@ -94,8 +94,9 @@ class BackendResource(ModelResource):
         return map(str, bundle.obj.tags.all())
 
     def hydrate_tags(self, bundle):
-        if bundle.data.get('tags') is None:
-            bundle.data['tags'] = ''
+        if isinstance(bundle.data['tags'], list):
+            bundle.data['tags'] = ','.join(bundle.data['tags'])
+
         return bundle
 
     def save_m2m(self, bundle):
