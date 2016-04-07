@@ -75,10 +75,11 @@ class VarnishApiProviderTest(TestCase):
             'secret-2': None,
             'secret-3': None
         }
-        raise_timeout = lambda host_port_timeout, secret: api_init_side_effect[secret]
 
         with patch('vaas.cluster.cluster.ServerExtractor', Mock(return_value=sample_extractor)):
-            with patch.object(VarnishApi, '__init__', side_effect=raise_timeout) as construct_mock:
+            with patch.object(
+                VarnishApi, '__init__', side_effect=lambda host_port_timeout, secret: api_init_side_effect[secret]
+            ) as construct_mock:
                 with patch('telnetlib.Telnet.close', Mock()):
                     varnish_cluster = VarnishApiProvider()
                     api_objects = []
