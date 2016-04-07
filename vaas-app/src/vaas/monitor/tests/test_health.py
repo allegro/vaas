@@ -44,7 +44,7 @@ class BackendStatusManagerTest(TestCase):
         varnish_api_mock.fetch.return_value = (None, backend_list_raw_response)
 
         varnish_api_provider_mock = Mock()
-        varnish_api_provider_mock.get_varnish_api.return_value = iter([varnish_api_mock])
+        varnish_api_provider_mock.get_connected_varnish_api.return_value = iter([varnish_api_mock])
 
         expected_backend_to_status_map = {
             '127.0.0.1:80': 'Sick',
