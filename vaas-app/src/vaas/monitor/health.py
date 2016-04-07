@@ -7,7 +7,7 @@ import logging
 from django.utils.timezone import utc
 
 from vaas.monitor.models import BackendStatus
-from vaas.cluster.cluster import VarnishApiProvider, VclLoadException
+from vaas.cluster.cluster import VarnishApiProvider, VclLoadException, ServerExtractor
 
 
 class BackendStatusManager(object):
@@ -20,7 +20,7 @@ class BackendStatusManager(object):
         backend_to_status_map = {}
 
         try:
-            for varnish_api in self.varnish_api_provider.get_varnish_api():
+            for varnish_api in self.varnish_api_provider.get_connected_varnish_api():
                 backend_statuses = varnish_api.fetch('backend.list')[1][0:].split('\n')
 
                 for backend in backend_statuses:

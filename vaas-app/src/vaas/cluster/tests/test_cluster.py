@@ -63,6 +63,38 @@ class VarnishApiProviderTest(TestCase):
                     assert_equals(3, len(api_objects))
                     assert_list_equal(expected_construct_args, construct_mock.call_args_list)
 
+    def test_should_create_varnish_api_for_connected_servers(self):
+        expected_construct_args = [
+            call(['127.0.0.1', '6082', 1.0], 'secret-1'),
+            call(['127.0.0.2', '6083', 1.0], 'secret-2'),
+            call(['127.0.0.3', '6084', 1.0], 'secret-3')]
+        sample_extractor = Mock(servers=servers)
+
+        api_init_side_effect = {
+            'secret-1': Exception(),
+            'secret-2': None,
+            'secret-3': None
+        }
+        raise_timeout = lambda host_port_timeout, secret: api_init_side_effect[secret]
+
+        with patch('vaas.cluster.cluster.ServerExtractor', Mock(return_value=sample_extractor)):
+            with patch.object(VarnishApi, '__init__', side_effect=raise_timeout) as construct_mock:
+                with patch('telnetlib.Telnet.close', Mock()):
+                    varnish_cluster = VarnishApiProvider()
+                    api_objects = []
+                    for api in varnish_cluster.get_connected_varnish_api():
+                        """
+                        Workaround - we cannot mock __del__ method:
+                        https://docs.python.org/3/library/unittest.mock.html
+
+                        We inject sock field to eliminate warning raised by cleaning actions in __del__ method
+                        """
+                        api.sock = None
+                        api_objects.append(api)
+
+                    assert_equals(2, len(api_objects))
+                    assert_list_equal(expected_construct_args, construct_mock.call_args_list)
+
     def test_should_throw_vcl_load_exception_on_any_error_while_connecting_to_varnish_api(self):
         with patch.object(VarnishApi, '__init__', side_effect=Exception):
             with patch.object(VarnishApi, '__del__'):
