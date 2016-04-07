@@ -120,14 +120,14 @@ class Backend(models.Model):
         default='5',
         decimal_places=2,
         max_digits=4,
-        choices=generate_choices(1, 4501, 100),
+        choices=generate_choices(1, 8001, 100),
         verbose_name=u'First byte timeout (s)'
     )
     between_bytes_timeout = NormalizedDecimalField(
         default='1',
         decimal_places=2,
         max_digits=4,
-        choices=generate_choices(1, 4501, 100),
+        choices=generate_choices(1, 8001, 100),
         verbose_name=u'Between bytes timeout (s)'
     )
     director = models.ForeignKey(
