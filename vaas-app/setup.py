@@ -9,12 +9,6 @@ from setuptools.command.test import test
 from setuptools.command.install import install
 from setuptools.command.egg_info import egg_info as org_egg_info
 
-with open('requirements/base.txt') as f:
-    base_requirements = f.read().splitlines()
-
-with open('requirements/test.txt') as f:
-    test_requirements = f.read().splitlines()
-
 assert sys.version_info >= (2, 7), "Python 2.7+ required."
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -75,6 +69,14 @@ class VaaSEggInfo(org_egg_info):
                 print "Info: Cannot import: %s, ommit custom egg_info" % (e.message)
         org_egg_info.run(self)
 
+with open('./requirements/base.txt') as f:
+    base_requirements = f.read().splitlines()
+
+with open('./requirements/test.txt') as f:
+    test_requirements = f.read().splitlines()
+
+base_requirements = [x for x in base_requirements if x.find('==') != -1]
+test_requirements = [x for x in test_requirements if x.find('==') != -1]
 
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
