@@ -1,0 +1,51 @@
+version: '2'
+services:
+  nginx-0:
+    image: allegro/vaas-nginx
+    ports:
+      - "8080:80"
+    restart: always
+  nginx-1:
+    image: allegro/vaas-nginx
+    ports:
+      - "8081:80"
+    restart: always
+  nginx-2:
+    image: allegro/vaas-nginx
+    ports:
+      - "8082:80"
+    restart: always
+  nginx-3:
+    image: allegro/vaas-nginx
+    ports:
+      - "8083:80"
+    restart: always
+  nginx-4:
+    image: allegro/vaas-nginx
+    ports:
+      - "8084:80"
+    restart: always
+  nginx-5:
+    image: allegro/vaas-nginx
+    ports:
+      - "8085:80"
+    restart: always
+  varnish-3:
+    image: allegro/vaas-varnish-3
+    ports:
+      - "60821:6082"
+      - "8000:6081"
+    restart: always
+  varnish-4:
+    image: allegro/vaas-varnish-4
+    ports:
+      - "60822:6082"
+      - "8001:6081"
+    restart: always
+  varnish-4.1:
+    build: ./vagrant/docker/varnish-4.1
+    image: allegro/vaas-varnish-4.1
+    ports:
+      - "60823:6082"
+      - "8002:6081"
+    restart: always

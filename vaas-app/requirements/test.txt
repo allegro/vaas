@@ -1,0 +1,5 @@
+-r base.txt
+mock==1.0.1
+nose-exclude==0.2.0
+pep8==1.5.7
+factory-boy==2.5.2
