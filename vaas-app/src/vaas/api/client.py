@@ -15,6 +15,13 @@ class VarnishApi(varnish.VarnishHandler):
         self.id = host_port_timeout[0]
         varnish.VarnishHandler.__init__(self, host_port_timeout, secret, **kwargs)
 
+    def vcl_list(self):
+        vcls = {}
+        for line in self.fetch('vcl.list')[1].splitlines():
+            a = line.split()
+            vcls[a[-1]] = tuple(a[:-1])
+        return vcls
+
     def vcls(self):
         """List active vcl and available vcls"""
         vcl_list = self.vcl_list()
