@@ -7,6 +7,7 @@ import logging
 from django.utils.timezone import utc
 
 from vaas.monitor.models import BackendStatus
+from vaas.manager.models import Backend
 from vaas.cluster.cluster import VarnishApiProvider, VclLoadException, ServerExtractor
 
 
@@ -16,20 +17,24 @@ class BackendStatusManager(object):
         self.logger = logging.getLogger('vaas')
 
     def load_from_varnish(self):
-        pattern = re.compile("\((\d+\.\d+\.\d+\.\d+),[^,]*,(\d+)\)\s+\w+\s+\w+\s+(\w+)")
+        pattern = re.compile("^((?:.*_){5}[^(\s]*)")
         backend_to_status_map = {}
+        backends = {x.pk: "{}:{}".format(x.address, x.port) for x in Backend.objects.all()}
 
         try:
             for varnish_api in self.varnish_api_provider.get_connected_varnish_api():
-                backend_statuses = varnish_api.fetch('backend.list')[1][0:].split('\n')
+                backend_statuses = map(lambda x: x.split(), varnish_api.fetch('backend.list')[1][0:].split('\n'))
 
-                for backend in backend_statuses:
-                    ips = re.search(pattern, backend)
-                    if ips is not None:
-                        backend_address = str(ips.group(1)) + ':' + str(ips.group(2))
+                for backend_status in backend_statuses:
+                    if len(backend_status):
+                        backend = re.search(pattern, backend_status[0])
 
-                        if backend_address not in backend_to_status_map or ips.group(3) == 'Sick':
-                            backend_to_status_map[backend_address] = ips.group(3)
+                        if backend is not None:
+                            backend_id = int(backend.group(1).split('_')[-5])
+                            status = backend_status[-2]
+                            if backend_id not in backend_to_status_map or status == 'Sick':
+                                backend_address = backends[backend_id]
+                                backend_to_status_map[backend_address] = status
 
         except VclLoadException as e:
             self.logger.warning("Some backends' status could not be refreshed: %s" % e)
