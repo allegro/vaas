@@ -1,51 +1,56 @@
 version: '2'
+networks:
+  vaas:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.199.0/24
+        gateway: 192.168.199.1
 services:
   nginx-0:
     image: allegro/vaas-nginx
-    ports:
-      - "8080:80"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.10
   nginx-1:
     image: allegro/vaas-nginx
-    ports:
-      - "8081:80"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.11
   nginx-2:
     image: allegro/vaas-nginx
-    ports:
-      - "8082:80"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.12
   nginx-3:
     image: allegro/vaas-nginx
-    ports:
-      - "8083:80"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.13
   nginx-4:
     image: allegro/vaas-nginx
-    ports:
-      - "8084:80"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.14
   nginx-5:
     image: allegro/vaas-nginx
-    ports:
-      - "8085:80"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.15
   varnish-3:
     image: allegro/vaas-varnish-3
-    ports:
-      - "60821:6082"
-      - "8000:6081"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.2
   varnish-4:
     image: allegro/vaas-varnish-4
-    ports:
-      - "60822:6082"
-      - "8001:6081"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.3
   varnish-4.1:
     build: ./vagrant/docker/varnish-4.1
     image: allegro/vaas-varnish-4.1
-    ports:
-      - "60823:6082"
-      - "8002:6081"
-    restart: always
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.4

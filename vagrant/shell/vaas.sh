@@ -2,6 +2,8 @@
 
 VAAS_SRC_HOME='/home/vagrant/vaas/vaas-app/src'
 
+sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
+
 # Kill the server if it is already running:
 server_pids=$(ps -ef|awk '/manage.py[ ]runserver/ {print $2}'|xargs)
 if [ "$server_pids" != '' ] ; then

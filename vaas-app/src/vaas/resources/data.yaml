@@ -1,71 +1,42 @@
-- fields: {app_label: admin, model: logentry, name: log entry}
-  model: contenttypes.contenttype
+# To generate a new data.yaml file run:
+# ./manage.py dumpdata cluster.LogicalCluster manager.Probe cluster.Dc cluster.VclTemplate \
+# manager.Director manager.Backend cluster.VarnishServer auth.user --format yaml --natural
+- fields: {name: cluster1_siteA_test}
+  model: cluster.logicalcluster
   pk: 1
-- fields: {app_label: auth, model: permission, name: permission}
-  model: contenttypes.contenttype
+- fields: {name: cluster2_siteB_test}
+  model: cluster.logicalcluster
   pk: 2
-- fields: {app_label: auth, model: group, name: group}
-  model: contenttypes.contenttype
+- fields: {name: cluster3_siteA_dev}
+  model: cluster.logicalcluster
   pk: 3
-- fields: {app_label: auth, model: user, name: user}
-  model: contenttypes.contenttype
+- fields: {name: cluster4_siteC_prod}
+  model: cluster.logicalcluster
   pk: 4
-- fields: {app_label: contenttypes, model: contenttype, name: content type}
-  model: contenttypes.contenttype
-  pk: 5
-- fields: {app_label: sessions, model: session, name: session}
-  model: contenttypes.contenttype
-  pk: 6
-- fields: {app_label: manager, model: probe, name: probe}
-  model: contenttypes.contenttype
-  pk: 7
-- fields: {app_label: manager, model: director, name: director}
-  model: contenttypes.contenttype
-  pk: 8
-- fields: {app_label: manager, model: backend, name: backend}
-  model: contenttypes.contenttype
-  pk: 9
-- fields: {app_label: cluster, model: logicalcluster, name: logical cluster}
-  model: contenttypes.contenttype
-  pk: 10
-- fields: {app_label: cluster, model: dc, name: dc}
-  model: contenttypes.contenttype
-  pk: 11
-- fields: {app_label: cluster, model: historicalvcltemplate, name: historical vcl
-      template}
-  model: contenttypes.contenttype
-  pk: 12
-- fields: {app_label: cluster, model: vcltemplate, name: vcl template}
-  model: contenttypes.contenttype
-  pk: 13
-- fields: {app_label: cluster, model: varnishserver, name: varnish server}
-  model: contenttypes.contenttype
-  pk: 14
-- fields: {app_label: cluster, model: historicalvcltemplateblock, name: historical
-      vcl template block}
-  model: contenttypes.contenttype
-  pk: 15
-- fields: {app_label: cluster, model: vcltemplateblock, name: vcl template block}
-  model: contenttypes.contenttype
-  pk: 16
-- fields: {app_label: monitor, model: backendstatus, name: backend status}
-  model: contenttypes.contenttype
-  pk: 17
-- fields: {app_label: taggit, model: tag, name: Tag}
-  model: contenttypes.contenttype
-  pk: 18
-- fields: {app_label: taggit, model: taggeditem, name: Tagged Item}
-  model: contenttypes.contenttype
-  pk: 19
-- fields: {app_label: tastypie, model: apiaccess, name: api access}
-  model: contenttypes.contenttype
-  pk: 20
-- fields: {app_label: tastypie, model: apikey, name: api key}
-  model: contenttypes.contenttype
-  pk: 21
 - fields: {name: First datacenter, symbol: dc1}
   model: cluster.dc
   pk: 1
+- fields: {comment: '', content: <VCL/>, name: vagrant_template_3, version: '3.0'}
+  model: cluster.vcltemplate
+  pk: 1
+- fields: {comment: '', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
+  model: cluster.vcltemplate
+  pk: 2
+- fields: {cluster: 1, cluster_weight: 1, dc: 1, enabled: true, hostname: varnish-3,
+    ip: 192.168.199.2, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
+    template: 1}
+  model: cluster.varnishserver
+  pk: 1
+- fields: {cluster: 2, cluster_weight: 1, dc: 1, enabled: true, hostname: varnish-4,
+    ip: 192.168.199.3, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
+    template: 2}
+  model: cluster.varnishserver
+  pk: 2
+- fields: {cluster: 2, cluster_weight: 1, dc: 1, enabled: true, hostname: varnish-4.1,
+    ip: 192.168.199.4, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
+    template: 2}
+  model: cluster.varnishserver
+  pk: 3
 - fields: {expected_response: 200, interval: 3, name: default_probe, threshold: 3,
     timeout: '1', url: /ts.1, window: 5}
   model: manager.probe
@@ -96,274 +67,36 @@
     router: req.http.host
   model: manager.director
   pk: 2
-- fields: {address: 127.0.0.10, between_bytes_timeout: '1', connect_timeout: '0.3',
+- fields: {address: 192.168.199.10, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 8080, weight: 1}
+    port: 80, weight: 1}
   model: manager.backend
   pk: 1
-- fields: {address: 127.0.0.11, between_bytes_timeout: '1', connect_timeout: '0.3',
+- fields: {address: 192.168.199.11, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 8081, weight: 1}
+    port: 80, weight: 1}
   model: manager.backend
   pk: 2
-- fields: {address: 127.0.0.12, between_bytes_timeout: '1', connect_timeout: '0.3',
+- fields: {address: 192.168.199.12, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 8082, weight: 2}
+    port: 80, weight: 2}
   model: manager.backend
   pk: 3
-- fields: {address: 127.0.0.13, between_bytes_timeout: '1', connect_timeout: '0.3',
+- fields: {address: 192.168.199.13, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 8083, weight: 3}
+    port: 80, weight: 3}
   model: manager.backend
   pk: 4
-- fields: {address: 127.0.0.14, between_bytes_timeout: '1', connect_timeout: '0.3',
+- fields: {address: 192.168.199.14, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 8084, weight: 4}
+    port: 80, weight: 4}
   model: manager.backend
   pk: 5
-- fields: {address: 127.0.0.15, between_bytes_timeout: '1', connect_timeout: '0.3',
+- fields: {address: 192.168.199.15, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 8085, weight: 5}
+    port: 80, weight: 5}
   model: manager.backend
   pk: 6
-- fields: {name: cluster1_siteA_test}
-  model: cluster.logicalcluster
-  pk: 1
-- fields: {name: cluster2_siteB_test}
-  model: cluster.logicalcluster
-  pk: 2
-- fields: {name: cluster3_siteA_dev}
-  model: cluster.logicalcluster
-  pk: 3
-- fields: {name: cluster4_siteC_prod}
-  model: cluster.logicalcluster
-  pk: 4
-- fields: {comment: '', content: <VCL/>, name: vagrant_template_3, version: '3.0'}
-  model: cluster.vcltemplate
-  pk: 1
-- fields: {comment: '', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
-  model: cluster.vcltemplate
-  pk: 2
-- fields: {cluster: 1, cluster_weight: 1, dc: 1, enabled: true, hostname: varnish-3,
-    ip: 127.0.0.1, port: 60821, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, template: 1}
-  model: cluster.varnishserver
-  pk: 1
-- fields: {cluster: 2, cluster_weight: 1, dc: 1, enabled: true, hostname: varnish-4,
-    ip: 127.0.0.2, port: 60822, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, template: 2}
-  model: cluster.varnishserver
-  pk: 2
-- fields: {cluster: 2, cluster_weight: 1, dc: 1, enabled: true, hostname: varnish-4.1,
-    ip: 127.0.0.3, port: 60823, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, template: 2}
-  model: cluster.varnishserver
-  pk: 3
-- fields: {codename: add_logentry, content_type: 1, name: Can add log entry}
-  model: auth.permission
-  pk: 1
-- fields: {codename: change_logentry, content_type: 1, name: Can change log entry}
-  model: auth.permission
-  pk: 2
-- fields: {codename: delete_logentry, content_type: 1, name: Can delete log entry}
-  model: auth.permission
-  pk: 3
-- fields: {codename: add_permission, content_type: 2, name: Can add permission}
-  model: auth.permission
-  pk: 4
-- fields: {codename: change_permission, content_type: 2, name: Can change permission}
-  model: auth.permission
-  pk: 5
-- fields: {codename: delete_permission, content_type: 2, name: Can delete permission}
-  model: auth.permission
-  pk: 6
-- fields: {codename: add_group, content_type: 3, name: Can add group}
-  model: auth.permission
-  pk: 7
-- fields: {codename: change_group, content_type: 3, name: Can change group}
-  model: auth.permission
-  pk: 8
-- fields: {codename: delete_group, content_type: 3, name: Can delete group}
-  model: auth.permission
-  pk: 9
-- fields: {codename: add_user, content_type: 4, name: Can add user}
-  model: auth.permission
-  pk: 10
-- fields: {codename: change_user, content_type: 4, name: Can change user}
-  model: auth.permission
-  pk: 11
-- fields: {codename: delete_user, content_type: 4, name: Can delete user}
-  model: auth.permission
-  pk: 12
-- fields: {codename: add_contenttype, content_type: 5, name: Can add content type}
-  model: auth.permission
-  pk: 13
-- fields: {codename: change_contenttype, content_type: 5, name: Can change content
-      type}
-  model: auth.permission
-  pk: 14
-- fields: {codename: delete_contenttype, content_type: 5, name: Can delete content
-      type}
-  model: auth.permission
-  pk: 15
-- fields: {codename: add_session, content_type: 6, name: Can add session}
-  model: auth.permission
-  pk: 16
-- fields: {codename: change_session, content_type: 6, name: Can change session}
-  model: auth.permission
-  pk: 17
-- fields: {codename: delete_session, content_type: 6, name: Can delete session}
-  model: auth.permission
-  pk: 18
-- fields: {codename: add_probe, content_type: 7, name: Can add probe}
-  model: auth.permission
-  pk: 19
-- fields: {codename: change_probe, content_type: 7, name: Can change probe}
-  model: auth.permission
-  pk: 20
-- fields: {codename: delete_probe, content_type: 7, name: Can delete probe}
-  model: auth.permission
-  pk: 21
-- fields: {codename: add_director, content_type: 8, name: Can add director}
-  model: auth.permission
-  pk: 22
-- fields: {codename: change_director, content_type: 8, name: Can change director}
-  model: auth.permission
-  pk: 23
-- fields: {codename: delete_director, content_type: 8, name: Can delete director}
-  model: auth.permission
-  pk: 24
-- fields: {codename: add_backend, content_type: 9, name: Can add backend}
-  model: auth.permission
-  pk: 25
-- fields: {codename: change_backend, content_type: 9, name: Can change backend}
-  model: auth.permission
-  pk: 26
-- fields: {codename: delete_backend, content_type: 9, name: Can delete backend}
-  model: auth.permission
-  pk: 27
-- fields: {codename: add_logicalcluster, content_type: 10, name: Can add logical cluster}
-  model: auth.permission
-  pk: 28
-- fields: {codename: change_logicalcluster, content_type: 10, name: Can change logical
-      cluster}
-  model: auth.permission
-  pk: 29
-- fields: {codename: delete_logicalcluster, content_type: 10, name: Can delete logical
-      cluster}
-  model: auth.permission
-  pk: 30
-- fields: {codename: add_dc, content_type: 11, name: Can add dc}
-  model: auth.permission
-  pk: 31
-- fields: {codename: change_dc, content_type: 11, name: Can change dc}
-  model: auth.permission
-  pk: 32
-- fields: {codename: delete_dc, content_type: 11, name: Can delete dc}
-  model: auth.permission
-  pk: 33
-- fields: {codename: add_historicalvcltemplate, content_type: 12, name: Can add historical
-      vcl template}
-  model: auth.permission
-  pk: 34
-- fields: {codename: change_historicalvcltemplate, content_type: 12, name: Can change
-      historical vcl template}
-  model: auth.permission
-  pk: 35
-- fields: {codename: delete_historicalvcltemplate, content_type: 12, name: Can delete
-      historical vcl template}
-  model: auth.permission
-  pk: 36
-- fields: {codename: add_vcltemplate, content_type: 13, name: Can add vcl template}
-  model: auth.permission
-  pk: 37
-- fields: {codename: change_vcltemplate, content_type: 13, name: Can change vcl template}
-  model: auth.permission
-  pk: 38
-- fields: {codename: delete_vcltemplate, content_type: 13, name: Can delete vcl template}
-  model: auth.permission
-  pk: 39
-- fields: {codename: add_varnishserver, content_type: 14, name: Can add varnish server}
-  model: auth.permission
-  pk: 40
-- fields: {codename: change_varnishserver, content_type: 14, name: Can change varnish
-      server}
-  model: auth.permission
-  pk: 41
-- fields: {codename: delete_varnishserver, content_type: 14, name: Can delete varnish
-      server}
-  model: auth.permission
-  pk: 42
-- fields: {codename: add_historicalvcltemplateblock, content_type: 15, name: Can add
-      historical vcl template block}
-  model: auth.permission
-  pk: 43
-- fields: {codename: change_historicalvcltemplateblock, content_type: 15, name: Can
-      change historical vcl template block}
-  model: auth.permission
-  pk: 44
-- fields: {codename: delete_historicalvcltemplateblock, content_type: 15, name: Can
-      delete historical vcl template block}
-  model: auth.permission
-  pk: 45
-- fields: {codename: add_vcltemplateblock, content_type: 16, name: Can add vcl template
-      block}
-  model: auth.permission
-  pk: 46
-- fields: {codename: change_vcltemplateblock, content_type: 16, name: Can change vcl
-      template block}
-  model: auth.permission
-  pk: 47
-- fields: {codename: delete_vcltemplateblock, content_type: 16, name: Can delete vcl
-      template block}
-  model: auth.permission
-  pk: 48
-- fields: {codename: add_backendstatus, content_type: 17, name: Can add backend status}
-  model: auth.permission
-  pk: 49
-- fields: {codename: change_backendstatus, content_type: 17, name: Can change backend
-      status}
-  model: auth.permission
-  pk: 50
-- fields: {codename: delete_backendstatus, content_type: 17, name: Can delete backend
-      status}
-  model: auth.permission
-  pk: 51
-- fields: {codename: add_tag, content_type: 18, name: Can add Tag}
-  model: auth.permission
-  pk: 52
-- fields: {codename: change_tag, content_type: 18, name: Can change Tag}
-  model: auth.permission
-  pk: 53
-- fields: {codename: delete_tag, content_type: 18, name: Can delete Tag}
-  model: auth.permission
-  pk: 54
-- fields: {codename: add_taggeditem, content_type: 19, name: Can add Tagged Item}
-  model: auth.permission
-  pk: 55
-- fields: {codename: change_taggeditem, content_type: 19, name: Can change Tagged
-      Item}
-  model: auth.permission
-  pk: 56
-- fields: {codename: delete_taggeditem, content_type: 19, name: Can delete Tagged
-      Item}
-  model: auth.permission
-  pk: 57
-- fields: {codename: add_apiaccess, content_type: 20, name: Can add api access}
-  model: auth.permission
-  pk: 58
-- fields: {codename: change_apiaccess, content_type: 20, name: Can change api access}
-  model: auth.permission
-  pk: 59
-- fields: {codename: delete_apiaccess, content_type: 20, name: Can delete api access}
-  model: auth.permission
-  pk: 60
-- fields: {codename: add_apikey, content_type: 21, name: Can add api key}
-  model: auth.permission
-  pk: 61
-- fields: {codename: change_apikey, content_type: 21, name: Can change api key}
-  model: auth.permission
-  pk: 62
-- fields: {codename: delete_apikey, content_type: 21, name: Can delete api key}
-  model: auth.permission
-  pk: 63
 - fields:
     email: admin@vaas.allegrogroup.com
     first_name: ''
@@ -378,15 +111,6 @@
     username: admin
   model: auth.user
   pk: 1
-- fields: {comment: '', content: <VCL/>, history_date: '2016-04-13 07:13:14.187435+00:00',
-    history_type: +, history_user: null, id: 1, name: vagrant_template_3, version: '3.0'}
-  model: cluster.historicalvcltemplate
-  pk: 1
-- fields: {comment: '', content: <VCL/>, history_date: '2016-04-13 07:13:14.187435+00:00',
-    history_type: +, history_user: null, id: 2, name: vagrant_template_4, version: '4.0'}
-  model: cluster.historicalvcltemplate
-  pk: 2
-- fields: {created: '2016-04-13 07:13:14.187435+00:00', key: vagrant_api_key,
-    user: 1}
+- fields: {created: '2014-12-12 12:00:00+00:00', key: vagrant_api_key, user: 1}
   model: tastypie.apikey
   pk: 1

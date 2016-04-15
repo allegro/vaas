@@ -19,7 +19,7 @@ This will spawn a Virtual Box machine and mount VaaS repo as a local file system
 
 Log in to VaaS
 --------------
-Point your browser to <http://192.168.200.11:3030/> and log in using the following credentials:
+Point your browser to <http://localhost:3030/> and log in using the following credentials:
 
     User: admin
     Password: admin

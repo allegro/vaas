@@ -7,12 +7,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "vaas", primary: true do |vaas|
 
-    vaas.vm.box_url = "http://box.allegro.tech/vaas_dev_v0.07.box"
-    vaas.vm.box = "vaas_dev_v0.07.box"
+    vaas.vm.box_url = "http://box.allegro.tech/vaas_dev_v0.08.box"
+    vaas.vm.box = "vaas_dev_v0.08.box"
     vaas.vm.synced_folder ".", "/home/vagrant/vaas"
     vaas.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
 
   end
+
   config.vm.define "pluton", autostart: false do |pluton|
 
     pluton.vm.box = "ubuntu/trusty64"
@@ -28,7 +29,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.memory = 1024
   end
 
-  config.vm.network "private_network", ip: "192.168.200.11"
   config.vm.network "forwarded_port", guest: 3030, host: 3030
 
 end

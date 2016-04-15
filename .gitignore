@@ -11,3 +11,4 @@ nohup.out
 vaas-app/src/vaas/static/
 vagrant/puppet/manifests/build/
 site/
+venv/

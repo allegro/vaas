@@ -8,7 +8,6 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | sudo tee /etc
 # install packages
 sudo apt-get update -y
 sudo apt-get -y install docker-engine python-virtualenv python-pip
-sudo pip install docker-compose
 sudo pip install virtualenv
 
 # prepare venv
@@ -17,6 +16,3 @@ virtualenv venv
 source venv/bin/activate
 pip install -r vaas/vaas-app/requirements/test.txt
 echo ". venv/bin/activate" >> ~/.bash_profile
-
-# prepare docker containers
-sudo docker-compose -f ./vaas/docker-compose.yml up -d
