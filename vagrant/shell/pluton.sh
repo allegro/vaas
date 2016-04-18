@@ -14,5 +14,5 @@ sudo pip install virtualenv
 cd ~/
 virtualenv venv
 source venv/bin/activate
-pip install -r vaas/vaas-app/requirements/test.txt
+pip install -r vaas/vaas-app/requirements/dev.txt
 echo ". venv/bin/activate" >> ~/.bash_profile
