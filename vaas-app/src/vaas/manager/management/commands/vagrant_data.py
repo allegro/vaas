@@ -26,12 +26,12 @@ class Command(BaseCommand):
         second_director = Director.objects.create(
             name='second_service', router='req.http.host', route_expression='second.*', mode='round-robin', probe=probe
         )
-        Backend.objects.create(dc=dc1, director=first_director, address='192.168.200.10', port=8080, weight=1)
-        Backend.objects.create(dc=dc1, director=first_director, address='192.168.200.11', port=8081, weight=1)
-        Backend.objects.create(dc=dc1, director=first_director, address='192.168.200.12', port=8082, weight=2)
-        Backend.objects.create(dc=dc1, director=second_director, address='192.168.200.13', port=8083, weight=3)
-        Backend.objects.create(dc=dc1, director=second_director, address='192.168.200.14', port=8084, weight=4)
-        Backend.objects.create(dc=dc1, director=second_director, address='192.168.200.15', port=8085, weight=5)
+        Backend.objects.create(dc=dc1, director=first_director, address='192.168.199.10', port=80, weight=1)
+        Backend.objects.create(dc=dc1, director=first_director, address='192.168.199.11', port=80, weight=1)
+        Backend.objects.create(dc=dc1, director=first_director, address='192.168.199.12', port=80, weight=2)
+        Backend.objects.create(dc=dc1, director=second_director, address='192.168.199.13', port=80, weight=3)
+        Backend.objects.create(dc=dc1, director=second_director, address='192.168.199.14', port=80, weight=4)
+        Backend.objects.create(dc=dc1, director=second_director, address='192.168.199.15', port=80, weight=5)
 
         cluster1_siteA_test = LogicalCluster.objects.create(name='cluster1_siteA_test')
         cluster2_siteB_test = LogicalCluster.objects.create(name='cluster2_siteB_test')
@@ -44,7 +44,7 @@ class Command(BaseCommand):
         second_director.cluster.add(2)
 
         VarnishServer.objects.create(
-            ip='192.168.200.10',
+            ip='192.168.199.2',
             port=6082,
             hostname='varnish-3',
             dc=dc1,
@@ -55,9 +55,20 @@ class Command(BaseCommand):
             cluster=cluster1_siteA_test
         )
         VarnishServer.objects.create(
-            ip='192.168.200.11',
+            ip='192.168.199.3',
             port=6082,
             hostname='varnish-4',
+            dc=dc1,
+            template=template4,
+            cluster_weight=1,
+            secret='edcf6c52-6f93-4d0d-82b9-cd74239146b0',
+            enabled=True,
+            cluster=cluster2_siteB_test
+        )
+        VarnishServer.objects.create(
+            ip='192.168.199.4',
+            port=6082,
+            hostname='varnish-4.1',
             dc=dc1,
             template=template4,
             cluster_weight=1,

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 VAAS_SRC_HOME='/home/vagrant/vaas/vaas-app/src'
-VAAS_PUPPET_FILES='/home/vagrant/vaas/vagrant/puppet/files'
+
+sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 
 # Kill the server if it is already running:
 server_pids=$(ps -ef|awk '/manage.py[ ]runserver/ {print $2}'|xargs)
@@ -10,15 +11,18 @@ if [ "$server_pids" != '' ] ; then
 fi
 
 if [ ! -f $VAAS_SRC_HOME/vaas/settings/__init__.py ] ; then
-  cp $VAAS_PUPPET_FILES/init_local_settings.py $VAAS_SRC_HOME/vaas/settings/__init__.py
+cat <<EOF >  $VAAS_SRC_HOME/vaas/settings/__init__.py
+"from vaas.settings.base import *
+from vaas.settings.production import *
+EOF
 fi
 
 if [ ! -f $VAAS_SRC_HOME/vaas/resources/db_config.yml ] ; then
-  cp $VAAS_PUPPET_FILES/db_config.yml $VAAS_SRC_HOME/vaas/resources/db_config.yml
-fi
-
-if [ ! -f $VAAS_SRC_HOME/vaas/resources/data.yaml ] ; then
-  cp $VAAS_PUPPET_FILES/data.yaml $VAAS_SRC_HOME/vaas/resources/data.yaml
+cat <<EOF > $VAAS_SRC_HOME/vaas/resources/db_config.yml
+default:
+  ENGINE: 'django.db.backends.sqlite3'
+  NAME: /tmp/db.sqlite3
+EOF
 fi
 
 if [ ! -f /tmp/db.sqlite3 ] ; then

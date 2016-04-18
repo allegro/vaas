@@ -69,6 +69,14 @@ class VaaSEggInfo(org_egg_info):
                 print "Info: Cannot import: %s, ommit custom egg_info" % (e.message)
         org_egg_info.run(self)
 
+with open('./requirements/base.txt') as f:
+    base_requirements = f.read().splitlines()
+
+with open('./requirements/test.txt') as f:
+    test_requirements = f.read().splitlines()
+
+base_requirements = [x for x in base_requirements if x.find('==') != -1]
+test_requirements = [x for x in test_requirements if x.find('==') != -1]
 
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
@@ -87,31 +95,8 @@ setup(
     include_package_data=True,
     package_dir={'': 'src'},
     zip_safe=False,  # because templates are loaded from file path
-    tests_require=[
-        'mock==1.0.1',
-        'nose-exclude==0.2.0',
-        'pep8==1.5.7',
-        'factory-boy==2.5.2',
-        ],
-    install_requires=[
-        'django==1.6.4',
-        'django-admin-bootstrapped==1.6.4',
-        'python-varnish==0.2.1',
-        'jinja2==2.7.2',
-        'django_nose==1.2',
-        'enum34==1.0',
-        'PyYAML==3.11',
-        'django-tastypie==0.11.1',
-        'nose-exclude==0.2.0',
-        'futures==2.1.6',
-        'django-log-request-id==1.0.0',
-        'MarkupSafe==0.23',
-        'nose==1.3.4',
-        'django-simple-history==1.5.3',
-        'django-secure==1.0.1',
-        'lockfile==0.11.0',
-        'django-taggit==0.18.0'
-        ],
+    tests_require=test_requirements,
+    install_requires=base_requirements,
     entry_points={
         'console_scripts': [
             'backend_statuses = vaas.__main__:main',
