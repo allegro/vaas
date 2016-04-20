@@ -33,8 +33,9 @@ class BackendStatusManager(object):
                             backend_id = int(backend.group(1).split('_')[-5])
                             status = backend_status[-2]
                             if backend_id not in backend_to_status_map or status == 'Sick':
-                                backend_address = backends[backend_id]
-                                backend_to_status_map[backend_address] = status
+                                backend_address = backends.get(backend_id)
+                                if backend_address is not None:
+                                    backend_to_status_map[backend_address] = status
 
         except VclLoadException as e:
             self.logger.warning("Some backends' status could not be refreshed: %s" % e)
