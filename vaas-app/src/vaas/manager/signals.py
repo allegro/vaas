@@ -9,7 +9,7 @@ from django.conf import settings
 from vaas.external.request import get_current_request
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock
 from vaas.manager.middleware import VclRefreshState
-from vaas.manager.models import Director, Backend, Probe
+from vaas.manager.models import Director, Backend, Probe, TimeProfile
 
 
 def switch_state_and_reload(queryset, enabled):
@@ -124,6 +124,14 @@ def vcl_update(sender, **kwargs):
             if varnish.cluster not in clusters_to_refresh:
                 logger.debug("vcl_update(): %s" % str(varnish.cluster))
                 clusters_to_refresh.append(varnish.cluster)
+    # TimeProfile
+    if sender is TimeProfile:
+        for director in Director.objects.all():
+            if director.time_profile.id == instance.id:
+                for cluster in director.cluster.all():
+                    logger.debug("vcl_update(): %s" % str(cluster))
+                    if cluster not in clusters_to_refresh:
+                        clusters_to_refresh.append(cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
 

@@ -6,7 +6,7 @@ from tastypie.api import Api
 
 from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlockResource, VclTemplateResource, \
     LogicalClusterResource
-from vaas.manager.api import ProbeResource, DirectorResource, BackendResource
+from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource
 from vaas.purger.api import PurgeUrl
 from django.contrib import admin
 
@@ -14,6 +14,7 @@ admin.autodiscover()
 
 v01_api = Api(api_name='v0.1')
 v01_api.register(DcResource())
+v01_api.register(TimeProfileResource())
 v01_api.register(VarnishServerResource())
 v01_api.register(ProbeResource())
 v01_api.register(DirectorResource())
