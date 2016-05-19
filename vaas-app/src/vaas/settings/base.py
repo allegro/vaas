@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'vaas.monitor',
     'vaas.account',
     'vaas.purger',
-    'taggit'
+    'taggit',
 )
 
 MIDDLEWARE_CLASSES = (
