@@ -12,7 +12,7 @@ fi
 
 if [ ! -f $VAAS_SRC_HOME/vaas/settings/__init__.py ] ; then
 cat <<EOF >  $VAAS_SRC_HOME/vaas/settings/__init__.py
-"from vaas.settings.base import *
+from vaas.settings.base import *
 from vaas.settings.production import *
 EOF
 fi
