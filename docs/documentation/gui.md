@@ -74,6 +74,7 @@ To define a new director, click on *Manager -> Directors -> Add director* and fi
 ![Manager - add Director](img/manager_add_director.png)
 
 * **Name:** specify a name of the new director
+* **Service:** specify a business service name
 * **Cluster:** select cluster(s) in which the director should be used
 * **Mode:** specify balancing algorithm
 * **Hasing policy:** specify hashing policy

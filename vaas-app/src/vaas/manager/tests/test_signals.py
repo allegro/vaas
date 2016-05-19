@@ -162,7 +162,8 @@ def test_vcl_update_clusters_for_time_profile_change():
     probe1 = Probe.objects.create(name='test_probe', url='/status')
     time_profile = TimeProfile.objects.create(name='test_profile')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_service_epsilon',
+        service='first service epsilon',
         router='req.url',
         route_expression='/first',
         probe=probe1,

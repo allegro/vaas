@@ -19,6 +19,7 @@ disable_varnish_servers.short_description = "Disable varnish servers"
 
 class VarnishServerAdmin(admin.ModelAdmin):
     search_fields = ['dc__symbol', 'ip', 'hostname', 'template__name']
+    list_filter = ['cluster__name']
     list_display = (
         'hostname',
         'ip',
@@ -27,6 +28,7 @@ class VarnishServerAdmin(admin.ModelAdmin):
         'cluster',
         'cluster_weight',
         'template',
+        'template_version',
         'custom_enabled',
         'is_connected',
         'vcl'
@@ -37,6 +39,9 @@ class VarnishServerAdmin(admin.ModelAdmin):
     def get_list_display(self, request):
         self.varnish_api_provider = VarnishApiProvider()
         return super(VarnishServerAdmin, self).get_list_display(request)
+
+    def template_version(self, obj):
+        return obj.template.get_template_version()
 
     def custom_enabled(self, obj):
         if obj.enabled:
@@ -83,11 +88,27 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
 
 
 class VclTemplateAdmin(SimpleHistoryAdmin):
+    list_display = ['name', 'version']
     object_history_template = "custom_simple_history/object_history.html"
+
+
+class LogicalClusterAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'varnish_servers'
+    ]
+
+    def varnish_servers(self, obj):
+        return format_html(
+            ("<div class='span13 text-center'>" +
+             "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "
+             ">Show varnish servers (%d)</a>" +
+             "</div>") % (obj.name, obj.varnish_count())
+        )
 
 
 admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, VclTemplateAdmin)
 admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
 admin.site.register(Dc)
-admin.site.register(LogicalCluster)
+admin.site.register(LogicalCluster, LogicalClusterAdmin)
