@@ -3,12 +3,15 @@
 import logging
 import time
 
+from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
+
+from vaas.settings.celery import app
 
 from django.conf import settings
 
 from vaas.api.client import VarnishApi
-from vaas.cluster.models import VarnishServer
+from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput
 
@@ -25,6 +28,13 @@ class VclLoadException(Exception):
     pass
 
 
+@app.task(bind=True)
+def load_vcl_task(self, emmit_time, cluster_ids):
+    start_processing_time = timezone.now()
+    clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
+    return VarnishCluster().load_vcl(start_processing_time, clusters)
+
+
 class VarnishCluster(object):
 
     def __init__(self, timeout=1, max_workers=30):
@@ -36,18 +46,26 @@ class VarnishCluster(object):
     def get_vcl_content(self, varnish_server_pk):
         return VarnishApiProvider().get_api(VarnishServer.objects.get(pk=varnish_server_pk)).vcl_content_active()
 
-    def load_vcl(self, vcl_name, clusters):
+    def load_vcl(self, start_processing_time, clusters):
         servers = ServerExtractor().extract_servers_by_clusters(clusters)
-        vcl_list = ParallelRenderer(self.max_workers).render_vcl_for_servers(vcl_name, servers)
+        vcl_list = ParallelRenderer(self.max_workers).render_vcl_for_servers(start_processing_time.isoformat(), servers)
         parallel_loader = make_parallel_loader(self.max_workers)
 
         try:
             loaded_vcl_list = parallel_loader.load_vcl_list(vcl_list)
-        except VclLoadException:
-            self.logger.error("Loading error - rendered vcl-s not used")
-            raise
+            for cluster in clusters:
+                cluster.reload_timestamp = start_processing_time
+                cluster.save()
+        except VclLoadException as e:
+            error_timestamp = timezone.now()
+            self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
+            for cluster in clusters:
+                cluster.error_timestamp = error_timestamp
+                cluster.last_error_info = str(e)
+                cluster.save()
+            raise e
         else:
-            return parallel_loader.use_vcl_list(vcl_name, loaded_vcl_list)
+            return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
 
 
 class VarnishApiProvider(object):

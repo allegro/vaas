@@ -60,19 +60,19 @@ class VclRefreshMiddlewareTest(TestCase):
                 assert_equals(0, len(load_vcl_mock.call_args_list))
 
     def test_should_return_error_message_if_exception_while_loading_vcl(self):
-        with patch.object(VarnishCluster, 'load_vcl', side_effect=Exception('load vcl failed')):
+        with patch('vaas.cluster.cluster.load_vcl_task.delay', side_effect=Exception('load vcl failed')):
             request = MagicMock(id='10', session={})
             middleware = VclRefreshMiddleware()
-            VclRefreshState.set_refresh('10', ['cluster-1'])
+            VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             middleware.process_response(request, None)
             assert_true('error_message' in request.session)
             assert_equals('Exception: load vcl failed', request.session['error_message'])
 
     def test_should_return_error_message_in_tastypie_if_exception_while_loading_vcl(self):
-        with patch.object(VarnishCluster, 'load_vcl', side_effect=Exception('load vcl failed')):
+        with patch('vaas.cluster.cluster.load_vcl_task.delay', side_effect=Exception('load vcl failed')):
             request = MagicMock(id='10', session={})
             middleware = VclRefreshMiddleware()
-            VclRefreshState.set_refresh('10', ['cluster-1'])
+            VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             response = middleware.process_response(request, HttpCreated())
             assert_true(isinstance(response, HttpApplicationError))
             assert_equals('Exception: load vcl failed', response.content)
