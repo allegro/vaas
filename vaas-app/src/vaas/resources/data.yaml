@@ -42,6 +42,15 @@
   model: manager.probe
   pk: 1
 - fields:
+    name: 'generic profile'
+    description: ''
+    between_bytes_timeout: 1
+    connect_timeout: 0.3
+    first_byte_timeout: 5
+    max_connections: 5
+  model: manager.timeprofile
+  pk: 1
+- fields:
     active_active: true
     cluster: [1]
     enabled: true
@@ -52,6 +61,7 @@
     remove_path: false
     route_expression: /first
     router: req.url
+    time_profile: 1
   model: manager.director
   pk: 1
 - fields:
@@ -65,36 +75,37 @@
     remove_path: false
     route_expression: second.*
     router: req.http.host
+    time_profile: 1
   model: manager.director
   pk: 2
 - fields: {address: 192.168.199.10, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 1}
+    port: 80, weight: 1, inherit_time_profile: True}
   model: manager.backend
   pk: 1
 - fields: {address: 192.168.199.11, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 1}
+    port: 80, weight: 1, inherit_time_profile: True}
   model: manager.backend
   pk: 2
 - fields: {address: 192.168.199.12, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 2}
+    port: 80, weight: 2, inherit_time_profile: True}
   model: manager.backend
   pk: 3
 - fields: {address: 192.168.199.13, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 3}
+    port: 80, weight: 3, inherit_time_profile: True}
   model: manager.backend
   pk: 4
 - fields: {address: 192.168.199.14, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 4}
+    port: 80, weight: 4, inherit_time_profile: True}
   model: manager.backend
   pk: 5
 - fields: {address: 192.168.199.15, between_bytes_timeout: '1', connect_timeout: '0.3',
     dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 5}
+    port: 80, weight: 5, inherit_time_profile: True}
   model: manager.backend
   pk: 6
 - fields:
