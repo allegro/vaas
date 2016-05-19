@@ -47,7 +47,7 @@ def disable_director(modeladmin, request, queryset):
 class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
-    list_display = ('name', 'get_clusters', 'route_expression', 'probe', 'custom_enabled')
+    list_display = ('name', 'service', 'get_clusters', 'route_expression', 'probe', 'custom_enabled')
     list_filter = ['cluster__name']
     actions = [enable_director, disable_director]
 

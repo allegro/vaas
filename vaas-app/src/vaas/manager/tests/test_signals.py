@@ -18,7 +18,7 @@ def test_switch_state_and_reload_cluster_filter_for_backend():
     dc1 = Dc.objects.create(symbol='dc1', name='First datacenter')
     probe = Probe.objects.create(name='default_probe', url='/ts.1')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_gamma',
         route_expression='/first',
         mode='random',
         probe=probe,
@@ -102,7 +102,7 @@ def test_vcl_update_if_sender_allowed():
 
     probe1 = Probe.objects.create(name='test_probe', url='/status')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_beta',
         router='req.url',
         route_expression='/first',
         probe=probe1,
@@ -131,7 +131,7 @@ def test_vcl_update_cluster_filter_for_director():
 
     probe1 = Probe.objects.create(name='test_probe', url='/status')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_alpha',
         router='req.url',
         route_expression='/first',
         probe=probe1,

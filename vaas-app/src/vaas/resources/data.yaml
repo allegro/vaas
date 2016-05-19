@@ -57,6 +57,7 @@
     hashing_policy: req.url
     mode: random
     name: first_service
+    service: Cart
     probe: 1
     remove_path: false
     route_expression: /first
@@ -71,6 +72,7 @@
     hashing_policy: req.url
     mode: round-robin
     name: second_service
+    service: Order
     probe: 1
     remove_path: false
     route_expression: second.*
