@@ -42,7 +42,7 @@ def enable_director(modeladmin, request, queryset):
 
 def disable_director(modeladmin, request, queryset):
     switch_state_and_reload(queryset, False)
-    
+
 
 class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
