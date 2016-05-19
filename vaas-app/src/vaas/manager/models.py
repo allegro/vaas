@@ -97,7 +97,7 @@ class Director(models.Model):
     probe = models.ForeignKey(Probe, on_delete=models.PROTECT)
     enabled = models.BooleanField(default=True)
     remove_path = models.BooleanField(default=False)
-    time_profile = models.ForeignKey(TimeProfile, on_delete=models.PROTECT, default=1)
+    time_profile = models.ForeignKey(TimeProfile, on_delete=models.PROTECT)
 
     def mode_constructor(self):
         if self.mode == 'round-robin':

@@ -10,7 +10,7 @@ from nose.tools import assert_equals
 from vaas.monitor.models import BackendStatus
 from vaas.monitor.health import BackendStatusManager
 from vaas.cluster.models import Dc
-from vaas.manager.models import Probe, Backend, Director
+from vaas.manager.models import Probe, Backend, Director, TimeProfile
 
 BACKEND_LIST_RAW_RESPONSE_V3 = """Backend name                   Refs   Admin      Probe
 first_service_1_dc1_199_10_80(192.168.199.10,,80) 1      probe      Healthy 5/5
@@ -37,7 +37,10 @@ class BackendStatusManagerTest(TestCase):
         dc = Dc.objects.create(name='dc1', symbol='dc1')
         probe = Probe.objects.create(name='probe', url='/')
         director = Director.objects.create(
-            name='first_service', mode='round_robin', probe_id=probe.id
+            name='first_service',
+            mode='round_robin',
+            probe_id=probe.id,
+            time_profile=TimeProfile.objects.create(name='profile')
         )
         Backend.objects.create(address='192.168.199.10', port=80, director=director, dc=dc, id=1)
         Backend.objects.create(address='192.168.199.11', port=80, director=director, dc=dc, id=2)

@@ -21,7 +21,8 @@ def test_switch_state_and_reload_cluster_filter_for_backend():
         name='first_service',
         route_expression='/first',
         mode='random',
-        probe=probe
+        probe=probe,
+        time_profile=TimeProfile.objects.create(name='beta')
     )
     backend1 = Backend.objects.create(
         dc=dc1,
@@ -107,7 +108,8 @@ def test_vcl_update_if_sender_allowed():
         probe=probe1,
         active_active=False,
         mode='round-robin',
-        remove_path=False
+        remove_path=False,
+        time_profile=TimeProfile.objects.create(name='gamma')
     )
 
     with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
@@ -136,6 +138,7 @@ def test_vcl_update_cluster_filter_for_director():
         active_active=False,
         mode='round-robin',
         remove_path=False,
+        time_profile=TimeProfile.objects.create(name='alpha')
     )
     director1.cluster.add(cluster1)
 

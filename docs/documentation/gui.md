@@ -83,6 +83,7 @@ To define a new director, click on *Manager -> Directors -> Add director* and fi
 * **Probe:** specify healthcheck to use for the director's backend
 * **Enabled:** enable or disable the director
 * **Remove path:** remove the part of url defined in *Path or domain regex* before passing request to backend
+* **Time profile:** default advanced timeout setting for each backend in director
 
 ## [Manager] Backends
 To define a new backend, click on *Manager -> Backends -> Add backend* and fill in the form:
@@ -103,6 +104,18 @@ To define a new probe, click on *Manager -> Probes -> Add probe* and fill in the
 * **Name:** name of the probe
 * **Url:** url to test
 * **Expected response:** expected http response code
+
+## [Manager] Time Profiles
+To define a new time profile, click on *Manager -> Time Profiles -> Add time profile* and fill in the form:
+
+![Manager - add Probe](img/manager_add_time_profile.png)
+
+* **Name:** name of the time profile
+* **Description** description of time profile
+* **Max connections:** max connections per backend
+* **Connect timeouts:** limits how long we wait for a TCP connection to the backend to come up
+* **First byte timeouts:** limits how long the processing time of the backend may be. The first byte of the response must come down the TCP connection within this timeout
+* **Between bytes timeouts:** limits how long we will wait between for two subsequent successful reads on the backend connection
 
 ## [Manager] Purger
 To purge object from varnishes from a given cluster, click on *Manager -> Purger -> and fill in the form:

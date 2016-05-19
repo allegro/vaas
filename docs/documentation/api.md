@@ -18,6 +18,7 @@ The following resources are available:
 |*Varnish Servers*   |A Varnish server                                |preview, **add, edit, delete**|
 |*VCL Template Block*|A VCL template block                            |preview, **add, edit, delete**|
 |*VCL Template*      |A VCL template                                  |preview, **add, edit, delete**|
+|*Time Profile*      |Default timeouts profile for director           |preview, **add, edit, delete**|
 |*Purger*            |purge object from varnishes from a given cluster|                              |
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
@@ -76,14 +77,14 @@ To list backends located in specified DC belonging to specified Director:
 ### Create a new Director
 
     curl -X POST \
-    -d '{ "name": "director1", "probe": "/api/v0.1/probe/1/", "route_expression": "/abc", "cluster": ["/api/v0.1/cluster/1/"], "mode": "round-robin" }' \
+    -d '{ "name": "director1", "probe": "/api/v0.1/probe/1/", "route_expression": "/abc", "cluster": ["/api/v0.1/cluster/1/"], "mode": "round-robin", "time_profile": "/api/v0.1/time_profile/1/" }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/director/?username=admin&api_key=vagrant_api_key"
 
 ### Create a new Backend and add it to a Director
 
     curl -X POST \
-    -d '{ "address": "172.17.0.1", "director": "/api/v0.1/director/1/", "dc": "/api/v0.1/dc/1/" }' \
+    -d '{ "address": "172.17.0.1", "director": "/api/v0.1/director/1/", "dc": "/api/v0.1/dc/1/", "inherit_time_profile": true }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/backend/?username=admin&api_key=vagrant_api_key"
 
