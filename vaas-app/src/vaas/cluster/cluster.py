@@ -57,7 +57,9 @@ class VarnishApiProvider(object):
             return VarnishApi([varnish_server.ip, varnish_server.port, float(timeout)], str(varnish_server.secret))
         except Exception:
             raise VclLoadException(
-                "Cannot connect to varnish server ip: %s, port: %s" % (varnish_server.ip, varnish_server.port)
+                "Cannot connect to varnish server ip: %s, port: %s, cluster: %s" % (
+                    varnish_server.ip, varnish_server.port, varnish_server.cluster.name
+                )
             )
 
     def get_varnish_api(self, timeout=1):
