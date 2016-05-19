@@ -77,7 +77,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Create a new Director
 
     curl -X POST \
-    -d '{ "name": "director1", "probe": "/api/v0.1/probe/1/", "route_expression": "/abc", "cluster": ["/api/v0.1/cluster/1/"], "mode": "round-robin", "time_profile": "/api/v0.1/time_profile/1/" }' \
+    -d '{ "name": "director1", "service": "service1", "probe": "/api/v0.1/probe/1/", "route_expression": "/abc", "cluster": ["/api/v0.1/cluster/1/"], "mode": "round-robin", "time_profile": "/api/v0.1/time_profile/1/" }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/director/?username=admin&api_key=vagrant_api_key"
 
