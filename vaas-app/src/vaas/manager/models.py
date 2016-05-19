@@ -2,14 +2,21 @@
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
+from django.core.exceptions import ValidationError
 from taggit.managers import TaggableManager
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_backend_name
 
 
+def vcl_name_validator(value):
+    validate_slug(value)
+    if '-' in value:
+        raise ValidationError('Invalid name. Name cannot contain hyphen.', code='error')
+
+
 class Probe(models.Model):
-    name = models.CharField(max_length=30, validators=[validate_slug])
+    name = models.CharField(max_length=30, validators=[vcl_name_validator])
     url = models.CharField(max_length=50)
     expected_response = models.PositiveIntegerField(default='200')
     interval = models.PositiveIntegerField(
@@ -53,7 +60,8 @@ class Director(models.Model):
         ('req.http.cookie', 'Cookie'),
         ('req.url', 'Url')
     )
-    name = models.CharField(max_length=50, validators=[validate_slug])
+    name = models.CharField(max_length=50, unique=True, validators=[vcl_name_validator])
+    service = models.CharField(max_length=128, default = '')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     hashing_policy = models.CharField(
