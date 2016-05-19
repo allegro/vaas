@@ -9,9 +9,25 @@ from tastypie.authentication import ApiKeyAuthentication
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.api import DcResource
-from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm
-from vaas.manager.models import Backend, Probe, Director
+from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm, TimeProfileModelForm
+from vaas.manager.models import Backend, Probe, Director, TimeProfile
 from vaas.monitor.models import BackendStatus
+
+
+class TimeProfileResource(ModelResource):
+    class Meta:
+        queryset = TimeProfile.objects.all()
+        resource_name = 'time_profile'
+        serializer = PrettyJSONSerializer()
+        authorization = Authorization()
+        authentication = ApiKeyAuthentication()
+        validation = ModelCleanedDataFormValidation(form_class=TimeProfileModelForm)
+        filtering = {
+            'max_connections': ['exact'],
+            'connect_timeout': ['exact'],
+            'first_byte_timeout': ['exact'],
+            'between_bytes_timeout': ['exact']
+        }
 
 
 class ProbeResource(ModelResource):
@@ -31,6 +47,7 @@ class ProbeResource(ModelResource):
 
 class DirectorResource(ModelResource):
     probe = fields.ForeignKey(ProbeResource, 'probe', full=True)
+    time_profile = fields.ForeignKey(TimeProfileResource, 'time_profile', full=True)
     backends = fields.ToManyField(
         'vaas.manager.api.BackendResource', 'backends', null=True
     )
@@ -78,6 +95,14 @@ class BackendResource(ModelResource):
             bundle.data['status'] = status[0].status
         else:
             bundle.data['status'] = "Unknown"
+
+        bundle.data['time_profile'] = {
+            'max_connections': bundle.obj.director.time_profile.max_connections,
+            'connect_timeout': bundle.obj.director.time_profile.connect_timeout,
+            'first_byte_timeout': bundle.obj.director.time_profile.first_byte_timeout,
+            'between_bytes_timeout': bundle.obj.director.time_profile.between_bytes_timeout
+        }
+
         return bundle
 
     def build_filters(self, filters=None):

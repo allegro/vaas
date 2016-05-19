@@ -69,9 +69,9 @@ probe first_service_test_probe_1 {
 backend first_service_1_dc2_1_1_80 {
     .host = "127.0.1.1";
     .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.3s;
-    .first_byte_timeout = 5s;
+    .max_connections = 1;
+    .connect_timeout = 0.5s;
+    .first_byte_timeout = 0.1s;
     .between_bytes_timeout = 1s;
     .probe = first_service_test_probe_1;
 }

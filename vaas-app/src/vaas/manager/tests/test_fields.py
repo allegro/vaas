@@ -9,13 +9,20 @@ from django.db import models
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import NormalizedDecimalField, generate_choices, make_backend_name
-from vaas.manager.models import Backend, Director, Probe
+from vaas.manager.models import Backend, Director, Probe, TimeProfile
 
 
 def create_backend(id, director_name, dc_symbol, address, port):
     dc = Dc.objects.create(name='hellish dc', symbol=dc_symbol)
     probe = Probe.objects.create(name='test_probe', url='/status')
-    director = Director.objects.create(name=director_name, router='req.url', route_expression='/first', probe=probe)
+    time_profile = TimeProfile.objects.create(name='alpha_{}'.format(id))
+    director = Director.objects.create(
+        name=director_name,
+        router='req.url',
+        route_expression='/first',
+        probe=probe,
+        time_profile=time_profile
+    )
     return Backend.objects.create(id=id, address=address, port=port, dc=dc, director=director)
 
 

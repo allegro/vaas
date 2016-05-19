@@ -2,10 +2,17 @@
 backend {{ backend }} {
     .host = "{{ backend.address }}";
     .port = "{{ backend.port }}";
+    {% if backend.inherit_time_profile %}
+    .max_connections = {{ backend.director.time_profile.max_connections }};
+    .connect_timeout = {{ backend.director.time_profile.connect_timeout }}s;
+    .first_byte_timeout = {{ backend.director.time_profile.first_byte_timeout }}s;
+    .between_bytes_timeout = {{ backend.director.time_profile.between_bytes_timeout }}s;
+    {% else %}
     .max_connections = {{ backend.max_connections }};
     .connect_timeout = {{ backend.connect_timeout }}s;
     .first_byte_timeout = {{ backend.first_byte_timeout }}s;
     .between_bytes_timeout = {{ backend.between_bytes_timeout }}s;
+    {% endif %}
     .probe = {{ vcl_director.director.name}}_{{ vcl_director.director.probe.name }}_{{ vcl_director.director.probe_id }};
 }
 {% endfor %}
