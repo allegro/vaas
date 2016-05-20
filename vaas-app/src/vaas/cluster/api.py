@@ -23,6 +23,7 @@ class LogicalClusterResource(ModelResource):
         authentication = ApiKeyAuthentication()
         filtering = {
             'name': ['exact'],
+            'reload_timestamp': ['exact'],
         }
 
     def dehydrate(self, bundle):

@@ -17,6 +17,7 @@ sys.path.insert(0, current_dir + os.sep + 'src')
 from vaas import VERSION
 release = ".".join(str(num) for num in VERSION)
 
+
 def basic_configuration(version, db_path=None):
     local_path = os.path.abspath(os.path.dirname(__file__))
     if db_path is None:
@@ -30,8 +31,7 @@ def basic_configuration(version, db_path=None):
 
     with open(os.path.join(local_path, 'src', 'vaas', 'resources', 'db_config.yml'), 'w') as resource_file:
         resource_file.write(
-            "default:\n  ENGINE: 'django.db.backends.sqlite3'\n  NAME: " + \
-            os.path.join(db_path, "db.sqlite3")
+            "default:\n  ENGINE: 'django.db.backends.sqlite3'\n  NAME: " + os.path.join(db_path, "db.sqlite3")
         )
 
     with open(os.path.join(local_path, 'src', 'vaas', 'resources', 'production.yml'), 'w') as resource_file:
@@ -56,8 +56,10 @@ class DjangoTestRunner(test):
         from atexit import _exithandlers
         del _exithandlers[:]
 
+
 class VaaSEggInfo(org_egg_info):
     active = True
+
     def run(self):
         if VaaSEggInfo.active:
             try:
