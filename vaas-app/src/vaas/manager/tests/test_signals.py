@@ -4,7 +4,7 @@ from nose.tools import assert_equals
 from mock import Mock, call, patch, MagicMock
 from django.conf import settings
 
-from vaas.manager.models import Director, Backend, Probe
+from vaas.manager.models import Director, Backend, Probe, TimeProfile
 from vaas.cluster.models import Dc, LogicalCluster, VarnishServer, VclTemplate, VclTemplateBlock
 from vaas.manager.signals import switch_state_and_reload, regenerate_and_reload_vcl, vcl_update
 
@@ -18,10 +18,11 @@ def test_switch_state_and_reload_cluster_filter_for_backend():
     dc1 = Dc.objects.create(symbol='dc1', name='First datacenter')
     probe = Probe.objects.create(name='default_probe', url='/ts.1')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_gamma',
         route_expression='/first',
         mode='random',
-        probe=probe
+        probe=probe,
+        time_profile=TimeProfile.objects.create(name='beta')
     )
     backend1 = Backend.objects.create(
         dc=dc1,
@@ -101,13 +102,14 @@ def test_vcl_update_if_sender_allowed():
 
     probe1 = Probe.objects.create(name='test_probe', url='/status')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_beta',
         router='req.url',
         route_expression='/first',
         probe=probe1,
         active_active=False,
         mode='round-robin',
-        remove_path=False
+        remove_path=False,
+        time_profile=TimeProfile.objects.create(name='gamma')
     )
 
     with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
@@ -129,19 +131,52 @@ def test_vcl_update_cluster_filter_for_director():
 
     probe1 = Probe.objects.create(name='test_probe', url='/status')
     director1 = Director.objects.create(
-        name='first_service',
+        name='first_alpha',
         router='req.url',
         route_expression='/first',
         probe=probe1,
         active_active=False,
         mode='round-robin',
         remove_path=False,
+        time_profile=TimeProfile.objects.create(name='alpha')
     )
     director1.cluster.add(cluster1)
 
     with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
         kwargs = {'instance': director1}
         vcl_update(Director, **kwargs)
+        assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
+
+    settings.SIGNALS = 'off'
+
+
+def test_vcl_update_clusters_for_time_profile_change():
+    settings.SIGNALS = 'on'
+
+    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    """
+    Created, but not used, just to check if cluster filtering works.
+    """
+    LogicalCluster.objects.create(name="second cluster")
+
+    probe1 = Probe.objects.create(name='test_probe', url='/status')
+    time_profile = TimeProfile.objects.create(name='test_profile')
+    director1 = Director.objects.create(
+        name='first_service_epsilon',
+        service='first service epsilon',
+        router='req.url',
+        route_expression='/first',
+        probe=probe1,
+        active_active=False,
+        mode='round-robin',
+        remove_path=False,
+        time_profile=time_profile
+    )
+    director1.cluster.add(cluster1)
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': time_profile}
+        vcl_update(TimeProfile, **kwargs)
         assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
     settings.SIGNALS = 'off'

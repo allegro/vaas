@@ -1,5 +1,5 @@
 from django.contrib import admin
-from vaas.manager.models import Director, Backend, Probe
+from vaas.manager.models import Director, Backend, Probe, TimeProfile
 from vaas.manager.forms import DirectorModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
@@ -47,8 +47,9 @@ def disable_director(modeladmin, request, queryset):
 class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
-    list_display = ('name', 'get_clusters', 'route_expression', 'probe', 'custom_enabled')
+    list_display = ('name', 'service', 'get_clusters', 'route_expression', 'probe', 'custom_enabled')
     list_filter = ['cluster__name']
+    filter_horizontal = ('cluster',)
     actions = [enable_director, disable_director]
 
     def get_clusters(self, obj):
@@ -84,7 +85,7 @@ class BackendAdmin(admin.ModelAdmin):
     actions = [enable_backend, disable_backend, switch_backend_status]
     fieldsets = (
         (None, {
-            'fields': ('address', 'port', 'director', 'dc', 'weight', 'tags')
+            'fields': ('address', 'port', 'director', 'dc', 'weight', 'tags', 'inherit_time_profile')
         }),
         ('Advanced options', {
             'classes': ('collapse',),
@@ -155,6 +156,10 @@ class ProbeAdmin(admin.ModelAdmin):
     )
 
 
+class TimeProfileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'max_connections', 'connect_timeout', 'first_byte_timeout', 'between_bytes_timeout')
+
 admin.site.register(Director, DirectorAdmin)
 admin.site.register(Backend, BackendAdmin)
 admin.site.register(Probe, ProbeAdmin)
+admin.site.register(TimeProfile, TimeProfileAdmin)

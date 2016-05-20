@@ -2,14 +2,21 @@
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
+from django.core.exceptions import ValidationError
 from taggit.managers import TaggableManager
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_backend_name
 
 
+def vcl_name_validator(value):
+    validate_slug(value)
+    if '-' in value:
+        raise ValidationError('Invalid name. Name cannot contain hyphen.', code='error')
+
+
 class Probe(models.Model):
-    name = models.CharField(max_length=30, validators=[validate_slug])
+    name = models.CharField(max_length=30, validators=[vcl_name_validator])
     url = models.CharField(max_length=50)
     expected_response = models.PositiveIntegerField(default='200')
     interval = models.PositiveIntegerField(
@@ -38,6 +45,24 @@ class Probe(models.Model):
         return "%s (%s)" % (self.name, self.url)
 
 
+class TimeProfile(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    description = models.TextField(blank=True)
+    max_connections = models.PositiveIntegerField(default='5')
+    connect_timeout = NormalizedDecimalField(
+        default='0.30', decimal_places=3, max_digits=5, verbose_name=u'Connect timeout (s)'
+    )
+    first_byte_timeout = NormalizedDecimalField(
+        default='5', decimal_places=3, max_digits=5, verbose_name=u'First byte timeout (s)'
+    )
+    between_bytes_timeout = NormalizedDecimalField(
+        default='1', decimal_places=3, max_digits=5, verbose_name=u'Between bytes timeout (s)'
+    )
+
+    def __unicode__(self):
+        return self.name
+
+
 class Director(models.Model):
     MODE_CHOICES = (
         ('round-robin', 'Round Robin'),
@@ -53,7 +78,8 @@ class Director(models.Model):
         ('req.http.cookie', 'Cookie'),
         ('req.url', 'Url')
     )
-    name = models.CharField(max_length=50, validators=[validate_slug])
+    name = models.CharField(max_length=50, unique=True, validators=[vcl_name_validator])
+    service = models.CharField(max_length=128, default='')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     hashing_policy = models.CharField(
@@ -79,6 +105,7 @@ class Director(models.Model):
     probe = models.ForeignKey(Probe, on_delete=models.PROTECT)
     enabled = models.BooleanField(default=True)
     remove_path = models.BooleanField(default=False)
+    time_profile = models.ForeignKey(TimeProfile, on_delete=models.PROTECT)
 
     def mode_constructor(self):
         if self.mode == 'round-robin':
@@ -137,6 +164,7 @@ class Backend(models.Model):
     )
     enabled = models.BooleanField(default=True)
     tags = TaggableManager(blank=True)
+    inherit_time_profile = models.BooleanField(default=False)
 
     def __unicode__(self):
         return make_backend_name(self)

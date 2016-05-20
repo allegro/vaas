@@ -24,6 +24,10 @@ class LogicalClusterResource(ModelResource):
             'name': ['exact'],
         }
 
+    def dehydrate(self, bundle):
+        bundle.data['varnish_count'] = bundle.obj.varnish_count()
+        return bundle
+
 
 class DcResource(ModelResource):
     class Meta:
