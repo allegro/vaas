@@ -95,8 +95,12 @@ class VclTemplateAdmin(SimpleHistoryAdmin):
 class LogicalClusterAdmin(admin.ModelAdmin):
     list_display = [
         'name',
+        'reload_timestamp',
+        'error_timestamp',
+        'last_error_info',
         'varnish_servers'
     ]
+    exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
 
     def varnish_servers(self, obj):
         return format_html(
