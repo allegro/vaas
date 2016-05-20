@@ -8,6 +8,11 @@ sudo apt-get install -y redis-server
 
 sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 
+# update venv
+cd ~/
+source venv/bin/activate
+pip install -r vaas/vaas-app/requirements/dev.txt
+
 # Kill the server if it is already running:
 server_pids=$(ps -ef|awk '/manage.py[ ]runserver/ {print $2}'|xargs)
 if [ "$server_pids" != '' ] ; then
