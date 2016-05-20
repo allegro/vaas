@@ -57,11 +57,10 @@ class VarnishCluster(object):
                 cluster.reload_timestamp = start_processing_time
                 cluster.save()
         except VclLoadException as e:
-            error_timestamp = timezone.now()
             self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
             for cluster in clusters:
-                cluster.error_timestamp = error_timestamp
-                cluster.last_error_info = str(e)
+                cluster.error_timestamp = start_processing_time
+                cluster.last_error_info = str(e)[:400]
                 cluster.save()
             raise e
         else:
