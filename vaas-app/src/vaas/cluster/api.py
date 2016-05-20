@@ -12,7 +12,6 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock
 
-
 class LogicalClusterResource(ModelResource):
     class Meta:
         queryset = LogicalCluster.objects.all()
@@ -65,6 +64,8 @@ class VclTemplateResource(ModelResource):
 class VarnishServerResource(ModelResource):
 
     cluster = fields.ForeignKey(LogicalClusterResource, 'cluster')
+    template = fields.ForeignKey(VclTemplateResource, 'template')
+    dc = fields.ForeignKey(DcResource, 'dc')
 
     class Meta:
         queryset = VarnishServer.objects.all()
