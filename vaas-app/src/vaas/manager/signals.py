@@ -3,7 +3,7 @@
 import logging
 
 from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_delete, post_delete
+from django.db.models.signals import post_save, pre_delete, post_delete, m2m_changed
 from django.conf import settings
 
 from vaas.external.request import get_current_request
@@ -141,3 +141,16 @@ def clean_up_tags(sender, **kwargs):
     instance = kwargs['instance']
     if sender is Backend:
         delete_unused_tags(instance)
+
+
+def director_update(**kwargs):
+    logger = logging.getLogger('vaas')
+    instance = kwargs['instance']
+    clusters_to_refresh = []
+    for cluster in instance.cluster.all():
+        logger.debug("director_update(): %s" % str(cluster))
+        if cluster not in clusters_to_refresh:
+            clusters_to_refresh.append(cluster)
+    regenerate_and_reload_vcl(clusters_to_refresh)
+
+m2m_changed.connect(director_update, sender=Director.cluster.through)
