@@ -250,24 +250,27 @@ def test_vcl_update_cluster_filter_for_vcltemplateblock():
 def test_vcl_update_cluster_filter_for_director_via_related_manager():
     settings.SIGNALS = 'on'
 
-    cluster1 = LogicalCluster.objects.create(name="first cluster")
-    cluster2 = LogicalCluster.objects.create(name="second cluster")
+    cluster1 = LogicalCluster.objects.create(name="cluster1")
+    """
+    Created, but not used, just to check if cluster filtering works.
+    """
+    LogicalCluster.objects.create(name="cluster2")
 
     probe1 = Probe.objects.create(name='test_probe', url='/status')
     director1 = Director.objects.create(
-        name='first_alpha',
+        name='director1',
         router='req.url',
         route_expression='/first',
         probe=probe1,
         active_active=False,
         mode='round-robin',
         remove_path=False,
-        time_profile=TimeProfile.objects.create(name='alpha')
+        time_profile=TimeProfile.objects.create(name='timeprofile')
     )
     director1.cluster.add(cluster1)
 
     with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
-        kwargs = {'instance': director1.cluster}
+        kwargs = {'instance': director1}
         director_update(**kwargs)
         assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
