@@ -9,13 +9,20 @@ from django.db import models
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import NormalizedDecimalField, generate_choices, make_backend_name
-from vaas.manager.models import Backend, Director, Probe
+from vaas.manager.models import Backend, Director, Probe, TimeProfile
 
 
 def create_backend(id, director_name, dc_symbol, address, port):
     dc = Dc.objects.create(name='hellish dc', symbol=dc_symbol)
     probe = Probe.objects.create(name='test_probe', url='/status')
-    director = Director.objects.create(name=director_name, router='req.url', route_expression='/first', probe=probe)
+    time_profile = TimeProfile.objects.create(name='alpha_{}'.format(id))
+    director = Director.objects.create(
+        name=director_name,
+        router='req.url',
+        route_expression='/first',
+        probe=probe,
+        time_profile=time_profile
+    )
     return Backend.objects.create(id=id, address=address, port=port, dc=dc, director=director)
 
 
@@ -40,7 +47,7 @@ def test_should_make_backend_name_which_contain_all_relevant_parts():
 
 def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_length():
     backend = create_backend(
-        11, 'awesomeService', 'dc_longname_11111111111111111111111111111111111111', '127.0.20.30', 8080
+        11, 'beta_awesomeService', 'dc_longname_11111111111111111111111111111111111111', '127.0.20.30', 8080
     )
     expectedBackendName = "11_dc_longname_11111111111111111111111111111111111111_20_30_8080"
     assert_equals(expectedBackendName, make_backend_name(backend))
@@ -48,7 +55,7 @@ def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_leng
 
 def test_should_shorten_director_name_if_director_and_more_relevant_parts_are_longer_than_maximum_length():
     backend = create_backend(
-        12, 'awesomeService', 'dc_longname_111111111111111111111111111111', '127.0.20.30', 8080
+        12, 'awesomeService_alpha', 'dc_longname_111111111111111111111111111111', '127.0.20.30', 8080
     )
     expectedBackendName = "awesome_12_dc_longname_111111111111111111111111111111_20_30_8080"
     assert_equals(expectedBackendName, make_backend_name(backend))

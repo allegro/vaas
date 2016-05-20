@@ -7,7 +7,7 @@ from nose.tools import *
 from random import random
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
-from vaas.manager.models import Director, Probe, Backend
+from vaas.manager.models import Director, Probe, Backend, TimeProfile
 from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster
 from django.conf import settings
 
@@ -87,6 +87,7 @@ class DirectorFactory(DjangoModelFactory):
     hashing_policy = 'req.http.cookie'
     probe = Probe.objects.create(name='test_probe', url='/status')
     active_active = True
+    time_profile = TimeProfile.objects.create(name='whatever')
 
 
 class BackendFactory(DjangoModelFactory):
@@ -97,6 +98,7 @@ class BackendFactory(DjangoModelFactory):
     port = 80
     dc = SubFactory(DcFactory)
     director = SubFactory(DirectorFactory)
+    inherit_time_profile = False
 
 
 class VclTagBuilderTest(TestCase):
@@ -107,12 +109,16 @@ class VclTagBuilderTest(TestCase):
         dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
         cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
         cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
+        time_profile = TimeProfile.objects.create(
+            name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
+        )
         non_active_active_routed_by_path = DirectorFactory.create(
             name='first_service',
             route_expression='/first',
             active_active=False,
             mode='round-robin',
-            remove_path=False
+            remove_path=False,
+            time_profile=time_profile
         )
 
         active_active_remove_path = DirectorFactory.create(
@@ -158,7 +164,8 @@ class VclTagBuilderTest(TestCase):
         active_active_hashing_by_cookie.cluster.add(1, 2)
         active_active_hashing_by_url.cluster.add(1, 2)
 
-        BackendFactory.create(address='127.0.1.1', dc=dc2, director=non_active_active_routed_by_path)
+        BackendFactory.create(
+            address='127.0.1.1', dc=dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
         BackendFactory.create(address='127.0.2.1', dc=dc2, director=active_active_remove_path)
         BackendFactory.create(address='127.4.2.1', dc=dc1, director=active_active_remove_path)
         BackendFactory.create(address='127.8.2.1', dc=dc1, director=active_active_routed_by_domain)
@@ -379,9 +386,9 @@ probe first_service_test_probe_1 {
 backend first_service_1_dc2_1_1_80 {
     .host = "127.0.1.1";
     .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.3s;
-    .first_byte_timeout = 5s;
+    .max_connections = 1;
+    .connect_timeout = 0.5s;
+    .first_byte_timeout = 0.1s;
     .between_bytes_timeout = 1s;
     .probe = first_service_test_probe_1;
 }

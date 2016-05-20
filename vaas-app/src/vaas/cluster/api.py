@@ -25,6 +25,10 @@ class LogicalClusterResource(ModelResource):
             'name': ['exact'],
         }
 
+    def dehydrate(self, bundle):
+        bundle.data['varnish_count'] = bundle.obj.varnish_count()
+        return bundle
+
 
 class DcResource(ModelResource):
     class Meta:
@@ -65,6 +69,7 @@ class VclTemplateResource(ModelResource):
 class VarnishServerResource(ModelResource):
 
     cluster = fields.ForeignKey(LogicalClusterResource, 'cluster')
+    template = fields.ForeignKey(VclTemplateResource, 'template')
 
     class Meta:
         queryset = VarnishServer.objects.all()

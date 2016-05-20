@@ -197,7 +197,7 @@ class VclTagBuilder(object):
 class VclRendererInput(object):
     def __init__(self):
         """Prefetch data needed by renderer."""
-        self.directors = list(Director.objects.all().prefetch_related('probe', 'cluster'))
+        self.directors = list(Director.objects.all().prefetch_related('probe', 'cluster', 'time_profile'))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))

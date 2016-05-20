@@ -13,13 +13,16 @@ class LogicalCluster(models.Model):
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
 
     def __unicode__(self):
-        return self.name
+        return "{} ({})".format(self.name, self.varnish_count())
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.name == other.name
         else:
             return False
+
+    def varnish_count(self):
+        return VarnishServer.objects.filter(cluster=self).count()
 
 
 class Dc(models.Model):
@@ -33,12 +36,15 @@ class Dc(models.Model):
 class VclTemplate(models.Model):
     name = models.CharField(max_length=50, unique=True)
     content = models.TextField()
-    version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='3.0')
+    version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='4.0')
     comment = models.CharField(max_length=64)
     history = HistoricalRecords()
 
     def __unicode__(self):
         return self.name
+
+    def get_template_version(self):
+        return self.version
 
 
 class VarnishServer(models.Model):
