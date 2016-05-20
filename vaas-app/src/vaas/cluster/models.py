@@ -48,7 +48,7 @@ class VclTemplate(models.Model):
 
 
 class VarnishServer(models.Model):
-    ip = models.GenericIPAddressField(protocol='IPv4', unique=True)
+    ip = models.GenericIPAddressField(protocol='IPv4')
     hostname = models.CharField(max_length=50)
     cluster_weight = models.PositiveIntegerField(default='1',
                                                  validators=[MinValueValidator(1),
@@ -67,6 +67,9 @@ class VarnishServer(models.Model):
 
     def __unicode__(self):
         return "{}:{} ({})".format(self.ip, self.port, self.hostname)
+
+    class Meta:
+        unique_together = (('ip', 'port'))
 
 
 class VclTemplateBlock(models.Model):
