@@ -47,6 +47,7 @@ class VarnishApi(varnish.VarnishHandler):
         vcl.show configname overloaded due to syntax error in original class
         """
         return self.fetch('vcl.show %s' % configname)
+
     def fetch(self, command):
         """
         Run a command on the Varnish backend and return the result
@@ -62,6 +63,9 @@ class VarnishApi(varnish.VarnishHandler):
         content = ''
         while len(content) < length:
             content += self.read_until('\n')
-        assert status == 200, 'Bad response code: {status} {text} ({command})'.format(status=status, text=content, command=command)
+        assert status == 200, 'Bad response code: {status} {text} ({command})'.format(
+            status=status,
+            text=content,
+            command=command)
         self.read_eager()
         return (status, length), content
