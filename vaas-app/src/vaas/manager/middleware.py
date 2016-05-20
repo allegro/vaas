@@ -70,7 +70,9 @@ class VclRefreshMiddleware(object):
                 logging.info("Error while reloading cluster: %s (%s)" % (e, type(response)))
                 if 'tastypie' in str(type(response)):
                     return HttpApplicationError("%s: %s" % (e.__class__.__name__, str(e)[:400]))
-                request.session['error_message'] = "%s: %s" % (e.__class__.__name__, str(e)[:400])
+                #import pdb; pdb.set_trace()
+
+                request.session['error_message'] = "%s: %s" % (e.__class__.__name__, str(e))
 
             logging.info("cluster reload time: %f" % (time.time() - start))
         return response
