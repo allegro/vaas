@@ -13,7 +13,7 @@ class LogicalCluster(models.Model):
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
     reload_timestamp = models.DateTimeField(default=timezone.now())
     error_timestamp = models.DateTimeField(default=timezone.now())
-    last_error_info = models.CharField(max_length=400, null=True)
+    last_error_info = models.CharField(max_length=400, null=True, blank=True)
 
     def __unicode__(self):
         return "{} ({})".format(self.name, self.varnish_count())
