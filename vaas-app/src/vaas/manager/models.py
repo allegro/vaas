@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from taggit.managers import TaggableManager
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_backend_name
-
-
-def vcl_name_validator(value):
-    validate_slug(value)
-    if '-' in value:
-        raise ValidationError('Invalid name. Name cannot contain hyphen.', code='error')
+from vaas.validators import vcl_name_validator
 
 
 class Probe(models.Model):
