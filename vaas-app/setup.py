@@ -116,5 +116,5 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 2 :: Only',
         'Topic :: Internet :: WWW/HTTP',
-        ]
+    ]
 )
