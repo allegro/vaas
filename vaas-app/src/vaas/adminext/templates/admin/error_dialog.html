@@ -10,8 +10,8 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="errModalLabel">Error Message</h3>
     </div>
-    <div class="alert alert-error">
-        {{ request.session.error_message }}
+    <div class="alert alert-error", style="height: 400px; overflow: scroll;">
+        <pre>{{ request.session.error_message }}</pre>
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>

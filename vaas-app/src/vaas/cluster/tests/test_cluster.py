@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.utils import timezone
 from mock import patch, call, Mock
 from nose.tools import assert_true, assert_false, assert_equals, assert_list_equal, raises
 from django.test import TestCase
@@ -205,7 +206,7 @@ class PartialParallelLoaderTest(TestCase):
 class VarnishClusterTest(TestCase):
 
     def test_should_load_and_use_only_loaded_vcls(self):
-        vcl_name = 'version'
+        start_processing_time = timezone.now()
         vcl = Vcl('Test-content', name='test')
 
         loader_mock = Mock()
@@ -219,11 +220,11 @@ class VarnishClusterTest(TestCase):
             with patch.object(ParallelLoader, 'load_vcl_list', return_value=loaded_list):
                 with patch.object(ParallelLoader, 'use_vcl_list', return_value=True) as use_vcl_mock:
                     varnish_cluster = VarnishCluster()
-                    assert_true(varnish_cluster.load_vcl(vcl_name, []))
+                    assert_true(varnish_cluster.load_vcl(start_processing_time, []))
                     """
                     Here we check if only previously loaded vcl-s are used
                     """
-                    assert_list_equal([call(vcl_name, loaded_list)], use_vcl_mock.call_args_list)
+                    assert_list_equal([call(start_processing_time, loaded_list)], use_vcl_mock.call_args_list)
 
     def test_should_not_use_vcls_on_error_while_loading_vcl(self):
         vcl = Vcl('Test-content', name='test')
@@ -235,7 +236,7 @@ class VarnishClusterTest(TestCase):
                 with patch.object(ParallelLoader, 'use_vcl_list', return_value=False) as use_vcl_mock:
                     varnish_cluster = VarnishCluster()
                     with self.assertRaises(VclLoadException):
-                        varnish_cluster.load_vcl('test', [])
+                        varnish_cluster.load_vcl(timezone.now(), [])
                     """
                     Here we check if 'use' command is NOT sent to servers
                     """

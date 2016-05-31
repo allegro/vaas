@@ -132,3 +132,12 @@ VAAS_LOADER_MAX_WORKERS = 30
 REFRESH_TRIGGERS_CLASS = (
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile'
 )
+
+# CELERY
+BROKER_URL = 'redis://localhost:6379/1'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
+CELERY_TASK_RESULT_EXPIRES = 600
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_IGNORE_RESULT = False
+CELERY_TASK_PUBLISH_RETRY = True

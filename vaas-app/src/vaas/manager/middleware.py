@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+from django.utils import timezone
 import logging
 import time
 from tastypie.http import HttpApplicationError
 
-from vaas.cluster.cluster import VarnishCluster, VclLoadException
+from vaas.cluster.cluster import load_vcl_task
 
 
 class VclRefreshState(object):
@@ -65,12 +65,24 @@ class VclRefreshMiddleware(object):
         if len(clusters) > 0:
             start = time.time()
             try:
-                VarnishCluster().load_vcl(datetime.datetime.now().isoformat(), clusters)
+                result = load_vcl_task.delay(
+                    timezone.now(),
+                    [cluster.id for cluster in clusters]
+                )
+
+                if 'tastypie' in str(type(response)):
+                    if 'respond-async' in request.META.get('HTTP_PREFER', ''):
+                        response.status_code = 202
+                else:
+                    result.get()
+
+                    if isinstance(result.result, Exception):
+                        raise result.result
             except Exception as e:
                 logging.info("Error while reloading cluster: %s (%s)" % (e, type(response)))
                 if 'tastypie' in str(type(response)):
                     return HttpApplicationError("%s: %s" % (e.__class__.__name__, str(e)[:400]))
-                request.session['error_message'] = "%s: %s" % (e.__class__.__name__, str(e)[:400])
+                request.session['error_message'] = "%s: %s" % (e.__class__.__name__, str(e))
 
             logging.info("cluster reload time: %f" % (time.time() - start))
         return response

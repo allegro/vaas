@@ -23,6 +23,7 @@ class LogicalClusterResource(ModelResource):
         authentication = ApiKeyAuthentication()
         filtering = {
             'name': ['exact'],
+            'reload_timestamp': ['exact'],
         }
 
     def dehydrate(self, bundle):
@@ -70,6 +71,7 @@ class VarnishServerResource(ModelResource):
 
     cluster = fields.ForeignKey(LogicalClusterResource, 'cluster')
     template = fields.ForeignKey(VclTemplateResource, 'template')
+    dc = fields.ForeignKey(DcResource, 'dc')
 
     class Meta:
         queryset = VarnishServer.objects.all()

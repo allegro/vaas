@@ -58,10 +58,14 @@ class VclLoader(object):
         vcls = self.varnish_api.vcls()['available']
         return_value = VclStatus.NO_CHANGES.value
         for vcl in vcls:
-            if self.varnish_api.vcl_discard(vcl)[0][0] == 200:
-                return_value = max(return_value, VclStatus.OK.value)
-                self.logger.info("VCL %s discarded." % vcl)
-            else:
+            try:
+                if self.varnish_api.vcl_discard(vcl)[0][0] == 200:
+                    return_value = max(return_value, VclStatus.OK.value)
+                    self.logger.info("VCL %s discarded." % vcl)
+                else:
+                    return_value = max(return_value, VclStatus.ERROR.value)
+                    self.logger.warning("VCL %s not discarded." % vcl)
+            except AssertionError:
                 return_value = max(return_value, VclStatus.ERROR.value)
                 self.logger.warning("VCL %s not discarded." % vcl)
 

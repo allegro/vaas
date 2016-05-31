@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import User
 
+from django.utils import timezone
 from tastypie import fields
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator, validate_slug
+from django.core.validators import MinValueValidator, MaxValueValidator, ValidationError
 from simple_history.models import HistoricalRecords
+
+from vaas.validators import vcl_name_validator
 
 
 class LogicalCluster(models.Model):
     """Model representing a cluster of varnish servers"""
-    name = models.CharField(max_length=100, validators=[validate_slug])
+    name = models.CharField(max_length=100, validators=[vcl_name_validator])
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
+    reload_timestamp = models.DateTimeField(default=timezone.now())
+    error_timestamp = models.DateTimeField(default=timezone.now())
+    last_error_info = models.CharField(max_length=400, null=True, blank=True)
 
     def __unicode__(self):
         return "{} ({})".format(self.name, self.varnish_count())
@@ -27,14 +32,14 @@ class LogicalCluster(models.Model):
 
 class Dc(models.Model):
     name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=9, validators=[validate_slug])
+    symbol = models.CharField(max_length=9, validators=[vcl_name_validator])
 
     def __unicode__(self):
         return self.symbol
 
 
 class VclTemplate(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, validators=[vcl_name_validator])
     content = models.TextField()
     version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='4.0')
     comment = models.CharField(max_length=64)
@@ -48,7 +53,7 @@ class VclTemplate(models.Model):
 
 
 class VarnishServer(models.Model):
-    ip = models.GenericIPAddressField(protocol='IPv4', unique=True)
+    ip = models.GenericIPAddressField(protocol='IPv4')
     hostname = models.CharField(max_length=50)
     cluster_weight = models.PositiveIntegerField(default='1',
                                                  validators=[MinValueValidator(1),
@@ -67,6 +72,9 @@ class VarnishServer(models.Model):
 
     def __unicode__(self):
         return "{}:{} ({})".format(self.ip, self.port, self.hostname)
+
+    class Meta:
+        unique_together = (('ip', 'port'))
 
 
 class VclTemplateBlock(models.Model):
