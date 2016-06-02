@@ -82,6 +82,7 @@ class VarnishServerResource(ModelResource):
         validation = ModelCleanedDataFormValidation(form_class=VarnishServerModelForm)
         filtering = {
             'ip': ['exact'],
+            'cluster': ['exact']
         }
 
 
