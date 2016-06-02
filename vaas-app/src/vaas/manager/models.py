@@ -73,7 +73,7 @@ class Director(models.Model):
         ('req.http.cookie', 'Cookie'),
         ('req.url', 'Url')
     )
-    name = models.CharField(max_length=50, unique=True, validators=[vcl_name_validator])
+    name = models.CharField(max_length=54, unique=True, validators=[vcl_name_validator])
     service = models.CharField(max_length=128, default='')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
