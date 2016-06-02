@@ -8,4 +8,6 @@ By default, VaaS processes requests synchronously. In practice it means that if 
 ### Asynchronous request processing
 If your request contains HTTP_PREFER header and it is set to 'respond-async', VaaS will process your request asynchronously. This means that if you make a request using API to add a new backend to a director in a cluster, VaaS will return a 202 ('Accepted') HTTP status code as soon as the data is saved in the database. The task will be queued for processing and will be processed either immediately or, if the cluster is currently being reloaded, as soon as the running reload is finished. Take a look at the diagram below for details.
 
+### Request processing diagram
+This diagram pictures a request flow in VaaS.
 ![Request flow](img/flow.png)
