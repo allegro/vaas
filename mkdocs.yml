@@ -4,6 +4,7 @@ pages:
 - ['quick-start/vagrant.md', 'Quick Start', 'VaaS in Vagrant']
 - ['quick-start/docker.md', 'Quick Start', 'VaaS in Docker']
 - ['quick-start/production.md', 'Quick Start', 'VaaS in Production']
+- ['documentation/flow.md', 'Documentation', 'VaaS request flow']
 - ['documentation/gui.md', 'Documentation', 'VaaS GUI']
 - ['documentation/api.md', 'Documentation', 'VaaS API']
 - ['documentation/vcl.md', 'Documentation', 'VCL templates']

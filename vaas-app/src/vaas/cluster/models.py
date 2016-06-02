@@ -11,7 +11,7 @@ from vaas.validators import vcl_name_validator
 
 class LogicalCluster(models.Model):
     """Model representing a cluster of varnish servers"""
-    name = models.CharField(max_length=20, validators=[vcl_name_validator])
+    name = models.CharField(max_length=100, validators=[vcl_name_validator])
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
     reload_timestamp = models.DateTimeField(default=timezone.now())
     error_timestamp = models.DateTimeField(default=timezone.now())
@@ -39,7 +39,7 @@ class Dc(models.Model):
 
 
 class VclTemplate(models.Model):
-    name = models.CharField(max_length=50, unique=True, validators=[vcl_name_validator])
+    name = models.CharField(max_length=100, unique=True, validators=[vcl_name_validator])
     content = models.TextField()
     version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='4.0')
     comment = models.CharField(max_length=64)
@@ -88,7 +88,7 @@ class VclTemplateBlock(models.Model):
         ('ROUTER', 'VCL/RECEIVE/ROUTER'),
         ('OTHER_FUNCTIONS', 'VCL/OTHER_FUNCTIONS'),
     )
-    tag = models.CharField(max_length=20, choices=TAG_CHOICES)
+    tag = models.CharField(max_length=100, choices=TAG_CHOICES)
     template = models.ForeignKey(VclTemplate, on_delete=models.PROTECT)
     content = models.TextField()
     history = HistoricalRecords()
