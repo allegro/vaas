@@ -34,5 +34,7 @@ fi
 
 /var/tmp/backend_statuses.sh &
 nginx &
+redis-server &
+su - ubuntu -c '/home/ubuntu/prod-env/bin/python /home/ubuntu/prod-env/bin/celery -A vaas.settings worker -l info --concurrency=1' &
 /home/ubuntu/prod-env/bin/uwsgi --env DJANGO_SETTINGS_MODULE=$DSM --uid ubuntu --master --processes 8 --die-on-term --socket /tmp/vaas.sock -H /home/ubuntu/prod-env --module vaas.external.wsgi --chmod-socket=666 --logto /tmp/uwsgi.log &
 tail -f /tmp/uwsgi.log
