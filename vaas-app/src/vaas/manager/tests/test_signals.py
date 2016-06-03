@@ -15,7 +15,7 @@ def test_switch_state_and_reload_cluster_filter_for_backend():
     Created, but not used, just to check if cluster filtering works.
     """
     LogicalCluster.objects.create(name="second cluster")
-    dc1 = Dc.objects.create(symbol='dc1', name='First datacenter')
+    dc1 = Dc.objects.create(symbol='dc3', name='First datacenter')
     probe = Probe.objects.create(name='default_probe', url='/ts.1')
     director1 = Director.objects.create(
         name='first_gamma',
@@ -234,7 +234,7 @@ def test_vcl_update_cluster_filter_for_vcltemplateblock():
         port='6082',
         hostname='localhost-1',
         secret='secret-1',
-        dc=Dc.objects.create(name='Tokyo', symbol='dc2'),
+        dc=Dc.objects.create(name='Tokyo', symbol='dc4'),
         cluster=cluster1,
         template=template
     )

@@ -32,7 +32,7 @@ class LogicalCluster(models.Model):
 
 class Dc(models.Model):
     name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=9, validators=[vcl_name_validator])
+    symbol = models.CharField(max_length=9, unique=True, validators=[vcl_name_validator])
 
     def __unicode__(self):
         return self.symbol
