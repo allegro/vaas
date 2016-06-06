@@ -65,7 +65,8 @@ class DirectorResource(ModelResource):
         filtering = {
             'name': ['exact'],
             'enabled': ['exact'],
-            'probe': ALL_WITH_RELATIONS
+            'probe': ALL_WITH_RELATIONS,
+            'cluster': ALL_WITH_RELATIONS
         }
 
 
