@@ -7,6 +7,8 @@ VaaS enables you to manage cluster(s) of Varnish servers from one place, via a w
 your Varnish servers and their backends, directors and probes is saved into a database. It is then used to automatically 
 generate and distribute VCLs.
 
+![VaaS logo](docs/documentation/img/vaas_logo.png)
+
 ### Why we wrote it
 We got tired of having to edit VCLs manually, storing them under version control and waiting for puppet to distribute 
 them. As our SOA architecture grew, we found ourselves doing it more and more. So we wrote VaaS. Now each team can 
