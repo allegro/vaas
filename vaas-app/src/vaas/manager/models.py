@@ -45,13 +45,13 @@ class TimeProfile(models.Model):
     description = models.TextField(blank=True)
     max_connections = models.PositiveIntegerField(default='5')
     connect_timeout = NormalizedDecimalField(
-        default='0.30', decimal_places=3, max_digits=5, verbose_name=u'Connect timeout (s)'
+        default='0.30', decimal_places=2, max_digits=4, verbose_name=u'Connect timeout (s)'
     )
     first_byte_timeout = NormalizedDecimalField(
-        default='5', decimal_places=3, max_digits=5, verbose_name=u'First byte timeout (s)'
+        default='5', decimal_places=2, max_digits=5, verbose_name=u'First byte timeout (s)'
     )
     between_bytes_timeout = NormalizedDecimalField(
-        default='1', decimal_places=3, max_digits=5, verbose_name=u'Between bytes timeout (s)'
+        default='1', decimal_places=2, max_digits=5, verbose_name=u'Between bytes timeout (s)'
     )
 
     def __unicode__(self):
@@ -141,14 +141,14 @@ class Backend(models.Model):
     first_byte_timeout = NormalizedDecimalField(
         default='5',
         decimal_places=2,
-        max_digits=4,
+        max_digits=5,
         choices=generate_choices(1, 8001, 100),
         verbose_name=u'First byte timeout (s)'
     )
     between_bytes_timeout = NormalizedDecimalField(
         default='1',
         decimal_places=2,
-        max_digits=4,
+        max_digits=5,
         choices=generate_choices(1, 8001, 100),
         verbose_name=u'Between bytes timeout (s)'
     )
