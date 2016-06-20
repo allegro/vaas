@@ -15,6 +15,7 @@ class BackendStatusManager(object):
     def __init__(self):
         self.varnish_api_provider = VarnishApiProvider()
         self.logger = logging.getLogger('vaas')
+        self.timestamp = datetime.datetime.utcnow().replace(tzinfo=utc)
 
     def load_from_varnish(self):
         pattern = re.compile("^((?:.*_){5}[^(\s]*)")
@@ -43,18 +44,18 @@ class BackendStatusManager(object):
         return backend_to_status_map
 
     def store_backend_statuses(self, backend_to_status_map):
-        now = datetime.datetime.utcnow().replace(tzinfo=utc)
         for key, status in backend_to_status_map.items():
             address, port = key.split(":")
             try:
                 backend_status = BackendStatus.objects.get(address=address, port=port)
                 backend_status.status = status
-                backend_status.timestamp = now
-                backend_status.save()
+                if backend_status.timestamp < self.timestamp:
+                    backend_status.timestamp = self.timestamp
+                    backend_status.save()
             except BackendStatus.DoesNotExist:
-                BackendStatus.objects.create(address=address, port=port, status=status, timestamp=now)
+                BackendStatus.objects.create(address=address, port=port, status=status, timestamp=self.timestamp)
 
-        BackendStatus.objects.filter(timestamp__lt=now).delete()
+        BackendStatus.objects.filter(timestamp__lt=self.timestamp).delete()
 
     def refresh_statuses(self):
         self.store_backend_statuses(self.load_from_varnish())
