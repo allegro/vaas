@@ -48,8 +48,8 @@ class BackendStatusManager(object):
             address, port = key.split(":")
             try:
                 backend_status = BackendStatus.objects.get(address=address, port=port)
-                backend_status.status = status
                 if backend_status.timestamp < self.timestamp:
+                    backend_status.status = status
                     backend_status.timestamp = self.timestamp
                     backend_status.save()
             except BackendStatus.DoesNotExist:
