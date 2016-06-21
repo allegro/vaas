@@ -53,7 +53,7 @@ class VarnishApi(varnish.VarnishHandler):
         Run a command on the Varnish backend and return the result
         return value is a tuple of ((status, length), content)
         """
-        logging.error('SENT: %s: %s' % (self.host, command))
+        logging.debug('SENT: %s: %s' % (self.host, command.splitlines()[0]))
         self.write('%s\n' % command)
         while 1:
             buffer = self.read_until('\n').strip()

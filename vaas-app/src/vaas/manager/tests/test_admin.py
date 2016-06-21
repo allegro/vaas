@@ -11,7 +11,7 @@ from vaas.manager.models import Backend, Director, Probe, TimeProfile
 def test_should_switch_backend_status():
     settings.SIGNALS = 'off'
     dc = Dc.objects.create(symbol='dc1')
-    probe = Probe.objects.create(name='test_probe', url='/status')
+    probe = Probe.objects.create(name='first_service_probe', url='/status')
     director = Director.objects.create(
         name='first_service',
         router='req.url',

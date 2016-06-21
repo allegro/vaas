@@ -100,7 +100,7 @@ def test_regenerate_and_reload_vcl_if_cannot_obtain_request():
 def test_vcl_update_if_sender_allowed():
     settings.SIGNALS = 'on'
 
-    probe1 = Probe.objects.create(name='test_probe', url='/status')
+    probe1 = Probe.objects.create(name='test_beta_probe', url='/status')
     director1 = Director.objects.create(
         name='first_beta',
         router='req.url',
@@ -123,13 +123,13 @@ def test_vcl_update_if_sender_allowed():
 def test_vcl_update_cluster_filter_for_director():
     settings.SIGNALS = 'on'
 
-    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    cluster1 = LogicalCluster.objects.create(name="alpha cluster")
     """
     Created, but not used, just to check if cluster filtering works.
     """
-    LogicalCluster.objects.create(name="second cluster")
+    LogicalCluster.objects.create(name="beta cluster")
 
-    probe1 = Probe.objects.create(name='test_probe', url='/status')
+    probe1 = Probe.objects.create(name='test_alpha_probe', url='/status')
     director1 = Director.objects.create(
         name='first_alpha',
         router='req.url',
@@ -153,13 +153,13 @@ def test_vcl_update_cluster_filter_for_director():
 def test_vcl_update_clusters_for_time_profile_change():
     settings.SIGNALS = 'on'
 
-    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    cluster1 = LogicalCluster.objects.create(name="epsilon cluster")
     """
     Created, but not used, just to check if cluster filtering works.
     """
-    LogicalCluster.objects.create(name="second cluster")
+    LogicalCluster.objects.create(name="epsilon2 cluster")
 
-    probe1 = Probe.objects.create(name='test_probe', url='/status')
+    probe1 = Probe.objects.create(name='test_epsilon_probe', url='/status')
     time_profile = TimeProfile.objects.create(name='test_profile')
     director1 = Director.objects.create(
         name='first_service_epsilon',
@@ -193,11 +193,11 @@ def test_vcl_update_if_sender_not_allowed():
 def test_vcl_update_cluster_filter_for_vcltemplate():
     settings.SIGNALS = 'on'
 
-    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    cluster1 = LogicalCluster.objects.create(name="1 cluster")
     """
     Created, but not used, just to check if cluster filtering works.
     """
-    LogicalCluster.objects.create(name="second cluster")
+    LogicalCluster.objects.create(name="2 cluster")
     template = VclTemplate.objects.create()
 
     VarnishServer.objects.create(
@@ -221,11 +221,11 @@ def test_vcl_update_cluster_filter_for_vcltemplate():
 def test_vcl_update_cluster_filter_for_vcltemplateblock():
     settings.SIGNALS = 'on'
 
-    cluster1 = LogicalCluster.objects.create(name="first cluster")
+    cluster1 = LogicalCluster.objects.create(name="3 cluster")
     """
     Created, but not used, just to check if cluster filtering works.
     """
-    LogicalCluster.objects.create(name="second cluster")
+    LogicalCluster.objects.create(name="4 cluster")
     template = VclTemplate.objects.create(name="template")
     template_block = VclTemplateBlock.objects.create(template=template)
 
@@ -256,7 +256,7 @@ def test_vcl_update_cluster_filter_for_director_via_related_manager():
     """
     LogicalCluster.objects.create(name="cluster2")
 
-    probe1 = Probe.objects.create(name='test_probe', url='/status')
+    probe1 = Probe.objects.create(name='test_director1_probe', url='/status')
     director1 = Director.objects.create(
         name='director1',
         router='req.url',

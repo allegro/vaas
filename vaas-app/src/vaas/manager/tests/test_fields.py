@@ -14,7 +14,7 @@ from vaas.manager.models import Backend, Director, Probe, TimeProfile
 
 def create_backend(id, director_name, dc_symbol, address, port):
     dc = Dc.objects.create(name='hellish dc', symbol=dc_symbol)
-    probe = Probe.objects.create(name='test_probe', url='/status')
+    probe = Probe.objects.create(name='alpha_probe_{}'.format(id), url='/status')
     time_profile = TimeProfile.objects.create(name='alpha_{}'.format(id))
     director = Director.objects.create(
         name=director_name,
