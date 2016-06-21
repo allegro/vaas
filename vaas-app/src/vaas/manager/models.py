@@ -11,7 +11,7 @@ from vaas.validators import vcl_name_validator
 
 
 class Probe(models.Model):
-    name = models.CharField(max_length=30, validators=[vcl_name_validator])
+    name = models.CharField(max_length=30, validators=[vcl_name_validator], unique=True)
     url = models.CharField(max_length=50)
     expected_response = models.PositiveIntegerField(default='200')
     interval = models.PositiveIntegerField(
