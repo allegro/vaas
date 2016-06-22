@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'vaas.account',
     'vaas.purger',
     'taggit',
+    'django_ace',
 )
 
 MIDDLEWARE_CLASSES = (

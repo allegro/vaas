@@ -7,6 +7,7 @@ install:
 before_script:
   - cd vaas-app
   - "pep8 --first --show-source --show-pep8 src/"
+  - pip install -r requirements/test.txt
 script:
   - coverage run --rcfile=src/.coveragerc --source vaas ./setup.py test
 after_success:

@@ -1,10 +1,14 @@
+from django.db import models
 from django.contrib import admin
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
+from django_ace import AceWidget
 
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_state_and_reload
+
+ace_widget = AceWidget(theme='solarized_dark', mode='c_cpp', width='700px', height='400px')
 
 
 def enable_varnish_servers(modeladmin, request, queryset):
@@ -84,10 +88,16 @@ class VarnishServerAdmin(admin.ModelAdmin):
 
 
 class VclTemplateBlockAdmin(SimpleHistoryAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': ace_widget},
+    }
     list_display = ['tag', 'template']
 
 
 class VclTemplateAdmin(SimpleHistoryAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': ace_widget},
+    }
     list_display = ['name', 'version']
     object_history_template = "custom_simple_history/object_history.html"
 
