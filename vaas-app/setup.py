@@ -8,6 +8,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test
 from setuptools.command.install import install
 from setuptools.command.egg_info import egg_info as org_egg_info
+from pip.req import parse_requirements
 
 assert sys.version_info >= (2, 7), "Python 2.7+ required."
 
@@ -71,14 +72,19 @@ class VaaSEggInfo(org_egg_info):
                 print "Info: Cannot import: %s, ommit custom egg_info" % (e.message)
         org_egg_info.run(self)
 
-with open('./requirements/base.txt') as f:
-    base_requirements = f.read().splitlines()
+base_requirements = []
+test_requirements = []
+dependency_links = []
 
-with open('./requirements/test.txt') as f:
-    test_requirements = f.read().splitlines()
+for requirement in parse_requirements('{}/requirements/base.txt'.format(current_dir), session=False):
+    base_requirements.append(str(requirement.req))
+    if requirement.url is not None:
+        dependency_links.append(requirement.url)
 
-base_requirements = [x for x in base_requirements if x.find('==') != -1]
-test_requirements = [x for x in test_requirements if x.find('==') != -1]
+for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
+    test_requirements.append(str(requirement.req))
+    if requirement.url is not None:
+        dependency_links.append(requirement.url)
 
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
@@ -98,6 +104,7 @@ setup(
     package_dir={'': 'src'},
     zip_safe=False,  # because templates are loaded from file path
     tests_require=test_requirements,
+    dependency_links=dependency_links,
     install_requires=base_requirements,
     entry_points={
         'console_scripts': [
