@@ -92,7 +92,7 @@ for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt
 for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
     test_requirements.append(str(requirement.req))
     dependency_link = getattr(requirement, attr_name)
-    if dependency_link and dependency_link not in dependency_links:
+    if dependency_link and str(dependency_link) not in dependency_links:
         dependency_links.append(str(dependency_link))
 
 dependency_links = filter(lambda x: x is not None, dependency_links)

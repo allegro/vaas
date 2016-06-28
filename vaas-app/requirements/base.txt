@@ -17,4 +17,4 @@ django-taggit==0.18.0
 celery==3.1.23
 django-celery==3.1.17
 redis==2.10.5
--e git+https://github.com/marcinzaremba/django-ace.git@v1.2.3#egg=django_ace
+-e git+https://github.com/marcinzaremba/django-ace.git@v1.2.3#egg=django_ace-1.2.3
