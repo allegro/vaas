@@ -75,24 +75,17 @@ class VaaSEggInfo(org_egg_info):
 base_requirements = []
 test_requirements = []
 dependency_links = []
-attr_name = None
 
 for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt'.format(current_dir), session=False)):
-    if index == 0:
-        for attr in ['url', 'link']:
-            if hasattr(requirement, attr):
-                attr_name = attr
-                break
-
     base_requirements.append(str(requirement.req))
-    dependency_link = getattr(requirement, attr_name)
+    dependency_link = getattr(requirement, 'link')
     if dependency_link:
         dependency_links.append(str(dependency_link))
 
 for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
     test_requirements.append(str(requirement.req))
-    dependency_link = getattr(requirement, attr_name)
-    if dependency_link and dependency_link not in dependency_links:
+    dependency_link = getattr(requirement, 'link')
+    if dependency_link and str(dependency_link) not in dependency_links:
         dependency_links.append(str(dependency_link))
 
 dependency_links = filter(lambda x: x is not None, dependency_links)
