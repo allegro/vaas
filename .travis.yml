@@ -2,6 +2,7 @@ language: python
 python:
   - "2.7"
 install:
+  - pip install --upgrade pip
   - pip install pep8==1.5.7 --use-mirrors
   - pip install coveralls
 before_script:
