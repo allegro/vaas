@@ -80,13 +80,13 @@ for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt
     base_requirements.append(str(requirement.req))
     dependency_link = getattr(requirement, 'link')
     if dependency_link:
-        dependency_links.append(str(dependency_link).replace('==', '-'))
+        dependency_links.append(str(dependency_link))
 
 for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
     test_requirements.append(str(requirement.req))
     dependency_link = getattr(requirement, 'link')
-    if dependency_link and str(dependency_link).replace('==', '-') not in dependency_links:
-        dependency_links.append(str(dependency_link).replace('==', '-'))
+    if dependency_link and str(dependency_link) not in dependency_links:
+        dependency_links.append(str(dependency_link))
 
 dependency_links = filter(lambda x: x is not None, dependency_links)
 
