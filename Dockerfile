@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 RUN apt-get update &&\
-    apt-get install -y python python-virtualenv python-dev python-pip python-setupdocs sqlite3 nginx libsasl2-dev libldap2-dev libssl-dev redis-server &&\
+    apt-get install -y python python-virtualenv git python-dev python-pip python-setupdocs sqlite3 nginx libsasl2-dev libldap2-dev libssl-dev redis-server &&\
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/* &&\
     rm /etc/nginx/sites-enabled/default
@@ -23,6 +23,7 @@ RUN cd /home/ubuntu &&\
     . prod-env/bin/activate &&\
     cd /home/ubuntu/vaas-app &&\
     touch src/vaas/settings/__init__.py &&\
+    pip install --upgrade pip &&\
     pip install uwsgi &&\
     python setup.py install &&\
     cd &&\
