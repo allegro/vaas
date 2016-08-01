@@ -14,14 +14,14 @@ VCL_TAGS = {
     '3.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'RECV', 'OTHER_FUNCTIONS'],
-        ['ROUTER', 'DIRECTOR_{DIRECTOR}'],
+        ['ROUTER','EXPLICITE_ROUTER', 'DIRECTOR_{DIRECTOR}'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
     ],
     '4.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'RECV', 'OTHER_FUNCTIONS'],
-        ['ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}'],
+        ['ROUTER', 'EXPLICITE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
     ]
@@ -187,7 +187,7 @@ class VclTagBuilder(object):
 
     def decorate_single_tag(self, tag_name):
         vcl_tag = VclTagExpander(tag_name, self.get_tag_template_name(tag_name), self.input, can_overwrite=True)
-        if tag_name in ['ROUTER', 'DIRECTORS']:
+        if tag_name in ('ROUTER', 'EXPLICITE_ROUTER', 'DIRECTORS'):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
             vcl_tag.parameters['directors'] = self.placeholders['active_director']
             vcl_tag.parameters['probes'] = self.placeholders['probe']
