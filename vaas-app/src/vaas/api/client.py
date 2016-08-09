@@ -3,6 +3,8 @@
 import varnish
 import logging
 
+from django.conf import settings
+
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -69,3 +71,9 @@ class VarnishApi(varnish.VarnishHandler):
             command=command)
         self.read_eager()
         return (status, length), content
+
+    def read_until(self, match, timeout=None):
+        # override timeout for case when socket is open but process not responding
+        if timeout is None:
+            timeout = settings.VARNISH_COMMAND_TIMEOUT
+        return varnish.VarnishHandler.read_until(self, match, timeout)

@@ -11,6 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vaas.vm.box = "vaas_dev_v0.08.box"
     vaas.vm.synced_folder ".", "/home/vagrant/vaas"
     vaas.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
+    vaas.vm.network "private_network", ip: "192.168.200.11"
 
   end
 
