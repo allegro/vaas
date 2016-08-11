@@ -192,6 +192,19 @@ sub vcl_init {
 
 }
 sub vcl_recv {
+    if (req.url == "/vaas_status") {
+        return (synth(999, ""));
+    }
+}
+
+sub vcl_synth {
+    if (resp.status == 999) {
+            set resp.status = 503;
+        synthetic ("");
+        return (deliver);
+    }
+}
+sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "third.service.org";

@@ -38,7 +38,7 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 class VarnishCluster(object):
 
     def __init__(self, timeout=1, max_workers=30):
-        self.servers = VarnishServer.objects.filter(enabled=True).prefetch_related('dc', 'template', 'cluster')
+        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
         self.logger = logging.getLogger('vaas')
         self.timeout = timeout
         self.max_workers = max_workers
@@ -96,7 +96,7 @@ class ServerExtractor(object):
 
     def __init__(self):
         self.logger = logging.getLogger('vaas')
-        self.servers = VarnishServer.objects.filter(enabled=True).prefetch_related('dc', 'template', 'cluster')
+        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
 
     def extract_servers_by_clusters(self, clusters):
         self.logger.debug("Names of cluster used by load_vcl: %s" % ([cluster.name for cluster in clusters]))
@@ -148,7 +148,8 @@ class ParallelLoader(ParallelExecutor):
         self.api_provider = VarnishApiProvider()
 
     def _append_vcl(self, vcl, server, future_results, executor):
-        loader = VclLoader(self.api_provider.get_api(server))
+        """Suppress exceptions if cannot load vcl for server in maintenance state"""
+        loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
         future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
 
     def _format_vcl_list(self, to_use, aggregated_result):
@@ -169,7 +170,8 @@ class ParallelLoader(ParallelExecutor):
 
             for vcl, loader, server, future_result in future_results:
                 result = future_result.result()
-                if result == VclStatus.ERROR:
+                """Suppress error if cannot load vcl for server in maintenance state"""
+                if result == VclStatus.ERROR and server.status == 'active':
                     aggregated_result = False
                 if result == VclStatus.OK:
                     to_use.append(tuple([vcl, loader, server]))
@@ -186,12 +188,13 @@ class ParallelLoader(ParallelExecutor):
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
             for vcl, loader, server in vcl_loaded_list:
-                future_results.append(tuple([vcl_name, server.ip, executor.submit(loader.use_vcl, vcl)]))
-            for vcl_name, server_ip, future_result in future_results:
+                future_results.append(tuple([vcl_name, server, executor.submit(loader.use_vcl, vcl)]))
+            for vcl_name, server, future_result in future_results:
                 single_result = future_result.result()
-                if single_result == VclStatus.ERROR:
+                """Suppress error if cannot use vcl for server in maintenance state"""
+                if single_result == VclStatus.ERROR and server.status == 'active':
                     result = False
-                    self.logger.error("Cannot use vcl [%s] for server %s", vcl_name, server_ip)
+                    self.logger.error("Cannot use vcl [%s] for server %s", vcl_name, server.ip)
             for vcl, loader, server in vcl_loaded_list:
                 executor.submit(loader.discard_unused_vcls())
 

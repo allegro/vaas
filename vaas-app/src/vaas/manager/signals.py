@@ -43,6 +43,22 @@ def switch_state_and_reload(queryset, enabled):
     regenerate_and_reload_vcl(clusters_to_refresh)
 
 
+def switch_status_and_reload(queryset, status):
+    logger = logging.getLogger('vaas')
+    logger.debug("switch_state_and_reload(): %s" % str(queryset))
+    # A list with 'LogicalCluster' objects to refresh.
+    clusters_to_refresh = []
+    for query in queryset:
+        cluster = query.cluster
+        logger.debug("cluster - type: %s" % str(type(cluster)))
+        if cluster not in clusters_to_refresh:
+            clusters_to_refresh.append(cluster)
+
+        logger.debug("clusters to refresh: %s" % (str(clusters_to_refresh)))
+        queryset.update(status=status)
+    regenerate_and_reload_vcl(clusters_to_refresh)
+
+
 def regenerate_and_reload_vcl(clusters):
     logger = logging.getLogger('vaas')
     logger.debug("regenerate_and_reload_vcl(): %s" % str(clusters))

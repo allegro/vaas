@@ -215,6 +215,19 @@ director seventh_director_hashing_by_url_dc1 hash {
 ## END director seventh_director_hashing_by_url ###
 
 sub vcl_recv {
+    if (req.url == "/vaas_status") {
+        error 999 "";
+    }
+}
+
+sub vcl_error {
+    if (obj.status == 999) {
+            set obj.status = 503;
+        synthetic "";
+        return (deliver);
+    }
+}
+sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "third.service.org";

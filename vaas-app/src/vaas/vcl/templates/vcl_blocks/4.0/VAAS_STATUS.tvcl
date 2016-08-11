@@ -1,0 +1,17 @@
+sub vcl_recv {
+    if (req.url == "/vaas_status") {
+        return (synth(999, ""));
+    }
+}
+
+sub vcl_synth {
+    if (resp.status == 999) {
+        {% if server.status == 'active' %}
+            set resp.status = 200;
+        {% else %}
+            set resp.status = 503;
+        {% endif %}
+        synthetic ("");
+        return (deliver);
+    }
+}
