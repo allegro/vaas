@@ -18,9 +18,15 @@ cluster2 = LogicalCluster(name='cluster2')
 cluster3 = LogicalCluster(name='cluster3')
 
 servers = [
-    VarnishServer(ip='127.0.0.1', port='6082', hostname='localhost-1', secret='secret-1', dc=dc, cluster=cluster1),
-    VarnishServer(ip='127.0.0.2', port='6083', hostname='localhost-2', secret='secret-2', dc=dc, cluster=cluster2),
-    VarnishServer(ip='127.0.0.3', port='6084', hostname='localhost-3', secret='secret-3', dc=dc, cluster=cluster3),
+    VarnishServer(
+        ip='127.0.0.1', port='6082', hostname='localhost-1', secret='secret-1', dc=dc, cluster=cluster1, status='active'
+    ),
+    VarnishServer(
+        ip='127.0.0.2', port='6083', hostname='localhost-2', secret='secret-2', dc=dc, cluster=cluster2, status='active'
+    ),
+    VarnishServer(
+        ip='127.0.0.3', port='6084', hostname='localhost-3', secret='secret-3', dc=dc, cluster=cluster3, status='active'
+    ),
 ]
 
 query_set = Mock()
@@ -30,7 +36,7 @@ sample_vcl = Vcl('Test-content', name='test')
 
 
 class ServerExtractorTest(TestCase):
-    @patch('vaas.cluster.cluster.VarnishServer.objects.filter', Mock(return_value=query_set))
+    @patch('vaas.cluster.cluster.VarnishServer.objects.exclude', Mock(return_value=query_set))
     def test_should_extract_servers_by_touched_clusters(self):
         touched_clusters = [cluster1, cluster2]
         expected_extracted_servers = [servers[0], servers[1]]

@@ -1,0 +1,17 @@
+sub vcl_recv {
+    if (req.url == "/vaas_status") {
+        error 999 "";
+    }
+}
+
+sub vcl_error {
+    if (obj.status == 999) {
+        {% if server.status == 'active' %}
+            set obj.status = 200;
+        {% else %}
+            set obj.status = 503;
+        {% endif %}
+        synthetic "";
+        return (deliver);
+    }
+}

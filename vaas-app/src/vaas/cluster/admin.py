@@ -6,18 +6,23 @@ from django_ace import AceWidget
 
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster
 from vaas.cluster.cluster import VarnishApiProvider
-from vaas.manager.signals import switch_state_and_reload
+from vaas.manager.signals import switch_status_and_reload
 
 ace_widget = AceWidget(theme='solarized_dark', mode='c_cpp', width='700px', height='400px')
 
 
 def enable_varnish_servers(modeladmin, request, queryset):
-    switch_state_and_reload(queryset, True)
+    switch_status_and_reload(queryset, 'active')
 enable_varnish_servers.short_description = "Enable varnish servers"
 
 
+def maintenance_varnish_servers(modeladmin, request, queryset):
+    switch_status_and_reload(queryset, 'maintenance')
+maintenance_varnish_servers.short_description = "Maintenance varnish servers"
+
+
 def disable_varnish_servers(modeladmin, request, queryset):
-    switch_state_and_reload(queryset, False)
+    switch_status_and_reload(queryset, 'disabled')
 disable_varnish_servers.short_description = "Disable varnish servers"
 
 
@@ -37,7 +42,7 @@ class VarnishServerAdmin(admin.ModelAdmin):
         'is_connected',
         'vcl'
     )
-    actions = [enable_varnish_servers, disable_varnish_servers]
+    actions = [enable_varnish_servers, maintenance_varnish_servers, disable_varnish_servers]
     varnish_api_provider = None
 
     def get_list_display(self, request):
@@ -48,11 +53,18 @@ class VarnishServerAdmin(admin.ModelAdmin):
         return obj.template.get_template_version()
 
     def custom_enabled(self, obj):
-        if obj.enabled:
+        if obj.status == 'active':
             return format_html(
                 "<div class='span13 text-center'>" +
                 "<a class='btn btn-mini btn-success' href='#'>" +
                 "<i class='icon-ok-circle'></i></a>" +
+                "</div>"
+            )
+        elif obj.status == 'maintenance':
+            return format_html(
+                "<div class='span13 text-center'>" +
+                "<a class='btn btn-mini btn-warning' href='#'>" +
+                "<i class='icon-wrench'></i></a>" +
                 "</div>"
             )
         else:

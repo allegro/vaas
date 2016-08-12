@@ -53,6 +53,11 @@ class VclTemplate(models.Model):
 
 
 class VarnishServer(models.Model):
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('maintenance', 'Maintenance'),
+        ('disabled', 'Disabled')
+    )
     ip = models.GenericIPAddressField(protocol='IPv4')
     hostname = models.CharField(max_length=50)
     cluster_weight = models.PositiveIntegerField(default='1',
@@ -64,7 +69,7 @@ class VarnishServer(models.Model):
                                                    MaxValueValidator(65535)])
 
     secret = models.CharField(max_length=40)
-    enabled = models.BooleanField(default=False)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='disabled')
 
     dc = models.ForeignKey(Dc, on_delete=models.PROTECT)
     template = models.ForeignKey(VclTemplate, on_delete=models.PROTECT)

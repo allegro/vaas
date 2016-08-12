@@ -92,3 +92,11 @@ class VclLoaderTest(TestCase):
 
         assert_equals(VclStatus.ERROR, loader.discard_unused_vcls())
         assert_equals([call('unused-1'), call('usused-2')], varnish_api_mock.vcl_discard.call_args_list)
+
+    @patch('vaas.api.client.VarnishApi')
+    def test_should_suppress_varnish_command_execution_exception_if_proper_parameter_is_passed(self, varnish_api_mock):
+        varnish_api_mock.vcl_content_active.return_value = 'vcl old content'
+        varnish_api_mock.vcl_inline.side_effect = AssertionError()
+        loader = VclLoader(varnish_api_mock, True)
+
+        assert_equals(VclStatus.NO_CHANGES, loader.load_new_vcl(Vcl('vcl content')))
