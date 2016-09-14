@@ -35,7 +35,8 @@ class VclTagExpanderTest(TestCase):
 
     def test_tag_should_be_expanded_from_file_template(self):
         tag_expander = VclTagExpander('VCL', 'VCL', VclRendererInput())
-        expected_v3 = '<HEADERS/>\n<ACL/>\n<DIRECTORS/>\n<VAAS_STATUS/>\n<PROPER_PROTOCOL_REDIRECT/>\n<RECV/>\n<OTHER_FUNCTIONS/>'
+        expected_v3 = '<HEADERS/>\n<ACL/>\n<DIRECTORS/>\n<VAAS_STATUS/>\n<PROPER_PROTOCOL_REDIRECT/>\n<RECV/>\n' \
+                      '<OTHER_FUNCTIONS/>'
         expected_v4 = '''\
 # Marker to tell the VCL compiler that this VCL has been adapted to the
 # new 4.0 format.
