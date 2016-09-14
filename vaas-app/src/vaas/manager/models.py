@@ -82,7 +82,7 @@ class Director(models.Model):
     service = models.CharField(max_length=128, default='')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
-    protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default='http')
+    protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default='both')
     hashing_policy = models.CharField(
         max_length=20,
         default='req.url',

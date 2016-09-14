@@ -227,8 +227,26 @@ sub vcl_error {
         return (deliver);
     }
 }
+## Proper protocol redirect ##
+sub vcl_recv {
+    if (!req.http.X-Forwarded-Proto) {
+        set req.http.X-Forwarded-Proto = "http";
+    }
+}
+sub vcl_error {
+    if (obj.status == 998) {
+        set obj.status = 301;
+        set obj.http.Location = obj.response + req.http.host + req.url;
+        set obj.response = "Moved Permanently";
+        synthetic "";
+        return (deliver);
+    }
+}
 sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "third.service.org";
         set req.http.X-VaaS-Director = "dc1/third_service";
@@ -236,6 +254,9 @@ sub vcl_recv {
 
     }
     else if (req.http.host ~ "^unusual.name.org") {
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "unusual.name.org";
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
@@ -243,6 +264,9 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/first([\/\?].*)?$") {
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/first";
         set req.http.X-Forwarded-Prefix = "/first";
@@ -252,6 +276,9 @@ sub vcl_recv {
     }
     else if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/second";
         set req.http.X-Forwarded-Prefix = "/second";
@@ -264,6 +291,9 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/fifth([\/\?].*)?$") {
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/fifth";
         set req.http.X-Forwarded-Prefix = "/fifth";
@@ -272,6 +302,9 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/sixth([\/\?].*)?$") {
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/sixth";
         set req.http.X-Forwarded-Prefix = "/sixth";
@@ -280,6 +313,9 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/seventh([\/\?].*)?$") {
+        if (req.http.X-Forwarded-Proto == "http") {
+          error 998 "https://";
+        }
         remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/seventh";
         set req.http.X-Forwarded-Prefix = "/seventh";
