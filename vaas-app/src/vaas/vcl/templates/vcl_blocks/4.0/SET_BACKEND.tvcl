@@ -3,6 +3,15 @@
         {% if vcl_director.director.remove_path %}
         set req.url = regsub(req.url, "^{{ vcl_director.director.route_expression }}(/)?", "/");
         {% endif %}
+        {% if vcl_director.director.protocol == 'http' %}
+        if (req.http.X-Forwarded-Proto == "https") {
+            return(synth(998, "http://"));
+        }
+        {% elif vcl_director.director.protocol == 'https' %}
+        if (req.http.X-Forwarded-Proto == "http") {
+            return(synth(998, "https://"));
+        }
+        {% endif %}
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "{{ vcl_director.director.route_expression }}";
         {% if vcl_director.director.router == 'req.url' %}

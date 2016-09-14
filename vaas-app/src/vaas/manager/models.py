@@ -73,10 +73,16 @@ class Director(models.Model):
         ('req.http.cookie', 'Cookie'),
         ('req.url', 'Url')
     )
+    PROTOCOL_CHOICES = (
+        ('http', 'HTTP'),
+        ('https', 'HTTPS'),
+        ('both', 'BOTH'),
+    )
     name = models.CharField(max_length=54, unique=True, validators=[vcl_name_validator])
     service = models.CharField(max_length=128, default='')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
+    protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default='http')
     hashing_policy = models.CharField(
         max_length=20,
         default='req.url',

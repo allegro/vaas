@@ -1,0 +1,15 @@
+## Proper protocol redirect ##
+sub vcl_recv {
+    if (!req.http.X-Forwarded-Proto) {
+        set req.http.X-Forwarded-Proto = "http";
+    }
+}
+sub vcl_error {
+    if (obj.status == 998) {
+        set obj.status = 301;
+        set obj.http.Location = obj.response + req.http.host + req.url;
+        set obj.response = "Moved Permanently";
+        synthetic "";
+        return (deliver);
+    }
+}
