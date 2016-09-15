@@ -13,3 +13,10 @@ sub vcl_error {
         return (deliver);
     }
 }
+
+sub protocol_redirect {
+    if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
+       error 998 req.http.X-Accept-Proto + "://";
+    }
+
+}

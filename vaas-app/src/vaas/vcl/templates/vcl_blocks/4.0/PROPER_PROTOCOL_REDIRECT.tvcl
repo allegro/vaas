@@ -12,3 +12,9 @@ sub vcl_synth {
         return (deliver);
     }
 }
+sub protocol_redirect {
+    if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
+       return(synth(998, req.http.X-Accept-Proto + "://"));
+    }
+
+}

@@ -218,11 +218,16 @@ sub vcl_synth {
         return (deliver);
     }
 }
+sub protocol_redirect {
+    if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
+       return(synth(998, req.http.X-Accept-Proto + "://"));
+    }
+
+}
 sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
-        if (req.http.X-Forwarded-Proto == "http") {
-            return(synth(998, "https://"));
-        }
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "third.service.org";
         set req.http.X-VaaS-Director = "dc1/third_service";
@@ -230,9 +235,8 @@ sub vcl_recv {
 
     }
     else if (req.http.host ~ "^unusual.name.org") {
-        if (req.http.X-Forwarded-Proto == "http") {
-            return(synth(998, "https://"));
-        }
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "unusual.name.org";
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
@@ -240,9 +244,8 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/first([\/\?].*)?$") {
-        if (req.http.X-Forwarded-Proto == "http") {
-            return(synth(998, "https://"));
-        }
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/first";
         set req.http.X-Forwarded-Prefix = "/first";
@@ -252,9 +255,8 @@ sub vcl_recv {
     }
     else if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
-        if (req.http.X-Forwarded-Proto == "http") {
-            return(synth(998, "https://"));
-        }
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/second";
         set req.http.X-Forwarded-Prefix = "/second";
@@ -267,9 +269,8 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/sixth([\/\?].*)?$") {
-        if (req.http.X-Forwarded-Proto == "http") {
-            return(synth(998, "https://"));
-        }
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/sixth";
         set req.http.X-Forwarded-Prefix = "/sixth";
@@ -278,9 +279,8 @@ sub vcl_recv {
 
     }
     else if (req.url ~ "^\/seventh([\/\?].*)?$") {
-        if (req.http.X-Forwarded-Proto == "http") {
-            return(synth(998, "https://"));
-        }
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/seventh";
         set req.http.X-Forwarded-Prefix = "/seventh";
@@ -288,6 +288,9 @@ sub vcl_recv {
         set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
 
     }
+
+    # Call protocol redirect sub
+    call protocol_redirect;
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET") {
