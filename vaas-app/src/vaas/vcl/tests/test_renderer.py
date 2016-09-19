@@ -35,7 +35,8 @@ class VclTagExpanderTest(TestCase):
 
     def test_tag_should_be_expanded_from_file_template(self):
         tag_expander = VclTagExpander('VCL', 'VCL', VclRendererInput())
-        expected_v3 = '<HEADERS/>\n<ACL/>\n<DIRECTORS/>\n<VAAS_STATUS/>\n<RECV/>\n<OTHER_FUNCTIONS/>'
+        expected_v3 = '<HEADERS/>\n<ACL/>\n<DIRECTORS/>\n<VAAS_STATUS/>\n<RECV/>\n' \
+                      '<OTHER_FUNCTIONS/>'
         expected_v4 = '''\
 # Marker to tell the VCL compiler that this VCL has been adapted to the
 # new 4.0 format.
@@ -84,6 +85,7 @@ class DirectorFactory(DjangoModelFactory):
     name = 'first_service'
     router = 'req.url'
     route_expression = '/first'
+    protocol = 'https'
     mode = 'round-robin'
     hashing_policy = 'req.http.cookie'
     probe = Probe.objects.create(name='test_probe', url='/status')
@@ -118,6 +120,7 @@ class VclTagBuilderTest(TestCase):
             route_expression='/first',
             active_active=False,
             mode='round-robin',
+            protocol='https',
             remove_path=False,
             time_profile=time_profile
         )

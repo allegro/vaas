@@ -1,0 +1,20 @@
+## Proper protocol redirect ##
+sub vcl_recv {
+    if (!req.http.X-Forwarded-Proto) {
+        set req.http.X-Forwarded-Proto = "http";
+    }
+}
+sub vcl_synth {
+    if (resp.status == 998) {
+        set resp.http.Location = resp.reason + req.http.host + req.url;
+        set resp.status = 301;
+        synthetic ("");
+        return (deliver);
+    }
+}
+sub protocol_redirect {
+    if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
+       return(synth(998, req.http.X-Accept-Proto + "://"));
+    }
+
+}
