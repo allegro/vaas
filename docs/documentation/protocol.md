@@ -1,8 +1,8 @@
 Proper Protocol Support
 =============
 
-If you architecture have Load balancer (LB) server who terminate SSL is just grate. You can support it to you backend via PROTOCOL flag in Director.
-Protocol flag can be:
+If you architecture have Load balancer (LB) server who terminate SSL you can support it to you backend via PROTOCOL flag in Director.
+The flag can be:
 
 * HTTP - Support only http protocol to backend
 * HTTPS - Support only https protocol to backend
@@ -29,7 +29,7 @@ https://example.com -> LB (add X-Forwarded-Proto) -> Varnish -> Backend -> RES T
 Implementation
 --------------
 If we just use VCL tag we don't need to edit. The support is enable.
-But if we use custom vcl template we need to add extra tags in to vcl template.
+But if we use custom vcl template we need to add extra tags in our vcl template.
 The tag name is PROPER_PROTOCOL_REDIRECT and the content looks like below:
 
 ```
@@ -56,13 +56,13 @@ sub protocol_redirect {
 ```
 
 The PROPER_PROTOCOL_REDIRECT is called in RECV tag for default.
-After the tag generate the synth (redirect code) we need to call the functions for simply add:
+After the tag generate the synth (redirect code) we need to call it. To do that simply add:
 ```
 call protocol_redirect;
 ```
 in proper place.
 
-For example after selecting the backend:
+For example, after selecting the backend:
 
 ```
 sub vcl_recv {
