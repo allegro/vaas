@@ -79,7 +79,7 @@ sub protocol_redirect {
 The PROPER_PROTOCOL_REDIRECT is called in RECV tag by default.
 
 After the tag will generate the synth (redirect code). We need to call explicitly when using anything else but the
-default VCL. it. To do that simply add:
+default VCL. To do that simply add:
 
 ```
 call protocol_redirect;
