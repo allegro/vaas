@@ -1,7 +1,7 @@
 Proper Protocol Support
 =======================
 
-If you architecture utilizes Load Balancer (LB) server(s) which terminate SSL, you can notify your backend about it via
+If your architecture utilizes Load Balancer (LB) server(s) which terminate SSL, you can notify your backend about it via
 PROTOCOL flag in Director. The flag can be set to the following values:
 
 * HTTP - Support only http protocol to backend
