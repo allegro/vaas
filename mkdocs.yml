@@ -9,5 +9,6 @@ pages:
 - ['documentation/api.md', 'Documentation', 'VaaS API']
 - ['documentation/vcl.md', 'Documentation', 'VCL templates']
 - ['documentation/dc.md', 'Documentation', 'VaaS in multiple DC scenario']
+- ['documentation/protocol.md', 'Documentation', 'Protocol Support']
 - ['documentation/ldap.md', 'Documentation', 'Authentication with LDAP']
 - ['documentation/cron.md', 'Documentation', 'VaaS cron jobs']

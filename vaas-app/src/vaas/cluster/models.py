@@ -91,6 +91,7 @@ class VclTemplateBlock(models.Model):
         ('DIRECTORS', 'VCL/DIRECTORS'),
         ('RECV', 'VCL/RECEIVE'),
         ('ROUTER', 'VCL/RECEIVE/ROUTER'),
+        ('PROPER_PROTOCOL_REDIRECT', 'RECEIVE/PROPER_PROTOCOL_REDIRECT'),
         ('OTHER_FUNCTIONS', 'VCL/OTHER_FUNCTIONS'),
     )
     tag = models.CharField(max_length=100, choices=TAG_CHOICES)
