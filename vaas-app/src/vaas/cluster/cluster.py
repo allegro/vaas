@@ -32,7 +32,9 @@ class VclLoadException(Exception):
 def load_vcl_task(self, emmit_time, cluster_ids):
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
-    return VarnishCluster().load_vcl(start_processing_time, clusters)
+    if len(clusters) > 0:
+        return VarnishCluster().load_vcl(start_processing_time, clusters)
+    return True
 
 
 class VarnishCluster(object):
