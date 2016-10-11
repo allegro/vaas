@@ -39,7 +39,7 @@ supports http communication (set per director using appropriate flag: HTTP or BO
 If the director supports http (PROTOCOL flag set to HTTP or BOTH), Varnish will simply pass the request to backend.
 
 If the director does not supprot http (PROTOCOL flag set to HTTPS), Varnish will send a response containing Location
-header pointing to exactly the same location, but prefixed with http://.
+header pointing to exactly the same location, but prefixed with https://.
 
 ```
 http://example.com -> LB (X-Forwarded-Proto: http) -> Varnish (PROTOCOL flag set to HTTPS) -> RES TO CLIENT Location: https://example.com
