@@ -76,27 +76,48 @@ class VarnishServerAdmin(admin.ModelAdmin):
     custom_enabled.short_description = 'Enabled'
 
     def is_connected(self, obj):
-        try:
-            self.varnish_api_provider.get_api(obj)
+        if obj.status == 'active':
+            try:
+                self.varnish_api_provider.get_api(obj)
+                return format_html(
+                    "<div class='span13 text-center'>" +
+                    "<a class='btn btn-mini btn-success' href='#'><i class='icon-ok'></i></a>" +
+                    "</div>"
+                )
+            except:
+                return format_html(
+                    "<div class='span13 text-center'>" +
+                    "<a class='btn btn-mini btn-danger' href='#'><i class='icon-off'></i></a>" +
+                    "</div>"
+                )
+        elif obj.status == 'maintenance':
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-success' href='#'><i class='icon-ok'></i></a>" +
+                "<a class='btn btn-mini btn-warning' href='#'>" +
+                "<i class='icon-wrench'></i></a>" +
                 "</div>"
             )
-        except:
+        else:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-danger' href='#'><i class='icon-off'></i></a>" +
+                "<a class='btn btn-mini' href='#'><i class='icon-ban-circle'></i></a>" +
                 "</div>"
             )
 
     def vcl(self, obj):
-        return format_html(
-            ("<div class='span13 text-center'>" +
-             "<button class='btn btn-success' data-remote='/manager/varnish/vcl/%s/' " +
-             "data-toggle='modal' data-target='#vclModal'>Show vcl</button>" +
-             "</div>") % obj.id
-        )
+        if obj.status == 'active':
+            return format_html(
+                ("<div class='span13 text-center'>" +
+                 "<button class='btn btn-success' data-remote='/manager/varnish/vcl/%s/' " +
+                 "data-toggle='modal' data-target='#vclModal'>Show vcl</button>" +
+                 "</div>") % obj.id
+            )
+        else:
+            return format_html(
+                ("<div class='span13 text-center'>" +
+                 "<button class='btn btn-danger' disabled>Show vcl</button>" +
+                 "</div>")
+            )
 
 
 class VclTemplateBlockAdmin(SimpleHistoryAdmin):
