@@ -113,11 +113,12 @@ class VarnishServerAdmin(admin.ModelAdmin):
                  "</div>") % obj.id
             )
         else:
-           return format_html(
-               ("<div class='span13 text-center'>" +
-                "<button class='btn btn-danger' disabled>Show vcl</button>" +
-                "</div>")
-           )
+            return format_html(
+                ("<div class='span13 text-center'>" +
+                 "<button class='btn btn-danger' disabled>Show vcl</button>" +
+                 "</div>")
+            )
+
 
 class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     formfield_overrides = {
