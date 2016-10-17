@@ -105,7 +105,7 @@ class VarnishServerAdmin(admin.ModelAdmin):
             )
 
     def vcl(self, obj):
-        if obj.status == 'active':
+        if obj.status in ('active', 'maintenance'):
             return format_html(
                 ("<div class='span13 text-center'>" +
                  "<button class='btn btn-success' data-remote='/manager/varnish/vcl/%s/' " +
