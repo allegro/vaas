@@ -21,6 +21,10 @@ class DirectorModelForm(ModelForm):
         }
         model = Director
 
+    def __init__(self, *args, **kwargs):
+        super(DirectorModelForm, self).__init__(*args, **kwargs)
+        self.fields['probe'].queryset = Probe.objects.order_by('name')
+
 
 class BackendModelForm(ModelForm):
     class Meta:
