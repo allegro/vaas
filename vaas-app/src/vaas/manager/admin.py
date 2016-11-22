@@ -88,7 +88,6 @@ class BackendAdmin(admin.ModelAdmin):
             'fields': ('address', 'port', 'director', 'dc', 'weight', 'tags', 'inherit_time_profile')
         }),
         ('Advanced options', {
-            'classes': ('collapse',),
             'fields': ('max_connections', 'connect_timeout', 'first_byte_timeout', 'between_bytes_timeout')
         }),
     )
@@ -142,6 +141,9 @@ class BackendAdmin(admin.ModelAdmin):
             return format_html(
                 "<div class='span13 text-center'><a class='btn btn-mini' href='#'><i class='icon-off'></i></a></div>"
             )
+
+    class Media:
+        js = ('js/switch-inherit-profile.js',)
 
 
 class ProbeAdmin(admin.ModelAdmin):
