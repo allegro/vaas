@@ -239,11 +239,12 @@ class VarnishClusterTest(TestCase):
 
         with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=rendered_list):
             with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException):
-                with patch.object(ParallelLoader, 'use_vcl_list', return_value=False) as use_vcl_mock:
-                    varnish_cluster = VarnishCluster()
-                    with self.assertRaises(VclLoadException):
-                        varnish_cluster.load_vcl(timezone.now(), [])
-                    """
-                    Here we check if 'use' command is NOT sent to servers
-                    """
-                    assert_list_equal([], use_vcl_mock.call_args_list)
+                with patch.object(ParallelLoader, 'discard_loaded_unused_vcl', side_effect=VclLoadException):
+                    with patch.object(ParallelLoader, 'use_vcl_list', return_value=False) as use_vcl_mock:
+                        varnish_cluster = VarnishCluster()
+                        with self.assertRaises(VclLoadException):
+                            varnish_cluster.load_vcl(timezone.now(), [])
+                        """
+                        Here we check if 'use' command is NOT sent to servers
+                        """
+                        assert_list_equal([], use_vcl_mock.call_args_list)
