@@ -4,7 +4,7 @@ from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
 from tastypie.authorization import Authorization
 from tastypie import fields
 from tastypie.fields import ListField
-from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
 
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
@@ -60,7 +60,7 @@ class DirectorResource(ModelResource):
         resource_name = 'director'
         serializer = PrettyJSONSerializer()
         authorization = Authorization()
-        authentication = ApiKeyAuthentication()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=DirectorModelForm)
         filtering = {
             'name': ['exact'],
