@@ -191,7 +191,7 @@ class ParallelLoaderTest(TestCase):
         vcl_loaded_list = [(first_vcl, loader_mock, servers[1])]
 
         ParallelLoader().use_vcl_list('test', vcl_loaded_list)
-
+        print(loader_mock.discard_unused_vcls.call_args_list)
         assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
 
 
@@ -248,3 +248,16 @@ class VarnishClusterTest(TestCase):
                         Here we check if 'use' command is NOT sent to servers
                         """
                         assert_list_equal([], use_vcl_mock.call_args_list)
+
+    def test_should_discard_unused_vcls_on_error_while_loading_vcl(self):
+        vcl = Vcl('Test-content', name='test')
+        rendered_list = [(vcl, servers[0])]
+
+        with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=rendered_list):
+            with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException):
+                with patch.object(ParallelLoader, 'discard_loaded_unused_vcl') as discard_vcl_mock:
+                    varnish_cluster = VarnishCluster()
+                    with self.assertRaises(VclLoadException):
+                        varnish_cluster.load_vcl(timezone.now(), [])
+
+                    assert_list_equal([call([(vcl, servers[0])])], discard_vcl_mock.call_args_list)
