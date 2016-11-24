@@ -28,7 +28,7 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
 @app.task(bind=True)
 def load_vcl_task(self, emmit_time, cluster_ids):
     start_processing_time = timezone.now()
-    clusters = LogicalCluster.objects.filter( pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
+    clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
     if len(clusters) > 0:
         return VarnishCluster().load_vcl(start_processing_time, clusters)
     return True
