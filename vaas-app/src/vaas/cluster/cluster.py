@@ -25,7 +25,6 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
         return ParallelLoader(max_workers)
 
 
-
 @app.task(bind=True)
 def load_vcl_task(self, emmit_time, cluster_ids):
     start_processing_time = timezone.now()
