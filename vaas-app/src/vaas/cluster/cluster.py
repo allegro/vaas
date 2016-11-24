@@ -14,7 +14,7 @@ from vaas.api.client import VarnishApi
 from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput
-from exceptions import VclLoadException
+from exceptions import VclLoadException, VclDiscardException
 
 
 def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
@@ -28,7 +28,7 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
 @app.task(bind=True)
 def load_vcl_task(self, emmit_time, cluster_ids):
     start_processing_time = timezone.now()
-    clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
+    clusters = LogicalCluster.objects.filter( pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
     if len(clusters) > 0:
         return VarnishCluster().load_vcl(start_processing_time, clusters)
     return True
@@ -57,12 +57,16 @@ class VarnishCluster(object):
                 cluster.save()
         except VclLoadException as e:
             self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-            parallel_loader.discard_loaded_unused_vcl(vcl_list)
-            for cluster in clusters:
-                cluster.error_timestamp = start_processing_time
-                cluster.last_error_info = str(e)[:400]
-                cluster.save()
-            raise e
+            try:
+                parallel_loader.discard_loaded_unused_vcl(vcl_list)
+            except VclDiscardException as discard_exception:
+                e = discard_exception
+            finally:
+                for cluster in clusters:
+                    cluster.error_timestamp = start_processing_time
+                    cluster.last_error_info = str(e)[:400]
+                    cluster.save()
+                raise e
         else:
             return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
 
@@ -146,15 +150,14 @@ class ParallelLoader(ParallelExecutor):
     def __init__(self, max_workers=10):
         ParallelExecutor.__init__(self, max_workers)
         self.api_provider = VarnishApiProvider()
-        self.loader_handler = VclLoader
 
     def _append_vcl(self, vcl, server, future_results, executor):
         """Suppress exceptions if cannot load vcl for server in maintenance state"""
-        loader = self.loader_handler(self.api_provider.get_api(server), server.status == 'maintenance')
+        loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
         future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
 
     def _discard_vcl(self, server, executor):
-        loader = self.loader_handler(self.api_provider.get_api(server), server.status == 'maintenance')
+        loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
         return tuple([loader, server, executor.submit(loader.discard_unused_vcls)])
 
     def _format_vcl_list(self, to_use, aggregated_result):
