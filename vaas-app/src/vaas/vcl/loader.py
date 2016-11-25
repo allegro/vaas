@@ -4,7 +4,7 @@ import logging
 import time
 from enum import Enum
 from renderer import VclRenderer
-from vaas.cluster.exceptions import VclLoadException, VclDiscardException
+from vaas.cluster.exceptions import VclLoadException
 
 
 class VclStatus(Enum):
@@ -72,9 +72,8 @@ class VclLoader(object):
                 else:
                     return_value = max(return_value, VclStatus.ERROR.value)
                     self.logger.warning("VCL %s not discarded." % vcl)
-            except AssertionError as e:
+            except AssertionError:
                 self.logger.warning("VCL %s not discarded." % vcl)
-                raise VclDiscardException(e)
 
         self.logger.debug(
             "[%s] old vcl discarded: %f" % (self.varnish_api.id, time.time() - start)
