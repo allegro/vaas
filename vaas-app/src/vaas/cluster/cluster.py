@@ -14,7 +14,7 @@ from vaas.api.client import VarnishApi
 from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput
-from exceptions import VclLoadException, VclDiscardException
+from exceptions import VclLoadException
 
 
 def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
@@ -57,16 +57,14 @@ class VarnishCluster(object):
                 cluster.save()
         except VclLoadException as e:
             self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-            try:
-                parallel_loader.discard_loaded_unused_vcl(vcl_list)
-            except VclDiscardException as discard_exception:
-                e = discard_exception
-            finally:
-                for cluster in clusters:
-                    cluster.error_timestamp = start_processing_time
-                    cluster.last_error_info = str(e)[:400]
-                    cluster.save()
-                raise e
+            status, server = parallel_loader.discard_loaded_unused_vcl(vcl_list)
+            if not status:
+                self.logger.error('Cannot discard loaded vcl on {}'.format(server))
+            for cluster in clusters:
+                cluster.error_timestamp = start_processing_time
+                cluster.last_error_info = str(e)[:400]
+                cluster.save()
+            raise e
         else:
             return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
 
@@ -229,7 +227,7 @@ class ParallelLoader(ParallelExecutor):
 
             self.logger.debug("vcl's discarded: %f" % (time.time() - start))
 
-            return result
+            return result, server
 
 
 class PartialParallelLoader(ParallelLoader):

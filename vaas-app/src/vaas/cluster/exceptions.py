@@ -3,7 +3,3 @@
 
 class VclLoadException(Exception):
     pass
-
-
-class VclDiscardException(Exception):
-    pass
