@@ -255,7 +255,7 @@ class VarnishClusterTest(TestCase):
 
         with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=rendered_list):
             with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException):
-                with patch.object(ParallelLoader, 'discard_loaded_unused_vcl',return_value=(True, servers[0])) as \
+                with patch.object(ParallelLoader, 'discard_loaded_unused_vcl', return_value=(True, servers[0])) as \
                         discard_vcl_mock:
                     varnish_cluster = VarnishCluster()
                     with self.assertRaises(VclLoadException):
