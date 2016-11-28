@@ -191,7 +191,6 @@ class ParallelLoaderTest(TestCase):
         vcl_loaded_list = [(first_vcl, loader_mock, servers[1])]
 
         ParallelLoader().use_vcl_list('test', vcl_loaded_list)
-        print(loader_mock.discard_unused_vcls.call_args_list)
         assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
 
 
