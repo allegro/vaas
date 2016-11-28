@@ -4,6 +4,7 @@ import logging
 import time
 from enum import Enum
 from renderer import VclRenderer
+from vaas.cluster.exceptions import VclLoadException
 
 
 class VclStatus(Enum):
@@ -47,7 +48,7 @@ class VclLoader(object):
         except Exception as e:
             if self.suppress_load_errors:
                 return VclStatus.NO_CHANGES
-            raise e
+            raise VclLoadException(e)
 
     def use_vcl(self, vcl):
         start = time.time()
@@ -72,7 +73,6 @@ class VclLoader(object):
                     return_value = max(return_value, VclStatus.ERROR.value)
                     self.logger.warning("VCL %s not discarded." % vcl)
             except AssertionError:
-                return_value = max(return_value, VclStatus.ERROR.value)
                 self.logger.warning("VCL %s not discarded." % vcl)
 
         self.logger.debug(
