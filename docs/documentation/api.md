@@ -94,7 +94,7 @@ To list backends located in specified DC belonging to specified Director:
 
 ### Update whole backend
 
-    curl -i -X PUT
+    curl -i -X PUT \
     -d '{
       "address": "192.168.199.34",
       "between_bytes_timeout": "1",
