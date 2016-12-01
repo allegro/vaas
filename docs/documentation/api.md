@@ -88,6 +88,53 @@ To list backends located in specified DC belonging to specified Director:
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/backend/?username=admin&api_key=vagrant_api_key"
 
+### Fetch backend by id
+
+    curl -i "http://localhost:3030/api/v0.1/backend/1/?username=admin&api_key=vagrant_api_key"
+
+### Update whole backend
+
+    curl -i -X PUT
+    -d '{
+      "address": "192.168.199.34",
+      "between_bytes_timeout": "1",
+      "connect_timeout": "0.3",
+      "dc": {
+        "id": 1,
+        "name": "First datacenter",
+        "resource_uri": "/api/v0.1/dc/1/",
+        "symbol": "dc1"
+      },
+      "director": "/api/v0.1/director/1/",
+      "enabled": true,
+      "first_byte_timeout": "5",
+      "id": 1,
+      "inherit_time_profile": true,
+      "max_connections": 5,
+      "port": 80,
+      "resource_uri": "/api/v0.1/backend/1/",
+      "status": "Unknown",
+      "tags": [],
+      "time_profile": {
+        "between_bytes_timeout": "1",
+        "connect_timeout": "0.3",
+        "first_byte_timeout": "5",
+        "max_connections": 5
+      },
+      "weight": 1
+    }' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/backend/1/?username=admin&api_key=vagrant_api_key"
+
+
+### Partially update backend
+
+    curl -X PATCH \
+    -d '{"address": "192.168.199.33"}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/backend/1/?username=admin&api_key=vagrant_api_key"
+
+
 ### Create a new Varnish server
 
     curl -X POST \
@@ -147,3 +194,9 @@ To list backends located in specified DC belonging to specified Director:
     -d '{ "url": "http://example.com/contact", "clusters": "cluster1_siteA_test"  }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/purger/?username=admin&api_key=vagrant_api_key"
+
+
+Explore more
+============
+
+Detailed information about interaction with api based on tastypie you can find [here](http://django-tastypie.readthedocs.io/en/latest/interacting.html).
