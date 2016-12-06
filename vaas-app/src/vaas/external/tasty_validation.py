@@ -1,4 +1,5 @@
 from django.forms import ModelChoiceField
+from tastypie.bundle import Bundle
 from tastypie.validation import CleanedDataFormValidation
 
 """
@@ -25,6 +26,9 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
         if uri is None:
             return None
 
+        if isinstance(uri, Bundle):
+            uri = uri.data
+
         if isinstance(uri, dict):
             if 'resource_uri' in uri:
                 uri = uri['resource_uri']
@@ -37,6 +41,7 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
 
         # handle all passed URIs
         converted = []
+
         for one_uri in uris:
             try:
                 # hopefully /api/v1/<resource_name>/<pk>/
