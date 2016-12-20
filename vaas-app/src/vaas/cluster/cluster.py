@@ -57,9 +57,6 @@ class VarnishCluster(object):
                 cluster.save()
         except VclLoadException as e:
             self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-            status, server = parallel_loader.discard_loaded_unused_vcl(vcl_list)
-            if not status:
-                self.logger.error('Cannot discard loaded vcl on {}'.format(server))
             for cluster in clusters:
                 cluster.error_timestamp = start_processing_time
                 cluster.last_error_info = str(e)[:400]
@@ -154,10 +151,6 @@ class ParallelLoader(ParallelExecutor):
         loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
         future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
 
-    def _discard_vcl(self, server, executor):
-        loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
-        return tuple([loader, server, executor.submit(loader.discard_unused_vcls)])
-
     def _format_vcl_list(self, to_use, aggregated_result):
         if not aggregated_result:
             raise VclLoadException
@@ -183,6 +176,8 @@ class ParallelLoader(ParallelExecutor):
                     if result == VclStatus.OK:
                         to_use.append(tuple([vcl, loader, server]))
             except VclLoadException as e:
+                for vcl, loader, server, future_result in future_results:
+                    executor.submit(loader.discard_unused_vcls())
                 raise e
 
         self.logger.debug("vcl's loaded: %f" % (time.time() - start))
@@ -210,24 +205,6 @@ class ParallelLoader(ParallelExecutor):
         self.logger.debug("vcl's used: %f" % (time.time() - start))
 
         return result
-
-    def discard_loaded_unused_vcl(self, vcl_list):
-        start = time.time()
-        future_results = []
-        result = True
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            for server, _ in vcl_list:
-                future_results.append(self._discard_vcl(server, executor))
-
-            for _, server, future_result in future_results:
-                single_result = future_result.result()
-                if single_result == VclStatus.ERROR and server.status == 'active':
-                    result = False
-                    self.logger.error("Cannot discard vcl's for server %s", server.ip)
-
-            self.logger.debug("vcl's discarded: %f" % (time.time() - start))
-
-            return result, server
 
 
 class PartialParallelLoader(ParallelLoader):

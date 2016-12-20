@@ -74,6 +74,7 @@ class VclLoader(object):
                     self.logger.warning("VCL %s not discarded." % vcl)
             except AssertionError:
                 self.logger.warning("VCL %s not discarded." % vcl)
+                return_value = max(return_value, VclStatus.ERROR.value)
 
         self.logger.debug(
             "[%s] old vcl discarded: %f" % (self.varnish_api.id, time.time() - start)

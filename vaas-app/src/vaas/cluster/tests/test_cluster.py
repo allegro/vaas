@@ -193,6 +193,13 @@ class ParallelLoaderTest(TestCase):
         ParallelLoader().use_vcl_list('test', vcl_loaded_list)
         assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
 
+    def test_should_discard_error_loaded_vcl(self):
+        loader_mock = Mock()
+        loader_mock.load_vcl_list = Mock(side_efect=VclLoadException)
+        loader_mock.discard_unused_vcls = Mock()
+
+        assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
+
 
 class PartialParallelLoaderTest(TestCase):
     def test_should_return_vcl_list_without_broken_server_items(self):
@@ -238,26 +245,11 @@ class VarnishClusterTest(TestCase):
 
         with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=rendered_list):
             with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException):
-                with patch.object(ParallelLoader, 'discard_loaded_unused_vcl', return_value=(True, servers[0])):
-                    with patch.object(ParallelLoader, 'use_vcl_list', return_value=False) as use_vcl_mock:
-                        varnish_cluster = VarnishCluster()
-                        with self.assertRaises(VclLoadException):
-                            varnish_cluster.load_vcl(timezone.now(), [])
+                with patch.object(ParallelLoader, 'use_vcl_list', return_value=False) as use_vcl_mock:
+                    varnish_cluster = VarnishCluster()
+                    with self.assertRaises(VclLoadException):
+                        varnish_cluster.load_vcl(timezone.now(), [])
                         """
                         Here we check if 'use' command is NOT sent to servers
                         """
                         assert_list_equal([], use_vcl_mock.call_args_list)
-
-    def test_should_discard_unused_vcls_on_error_while_loading_vcl(self):
-        vcl = Vcl('Test-content', name='test')
-        rendered_list = [(vcl, servers[0])]
-
-        with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=rendered_list):
-            with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException):
-                with patch.object(ParallelLoader, 'discard_loaded_unused_vcl', return_value=(True, servers[0])) as \
-                        discard_vcl_mock:
-                    varnish_cluster = VarnishCluster()
-                    with self.assertRaises(VclLoadException):
-                        varnish_cluster.load_vcl(timezone.now(), [])
-
-                    assert_list_equal([call([(vcl, servers[0])])], discard_vcl_mock.call_args_list)
