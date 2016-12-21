@@ -191,14 +191,14 @@ class ParallelLoaderTest(TestCase):
         vcl_loaded_list = [(first_vcl, loader_mock, servers[1])]
 
         ParallelLoader().use_vcl_list('test', vcl_loaded_list)
-        assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
+        assert_true([call()], loader_mock._discard_unused_vcls.call_args_list)
 
     def test_should_discard_error_loaded_vcl(self):
         loader_mock = Mock()
         loader_mock.load_vcl_list = Mock(side_efect=VclLoadException)
         loader_mock.discard_unused_vcls = Mock()
 
-        assert_true([call()], loader_mock.discard_unused_vcls.call_args_list)
+        assert_true([call()], loader_mock._discard_unused_vcls.call_args_list)
 
 
 class PartialParallelLoaderTest(TestCase):

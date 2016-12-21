@@ -157,13 +157,17 @@ class ParallelLoader(ParallelExecutor):
 
         return to_use
 
+    def _discard_unused_vcls(self, server, loader, executor, discard_results):
+        discard_results.append(tuple([server, executor.submit(loader.discard_unused_vcls)]))
+        return discard_results
+
     def load_vcl_list(self, vcl_list):
         to_use = []
         start = time.time()
         aggregated_result = True
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
-
+            discard_results = []
             try:
                 for server, vcl in vcl_list:
                     self._append_vcl(vcl, server, future_results, executor)
@@ -177,7 +181,12 @@ class ParallelLoader(ParallelExecutor):
                         to_use.append(tuple([vcl, loader, server]))
             except VclLoadException as e:
                 for vcl, loader, server, future_result in future_results:
-                    executor.submit(loader.discard_unused_vcls())
+                    self._discard_unused_vcls(server, loader, executor, discard_results)
+                for server, status in discard_results:
+                    discard_single_result = status.result()
+                    if discard_single_result is VclStatus.ERROR:
+                        self.logger.debug("ERROR while discard vcl's on %s" % (server))
+
                 raise e
 
         self.logger.debug("vcl's loaded: %f" % (time.time() - start))
@@ -191,6 +200,7 @@ class ParallelLoader(ParallelExecutor):
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
+            discard_results = []
             for vcl, loader, server in vcl_loaded_list:
                 future_results.append(tuple([vcl_name, server, executor.submit(loader.use_vcl, vcl)]))
             for vcl_name, server, future_result in future_results:
@@ -200,7 +210,11 @@ class ParallelLoader(ParallelExecutor):
                     result = False
                     self.logger.error("Cannot use vcl [%s] for server %s", vcl_name, server.ip)
             for vcl, loader, server in vcl_loaded_list:
-                executor.submit(loader.discard_unused_vcls())
+                self._discard_unused_vcls(server, loader, executor, discard_results)
+            for server, status in discard_results:
+                discard_single_result = status.result()
+                if discard_single_result is VclStatus.ERROR:
+                    self.logger.debug("ERROR while discard vcl's on %s" % (server))
 
         self.logger.debug("vcl's used: %f" % (time.time() - start))
 
