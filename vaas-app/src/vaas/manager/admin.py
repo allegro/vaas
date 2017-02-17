@@ -1,3 +1,5 @@
+import csv
+
 from django.contrib import admin
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
 from vaas.manager.forms import DirectorModelForm
@@ -9,6 +11,8 @@ from tastypie.models import ApiKey
 from django.utils.html import format_html
 from vaas.monitor.models import BackendStatus
 from vaas.manager.signals import switch_state_and_reload
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 
 try:
@@ -34,6 +38,29 @@ def switch_backend_status(modeladmin, request, queryset):
     disabledSet = Backend.objects.filter(pk__in=map(lambda backend: backend.pk, queryset.filter(enabled=False)))
     switch_state_and_reload(disabledSet, True)
     switch_state_and_reload(enabledSet, False)
+
+
+def export_csv(modeladmin, request, queryset):
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=backend_list.csv'
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+    writer.writerow([
+        smart_str(u"id"),
+        smart_str(u"address"),
+        smart_str(u"port"),
+        smart_str(u"director"),
+        smart_str(u"dc"),
+    ])
+    for obj in queryset:
+        writer.writerow([
+            smart_str(obj.pk),
+            smart_str(obj.address),
+            smart_str(obj.port),
+            smart_str(obj.director),
+            smart_str(obj.dc),
+        ])
+    return response
 
 
 def enable_director(modeladmin, request, queryset):
@@ -82,7 +109,7 @@ class BackendAdmin(admin.ModelAdmin):
     search_fields = ['address', 'director__name', 'tags__name']
     list_display = ('address', 'port', 'director', 'dc', 'is_healthy', 'custom_enabled', 'get_tags')
     list_filter = ['director__name', 'director__cluster__name', 'dc__symbol']
-    actions = [enable_backend, disable_backend, switch_backend_status]
+    actions = [enable_backend, disable_backend, switch_backend_status, export_csv]
     fieldsets = (
         (None, {
             'fields': ('address', 'port', 'director', 'dc', 'weight', 'tags', 'inherit_time_profile')
