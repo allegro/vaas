@@ -219,10 +219,11 @@ sub vcl_synth {
     }
 }
 sub protocol_redirect {
-    if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
-       return(synth(998, req.http.X-Accept-Proto + "://"));
+    if (req.esi_level == 0 && (req.method == "GET" || req.method == "HEAD")) {
+        if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
+            return(synth(998, req.http.X-Accept-Proto + "://"));
+        }
     }
-
 }
 sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
@@ -293,7 +294,7 @@ sub vcl_recv {
     call protocol_redirect;
 
     # POST, PUT, DELETE are passed directly to backend
-    if (req.method != "GET") {
+    if (req.method != "GET" && req.method !="HEAD") {
         return (pass);
     }
     return (hash);

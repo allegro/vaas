@@ -244,10 +244,11 @@ sub vcl_error {
 }
 
 sub protocol_redirect {
-    if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
-       error 998 req.http.X-Accept-Proto + "://";
+    if (req.esi_level == 0 && (req.request == "GET" || req.request == "HEAD")) {
+        if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
+            error 998 req.http.X-Accept-Proto + "://";
+        }
     }
-
 }
 sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
@@ -328,7 +329,7 @@ sub vcl_recv {
     call protocol_redirect;
 
     # POST, PUT, DELETE are passed directly to backend
-    if (req.request != "GET") {
+    if (req.request != "GET" && req.request != "HEAD") {
         return (pass);
     }
     return (lookup);
