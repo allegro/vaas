@@ -15,7 +15,7 @@ sub vcl_error {
 }
 
 sub protocol_redirect {
-    if (req.request == "GET" || req.request == "HEAD") {
+    if (req.esi_level == 0 && (req.request == "GET" || req.request == "HEAD")) {
         if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
             error 998 req.http.X-Accept-Proto + "://";
         }
