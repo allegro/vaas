@@ -5,7 +5,7 @@ sub vcl_recv {
     call protocol_redirect;
 
     # POST, PUT, DELETE are passed directly to backend
-    if (req.method != "GET") {
+    if (req.method != "GET" && req.method !="HEAD") {
         return (pass);
     }
     return (hash);
