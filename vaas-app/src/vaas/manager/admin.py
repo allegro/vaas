@@ -66,7 +66,7 @@ def export_to_csv(modeladmin, request, queryset):
         )
         status = 'unknown'
         if len(status_list) == 1:
-            status =  status_list[0].status
+            status = status_list[0].status
 
         writer.writerow([
             smart_str(obj.pk),
