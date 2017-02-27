@@ -40,7 +40,7 @@ def switch_backend_status(modeladmin, request, queryset):
     switch_state_and_reload(enabledSet, False)
 
 
-def export_csv(modeladmin, request, queryset):
+def export_to_csv(modeladmin, request, queryset):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=backend_list.csv'
     writer = csv.writer(response, csv.excel)
@@ -51,14 +51,34 @@ def export_csv(modeladmin, request, queryset):
         smart_str(u"port"),
         smart_str(u"director"),
         smart_str(u"dc"),
+        smart_str(u"status"),
+        smart_str(u"enabled"),
+        smart_str(u"inherit_time_profile"),
+        smart_str(u"weight"),
+        smart_str(u"tags")
+
     ])
+    backend_status_list = BackendStatus.objects.all()
     for obj in queryset:
+        status_list = filter(
+            lambda backend_status: backend_status.address == obj.address and backend_status.port == obj.port,
+            backend_status_list
+        )
+        status = 'unknown'
+        if len(status_list) == 1:
+            status =  status_list[0].status
+
         writer.writerow([
             smart_str(obj.pk),
             smart_str(obj.address),
             smart_str(obj.port),
             smart_str(obj.director),
             smart_str(obj.dc),
+            smart_str(status),
+            smart_str(obj.enabled),
+            smart_str(obj.inherit_time_profile),
+            smart_str(obj.weight),
+            smart_str(obj.tags.all())
         ])
     return response
 
@@ -109,7 +129,7 @@ class BackendAdmin(admin.ModelAdmin):
     search_fields = ['address', 'director__name', 'tags__name']
     list_display = ('address', 'port', 'director', 'dc', 'is_healthy', 'custom_enabled', 'get_tags')
     list_filter = ['director__name', 'director__cluster__name', 'dc__symbol']
-    actions = [enable_backend, disable_backend, switch_backend_status, export_csv]
+    actions = [enable_backend, disable_backend, switch_backend_status, export_to_csv]
     fieldsets = (
         (None, {
             'fields': ('address', 'port', 'director', 'dc', 'weight', 'tags', 'inherit_time_profile')
