@@ -19,10 +19,10 @@
 - fields: {name: Second datacenter, symbol: dc2}
   model: cluster.dc
   pk: 2
-- fields: {comment: '', content: <VCL/>, name: vagrant_template_3, version: '3.0'}
+- fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_3, version: '3.0'}
   model: cluster.vcltemplate
   pk: 1
-- fields: {comment: '', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
+- fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
   model: cluster.vcltemplate
   pk: 2
 - fields: {cluster: 1, cluster_weight: 1, dc: 1, status: active, hostname: varnish-3,

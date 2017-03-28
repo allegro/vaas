@@ -266,11 +266,11 @@ class VclTemplateModelFormTest(TestCase):
             'comment': 'comment'
         }
 
-    def test_should_save_new_vcl_template(self):
+    def test_should_save_new_vcl_template_with_new_comment(self):
         form = VclTemplateModelForm(data=self.vcl_template_data)
         self.assertTrue(form.is_valid())
         obj = form.save()
-        self.assertEqual(obj.name, self.vcl_template_data['name'])
+        self.assertEqual(obj.comment, self.vcl_template_data['comment'])
 
     def test_should_raise_validation_exception_for_blank_comment_field(self):
         self.vcl_template_data['comment'] = ''
@@ -278,17 +278,19 @@ class VclTemplateModelFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors, {'comment': [u'This field is required.']})
 
-    def test_should_update_vcl_template(self):
+    def test_should_update_vcl_template_with_new_comment(self):
         form = VclTemplateModelForm(data=self.vcl_template_data)
         self.assertTrue(form.is_valid())
         obj = form.save()
-        self.assertEqual(obj.name, self.vcl_template_data['name'])
+        self.assertEqual(obj.comment, self.vcl_template_data['comment'])
 
         self.vcl_template_data['comment'] = 'new comment'
-        form = VclTemplateModelForm(instance=obj, data=self.vcl_template_data)
+        update_form = VclTemplateModelForm(instance=obj, data=self.vcl_template_data)
         self.assertTrue(form.is_valid())
+        obj = update_form.save()
+        self.assertEqual(obj.comment, self.vcl_template_data['comment'])
 
-    def test_should_raise_validation_exception_for_not_updated_comment_field(self):
+    def test_should_raise_validation_exception_for_not_updated_comment(self):
         form = VclTemplateModelForm(data=self.vcl_template_data)
         self.assertTrue(form.is_valid())
         obj = form.save()

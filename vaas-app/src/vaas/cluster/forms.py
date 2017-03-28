@@ -19,10 +19,13 @@ class VclTemplateModelForm(ModelForm):
         model = VclTemplate
 
     def clean_comment(self):
+        print (self.instance.comment)
+        print (self.cleaned_data['comment'])
         if self.instance and self.instance.pk:
             if self.cleaned_data['comment'] == self.instance.comment:
                 raise ValidationError('Please update comment.')
-            return self.instance.comment
+            else:
+                return self.cleaned_data['comment']
         else:
             return self.cleaned_data['comment']
 
