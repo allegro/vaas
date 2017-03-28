@@ -5,6 +5,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster
+from vaas.cluster.forms import VclTemplateModelForm
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
 
@@ -128,6 +129,7 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
 
 
 class VclTemplateAdmin(SimpleHistoryAdmin):
+    form = VclTemplateModelForm
     formfield_overrides = {
         models.TextField: {'widget': ace_widget},
     }
