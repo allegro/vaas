@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.forms import ModelForm
-from django.core.exceptions import ValidationError
 from vaas.cluster.models import LogicalCluster, Dc, VclTemplate, VarnishServer, VclTemplateBlock
 
 
@@ -15,14 +14,14 @@ class DcModelForm(ModelForm):
 
 
 class VclTemplateModelForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        initial = kwargs.get('initial', {})
+        initial['comment'] = None
+        kwargs['initial'] = initial
+        super(VclTemplateModelForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = VclTemplate
-
-    def clean_comment(self):
-        if self.instance and self.instance.pk:
-            if self.cleaned_data['comment'] == self.instance.comment:
-                raise ValidationError('Please update comment.')
-        return self.cleaned_data['comment']
 
 
 class VarnishServerModelForm(ModelForm):

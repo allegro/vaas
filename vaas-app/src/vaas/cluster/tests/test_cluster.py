@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ValidationError
 from django.utils import timezone
 from mock import patch, call, Mock
 from nose.tools import assert_true, assert_false, assert_equals, assert_list_equal, raises
@@ -259,43 +258,46 @@ class VarnishClusterTest(TestCase):
 class VclTemplateModelFormTest(TestCase):
 
     def setUp(self):
-        self.vcl_template_data = {
+        self.vcl_valid_template_data = {
             'name': 'vcl_name',
             'content': 'some content',
             'version': '4.0',
-            'comment': 'comment'
+            'comment': 'new comment'
+        }
+
+        self.vcl_invalid_template_data = {
+            'name': 'vcl_name',
+            'content': 'some content',
+            'version': '4.0',
+            'comment': ''
         }
 
     def test_should_save_new_vcl_template_with_new_comment(self):
-        form = VclTemplateModelForm(data=self.vcl_template_data)
+        form = VclTemplateModelForm(data=self.vcl_valid_template_data)
         self.assertTrue(form.is_valid())
         obj = form.save()
-        self.assertEqual(obj.comment, self.vcl_template_data['comment'])
+        self.assertEqual(obj.comment, self.vcl_valid_template_data['comment'])
 
     def test_should_raise_validation_exception_for_blank_comment_field(self):
-        self.vcl_template_data['comment'] = ''
-        form = VclTemplateModelForm(data=self.vcl_template_data)
+        form = VclTemplateModelForm(data=self.vcl_invalid_template_data)
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors, {'comment': [u'This field is required.']})
 
-    def test_should_update_vcl_template_with_new_comment(self):
-        form = VclTemplateModelForm(data=self.vcl_template_data)
+    def test_should_save_updated_vcl(self):
+        form = VclTemplateModelForm(data=self.vcl_valid_template_data)
         self.assertTrue(form.is_valid())
         obj = form.save()
-        self.assertEqual(obj.comment, self.vcl_template_data['comment'])
+        self.assertEqual(obj.name, self.vcl_valid_template_data['name'])
 
-        self.vcl_template_data['comment'] = 'new comment'
-        update_form = VclTemplateModelForm(instance=obj, data=self.vcl_template_data)
+        form = VclTemplateModelForm(instance=obj, data=self.vcl_valid_template_data)
         self.assertTrue(form.is_valid())
-        obj = update_form.save()
-        self.assertEqual(obj.comment, self.vcl_template_data['comment'])
 
-    def test_should_raise_validation_exception_for_not_updated_comment(self):
-        form = VclTemplateModelForm(data=self.vcl_template_data)
+    def test_should_raise_validation_exception_for_not_updated_comment_field(self):
+        form = VclTemplateModelForm(data=self.vcl_valid_template_data)
         self.assertTrue(form.is_valid())
         obj = form.save()
-        self.assertEqual(obj.name, self.vcl_template_data['name'])
+        self.assertEqual(obj.name, self.vcl_valid_template_data['name'])
 
-        form = VclTemplateModelForm(instance=obj, data=self.vcl_template_data)
+        form = VclTemplateModelForm(instance=obj, data=self.vcl_invalid_template_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'comment': [u'Please update comment.']})
+        self.assertEqual(form.errors, {'comment': [u'This field is required.']})
