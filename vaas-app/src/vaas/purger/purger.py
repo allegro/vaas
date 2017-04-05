@@ -19,7 +19,7 @@ class VarnishPurger(object):
 
         for server in servers:
                 try:
-                    conn = HTTPConnection(server.ip, 80)
+                    conn = HTTPConnection(server.ip, server.http_port)
                     purge_url = parsed_url.path
                     if parsed_url.query:
                         purge_url = "{}?{}".format(parsed_url.path, parsed_url.query)

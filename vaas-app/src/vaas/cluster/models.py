@@ -64,6 +64,10 @@ class VarnishServer(models.Model):
                                                  validators=[MinValueValidator(1),
                                                              MaxValueValidator(100)])
 
+    http_port = models.PositiveIntegerField(default='80',
+                                            validators=[MinValueValidator(1),
+                                                        MaxValueValidator(65535)])
+
     port = models.PositiveIntegerField(default='6082',
                                        validators=[MinValueValidator(1),
                                                    MaxValueValidator(65535)])

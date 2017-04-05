@@ -34,6 +34,7 @@ class VarnishServerAdmin(admin.ModelAdmin):
         'hostname',
         'ip',
         'port',
+        'http_port',
         'dc',
         'cluster',
         'cluster_weight',
