@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/allegro/vaas.png?label=ready&title=Ready)](https://waffle.io/allegro/vaas)
 VaaS - Varnish as a Service
 ---------------------------
 
