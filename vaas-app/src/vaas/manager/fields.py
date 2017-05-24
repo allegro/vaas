@@ -31,6 +31,7 @@ class NormalizedDecimalField(models.DecimalField):
     """
     Prevents values from being displayed with trailing 0's
     """
+
     def value_from_object(self, obj):
         val = super(NormalizedDecimalField, self).value_from_object(obj)
         if isinstance(val, Decimal):

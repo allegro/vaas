@@ -114,12 +114,12 @@ class DirectorAdmin(admin.ModelAdmin):
         if obj.enabled:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-success' href='#'><i class='icon-ok-circle'></i></a>" +
+                "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-mini' href='#'><i class='icon-ban-circle'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'>" +
                 "</i></a></div>"
             )
     custom_enabled.short_description = 'Enabled'
@@ -158,12 +158,12 @@ class BackendAdmin(admin.ModelAdmin):
         if obj.enabled:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-success' href='#'><i class='icon-ok-circle'></i></a>" +
+                "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-mini' href='#'><i class='icon-ban-circle'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'>" +
                 "</i></a></div>"
             )
     custom_enabled.short_description = 'Enabled'
@@ -176,17 +176,17 @@ class BackendAdmin(admin.ModelAdmin):
         if len(status_list) == 1:
             if status_list[0].status == 'Healthy':
                 return format_html(
-                    "<div class='span13 text-center'><a class='btn btn-mini btn-success' href='#'><i class='icon-ok'>" +
+                    "<div class='span13 text-center'><a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok'>" +
                     "</i></a></div>"
                 )
             else:
                 return format_html(
-                    "<div class='span13 text-center'><a class='btn btn-mini btn-danger' href='#'><i class='icon-off'>" +
+                    "<div class='span13 text-center'><a class='btn btn-xs btn-danger' href='#'><i class='glyphicon glyphicon-off'>" +
                     "</i></a></div>"
                 )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-mini' href='#'><i class='icon-off'></i></a></div>"
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-off'></i></a></div>"
             )
 
     class Media:

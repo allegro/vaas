@@ -230,7 +230,6 @@ class VclRenderer(object):
             "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
         )
         content = varnish.template.content
-
         for vcl_tags_level in VCL_TAGS[varnish.template.version]:
             for tag_name in vcl_tags_level:
                 for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):

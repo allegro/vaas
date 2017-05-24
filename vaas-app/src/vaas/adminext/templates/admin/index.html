@@ -61,10 +61,10 @@
                             {% if model.add_url or model.admin_url%}
                             <div class="pull-right">
                                 {% if model.add_url %}
-                                <a href="{{ model.add_url }}" class="btn btn-mini addlink"><i class="icon-plus"></i> {% trans 'Add' %}</a>
+                                <a href="{{ model.add_url }}" class="btn btn-xs addlink"><i class="icon-plus"></i> {% trans 'Add' %}</a>
                                 {% endif %}
                                 {% if model.admin_url %}
-                                <a href="{{ model.admin_url }}" class="btn btn-mini changelink"><i class="icon-edit"></i> {% trans 'Change' %}</a>
+                                <a href="{{ model.admin_url }}" class="btn btn-xs changelink"><i class="icon-edit"></i> {% trans 'Change' %}</a>
                                 {% endif %}
                             </div>
                             {% endif %}
