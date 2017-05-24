@@ -28,7 +28,7 @@ def api_key(request):
     if hasattr(request.user, 'api_key'):
         context['api_key'] = request.user.api_key
 
-    return TemplateResponse(request, 'api_key.html', context, current_app='manager')
+    return TemplateResponse(request, 'api_key.html', context)
 
 
 def generate_api_key(request):

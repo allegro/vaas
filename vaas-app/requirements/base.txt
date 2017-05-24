@@ -1,5 +1,5 @@
 django
-django-admin-bootstrapped
+#django-admin-bootstrapped
 python-varnish
 jinja2
 django_nose
@@ -17,4 +17,5 @@ django-taggit
 celery
 django-celery
 redis
+git+git://github.com/django-admin-bootstrapped/django-admin-bootstrapped.git@master #Remove deprecated url import from future
 -e git+https://github.com/marcinzaremba/django-ace.git@v1.2.3#egg=django_ace-1.2.3
