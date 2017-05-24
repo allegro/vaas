@@ -95,7 +95,7 @@ class Director(models.Model):
         choices=ROUTER_CHOICES
     )
     route_expression = models.CharField(
-        max_length='512',
+        max_length=512,
         verbose_name=u'Path or domain regex'
     )
     active_active = models.BooleanField(

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.views.generic.base import RedirectView
 from tastypie.api import Api
 
@@ -25,12 +25,11 @@ v01_api.register(LogicalClusterResource())
 v01_api.register(PurgeUrl())
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^admin/purger/', include('vaas.purger.urls')),
     url(r'^$', RedirectView.as_view(url='/admin')),
     url(r'^manager/', include('vaas.manager.urls')),
     url(r'^account/', include('vaas.account.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^api/', include(v01_api.urls)),
-)
+]

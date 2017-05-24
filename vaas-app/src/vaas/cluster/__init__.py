@@ -1,1 +1,1 @@
-import vaas.manager.signals
+# import vaas.manager.signals

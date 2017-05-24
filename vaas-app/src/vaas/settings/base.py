@@ -6,7 +6,9 @@ from django.conf import global_settings
 from vaas.configuration.loader import YamlConfigLoader
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
 config_loader = YamlConfigLoader()
 
@@ -17,6 +19,9 @@ DATABASES = config_loader.get_config_tree('db_config.yml')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'pwm_&@a%yd8+7mqf9=*l56+y!@sb7ab==g942j7++gnr9l2%*d'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ALLOWED_HOSTS = []
@@ -76,22 +81,92 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-TEMPLATE_DIRS = (current_dir + "templates",)
+# TEMPLATES = [
+#     {
+#     'BACKEND': 'django.template.backends.jinja2.Jinja2',
+#         'DIRS': [
+#             os.path.join(BASE_DIR, 'templates'),
+#         ],
+#
+#     },
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'DIRS': [],
+#         'APP_DIRS': False,
+#         #'DIRS': [current_dir + "templates"],
+#         'OPTIONS': {
+#             'context_processors': [
+#                 # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+#                 # list if you haven't customized them:
+#                 'django.core.context_processors.request',
+#                 'django.contrib.auth.context_processors.auth',
+#                 'django.template.context_processors.debug',
+#                 'django.template.context_processors.i18n',
+#                 'django.template.context_processors.media',
+#                 'django.template.context_processors.static',
+#                 'django.template.context_processors.tz',
+#                 'django.contrib.messages.context_processors.messages',
+#             ],
+#             # 'context_processors': [
+#             #     'django.template.context_processors.debug',
+#             #     'django.template.context_processors.request',
+#             #     'django.contrib.auth.context_processors.auth',
+#             #     'django.contrib.messages.context_processors.messages',
+#             # ],
+#             'loaders': [
+#                 ['django.template.loaders.filesystem.Loader',
+#                  'django.template.loaders.app_directories.Loader']
+#             ],
+#         },
+#     },
+# ]
 
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-)
+TEMPLATES = [
+    # Django templates for apps
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+        ],
+        'APP_DIRS': True,
+        'OPTIONS' : {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+            ],
+        }
+    },
+
+    # Jinja for our templates
+    {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+    },
+]
+
+
+
+
+
+# TEMPLATE_LOADERS = (
+#     'django.template.loaders.filesystem.Loader',
+#     'django.template.loaders.app_directories.Loader',
+# )
+# TEMPLATE_DIRS = (current_dir + "templates",)
+#
+# TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+#     'django.core.context_processors.request',
+# )
 
 LOGGING = {
     'version': 1,
@@ -142,6 +217,5 @@ CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_IGNORE_RESULT = False
 CELERY_TASK_PUBLISH_RETRY = True
-
 
 VARNISH_COMMAND_TIMEOUT = 5
