@@ -99,6 +99,15 @@ backend second_service_3_dc1_2_1_80 {
     .between_bytes_timeout = 1s;
     .probe = second_service_test_probe_1;
 }
+backend second_service_9_dc1_2_2_80 {
+    .host = "127.4.2.2";
+    .port = "80";
+    .max_connections = 5;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
+    .probe = second_service_test_probe_1;
+}
 
 ## END director second_service ###
 ## START director sixth_director_hashing_by_cookie ###
@@ -173,6 +182,7 @@ sub vcl_init {
 
     new second_service_dc1 = directors.random();
     second_service_dc1.add_backend(second_service_3_dc1_2_1_80, 1);
+    second_service_dc1.add_backend(second_service_9_dc1_2_2_80, 0);
 
     ## END director init second_service ###
 

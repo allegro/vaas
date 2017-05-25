@@ -37,6 +37,7 @@ To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varn
 * **Dc:** data centre in which the server is located (used to determine active and fallback directors)
 * **Template:** VCL template to be used by the server
 * **Cluster:** name of the cluster the server belongs to
+* **Is canary:** option to enable varnish server as canary (see [Canary deployments support](../documentation/canary.md))
 
 ## [Cluster] Vcl templates
 To define a new Varnish VCL, click on *Cluster -> Vcl templates -> Add vcl template* and fill in the form:

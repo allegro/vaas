@@ -2,7 +2,6 @@
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError
 from taggit.managers import TaggableManager
 
 from vaas.cluster.models import Dc, LogicalCluster
@@ -130,7 +129,7 @@ class Backend(models.Model):
     )
     weight = models.PositiveIntegerField(
         default='1',
-        choices=[(x, x) for x in range(1, 101)]
+        choices=[(x, x) for x in range(0, 101)]
     )
     dc = models.ForeignKey(Dc, on_delete=models.PROTECT)
     max_connections = models.PositiveIntegerField(
