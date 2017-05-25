@@ -3,6 +3,8 @@ from __future__ import unicode_literals, absolute_import
 
 import os
 from django.conf import global_settings
+from django.contrib import messages
+
 from vaas.configuration.loader import YamlConfigLoader
 
 
@@ -87,6 +89,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
+
 # TEMPLATES = [
 #     {
 #     'BACKEND': 'django.template.backends.jinja2.Jinja2',
@@ -138,9 +141,12 @@ TEMPLATES = [
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.i18n',
+                'django.template.context_processors.debug',
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
+                'django.template.context_processors.request',
                 'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
             ],
         }
     },
