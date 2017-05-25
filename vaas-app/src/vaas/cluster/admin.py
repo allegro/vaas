@@ -42,6 +42,7 @@ class VarnishServerAdmin(admin.ModelAdmin):
         'template_version',
         'custom_enabled',
         'is_connected',
+        'custom_is_canary',
         'vcl'
     )
     actions = [enable_varnish_servers, maintenance_varnish_servers, disable_varnish_servers]
@@ -105,6 +106,22 @@ class VarnishServerAdmin(admin.ModelAdmin):
                 "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
                 "</div>"
             )
+
+    def custom_is_canary(self, obj):
+        if obj.is_canary:
+            return format_html(
+                "<div class='span13 text-center'>" +
+                "<a class='btn btn-mini btn-success' href='#'>" +
+                "<i class='icon-ok-circle'></i></a>" +
+                "</div>"
+            )
+        else:
+            return format_html(
+                "<div class='span13 text-center'>" +
+                "<a class='btn btn-mini' href='#'><i class='icon-ban-circle'></i></a>" +
+                "</div>"
+            )
+    custom_is_canary.short_description = 'Canary'
 
     def vcl(self, obj):
         if obj.status in ('active', 'maintenance'):

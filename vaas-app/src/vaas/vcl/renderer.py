@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import copy
 import logging
 import os
 import hashlib
@@ -125,11 +125,12 @@ class VclTagBuilder(object):
             if director.enabled is True and varnish.cluster in director.cluster.all():
                 director.suffix = ROUTE_SETTINGS[director.router]['suffix']
                 for dc in self.input.dcs:
+                    backends = self.input.distributed_backends
+                    if varnish.is_canary:
+                        backends = self.input.distributed_canary_backends
                     if (dc.symbol == varnish.dc.symbol or director.active_active) \
-                            and len(self.input.distributed_backends[dc.id][director.id]) > 0:
-                        vcl_directors.append(VclDirector(
-                            director, dc, self.input.distributed_backends[dc.id][director.id], varnish.dc)
-                        )
+                            and len(backends[dc.id][director.id]) > 0:
+                            vcl_directors.append(VclDirector(director, dc, backends[dc.id][director.id], varnish.dc))
 
         return vcl_directors
 
@@ -203,23 +204,52 @@ class VclRendererInput(object):
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
-        self.distributed_backends = self.distribute_backends(
-            list(Backend.objects.all().prefetch_related('director', 'dc'))
-        )
+        backends = list(Backend.objects.all().prefetch_related('director', 'dc', 'tags'))
+        self.distributed_backends = self.distribute_backends(backends)
+        self.distributed_canary_backends = self.prepare_canary_backends(backends)
 
     def distribute_backends(self, backends):
         """Distribute backend list to two dimensional dictionary."""
-        distributed_backends = {}
-        for dc in self.dcs:
-            distributed_backends[dc.id] = {}
-            for director in self.directors:
-                distributed_backends[dc.id][director.id] = []
+        distributed_backends = self.prepare_backend_dictionary()
 
         for backend in backends:
             if backend.enabled is True:
                 distributed_backends[backend.dc.id][backend.director.id].append(backend)
 
         return distributed_backends
+
+    def prepare_canary_backends(self, backends):
+        distributed_canary_backends = self.prepare_backend_dictionary()
+        director_backends = {}
+
+        for director in self.directors:
+            director_backends[director.id] = []
+
+        for backend in backends:
+            director_backends[backend.director.id].append(backend)
+
+        for director_id, backend_list in director_backends.items():
+            canary_backends = [
+                b for b in backend_list if b.enabled and b.tags.all().filter(name__in=['canary'])
+            ]
+            for canary_backend in canary_backends:
+                backend = copy.copy(canary_backend)
+                if backend.weight == 0:
+                    backend.weight = 1
+                distributed_canary_backends[canary_backend.dc.id][canary_backend.director.id].append(backend)
+            if len(canary_backends) == 0:
+                for backend in backend_list:
+                    if backend.enabled is True:
+                        distributed_canary_backends[backend.dc.id][backend.director.id].append(backend)
+        return distributed_canary_backends
+
+    def prepare_backend_dictionary(self):
+        backend_dictionary = {}
+        for dc in self.dcs:
+            backend_dictionary[dc.id] = {}
+            for director in self.directors:
+                backend_dictionary[dc.id][director.id] = []
+        return backend_dictionary
 
 
 class VclRenderer(object):

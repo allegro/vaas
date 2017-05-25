@@ -7,7 +7,7 @@ from nose.tools import assert_equals
 from django.test import TestCase
 from django.db import models
 
-from vaas.cluster.models import Dc, LogicalCluster
+from vaas.cluster.models import Dc
 from vaas.manager.fields import NormalizedDecimalField, generate_choices, make_backend_name
 from vaas.manager.models import Backend, Director, Probe, TimeProfile
 

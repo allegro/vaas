@@ -78,6 +78,7 @@ class VarnishServer(models.Model):
     dc = models.ForeignKey(Dc, on_delete=models.PROTECT)
     template = models.ForeignKey(VclTemplate, on_delete=models.PROTECT)
     cluster = models.ForeignKey(LogicalCluster, on_delete=models.PROTECT)
+    is_canary = models.BooleanField(default=False)
 
     def __unicode__(self):
         return "{}:{} ({})".format(self.ip, self.port, self.hostname)
