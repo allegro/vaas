@@ -111,13 +111,9 @@ class VarnishServerAdmin(admin.ModelAdmin):
             return format_html(
                 ("<div class='span13 text-center'>" +
                  "<button type='button' class='btn btn-success' data-toggle='modal' " +
-                 "data-remote='/manager/varnish/vcl/%s/' data-toggle='modal' " +
+                 "data-vcl='/manager/varnish/vcl/%s/'" +
                  "data-target='#vclModal'>Show vcl</button>" +
-                 "</div>" +
-                 "<div class='modal fade' id='vclModal' role='dialog'>" +
-                 "<div class='modal-dialog modal-lg'>" +
-                 "<div class='modal-content'></div>" +
-                 "</div></div>") % obj.id
+                 "</div>") % obj.id
             )
         else:
             return format_html(

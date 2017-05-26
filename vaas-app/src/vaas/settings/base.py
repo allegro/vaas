@@ -7,10 +7,9 @@ from django.contrib import messages
 
 from vaas.configuration.loader import YamlConfigLoader
 
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
 config_loader = YamlConfigLoader()
 
@@ -90,54 +89,17 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 
-# TEMPLATES = [
-#     {
-#     'BACKEND': 'django.template.backends.jinja2.Jinja2',
-#         'DIRS': [
-#             os.path.join(BASE_DIR, 'templates'),
-#         ],
-#
-#     },
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': [],
-#         'APP_DIRS': False,
-#         #'DIRS': [current_dir + "templates"],
-#         'OPTIONS': {
-#             'context_processors': [
-#                 # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
-#                 # list if you haven't customized them:
-#                 'django.core.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.i18n',
-#                 'django.template.context_processors.media',
-#                 'django.template.context_processors.static',
-#                 'django.template.context_processors.tz',
-#                 'django.contrib.messages.context_processors.messages',
-#             ],
-#             # 'context_processors': [
-#             #     'django.template.context_processors.debug',
-#             #     'django.template.context_processors.request',
-#             #     'django.contrib.auth.context_processors.auth',
-#             #     'django.contrib.messages.context_processors.messages',
-#             # ],
-#             'loaders': [
-#                 ['django.template.loaders.filesystem.Loader',
-#                  'django.template.loaders.app_directories.Loader']
-#             ],
-#         },
-#     },
-# ]
-
 TEMPLATES = [
-    # Django templates for apps
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            os.path.join(BASE_DIR, 'vaas-app/src/vaas/manager/templates/cluster/'),
+            os.path.join(BASE_DIR, 'vaas/adminext/'),
+            os.path.join(BASE_DIR, 'templates'),
+            current_dir + "templates",
         ],
         'APP_DIRS': True,
-        'OPTIONS' : {
+        'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.i18n',
@@ -148,31 +110,9 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
-        }
-    },
-
-    # Jinja for our templates
-    {
-        'BACKEND': 'django.template.backends.jinja2.Jinja2',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-        ],
+        },
     },
 ]
-
-
-
-
-
-# TEMPLATE_LOADERS = (
-#     'django.template.loaders.filesystem.Loader',
-#     'django.template.loaders.app_directories.Loader',
-# )
-# TEMPLATE_DIRS = (current_dir + "templates",)
-#
-# TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-#     'django.core.context_processors.request',
-# )
 
 LOGGING = {
     'version': 1,

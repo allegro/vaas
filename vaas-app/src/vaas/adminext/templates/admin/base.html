@@ -34,9 +34,6 @@
                 $(document).ready(function() {
                     $('input[type="submit"]').addClass('btn');
                     $('[title]').tooltip();
-                    $('body').on('click', '[data-toggle="modal"]', function () {
-                        $($(this).data("target") + ' .modal-body').load($(this).data("remote"));
-                    });
                 });
             }(jQuery));
     //]]>
