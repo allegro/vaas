@@ -41,7 +41,7 @@ def switch_backend_status(modeladmin, request, queryset):
 
 
 def export_to_csv(modeladmin, request, queryset):
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=backend_list.csv'
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
