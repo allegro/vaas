@@ -59,9 +59,9 @@ else
     sudo start celery
 fi
 
-#if [ ! -f /tmp/db.sqlite3 ] ; then
-  #$VAAS_SRC_HOME/manage.py syncdb --noinput
-  #$VAAS_SRC_HOME/manage.py loaddata $VAAS_SRC_HOME/vaas/resources/data.yaml
-#fi
+if [ ! -f /tmp/db.sqlite3 ] ; then
+  $VAAS_SRC_HOME/manage.py migrate --run-syncdb --noinput
+  $VAAS_SRC_HOME/manage.py loaddata $VAAS_SRC_HOME/vaas/resources/data.yaml
+fi
 
-#$VAAS_SRC_HOME/manage.py runserver 0.0.0.0:3030 &
+$VAAS_SRC_HOME/manage.py runserver 0.0.0.0:3030 &

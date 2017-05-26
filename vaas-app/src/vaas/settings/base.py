@@ -95,6 +95,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR, 'vaas-app/src/vaas/manager/templates/cluster/'),
             os.path.join(BASE_DIR, 'vaas/adminext/'),
+            os.path.join(BASE_DIR, 'vaas/vaas/manager/'),
             os.path.join(BASE_DIR, 'templates'),
             current_dir + "templates",
         ],
