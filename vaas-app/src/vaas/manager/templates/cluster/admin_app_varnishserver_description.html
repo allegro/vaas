@@ -1,12 +1,13 @@
 <!-- Modal -->
 <script>
     $(document).ready(function () {
-        $('#vclModal').on('show.bs.modal', function (event) {
+        var vcl_modal = $('#vclModal');
+        vcl_modal.on('show.bs.modal', function (event) {
             var vcl = $(event.relatedTarget).data('vcl');
             $(this).find('.modal-body').load(vcl)
         });
-        $('#vclModal').on('hidden', function () {
-            $(this).removeData('modal');
+        vcl_modal.on('hidden.bs.modal', function (e) {
+            $(this).find('.modal-body').empty();
         });
     })
 </script>
