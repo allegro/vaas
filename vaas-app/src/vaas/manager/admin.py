@@ -119,7 +119,8 @@ class DirectorAdmin(admin.ModelAdmin):
             )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>" +
+                "<i class='glyphicon glyphicon-ban-circle'>" +
                 "</i></a></div>"
             )
     custom_enabled.short_description = 'Enabled'
@@ -163,7 +164,8 @@ class BackendAdmin(admin.ModelAdmin):
             )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>" +
+                "<i class='glyphicon glyphicon-ban-circle'>" +
                 "</i></a></div>"
             )
     custom_enabled.short_description = 'Enabled'
@@ -176,17 +178,18 @@ class BackendAdmin(admin.ModelAdmin):
         if len(status_list) == 1:
             if status_list[0].status == 'Healthy':
                 return format_html(
-                    "<div class='span13 text-center'><a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok'>" +
-                    "</i></a></div>"
+                    "<div class='span13 text-center'><a class='btn btn-xs btn-success' href='#'>" +
+                    "<i class='glyphicon glyphicon-ok'> </i></a></div>"
                 )
             else:
                 return format_html(
-                    "<div class='span13 text-center'><a class='btn btn-xs btn-danger' href='#'><i class='glyphicon glyphicon-off'>" +
-                    "</i></a></div>"
+                    "<div class='span13 text-center'><a class='btn btn-xs btn-danger' href='#'>" +
+                    "<i class='glyphicon glyphicon-off'> </i></a></div>"
                 )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-off'></i></a></div>"
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>" +
+                "<i class='glyphicon glyphicon-off'></i></a></div>"
             )
 
     class Media:

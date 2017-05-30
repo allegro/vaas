@@ -25,4 +25,4 @@ def purge_view(request):
     else:
         form = PurgeForm()
 
-    return render(request, 'purge_form.html', {'form': form})
+    return render(request, 'purge_form.html', {'form': form, 'has_permission': True})

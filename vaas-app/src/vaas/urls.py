@@ -34,5 +34,4 @@ urlpatterns = [
     url(r'^api/', include(v01_api.urls)),
 ]
 
-# admin.site.site_header = 'VaaS Administration'
-# admin.site.site_title = 'VaaS Administration'
+admin.site.site_header = 'VaaS Administration'

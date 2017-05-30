@@ -38,7 +38,4 @@ class NormalizedDecimalField(models.DecimalField):
             if (val.to_integral_value() == val):
                 return val.to_integral_value()
             else:
-                # raise Exception('MYYYYYYYYY {} {} {}'.format(val.to_integral_value(), val, val.normalize()))
                 return val.normalize()
-
-

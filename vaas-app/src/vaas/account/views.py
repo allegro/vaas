@@ -22,7 +22,8 @@ def api_key(request):
     context = {
         'title': 'Account - api key',
         'app_list': [app_dict],
-        'api_key': None
+        'api_key': None,
+        'has_permission': True
     }
 
     if hasattr(request.user, 'api_key'):
