@@ -13,8 +13,8 @@ class LogicalCluster(models.Model):
     """Model representing a cluster of varnish servers"""
     name = models.CharField(max_length=100, validators=[vcl_name_validator], unique=True)
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
-    reload_timestamp = models.DateTimeField(default=timezone.now())
-    error_timestamp = models.DateTimeField(default=timezone.now())
+    reload_timestamp = models.DateTimeField(default=timezone.now)
+    error_timestamp = models.DateTimeField(default=timezone.now)
     last_error_info = models.CharField(max_length=400, null=True, blank=True)
 
     def __unicode__(self):

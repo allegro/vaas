@@ -58,21 +58,21 @@ class VarnishServerAdmin(admin.ModelAdmin):
         if obj.status == 'active':
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-success' href='#'>" +
-                "<i class='icon-ok-circle'></i></a>" +
+                "<a class='btn btn-xs btn-success' href='#'>" +
+                "<i class='glyphicon glyphicon-ok-sign'></i></a>" +
                 "</div>"
             )
         elif obj.status == 'maintenance':
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-warning' href='#'>" +
-                "<i class='icon-wrench'></i></a>" +
+                "<a class='btn btn-xs btn-warning' href='#'>" +
+                "<i class='glyphicon glyphicon-wrench'></i></a>" +
                 "</div>"
             )
         else:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini' href='#'><i class='icon-ban-circle'></i></a>" +
+                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
                 "</div>"
             )
     custom_enabled.short_description = 'Enabled'
@@ -83,26 +83,26 @@ class VarnishServerAdmin(admin.ModelAdmin):
                 self.varnish_api_provider.get_api(obj)
                 return format_html(
                     "<div class='span13 text-center'>" +
-                    "<a class='btn btn-mini btn-success' href='#'><i class='icon-ok'></i></a>" +
+                    "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok'></i></a>" +
                     "</div>"
                 )
             except:
                 return format_html(
                     "<div class='span13 text-center'>" +
-                    "<a class='btn btn-mini btn-danger' href='#'><i class='icon-off'></i></a>" +
+                    "<a class='btn btn-xs btn-danger' href='#'><i class='glyphicon glyphicon-off'></i></a>" +
                     "</div>"
                 )
         elif obj.status == 'maintenance':
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-warning' href='#'>" +
-                "<i class='icon-wrench'></i></a>" +
+                "<a class='btn btn-xs btn-warning' href='#'>" +
+                "<i class='glyphicon glyphicon-wrench'></i></a>" +
                 "</div>"
             )
         else:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini' href='#'><i class='icon-ban-circle'></i></a>" +
+                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
                 "</div>"
             )
 
@@ -110,8 +110,9 @@ class VarnishServerAdmin(admin.ModelAdmin):
         if obj.status in ('active', 'maintenance'):
             return format_html(
                 ("<div class='span13 text-center'>" +
-                 "<button class='btn btn-success' data-remote='/manager/varnish/vcl/%s/' " +
-                 "data-toggle='modal' data-target='#vclModal'>Show vcl</button>" +
+                 "<button type='button' class='btn btn-success' data-toggle='modal' " +
+                 "data-vcl='/manager/varnish/vcl/%s/'" +
+                 "data-target='#vclModal'>Show vcl</button>" +
                  "</div>") % obj.id
             )
         else:

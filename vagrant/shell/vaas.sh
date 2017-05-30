@@ -4,7 +4,7 @@ VAAS_SRC_HOME='/home/vagrant/vaas/vaas-app/src'
 
 # prepare repositories
 sudo apt-get update -y
-sudo apt-get install -y redis-server
+sudo apt-get install -y redis-server python-dev binutils libproj-dev gdal-bin
 
 sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 
@@ -60,7 +60,7 @@ else
 fi
 
 if [ ! -f /tmp/db.sqlite3 ] ; then
-  $VAAS_SRC_HOME/manage.py syncdb --noinput
+  $VAAS_SRC_HOME/manage.py migrate --run-syncdb --noinput
   $VAAS_SRC_HOME/manage.py loaddata $VAAS_SRC_HOME/vaas/resources/data.yaml
 fi
 

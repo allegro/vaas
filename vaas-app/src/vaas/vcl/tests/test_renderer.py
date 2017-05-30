@@ -382,7 +382,7 @@ probe first_service_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1s;
+    .timeout = 1.0s;
     .window = 5;
     .threshold = 3;
 }
@@ -391,9 +391,9 @@ backend first_service_1_dc2_1_1_80 {
     .host = "127.0.1.1";
     .port = "80";
     .max_connections = 1;
-    .connect_timeout = 0.5s;
-    .first_byte_timeout = 0.1s;
-    .between_bytes_timeout = 1s;
+    .connect_timeout = 0.50s;
+    .first_byte_timeout = 0.10s;
+    .between_bytes_timeout = 1.00s;
     .probe = first_service_test_probe_1;
 }
 

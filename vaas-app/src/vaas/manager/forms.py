@@ -7,11 +7,13 @@ from vaas.manager.models import Probe, Director, Backend, TimeProfile
 class ProbeModelForm(ModelForm):
     class Meta:
         model = Probe
+        fields = '__all__'
 
 
 class TimeProfileModelForm(ModelForm):
     class Meta:
         model = TimeProfile
+        fields = '__all__'
 
 
 class DirectorModelForm(ModelForm):
@@ -20,6 +22,7 @@ class DirectorModelForm(ModelForm):
             'cluster': CheckboxSelectMultiple()
         }
         model = Director
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(DirectorModelForm, self).__init__(*args, **kwargs)
@@ -29,3 +32,4 @@ class DirectorModelForm(ModelForm):
 class BackendModelForm(ModelForm):
     class Meta:
         model = Backend
+        fields = '__all__'
