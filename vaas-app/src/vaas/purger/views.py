@@ -12,7 +12,7 @@ def purge_view(request):
     if request.method == 'POST':
         form = PurgeForm(request.POST)
         if form.is_valid():
-            cluster = LogicalCluster.objects.get(pk=form.cleaned_data['cluster'])
+            cluster = LogicalCluster.objects.get(pk=form.cleaned_data['cluster'].pk)
             servers = ServerExtractor().extract_servers_by_clusters([cluster])
             result = VarnishPurger().purge_url(form.cleaned_data['url'], servers)
             messages.warning(
