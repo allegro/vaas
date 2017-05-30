@@ -7,7 +7,7 @@ django-tastypie==0.13.3
 futures==3.1.1
 django-log-request-id==1.3.2
 MarkupSafe==1.0
-nose==1.3.7
+nose==1.3.4
 django-simple-history==1.8.2
 django-secure==1.0.1
 lockfile==0.12.2
@@ -15,5 +15,5 @@ django-taggit==0.22.1
 celery==4.0.2
 django-celery==3.2.1
 redis==2.10.5
-git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=2.5.7
+-e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=django_admin_bootstrapped-2.5.7
 -e git+https://github.com/marcinzaremba/django-ace.git@v1.2.3#egg=django_ace-1.2.3
