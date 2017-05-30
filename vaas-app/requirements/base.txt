@@ -15,5 +15,5 @@ django-taggit==0.22.1
 celery==4.0.2
 django-celery==3.2.1
 redis==2.10.5
-git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master
+git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=2.5.7
 -e git+https://github.com/marcinzaremba/django-ace.git@v1.2.3#egg=django_ace-1.2.3

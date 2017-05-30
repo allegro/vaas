@@ -408,7 +408,6 @@ director first_service_dc2 round-robin {
 '''
 
         self.varnish.template = vcl_template_with_unused_director
-        print "#################################"
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
 
         assert_equals(expected_content, vcl.content)
