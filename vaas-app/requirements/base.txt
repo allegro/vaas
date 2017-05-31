@@ -15,5 +15,5 @@ lockfile==0.12.2
 django-taggit==0.22.1
 celery==4.0.2
 redis==2.10.5
--e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=django_admin_bootstrapped-2.5.7
+-e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=django_admin_bootstrapped-2.5.8
 -e git+https://github.com/marcinzaremba/django-ace.git@v1.2.3#egg=django_ace-1.2.3
