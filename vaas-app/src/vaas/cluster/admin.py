@@ -111,14 +111,14 @@ class VarnishServerAdmin(admin.ModelAdmin):
         if obj.is_canary:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini btn-success' href='#'>" +
-                "<i class='icon-ok-circle'></i></a>" +
+                "<a class='btn btn-xs btn-success' href='#'>" +
+                "<i class='glyphicon glyphicon-ok-sign'></i></a>" +
                 "</div>"
             )
         else:
             return format_html(
                 "<div class='span13 text-center'>" +
-                "<a class='btn btn-mini' href='#'><i class='icon-ban-circle'></i></a>" +
+                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
                 "</div>"
             )
     custom_is_canary.short_description = 'Canary'
