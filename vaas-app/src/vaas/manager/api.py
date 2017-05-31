@@ -106,11 +106,11 @@ class BackendResource(ModelResource):
 
         return bundle
 
-    def build_filters(self, filters=None):
+    def build_filters(self, filters=None, ignore_bad_filters=False):
         if filters is None:
             filters = {}
 
-        orm_filters = super(BackendResource, self).build_filters(filters)
+        orm_filters = super(BackendResource, self).build_filters(filters, ignore_bad_filters=ignore_bad_filters)
 
         if 'tag' in filters:
             orm_filters['tags__name__in'] = filters['tag'].split(',')

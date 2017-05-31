@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from decimal import Decimal
+
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
 def generate_choices(min, max, step, decimal_places=2):
     format_str = "{0:." + str(decimal_places) + "f}"
     choices = [
-        (x / Decimal(step), format_str.format(x / Decimal(step))) for x in range(min, max)
+        (Decimal(format_str.format(x / Decimal(step))), format_str.format(x / Decimal(step))) for x in range(min, max)
     ]
 
     return choices
@@ -39,3 +41,16 @@ class NormalizedDecimalField(models.DecimalField):
                 return val.to_integral_value()
             else:
                 return val.normalize()
+
+    def to_python(self, value):
+        if value is None:
+            return value
+        try:
+            format_str = "{0:." + str(self.decimal_places) + "f}"
+            return Decimal(format_str.format(float(value)))
+        except:
+            raise ValidationError(
+                self.error_messages['invalid'],
+                code='invalid',
+                params={'value': value},
+            )
