@@ -119,11 +119,24 @@ backend second_service_3_dc1_2_1_80 {
     .between_bytes_timeout = 1.00s;
     .probe = second_service_test_probe_1;
 }
+backend second_service_9_dc1_2_2_80 {
+    .host = "127.4.2.2";
+    .port = "80";
+    .max_connections = 5;
+    .connect_timeout = 0.30s;
+    .first_byte_timeout = 5.00s;
+    .between_bytes_timeout = 1.00s;
+    .probe = second_service_test_probe_1;
+}
 
 director second_service_dc1 random {
     {
       .backend = second_service_3_dc1_2_1_80;
       .weight = 1;
+    }
+    {
+      .backend = second_service_9_dc1_2_2_80;
+      .weight = 0;
     }
 
 }

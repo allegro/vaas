@@ -80,25 +80,6 @@ probe second_service_test_probe_1 {
     .threshold = 3;
 }
 
-backend second_service_2_dc2_2_1_80 {
-    .host = "127.0.2.1";
-    .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
-    .probe = second_service_test_probe_1;
-}
-
-backend second_service_3_dc1_2_1_80 {
-    .host = "127.4.2.1";
-    .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
-    .probe = second_service_test_probe_1;
-}
 backend second_service_9_dc1_2_2_80 {
     .host = "127.4.2.2";
     .port = "80";
@@ -177,12 +158,8 @@ sub vcl_init {
 
     ## START director init second_service ###
 
-    new second_service_dc2 = directors.random();
-    second_service_dc2.add_backend(second_service_2_dc2_2_1_80, 1);
-
     new second_service_dc1 = directors.random();
-    second_service_dc1.add_backend(second_service_3_dc1_2_1_80, 1);
-    second_service_dc1.add_backend(second_service_9_dc1_2_2_80, 0);
+    second_service_dc1.add_backend(second_service_9_dc1_2_2_80, 1);
 
     ## END director init second_service ###
 
@@ -271,12 +248,8 @@ sub vcl_recv {
         unset req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/second";
         set req.http.X-Forwarded-Prefix = "/second";
-        set req.http.X-VaaS-Director = "dc2/second_service";
-        set req.backend_hint = second_service_dc2.backend();
-        if (!std.healthy(req.backend_hint)) {
-            set req.http.X-VaaS-Director = "dc1/second_service";
-            set req.backend_hint = second_service_dc1.backend();
-        }
+        set req.http.X-VaaS-Director = "dc1/second_service";
+        set req.backend_hint = second_service_dc1.backend();
 
     }
     else if (req.url ~ "^\/sixth([\/\?].*)?$") {

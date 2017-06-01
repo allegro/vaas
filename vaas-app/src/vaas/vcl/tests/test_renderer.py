@@ -4,12 +4,12 @@ import os
 from factory import DjangoModelFactory, LazyAttribute, Sequence, SubFactory
 from mock import *
 from nose.tools import *
-from random import random
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
 from vaas.manager.models import Director, Probe, Backend, TimeProfile
 from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster
 from django.conf import settings
+from taggit.managers import TaggableManager
 
 md5_mock = Mock()
 md5_mock.hexdigest = Mock(return_value="ca5ef")
@@ -102,11 +102,13 @@ class BackendFactory(DjangoModelFactory):
     dc = SubFactory(DcFactory)
     director = SubFactory(DirectorFactory)
     inherit_time_profile = False
+    weight = 1
 
 
 class VclTagBuilderTest(TestCase):
 
     def setUp(self):
+        tags = TaggableManager()
         settings.SIGNALS = 'off'
         dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
         dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
@@ -177,6 +179,10 @@ class VclTagBuilderTest(TestCase):
         BackendFactory.create(address='127.9.2.1', dc=dc1, director=active_active_absent_in_second_cluster)
         BackendFactory.create(address='127.10.2.1', dc=dc1, director=active_active_hashing_by_cookie)
         BackendFactory.create(address='127.11.2.1', dc=dc1, director=active_active_hashing_by_url)
+        canary_backend = BackendFactory.create(
+            address='127.4.2.2', dc=dc1, director=active_active_remove_path, weight=0
+        )
+        canary_backend.tags.add('canary')
 
         template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>', version='3.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
@@ -184,6 +190,12 @@ class VclTagBuilderTest(TestCase):
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v3, cluster=cluster1)
         self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v3, cluster=cluster1)
         self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=dc2, template=template_v4, cluster=cluster2)
+        self.varnish3_canary = VarnishServer.objects.create(
+            ip='127.0.0.3', dc=dc2, template=template_v3, cluster=cluster1, is_canary=True
+        )
+        self.varnish4_canary = VarnishServer.objects.create(
+            ip='127.0.0.4', dc=dc2, template=template_v4, cluster=cluster2, is_canary=True
+        )
 
     @staticmethod
     def assert_vcl_tag(vcl_tag, expected_director, expected_dc):
@@ -364,6 +376,24 @@ class VclRendererTest(TestCase):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput())
         with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-4.0.vcl', 'r') as f:
+            expected_content = f.read()
+
+        assert_equals('new-v4-1', vcl.name[:-10])
+        assert_equals(expected_content, vcl.content)
+
+    def test_should_prepare_default_vcl_version3_with_canary_backend(self):
+        vcl_renderer = VclRenderer()
+        vcl = vcl_renderer.render(self.varnish3_canary, '1', VclRendererInput())
+        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-3.0-canary.vcl', 'r') as f:
+            expected_content = f.read()
+
+        assert_equals('new-1', vcl.name[:-10])
+        assert_equals(expected_content, vcl.content)
+
+    def test_should_prepare_default_vcl_version4_with_canary_backend(self):
+        vcl_renderer = VclRenderer()
+        vcl = vcl_renderer.render(self.varnish4_canary, '1', VclRendererInput())
+        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-4.0-canary.vcl', 'r') as f:
             expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])

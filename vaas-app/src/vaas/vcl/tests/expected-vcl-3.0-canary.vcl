@@ -1,10 +1,3 @@
-# Marker to tell the VCL compiler that this VCL has been adapted to the
-# new 4.0 format.
-vcl 4.0;
-
-import std;
-import directors;
-
 ## header vcl ###
 ## acl rules ##
 ## START director third_service ###
@@ -27,6 +20,13 @@ backend third_service_4_dc1_2_1_80 {
     .probe = third_service_test_probe_1;
 }
 
+director third_service_dc1 random {
+    {
+      .backend = third_service_4_dc1_2_1_80;
+      .weight = 1;
+    }
+
+}
 ## END director third_service ###
 ## START director fourth_director_which_has_a_ridiculously_long_name ###
 probe fourth_director_which_has_a_ridiculously_long_name_test_probe_1 {
@@ -48,6 +48,13 @@ backend fourth_director_which_has_a_ridiculously_lon_5_dc1_255_254_65535 {
     .probe = fourth_director_which_has_a_ridiculously_long_name_test_probe_1;
 }
 
+director fourth_director_which_has_a_ridiculously_long_name_dc1 random {
+    {
+      .backend = fourth_director_which_has_a_ridiculously_lon_5_dc1_255_254_65535;
+      .weight = 1;
+    }
+
+}
 ## END director fourth_director_which_has_a_ridiculously_long_name ###
 ## START director first_service ###
 probe first_service_test_probe_1 {
@@ -69,6 +76,12 @@ backend first_service_1_dc2_1_1_80 {
     .probe = first_service_test_probe_1;
 }
 
+director first_service_dc2 round-robin {
+    {
+      .backend = first_service_1_dc2_1_1_80;
+    }
+
+}
 ## END director first_service ###
 ## START director second_service ###
 probe second_service_test_probe_1 {
@@ -80,25 +93,6 @@ probe second_service_test_probe_1 {
     .threshold = 3;
 }
 
-backend second_service_2_dc2_2_1_80 {
-    .host = "127.0.2.1";
-    .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
-    .probe = second_service_test_probe_1;
-}
-
-backend second_service_3_dc1_2_1_80 {
-    .host = "127.4.2.1";
-    .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
-    .probe = second_service_test_probe_1;
-}
 backend second_service_9_dc1_2_2_80 {
     .host = "127.4.2.2";
     .port = "80";
@@ -109,7 +103,41 @@ backend second_service_9_dc1_2_2_80 {
     .probe = second_service_test_probe_1;
 }
 
+director second_service_dc1 random {
+    {
+      .backend = second_service_9_dc1_2_2_80;
+      .weight = 1;
+    }
+
+}
 ## END director second_service ###
+## START director fifth_director_only_cluster1_siteA_test ###
+probe fifth_director_only_cluster1_siteA_test_test_probe_1 {
+    .url = "/status";
+    .expected_response = 200;
+    .interval = 3s;
+    .timeout = 1.0s;
+    .window = 5;
+    .threshold = 3;
+}
+
+backend fifth_director_only_cluster1_siteA_test_6_dc1_2_1_80 {
+    .host = "127.9.2.1";
+    .port = "80";
+    .max_connections = 5;
+    .connect_timeout = 0.30s;
+    .first_byte_timeout = 5.00s;
+    .between_bytes_timeout = 1.00s;
+    .probe = fifth_director_only_cluster1_siteA_test_test_probe_1;
+}
+
+director fifth_director_only_cluster1_siteA_test_dc1 round-robin {
+    {
+      .backend = fifth_director_only_cluster1_siteA_test_6_dc1_2_1_80;
+    }
+
+}
+## END director fifth_director_only_cluster1_siteA_test ###
 ## START director sixth_director_hashing_by_cookie ###
 probe sixth_director_hashing_by_cookie_test_probe_1 {
     .url = "/status";
@@ -130,6 +158,15 @@ backend sixth_director_hashing_by_cookie_7_dc1_2_1_80 {
     .probe = sixth_director_hashing_by_cookie_test_probe_1;
 }
 
+# Directors hashing by req.http.cookie are not supported in varnish v3.
+# Falling back to director hashing by req.url.
+director sixth_director_hashing_by_cookie_dc1 hash {
+    {
+      .backend = sixth_director_hashing_by_cookie_7_dc1_2_1_80;
+      .weight = 1;
+    }
+
+}
 ## END director sixth_director_hashing_by_cookie ###
 ## START director seventh_director_hashing_by_url ###
 probe seventh_director_hashing_by_url_test_probe_1 {
@@ -151,66 +188,25 @@ backend seventh_director_hashing_by_url_8_dc1_2_1_80 {
     .probe = seventh_director_hashing_by_url_test_probe_1;
 }
 
-## END director seventh_director_hashing_by_url ###
-
-sub vcl_init {
-    ## START director init third_service ###
-
-    new third_service_dc1 = directors.random();
-    third_service_dc1.add_backend(third_service_4_dc1_2_1_80, 1);
-
-    ## END director init third_service ###
-
-    ## START director init fourth_director_which_has_a_ridiculously_long_name ###
-
-    new fourth_director_which_has_a_ridiculously_long_name_dc1 = directors.random();
-    fourth_director_which_has_a_ridiculously_long_name_dc1.add_backend(fourth_director_which_has_a_ridiculously_lon_5_dc1_255_254_65535, 1);
-
-    ## END director init fourth_director_which_has_a_ridiculously_long_name ###
-
-    ## START director init first_service ###
-
-    new first_service_dc2 = directors.round_robin();
-    first_service_dc2.add_backend(first_service_1_dc2_1_1_80);
-
-    ## END director init first_service ###
-
-    ## START director init second_service ###
-
-    new second_service_dc2 = directors.random();
-    second_service_dc2.add_backend(second_service_2_dc2_2_1_80, 1);
-
-    new second_service_dc1 = directors.random();
-    second_service_dc1.add_backend(second_service_3_dc1_2_1_80, 1);
-    second_service_dc1.add_backend(second_service_9_dc1_2_2_80, 0);
-
-    ## END director init second_service ###
-
-    ## START director init sixth_director_hashing_by_cookie ###
-
-    new sixth_director_hashing_by_cookie_dc1 = directors.hash();
-    sixth_director_hashing_by_cookie_dc1.add_backend(sixth_director_hashing_by_cookie_7_dc1_2_1_80, 1);
-
-    ## END director init sixth_director_hashing_by_cookie ###
-
-    ## START director init seventh_director_hashing_by_url ###
-
-    new seventh_director_hashing_by_url_dc1 = directors.hash();
-    seventh_director_hashing_by_url_dc1.add_backend(seventh_director_hashing_by_url_8_dc1_2_1_80, 1);
-
-    ## END director init seventh_director_hashing_by_url ###
+director seventh_director_hashing_by_url_dc1 hash {
+    {
+      .backend = seventh_director_hashing_by_url_8_dc1_2_1_80;
+      .weight = 1;
+    }
 
 }
+## END director seventh_director_hashing_by_url ###
+
 sub vcl_recv {
     if (req.url == "/vaas_status") {
-        return (synth(999, ""));
+        error 999 "";
     }
 }
 
-sub vcl_synth {
-    if (resp.status == 999) {
-            set resp.status = 503;
-        synthetic ("");
+sub vcl_error {
+    if (obj.status == 999) {
+            set obj.status = 503;
+        synthetic "";
         return (deliver);
     }
 }
@@ -220,83 +216,91 @@ sub vcl_recv {
         set req.http.X-Forwarded-Proto = "http";
     }
 }
-sub vcl_synth {
-    if (resp.status == 998) {
-        set resp.http.Location = resp.reason + req.http.host + req.url;
-        set resp.status = 301;
-        synthetic ("");
+sub vcl_error {
+    if (obj.status == 998) {
+        set obj.status = 301;
+        set obj.http.Location = obj.response + req.http.host + req.url;
+        set obj.response = "Moved Permanently";
+        synthetic "";
         return (deliver);
     }
 }
+
 sub protocol_redirect {
-    if (req.esi_level == 0 && (req.method == "GET" || req.method == "HEAD")) {
+    if (req.esi_level == 0 && (req.request == "GET" || req.request == "HEAD")) {
         if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
-            return(synth(998, req.http.X-Accept-Proto + "://"));
+            error 998 req.http.X-Accept-Proto + "://";
         }
     }
 }
 sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
-        unset req.http.X-Accept-Proto;
+        remove req.http.X-Accept-Proto;
         set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
+        remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "third.service.org";
         set req.http.X-VaaS-Director = "dc1/third_service";
-        set req.backend_hint = third_service_dc1.backend();
+        set req.backend = third_service_dc1;
 
     }
     else if (req.http.host ~ "^unusual.name.org") {
-        unset req.http.X-Accept-Proto;
+        remove req.http.X-Accept-Proto;
         set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
+        remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "unusual.name.org";
         set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
-        set req.backend_hint = fourth_director_which_has_a_ridiculously_long_name_dc1.backend();
+        set req.backend = fourth_director_which_has_a_ridiculously_long_name_dc1;
 
     }
     else if (req.url ~ "^\/first([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
+        remove req.http.X-Accept-Proto;
         set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
+        remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/first";
         set req.http.X-Forwarded-Prefix = "/first";
         set req.http.X-VaaS-Director = "dc2/first_service";
-        set req.backend_hint = first_service_dc2.backend();
+        set req.backend = first_service_dc2;
 
     }
     else if (req.url ~ "^\/second([\/\?].*)?$") {
         set req.url = regsub(req.url, "^/second(/)?", "/");
-        unset req.http.X-Accept-Proto;
+        remove req.http.X-Accept-Proto;
         set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
+        remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/second";
         set req.http.X-Forwarded-Prefix = "/second";
-        set req.http.X-VaaS-Director = "dc2/second_service";
-        set req.backend_hint = second_service_dc2.backend();
-        if (!std.healthy(req.backend_hint)) {
-            set req.http.X-VaaS-Director = "dc1/second_service";
-            set req.backend_hint = second_service_dc1.backend();
-        }
+        set req.http.X-VaaS-Director = "dc1/second_service";
+        set req.backend = second_service_dc1;
+
+    }
+    else if (req.url ~ "^\/fifth([\/\?].*)?$") {
+        remove req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
+        remove req.http.X-VaaS-Prefix;
+        set req.http.X-VaaS-Prefix = "/fifth";
+        set req.http.X-Forwarded-Prefix = "/fifth";
+        set req.http.X-VaaS-Director = "dc1/fifth_director_only_cluster1_siteA_test";
+        set req.backend = fifth_director_only_cluster1_siteA_test_dc1;
 
     }
     else if (req.url ~ "^\/sixth([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
+        remove req.http.X-Accept-Proto;
         set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
+        remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/sixth";
         set req.http.X-Forwarded-Prefix = "/sixth";
         set req.http.X-VaaS-Director = "dc1/sixth_director_hashing_by_cookie";
-        set req.backend_hint = sixth_director_hashing_by_cookie_dc1.backend(req.http.cookie);
+        set req.backend = sixth_director_hashing_by_cookie_dc1;
 
     }
     else if (req.url ~ "^\/seventh([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
+        remove req.http.X-Accept-Proto;
         set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
+        remove req.http.X-VaaS-Prefix;
         set req.http.X-VaaS-Prefix = "/seventh";
         set req.http.X-Forwarded-Prefix = "/seventh";
         set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
-        set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
+        set req.backend = seventh_director_hashing_by_url_dc1;
 
     }
 
@@ -304,9 +308,9 @@ sub vcl_recv {
     call protocol_redirect;
 
     # POST, PUT, DELETE are passed directly to backend
-    if (req.method != "GET" && req.method !="HEAD") {
+    if (req.request != "GET" && req.request != "HEAD") {
         return (pass);
     }
-    return (hash);
+    return (lookup);
 }
 ## other functions ##
