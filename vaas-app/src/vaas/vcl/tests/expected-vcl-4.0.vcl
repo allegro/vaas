@@ -12,7 +12,7 @@ probe third_service_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1.0s;
+    .timeout = 1s;
     .window = 5;
     .threshold = 3;
 }
@@ -21,9 +21,9 @@ backend third_service_4_dc1_2_1_80 {
     .host = "127.8.2.1";
     .port = "80";
     .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
     .probe = third_service_test_probe_1;
 }
 
@@ -33,7 +33,7 @@ probe fourth_director_which_has_a_ridiculously_long_name_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1.0s;
+    .timeout = 1s;
     .window = 5;
     .threshold = 3;
 }
@@ -42,9 +42,9 @@ backend fourth_director_which_has_a_ridiculously_lon_5_dc1_255_254_65535 {
     .host = "127.9.255.254";
     .port = "65535";
     .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
     .probe = fourth_director_which_has_a_ridiculously_long_name_test_probe_1;
 }
 
@@ -54,7 +54,7 @@ probe first_service_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1.0s;
+    .timeout = 1s;
     .window = 5;
     .threshold = 3;
 }
@@ -63,9 +63,9 @@ backend first_service_1_dc2_1_1_80 {
     .host = "127.0.1.1";
     .port = "80";
     .max_connections = 1;
-    .connect_timeout = 0.50s;
-    .first_byte_timeout = 0.10s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.5s;
+    .first_byte_timeout = 0.1s;
+    .between_bytes_timeout = 1s;
     .probe = first_service_test_probe_1;
 }
 
@@ -75,7 +75,7 @@ probe second_service_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1.0s;
+    .timeout = 1s;
     .window = 5;
     .threshold = 3;
 }
@@ -84,9 +84,9 @@ backend second_service_2_dc2_2_1_80 {
     .host = "127.0.2.1";
     .port = "80";
     .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
     .probe = second_service_test_probe_1;
 }
 
@@ -94,9 +94,9 @@ backend second_service_3_dc1_2_1_80 {
     .host = "127.4.2.1";
     .port = "80";
     .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
     .probe = second_service_test_probe_1;
 }
 backend second_service_9_dc1_2_2_80 {
@@ -115,7 +115,7 @@ probe sixth_director_hashing_by_cookie_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1.0s;
+    .timeout = 1s;
     .window = 5;
     .threshold = 3;
 }
@@ -124,9 +124,9 @@ backend sixth_director_hashing_by_cookie_7_dc1_2_1_80 {
     .host = "127.10.2.1";
     .port = "80";
     .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
     .probe = sixth_director_hashing_by_cookie_test_probe_1;
 }
 
@@ -136,7 +136,7 @@ probe seventh_director_hashing_by_url_test_probe_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
-    .timeout = 1.0s;
+    .timeout = 1s;
     .window = 5;
     .threshold = 3;
 }
@@ -145,9 +145,9 @@ backend seventh_director_hashing_by_url_8_dc1_2_1_80 {
     .host = "127.11.2.1";
     .port = "80";
     .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
+    .connect_timeout = 0.3s;
+    .first_byte_timeout = 5s;
+    .between_bytes_timeout = 1s;
     .probe = seventh_director_hashing_by_url_test_probe_1;
 }
 
