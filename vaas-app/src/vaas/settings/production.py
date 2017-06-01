@@ -12,4 +12,6 @@ ALLOWED_HOSTS = ["*"]
 for key, value in YamlConfigLoader().get_config_tree('production.yml').iteritems():
     globals()[key] = value
 
+INSTALLED_APPS = INSTALLED_APPS + tuple(INSTALLED_PLUGINS)
+
 from .ldap import *

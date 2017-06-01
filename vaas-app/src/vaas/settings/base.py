@@ -48,7 +48,11 @@ INSTALLED_APPS = (
     'vaas.purger',
     'taggit',
     'django_ace',
+    'changeme_plugin'
 )
+
+# Plugins definition
+INSTALLED_PLUGINS = ()
 
 MIDDLEWARE_CLASSES = (
     'djangosecure.middleware.SecurityMiddleware',
