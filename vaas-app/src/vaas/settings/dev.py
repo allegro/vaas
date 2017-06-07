@@ -10,3 +10,6 @@ TEMPLATE_DEBUG = True
 
 for key, value in YamlConfigLoader().get_config_tree('dev.yml').iteritems():
     globals()[key] = value
+
+INSTALLED_APPS = INSTALLED_APPS + tuple(INSTALLED_PLUGINS)
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + tuple(MIDDLEWARE_PLUGINS)
