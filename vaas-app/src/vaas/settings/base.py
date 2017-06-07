@@ -52,6 +52,7 @@ INSTALLED_APPS = (
 
 # Plugins definition
 INSTALLED_PLUGINS = ()
+MIDDLEWARE_PLUGINS = ()
 
 MIDDLEWARE_CLASSES = (
     'djangosecure.middleware.SecurityMiddleware',
