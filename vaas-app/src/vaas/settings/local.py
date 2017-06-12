@@ -8,4 +8,4 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = ['--exclude-dir=vaas/settings']
 
-from .ldap import *
+from vaas.settings.ldap import *
