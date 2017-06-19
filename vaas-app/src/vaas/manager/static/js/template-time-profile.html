@@ -1,48 +1,21 @@
 <legend id="profile_name">Time profile options</legend>
 
-    <div class="fields ">
-        <div class="control-group  field-max_connections">
-            <div>
-                <div class="control-label">
-                    <label class="required" for="profile_max_connections">Max connections:</label>
-                </div>
-                <div class="controls">
-                    <input type="text" id="profile_max_connections" value="10" readonly/>
-                </div>
-            </div>
+<form>
+    <div class="form-group">
+        <label for="profile_max_connections">Max connections</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="profile_max_connections" value="10" disabled>
         </div>
-
-        <div class="control-group  field-connect_timeout">
-            <div>
-                <div class="control-label">
-                    <label class="required" for="profile_connect_timeout">Connect timeout (s):</label>
-                </div>
-                <div class="controls">
-                    <input type="text" id="profile_connect_timeout" value="10" readonly/>
-                </div>
-            </div>
+        <label for="profile_connect_timeout">Connect timeout (s)</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="profile_connect_timeout" value="10" disabled>
         </div>
-
-        <div class="control-group  field-first_byte_timeout">
-            <div>
-                <div class="control-label">
-                    <label class="required" for="profile_first_byte_timeout">First byte timeout (s):</label>
-                </div>
-                <div class="controls">
-                    <input type="text" id="profile_first_byte_timeout" value="10" readonly/>
-                </div>
-            </div>
+        <label for="profile_first_byte_timeout">First byte timeout (s)</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="profile_first_byte_timeout" value="10" disabled>
         </div>
-
-        <div class="control-group  field-between_bytes_timeout">
-            <div>
-                <div class="control-label">
-                    <label class="required" for="profile_between_bytes_timeout">Between bytes timeout (s):</label>
-                </div>
-                <div class="controls">
-                    <input type="text" id="profile_between_bytes_timeout" value="10" readonly/>
-                </div>
-            </div>
+        <label for="profile_between_bytes_timeout">Between bytes timeout (s)</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="profile_between_bytes_timeout" value="10" disabled>
         </div>
-
-    </div>
+</form>
