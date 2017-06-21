@@ -16,7 +16,7 @@ fi
 if [ ! -f /tmp/db.sqlite3 ] ; then
     su -c "\
     source /home/ubuntu/prod-env/bin/activate &&
-    DJANGO_SETTINGS_MODULE=$DSM django-admin.py syncdb --noinput"\
+    DJANGO_SETTINGS_MODULE=$DSM django-admin.py migrate --run-syncdb --noinput"\
     ubuntu
 fi
 
