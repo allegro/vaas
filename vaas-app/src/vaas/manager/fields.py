@@ -30,17 +30,6 @@ def make_backend_name(backend):
 
 
 class NormalizedDecimalField(models.DecimalField):
-    """
-    Prevents values from being displayed with trailing 0's
-    """
-
-    def value_from_object(self, obj):
-        val = super(NormalizedDecimalField, self).value_from_object(obj)
-        if isinstance(val, Decimal):
-            if (val.to_integral_value() == val):
-                return val.to_integral_value()
-            else:
-                return val.normalize()
 
     def to_python(self, value):
         if value is None:

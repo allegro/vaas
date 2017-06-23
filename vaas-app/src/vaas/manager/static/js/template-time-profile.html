@@ -1,21 +1,28 @@
 <legend id="profile_name">Time profile options</legend>
 
-<form>
+<form class="form-horizontal">
     <div class="form-group">
-        <label for="profile_max_connections">Max connections</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="profile_max_connections" value="10" disabled>
+        <label class="control-label col-sm-2" for="profile_max_connections">Max connections:</label>
+        <div class="col-sm-1">
+            <input type="text" class="form-control" id="profile_max_connections" disabled>
         </div>
-        <label for="profile_connect_timeout">Connect timeout (s)</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="profile_connect_timeout" value="10" disabled>
+    </div>
+     <div class="form-group">
+        <label class="control-label col-sm-2" for="profile_connect_timeout">Connect timeout (s):</label>
+        <div class="col-sm-1">
+            <input type="text" class="form-control" id="profile_connect_timeout" disabled>
         </div>
-        <label for="profile_first_byte_timeout">First byte timeout (s)</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="profile_first_byte_timeout" value="10" disabled>
+     </div>
+     <div class="form-group">
+        <label class="control-label col-sm-2" for="profile_first_byte_timeout">First byte timeout (s):</label>
+        <div class="col-sm-1">
+            <input type="text" class="form-control" id="profile_first_byte_timeout" disabled>
         </div>
-        <label for="profile_between_bytes_timeout">Between bytes timeout (s)</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="profile_between_bytes_timeout" value="10" disabled>
+     </div>
+     <div class="form-group">
+        <label class="control-label col-sm-2" for="profile_between_bytes_timeout">Between bytes timeout (s):</label>
+        <div class="col-sm-1">
+            <input type="text" class="form-control" id="profile_between_bytes_timeout" disabled>
         </div>
+    </div>
 </form>
