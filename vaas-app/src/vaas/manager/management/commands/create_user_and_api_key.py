@@ -1,24 +1,31 @@
 from django.core.management.base import BaseCommand
-from tastypie.compat import User
+from django.contrib.auth.models import User
 from tastypie.models import ApiKey
 
 
 class Command(BaseCommand):
-    args = '<username email password api_key>'
     help = 'Creates superuser with specified username, email, password and (optional) api_key'
 
+    def add_arguments(self, parser):
+        parser.add_argument('username')
+        parser.add_argument('email')
+        parser.add_argument('password')
+        parser.add_argument('api_key', nargs='?')
+
     def handle(self, *args, **options):
-        if len(args) < 3:
-            print('Exactly three/four arguments required: %s' % self.args)
+        if len(args) == 3:
+            username = options['username']
+            email = options['email']
+            password = options['password']
+            user = User.objects.create_superuser(username, email, password)
+            tastypie_api_key = ApiKey.objects.create(user=user)
+            tastypie_api_key.save()
         else:
-            if len(args) == 3:
-                username, email, password = args
-                user = User.objects.create_superuser(username, email, password)
-                tastypie_api_key = ApiKey.objects.create(user=user)
-                tastypie_api_key.save()
-            else:
-                username, email, password, api_key = args
-                user = User.objects.create_superuser(username, email, password)
-                tastypie_api_key = ApiKey.objects.create(user=user)
-                tastypie_api_key.key = api_key
-                tastypie_api_key.save()
+            username = options['username']
+            email = options['email']
+            password = options['password']
+            api_key = options['api_key']
+            user = User.objects.create_superuser(username, email, password)
+            tastypie_api_key = ApiKey.objects.create(user=user)
+            tastypie_api_key.key = api_key
+            tastypie_api_key.save()
