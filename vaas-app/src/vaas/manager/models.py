@@ -78,7 +78,7 @@ class Director(models.Model):
         ('both', 'BOTH'),
     )
     name = models.CharField(max_length=54, unique=True, validators=[vcl_name_validator])
-    service = models.CharField(max_length=128, default='')
+    service = models.CharField(max_length=128, blank=True)
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default='both')
