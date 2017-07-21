@@ -75,7 +75,7 @@ class DirectorResource(ModelResource):
         try:
             new_uris = bundle.obj.new_clusters_uris
             bundle.obj.new_clusters = [cluster.obj for cluster in bundle.data['cluster']
-                            if cluster.data['resource_uri'] in new_uris]
+                                       if cluster.data['resource_uri'] in new_uris]
             logger.info("[DirectorResource.save_m2m()] new_clusters = {}".format(bundle.obj.new_clusters))
         except (AttributeError, KeyError):
             pass

@@ -307,7 +307,7 @@ def test_vcl_update_only_changed_clusters_for_director():
         director2.cluster.remove(cluster3)
         assert_equals([call([cluster3])], regenerate_and_reload_vcl_mock.call_args_list)
 
-    with patch('vaas.manager.signals.regenerate_and_reload_vcl',return_value=None) as regenerate_and_reload_vcl_mock:
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
         kwargs = {'instance': director2, 'action': 'post_add'}
         director2.cluster.add(cluster5)
         assert_equals([call([cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
@@ -325,10 +325,9 @@ def test_vcl_update_only_changed_clusters_for_director():
         director2.cluster.remove(cluster3)
         assert_equals([call([cluster3, cluster4])], regenerate_and_reload_vcl_mock.call_args_list)
 
-    with patch('vaas.manager.signals.regenerate_and_reload_vcl',return_value=None) as regenerate_and_reload_vcl_mock:
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
         kwargs = {'instance': director2, 'action': 'post_add'}
         director2.cluster.add(cluster5)
         assert_equals([call([cluster4, cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
 
     settings.SIGNALS = 'off'
-
