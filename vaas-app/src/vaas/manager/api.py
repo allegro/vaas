@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
 from tastypie.authorization import Authorization
@@ -68,6 +69,33 @@ class DirectorResource(ModelResource):
             'probe': ALL_WITH_RELATIONS,
             'cluster': ALL_WITH_RELATIONS
         }
+
+    def save_m2m(self, bundle):
+        logger = logging.getLogger('vaas')
+        try:
+            new_uris = bundle.obj.new_clusters_uris
+            bundle.obj.new_clusters = [cluster.obj for cluster in bundle.data['cluster']
+                            if cluster.data['resource_uri'] in new_uris]
+            logger.info("[DirectorResource.save_m2m()] new_clusters = {}".format(bundle.obj.new_clusters))
+        except (AttributeError, KeyError):
+            pass
+
+        return super(DirectorResource, self).save_m2m(bundle)
+
+    def update_in_place(self, request, original_bundle, new_data):
+        logger = logging.getLogger('vaas')
+        try:
+            original_bundle.obj.old_clusters = list(original_bundle.obj.cluster.all())
+        except AttributeError:
+            original_bundle.obj.old_clusters = []
+        logger.info("[DirectorResource.update_in_place()] old_clusters = {}".format(original_bundle.obj.old_clusters))
+        try:
+            original_bundle.obj.new_clusters_uris = new_data['cluster']
+        except KeyError:
+            original_bundle.obj.new_clusters_uris = []
+        original_bundle.obj.new_data = new_data
+
+        return super(DirectorResource, self).update_in_place(request, original_bundle, new_data)
 
 
 class BackendResource(ModelResource):
