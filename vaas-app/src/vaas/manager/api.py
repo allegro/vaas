@@ -14,6 +14,8 @@ from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelFo
 from vaas.manager.models import Backend, Probe, Director, TimeProfile
 from vaas.monitor.models import BackendStatus
 
+logger = logging.getLogger('vaas')
+
 
 class TimeProfileResource(ModelResource):
     class Meta:
@@ -71,24 +73,22 @@ class DirectorResource(ModelResource):
         }
 
     def save_m2m(self, bundle):
-        logger = logging.getLogger('vaas')
         try:
             new_uris = bundle.obj.new_clusters_uris
             bundle.obj.new_clusters = [cluster.obj for cluster in bundle.data['cluster']
                                        if cluster.data['resource_uri'] in new_uris]
-            logger.info("[DirectorResource.save_m2m()] new_clusters = {}".format(bundle.obj.new_clusters))
+            logger.info("[DirectorResource.save_m2m()] new_clusters = %s", bundle.obj.new_clusters)
         except (AttributeError, KeyError):
             pass
 
         return super(DirectorResource, self).save_m2m(bundle)
 
     def update_in_place(self, request, original_bundle, new_data):
-        logger = logging.getLogger('vaas')
         try:
             original_bundle.obj.old_clusters = list(original_bundle.obj.cluster.all())
         except AttributeError:
             original_bundle.obj.old_clusters = []
-        logger.info("[DirectorResource.update_in_place()] old_clusters = {}".format(original_bundle.obj.old_clusters))
+        logger.info("[DirectorResource.update_in_place()] old_clusters = %s", original_bundle.obj.old_clusters)
         try:
             original_bundle.obj.new_clusters_uris = new_data['cluster']
         except KeyError:

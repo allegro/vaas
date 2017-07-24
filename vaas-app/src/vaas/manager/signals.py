@@ -121,7 +121,7 @@ def vcl_update(sender, **kwargs):
     elif sender is Director:
         if not is_only_cluster_update(instance):
             for cluster in instance.cluster.all():
-                logger.debug("vcl_update(): %s" % str(cluster))
+                logger.debug("vcl_update(): %s", str(cluster))
                 if cluster not in clusters_to_refresh:
                     clusters_to_refresh.append(cluster)
     # VarnishServer
@@ -171,8 +171,8 @@ def director_update(**kwargs):
         return
 
     clusters_to_refresh = get_clusters_to_refresh(instance)
-    logger.info("[director_update(instance={}, action={})] Clusters to refresh: {}"
-                .format(instance, action, clusters_to_refresh))
+    logger.info("[director_update(instance=%s, action=%s)] Clusters to refresh: %s",
+                instance, action, clusters_to_refresh)
     regenerate_and_reload_vcl(clusters_to_refresh)
     mark_cluster_as_refreshed(instance, clusters_to_refresh)
 
