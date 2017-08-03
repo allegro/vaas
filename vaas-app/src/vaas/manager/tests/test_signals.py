@@ -270,8 +270,64 @@ def test_vcl_update_cluster_filter_for_director_via_related_manager():
     director1.cluster.add(cluster1)
 
     with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
-        kwargs = {'instance': director1}
+        kwargs = {'instance': director1, 'action': 'post_add'}
         director_update(**kwargs)
         assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
+
+    settings.SIGNALS = 'off'
+
+
+def test_vcl_update_only_changed_clusters_for_director():
+    settings.SIGNALS = 'on'
+
+    cluster3 = LogicalCluster.objects.create(name="cluster3")
+    cluster4 = LogicalCluster.objects.create(name="cluster4")
+    cluster5 = LogicalCluster.objects.create(name="cluster5")
+
+    probe1 = Probe.objects.create(name='test_director2_probe', url='/status')
+    director2 = Director.objects.create(
+        name='director2',
+        router='req.url',
+        route_expression='/first',
+        probe=probe1,
+        active_active=False,
+        mode='round-robin',
+        remove_path=False,
+        time_profile=TimeProfile.objects.create(name='timeprofile2')
+    )
+    director2.cluster.add(cluster3, cluster4)
+    director2.save()
+
+    director2.old_clusters = [cluster3, cluster4]
+    director2.new_clusters = [cluster4, cluster5]
+    director2.new_data = {'cluster': object()}
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': director2, 'action': 'pre_clear'}
+        director2.cluster.remove(cluster3)
+        assert_equals([call([cluster3])], regenerate_and_reload_vcl_mock.call_args_list)
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': director2, 'action': 'post_add'}
+        director2.cluster.add(cluster5)
+        assert_equals([call([cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
+
+    # should update all clusters when change metadata is not set
+
+    director2.cluster.clear()
+    director2.cluster.add(cluster3, cluster4)
+    director2.save()
+    del director2.new_clusters
+    del director2.old_clusters
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': director2, 'action': 'pre_clear'}
+        director2.cluster.remove(cluster3)
+        assert_equals([call([cluster3, cluster4])], regenerate_and_reload_vcl_mock.call_args_list)
+
+    with patch('vaas.manager.signals.regenerate_and_reload_vcl', return_value=None) as regenerate_and_reload_vcl_mock:
+        kwargs = {'instance': director2, 'action': 'post_add'}
+        director2.cluster.add(cluster5)
+        assert_equals([call([cluster4, cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
 
     settings.SIGNALS = 'off'

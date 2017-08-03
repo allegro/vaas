@@ -119,10 +119,11 @@ def vcl_update(sender, **kwargs):
                 clusters_to_refresh.append(cluster)
     # Director
     elif sender is Director:
-        for cluster in instance.cluster.all():
-            logger.debug("vcl_update(): %s" % str(cluster))
-            if cluster not in clusters_to_refresh:
-                clusters_to_refresh.append(cluster)
+        if not is_only_cluster_update(instance):
+            for cluster in instance.cluster.all():
+                logger.debug("vcl_update(): %s", str(cluster))
+                if cluster not in clusters_to_refresh:
+                    clusters_to_refresh.append(cluster)
     # VarnishServer
     elif sender is VarnishServer:
         cluster = instance.cluster
@@ -150,6 +151,8 @@ def vcl_update(sender, **kwargs):
                         clusters_to_refresh.append(cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
+    if sender is Director:
+        reset_refreshed_clusters(instance)
 
 
 @receiver(pre_delete)
@@ -162,11 +165,49 @@ def clean_up_tags(sender, **kwargs):
 def director_update(**kwargs):
     logger = logging.getLogger('vaas')
     instance = kwargs['instance']
-    clusters_to_refresh = []
-    for cluster in instance.cluster.all():
-        logger.debug("director_update(): %s" % str(cluster))
-        if cluster not in clusters_to_refresh:
-            clusters_to_refresh.append(cluster)
+    action = kwargs['action']
+
+    if action not in ['post_add', 'pre_remove', 'pre_clear']:
+        return
+
+    clusters_to_refresh = get_clusters_to_refresh(instance)
+    logger.info("[director_update(instance=%s, action=%s)] Clusters to refresh: %s",
+                instance, action, clusters_to_refresh)
     regenerate_and_reload_vcl(clusters_to_refresh)
+    mark_cluster_as_refreshed(instance, clusters_to_refresh)
+
+
+def get_clusters_to_refresh(instance):
+    all_clusters = list(instance.cluster.all())
+    try:
+        new_clusters_set = set(instance.new_clusters)
+        old_clusters_set = set(instance.old_clusters)
+        diff_clusters_set = old_clusters_set.symmetric_difference(new_clusters_set)
+        try:
+            clusters_to_refresh_set = diff_clusters_set.difference(instance.refreshed_clusters)
+        except AttributeError:
+            clusters_to_refresh_set = diff_clusters_set
+        return list(clusters_to_refresh_set.intersection(set(all_clusters)))
+    except (AttributeError, TypeError):
+        return all_clusters
+
+
+def mark_cluster_as_refreshed(director, clusters):
+    try:
+        director.refreshed_clusters |= set(clusters)
+    except AttributeError:
+        director.refreshed_clusters = set(clusters)
+
+
+def reset_refreshed_clusters(director):
+    director.refreshed_clusters = set()
+
+
+def is_only_cluster_update(instance):
+    try:
+        return set(instance.new_data.keys()) == {'cluster'}
+    except AttributeError:
+        return False
+
 
 m2m_changed.connect(director_update, sender=Director.cluster.through)
