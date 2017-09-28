@@ -7,7 +7,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "vaas", primary: true do |vaas|
 
-    vaas.vm.box_url = "http://box.allegro.tech/vaas_dev_v0.08.box"
+    vaas.vm.box_url = "https://storage.googleapis.com/allegro-vaas-public/vaas_dev_v0.08.box"
     vaas.vm.box = "vaas_dev_v0.08.box"
     vaas.vm.synced_folder ".", "/home/vagrant/vaas"
     vaas.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
