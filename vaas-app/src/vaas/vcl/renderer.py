@@ -39,8 +39,9 @@ env = Environment(
 
 class Vcl(object):
     def __init__(self, content, name='default'):
-        self.content = content
-        self.name = name + '-vol.' + hashlib.md5(str(self)).hexdigest()[:5]
+        self.version = hashlib.md5(str(content)).hexdigest()[:5]
+        self.name = "{}-vol.{}".format(name, self.version)
+        self.content = content.replace('##VCL_VERSION##', self.version)
 
     def compareVersion(self, otherName):
         return otherName[-5:] == self.name[-5:]

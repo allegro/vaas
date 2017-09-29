@@ -53,7 +53,9 @@ class VarnishCluster(object):
         try:
             loaded_vcl_list = parallel_loader.load_vcl_list(vcl_list)
             for cluster in clusters:
+                current_vcls = {vcl.version for server, vcl in vcl_list if server.cluster == cluster}
                 cluster.reload_timestamp = start_processing_time
+                cluster.current_vcls.set(*current_vcls, clear=True)
                 cluster.save()
         except VclLoadException as e:
             self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))

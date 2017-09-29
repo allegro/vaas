@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.utils import timezone
+from taggit.managers import TaggableManager
 from tastypie import fields
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, ValidationError
@@ -16,6 +17,7 @@ class LogicalCluster(models.Model):
     reload_timestamp = models.DateTimeField(default=timezone.now)
     error_timestamp = models.DateTimeField(default=timezone.now)
     last_error_info = models.CharField(max_length=400, null=True, blank=True)
+    current_vcls = TaggableManager(blank=True)
 
     def __unicode__(self):
         return "{} ({})".format(self.name, self.varnish_count())

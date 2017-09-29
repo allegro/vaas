@@ -2,6 +2,9 @@ sub vcl_recv {
     if (req.url == "/vaas_status") {
         error 999 "";
     }
+    if (req.url == "/vaas/") {
+        error 989 "";
+    }
 }
 
 sub vcl_error {
@@ -12,6 +15,12 @@ sub vcl_error {
             set obj.status = 503;
         {% endif %}
         synthetic "";
+        return (deliver);
+    }
+    if (obj.status == 989) {
+        set obj.status = 200;
+        set obj.http.Content-Type = "application/json";
+        synthetic {"{ "vcl_version" : "##VCL_VERSION##", "varnish_status": "{{server.status}}" }"};
         return (deliver);
     }
 }
