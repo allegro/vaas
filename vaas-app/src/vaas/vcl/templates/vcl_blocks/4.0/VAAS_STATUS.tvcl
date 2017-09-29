@@ -2,6 +2,9 @@ sub vcl_recv {
     if (req.url == "/vaas_status") {
         return (synth(999, ""));
     }
+    if (req.url == "/vaas/") {
+        return (synth(989, ""));
+    }
 }
 
 sub vcl_synth {
@@ -11,7 +14,12 @@ sub vcl_synth {
         {% else %}
             set resp.status = 503;
         {% endif %}
-        synthetic ("");
+        synthetic("");
+    }
+    if (resp.status == 989) {
+        set resp.status = 200;
+        set resp.http.Content-Type = "application/json";
+        synthetic ( {"{ "vcl_version" : "##VCL_VERSION##", "varnish_status": "{{server.status}}" }"} );
         return (deliver);
     }
 }

@@ -162,9 +162,15 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         'reload_timestamp',
         'error_timestamp',
         'last_error_info',
+        'get_tags',
         'varnish_servers'
     ]
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
+
+    def get_tags(self, obj):
+        return ", ".join([tag.name for tag in obj.current_vcls.all()])
+
+    get_tags.short_description = 'Current vcls'
 
     def varnish_servers(self, obj):
         return format_html(

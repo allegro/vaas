@@ -201,12 +201,21 @@ sub vcl_recv {
     if (req.url == "/vaas_status") {
         error 999 "";
     }
+    if (req.url == "/vaas/") {
+        error 989 "";
+    }
 }
 
 sub vcl_error {
     if (obj.status == 999) {
             set obj.status = 503;
         synthetic "";
+        return (deliver);
+    }
+    if (obj.status == 989) {
+        set obj.status = 200;
+        set obj.http.Content-Type = "application/json";
+        synthetic {"{ "vcl_version" : "2a0bd", "varnish_status": "disabled" }"};
         return (deliver);
     }
 }
