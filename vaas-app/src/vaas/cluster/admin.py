@@ -1,9 +1,11 @@
+from django.contrib.admin import SimpleListFilter
 from django.db import models
 from django.contrib import admin
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
+from vaas.cluster.coherency import OutdatedServerManager
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster
 from vaas.cluster.forms import VclTemplateModelForm
 from vaas.cluster.cluster import VarnishApiProvider
@@ -27,9 +29,24 @@ def disable_varnish_servers(modeladmin, request, queryset):
 disable_varnish_servers.short_description = "Disable varnish servers"
 
 
+class OutdatedFilter(SimpleListFilter):
+    title = 'VCL Status'
+    parameter_name = 'outdated'
+
+    def lookups(self, request, model_admin):
+        return (('actual', 'Actual'), ('outdated', 'Outdated'))
+
+    def queryset(self, request, queryset):
+        if self.value():
+            result = OutdatedServerManager().filter(servers=queryset, outdated=(self.value() == 'outdated'))
+            return queryset.filter(id__in=[server.id for server, _ in result])
+
+        return queryset
+
+
 class VarnishServerAdmin(admin.ModelAdmin):
     search_fields = ['dc__symbol', 'ip', 'hostname', 'template__name']
-    list_filter = ['cluster__name']
+    list_filter = ['cluster__name', OutdatedFilter]
     list_display = (
         'hostname',
         'ip',
@@ -177,7 +194,11 @@ class LogicalClusterAdmin(admin.ModelAdmin):
             ("<div class='span13 text-center'>" +
              "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "
              ">Show varnish servers (%d)</a>" +
-             "</div>") % (obj.name, obj.varnish_count())
+             "</div><br/>" +
+             "<div class='span13 text-center'>" +
+             "<a class='btn btn-danger' href='/admin/cluster/varnishserver/?cluster__name=%s&outdated=outdated' "
+             ">Show outdated servers</a>" +
+             "</div>") % (obj.name, obj.varnish_count(), obj.name)
         )
 
 

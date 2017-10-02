@@ -8,18 +8,19 @@ Resources
 
 The following resources are available:
 
-|Name                |Description                                     |Allowed actions               |
-|--------------------|------------------------------------------------|------------------------------|
-|*Backend*           |Represents a single node in a service (director)|preview, **add, edit, delete**|
-|*Director*          |A Varnish director; may represent a SOA service |preview, **add, edit, delete**|
-|*Probe*             |A health check used to determine backend status |preview, **add, edit, delete**|
-|*Dc*                |Datacentre                                      |preview, **add, edit, delete**|
-|*Logical Cluster*   |Cluster of Varnish servers                      |preview, **add, edit, delete**|
-|*Varnish Servers*   |A Varnish server                                |preview, **add, edit, delete**|
-|*VCL Template Block*|A VCL template block                            |preview, **add, edit, delete**|
-|*VCL Template*      |A VCL template                                  |preview, **add, edit, delete**|
-|*Time Profile*      |Default timeouts profile for director           |preview, **add, edit, delete**|
-|*Purger*            |purge object from varnishes from a given cluster|                              |
+|Name                |Description                                         |Allowed actions               |
+|--------------------|----------------------------------------------------|------------------------------|
+|*Backend*           |Represents a single node in a service (director)    |preview, **add, edit, delete**|
+|*Director*          |A Varnish director; may represent a SOA service     |preview, **add, edit, delete**|
+|*Probe*             |A health check used to determine backend status     |preview, **add, edit, delete**|
+|*Dc*                |Datacentre                                          |preview, **add, edit, delete**|
+|*Logical Cluster*   |Cluster of Varnish servers                          |preview, **add, edit, delete**|
+|*Varnish Servers*   |A Varnish server                                    |preview, **add, edit, delete**|
+|*VCL Template Block*|A VCL template block                                |preview, **add, edit, delete**|
+|*VCL Template*      |A VCL template                                      |preview, **add, edit, delete**|
+|*Time Profile*      |Default timeouts profile for director               |preview, **add, edit, delete**|
+|*Purger*            |purge object from varnishes from a given cluster    |                              |
+|*Outdated Server*   |Represents active varnish servers with outdated vcl |preview                       |
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -194,6 +195,11 @@ To list backends located in specified DC belonging to specified Director:
     -d '{ "url": "http://example.com/contact", "clusters": "cluster1_siteA_test"  }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/purger/?username=admin&api_key=vagrant_api_key"
+
+
+###List outdated servers from single logical cluster
+
+    curl "http://localhost:3030/api/v0.1/outdated_server/?username=admin&api_key=vagrant_api_key&cluster=clusterA"
 
 
 Explore more

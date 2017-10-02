@@ -5,7 +5,7 @@ from django.views.generic.base import RedirectView
 from tastypie.api import Api
 
 from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlockResource, VclTemplateResource, \
-    LogicalClusterResource
+    LogicalClusterResource, OutdatedServerResource
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource
 from vaas.purger.api import PurgeUrl
 from django.contrib import admin
@@ -23,6 +23,7 @@ v01_api.register(VclTemplateResource())
 v01_api.register(VclTemplateBlockResource())
 v01_api.register(LogicalClusterResource())
 v01_api.register(PurgeUrl())
+v01_api.register(OutdatedServerResource())
 
 
 urlpatterns = [
