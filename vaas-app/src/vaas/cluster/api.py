@@ -1,16 +1,43 @@
 # -*- coding: utf-8 -*-
-
-from tastypie.resources import ALL_WITH_RELATIONS
+from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
-from tastypie.resources import ModelResource
 from tastypie.authorization import Authorization
 from tastypie.authentication import ApiKeyAuthentication
+
+from vaas.cluster.coherency import OutdatedServer, OutdatedServerManager
 from vaas.cluster.forms import LogicalCLusterModelForm, DcModelForm, VclTemplateModelForm, VarnishServerModelForm, \
     VclTemplateBlockModelForm
 
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock
+
+
+class OutdatedServerResource(Resource):
+    id = fields.IntegerField(attribute='id')
+    ip = fields.CharField(attribute='ip')
+    port = fields.CharField(attribute='port')
+    dc = fields.CharField(attribute='dc')
+    cluster = fields.CharField(attribute='cluster')
+    current_vcl = fields.CharField(attribute='current_vcl', blank=True, null=True)
+
+    class Meta:
+        resource_name = 'outdated_server'
+        object_class = OutdatedServer
+        authorization = Authorization()
+        include_resource_uri = False
+        filtering = {
+            'cluster__name': ['exact'],
+        }
+
+    def get_object_list(self, request):
+        cluster = None
+        if request:
+            cluster = request.GET.get('cluster', None)
+        return OutdatedServerManager().load(cluster)
+
+    def obj_get_list(self, bundle, **kwargs):
+        return self.get_object_list(bundle.request)
 
 
 class LogicalClusterResource(ModelResource):
