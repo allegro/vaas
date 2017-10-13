@@ -5,6 +5,7 @@ db.sqlite3
 .vagrant
 .DS_Store
 *.egg
+*.log
 coverage.xml
 nosetests.xml
 nohup.out
@@ -13,4 +14,3 @@ vagrant/puppet/manifests/build/
 site/
 venv/
 vaas-app/src/src/
-
