@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VAAS_SRC_HOME='/home/vagrant/vaas/vaas-app/src'
+VAAS_SRC_HOME='/home/ubuntu/vaas/vaas-app/src'
 
 # prepare repositories
 sudo apt-get update -y
@@ -34,29 +34,37 @@ default:
 EOF
 fi
 
-if [ ! -f /etc/init/celery.conf ] ; then
-sudo tee /etc/init/celery.conf > /dev/null <<EOF
-start on runlevel [2345]
-stop on runlevel [06]
+if [ ! -f /lib/systemd/system/celery.service ] ; then
+sudo tee /lib/systemd/system/celery.service > /dev/null <<EOF
+## managed by puppet ##
+[Unit]
+Description=Celery Service
+After=syslog.target
 
-env DJANGO_SETTINGS_MODULE=vaas.settings.local
+[Service]
+Type=forking
+User=ubuntu
+Group=ubuntu
+PermissionsStartOnly=true
+Environment=DJANGO_SETTINGS_MODULE=vaas.settings.local
+ExecStartPre=/bin/mkdir -p /var/run/celery
+ExecStartPre=/bin/chown -R ubuntu:ubuntu /var/run/celery
+ExecStart=/bin/sh -c '/home/ubuntu/venv/bin/celery multi start worker --workdir=/home/ubuntu/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
+ExecStop=/bin/sh -c '/home/ubuntu/venv/bin/celery multi stopwait worker --pidfile=/var/run/celery/calery.pid'
+ExecReload=/bin/sh -c '/home/ubuntu/venv/bin/celery multi restart worker --workdir=/home/ubuntu/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
 
-setgid vagrant
-setuid vagrant
-
-script
-    exec /home/vagrant/venv/bin/python /home/vagrant/venv/bin/celery --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings worker -l info
-end script
-
-respawn
+[Install]
+WantedBy=multi-user.target
 EOF
+sudo systemctl daemon-reload
+sudo systemctl start celery.service
 fi
 
-job_status=$(status celery)
-if [[ ${job_status} = *running* ]]; then
-    sudo restart celery
+job_status=$(sudo systemctl is-active celery.service)
+if [[ ${job_status} = *active* ]]; then
+    sudo systemctl restart celery.service
 else
-    sudo start celery
+    sudo systemctl start celery.service
 fi
 
 if [ ! -f /tmp/db.sqlite3 ] ; then
