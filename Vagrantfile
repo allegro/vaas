@@ -13,6 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vaas.vm.box = "vaas_dev_v0.09.box"
     vaas.vm.synced_folder ".", "/home/ubuntu/vaas"
     vaas.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
+    vaas.vm.provision :shell, :privileged => false, :path => "vagrant/shell/prepare_git_repo.sh"
     vaas.vm.network "private_network", ip: "192.168.200.11"
 
   end
@@ -22,6 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     pluton.vm.box = "ubuntu/xenial64"
     pluton.vm.synced_folder ".", "/home/ubuntu/vaas"
     pluton.vm.provision :shell, :privileged => false, :path => "vagrant/shell/pluton.sh"
+    pluton.vm.provision :shell, :privileged => false, :path => "vagrant/shell/prepare_git_repo.sh"
     pluton.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
 
   end
