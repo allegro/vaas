@@ -12,3 +12,4 @@ pages:
 - ['documentation/protocol.md', 'Documentation', 'Protocol Support']
 - ['documentation/ldap.md', 'Documentation', 'Authentication with LDAP']
 - ['documentation/cron.md', 'Documentation', 'VaaS cron jobs']
+- ['documentation/canary.md', 'Documentation', 'Canary deployments support']
