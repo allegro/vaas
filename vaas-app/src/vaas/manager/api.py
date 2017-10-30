@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
+from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie.authorization import Authorization
 from tastypie import fields
 from tastypie.fields import ListField
@@ -11,8 +11,9 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.api import DcResource
 from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm, TimeProfileModelForm
-from vaas.manager.models import Backend, Probe, Director, TimeProfile
+from vaas.manager.models import Backend, Probe, Director, TimeProfile, ReloadTask
 from vaas.monitor.models import BackendStatus
+from celery.result import AsyncResult
 
 logger = logging.getLogger('vaas')
 
@@ -158,3 +159,23 @@ class BackendResource(ModelResource):
         tags = bundle.data.get('tags', [])
         bundle.obj.tags.set(*tags)
         return super(BackendResource, self).save_m2m(bundle)
+
+
+class ReloadTaskResource(Resource):
+    status = fields.CharField(attribute='status')
+    info = fields.CharField(attribute='info')
+
+    class Meta:
+        resource_name = 'task'
+        list_allowed_methods = ['get']
+        authorization = Authorization()
+        authentication = ApiKeyAuthentication()
+        fields = ['status', 'info']
+        include_resource_uri = True
+
+    def obj_get(self, bundle, **kwargs):
+        task = AsyncResult(kwargs['pk'])
+        return ReloadTask(kwargs['pk'], task.status, '{}'.format(task.info))
+
+    def get_object_list(self, request):
+        return None

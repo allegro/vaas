@@ -72,6 +72,7 @@ class VclRefreshMiddleware(object):
 
                 if 'tastypie' in str(type(response)) and 'respond-async' in request.META.get('HTTP_PREFER', ''):
                     response.status_code = 202
+                    response['Location'] = '/api/v0.1/task/{}/'.format(result.id)
                 else:
                     result.get()
 
