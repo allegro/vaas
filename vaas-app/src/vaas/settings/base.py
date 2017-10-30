@@ -2,11 +2,14 @@
 from __future__ import unicode_literals, absolute_import
 
 import os
+import environ
 from django.conf import global_settings
 from django.contrib import messages
 
 from vaas.configuration.loader import YamlConfigLoader
 
+
+env = environ.Env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -153,12 +156,12 @@ REFRESH_TRIGGERS_CLASS = (
 )
 
 # CELERY
-BROKER_URL = 'redis://localhost:6379/1'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
-CELERY_TASK_RESULT_EXPIRES = 600
+BROKER_URL = env.str('BROKER_URL', default='redis://localhost:6379/1')
+CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', default='redis://localhost:6379/2')
+CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_IGNORE_RESULT = False
-CELERY_TASK_PUBLISH_RETRY = True
+CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', False)
+CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
 
 VARNISH_COMMAND_TIMEOUT = 5
