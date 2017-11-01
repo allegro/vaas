@@ -67,7 +67,7 @@ class VaaSEggInfo(org_egg_info):
                 basic_configuration('production', db_path='/tmp')
                 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vaas.settings.base")
                 from django.core.management import execute_from_command_line
-                execute_from_command_line(['manage.py', 'collectstatic', '--noinput'])
+                execute_from_command_line(['manage.py', 'collectstatic', '--noinput', '--clear'])
             except ImportError, e:
                 print "Info: Cannot import: %s, ommit custom egg_info" % (e.message)
         org_egg_info.run(self)
