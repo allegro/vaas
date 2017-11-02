@@ -2,7 +2,6 @@
 
 import os
 import sys
-from os.path import expanduser
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test
@@ -65,12 +64,22 @@ class VaaSEggInfo(org_egg_info):
         if VaaSEggInfo.active:
             try:
                 basic_configuration('production', db_path='/tmp')
-                os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vaas.settings.base")
-                from django.core.management import execute_from_command_line
-                execute_from_command_line(['manage.py', 'collectstatic', '--noinput'])
             except ImportError, e:
                 print "Info: Cannot import: %s, ommit custom egg_info" % (e.message)
         org_egg_info.run(self)
+
+
+class InstallAndCollectStatic(install):
+    
+    def run(self):
+        install.run(self)
+        try:
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vaas.settings.base")
+            from django.core.management import execute_from_command_line
+            execute_from_command_line(['manage.py', 'collectstatic', '--noinput', '--clear'])
+        except ImportError, e:
+            print "Info: Cannot import: %s, ommit custom install command" % (e.message)
+
 
 base_requirements = []
 test_requirements = []
@@ -91,7 +100,7 @@ for requirement in parse_requirements('{}/requirements/test.txt'.format(current_
 dependency_links = filter(lambda x: x is not None, dependency_links)
 
 setup(
-    cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
+    cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo, 'install': InstallAndCollectStatic},
     name='vaas',
     version='1.0.0',
     author='Grupa Allegro Sp. z o.o. and Contributors',
