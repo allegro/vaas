@@ -26,6 +26,7 @@ class TimeProfileResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=TimeProfileModelForm)
+        always_return_data = True
         filtering = {
             'max_connections': ['exact'],
             'connect_timeout': ['exact'],
@@ -42,6 +43,7 @@ class ProbeResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=ProbeModelForm)
+        always_return_data = True
         filtering = {
             'name': ['exact'],
             'url': ['exact'],
@@ -66,6 +68,7 @@ class DirectorResource(ModelResource):
         authorization = Authorization()
         authentication = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=DirectorModelForm)
+        always_return_data = True
         filtering = {
             'name': ['exact'],
             'enabled': ['exact'],
@@ -111,6 +114,7 @@ class BackendResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=BackendModelForm)
+        always_return_data = True
         filtering = {
             'dc': ALL_WITH_RELATIONS,
             'director': ALL_WITH_RELATIONS,
