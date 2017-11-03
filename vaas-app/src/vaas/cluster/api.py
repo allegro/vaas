@@ -48,6 +48,7 @@ class LogicalClusterResource(ModelResource):
         authorization = Authorization()
         validation = ModelCleanedDataFormValidation(form_class=LogicalCLusterModelForm)
         authentication = ApiKeyAuthentication()
+        always_return_data = True
         filtering = {
             'name': ['exact'],
             'reload_timestamp': ['exact'],
@@ -66,6 +67,7 @@ class DcResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=DcModelForm)
+        always_return_data = True
         filtering = {
             'symbol': ['exact'],
         }
@@ -89,6 +91,7 @@ class VclTemplateResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=VclTemplateModelForm)
+        always_return_data = True
         filtering = {
             'name': ['exact'],
         }
@@ -107,6 +110,7 @@ class VarnishServerResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=VarnishServerModelForm)
+        always_return_data = True
         filtering = {
             'ip': ['exact'],
             'cluster': ['exact']
@@ -133,6 +137,7 @@ class VclTemplateBlockResource(ModelResource):
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=VclTemplateBlockModelForm)
+        always_return_data = True
         filtering = {
             'name': ['exact'],
             'template': ALL_WITH_RELATIONS
