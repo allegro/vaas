@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.utils import timezone
+from django.conf import settings
 import logging
 import time
 from tastypie.http import HttpApplicationError
@@ -74,6 +75,15 @@ class VclRefreshMiddleware(object):
                     response.status_code = 202
                     response['Location'] = '/api/v0.1/task/{}/'.format(result.id)
                 else:
+                    if settings.ENABLE_UWSGI_SWITCH_CONTEXT:
+                        try:
+                            import uwsgi
+                            while not result.ready():
+                                uwsgi.async_sleep(1)
+                                uwsgi.suspend()
+                        except:
+                            pass
+
                     result.get()
 
                     if isinstance(result.result, Exception):
