@@ -188,7 +188,7 @@ def pre_save_vcl_update(sender, **kwargs):
     # list of clusters to refresh
     clusters_to_refresh = []
 
-    #VclVariable
+    # VclVariable
     if sender is VclVariable:
         old_instance = VclVariable.objects.get(pk=instance.pk)
         for varnish_server in VarnishServer.objects.all():
@@ -216,7 +216,7 @@ def director_update(**kwargs):
 
     clusters_to_refresh = get_clusters_to_refresh(instance)
     logger.debug("[director_update(instance=%s, action=%s)] Clusters to refresh: %s",
-                instance, action, clusters_to_refresh)
+                 instance, action, clusters_to_refresh)
     regenerate_and_reload_vcl(clusters_to_refresh)
     mark_cluster_as_refreshed(instance, clusters_to_refresh)
 
