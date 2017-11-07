@@ -108,3 +108,15 @@ class VclTemplateBlock(models.Model):
 
     class Meta:
         unique_together = (('tag', 'template'))
+
+
+class VclVariable(models.Model):
+    key = models.CharField(max_length=100, unique=True)
+    value = models.CharField(max_length=254)
+    cluster = models.ForeignKey(LogicalCluster)
+
+    def __unicode__(self):
+        return "{}: {}".format(self.key, self.value)
+
+    class Meta:
+        unique_together = (('key', 'cluster'), )
