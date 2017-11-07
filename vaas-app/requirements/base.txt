@@ -1,5 +1,4 @@
 django==1.11.2
-python-varnish==0.2.1
 django_nose==1.4.4
 enum34==1.1.6
 PyYAML==3.12
@@ -19,4 +18,5 @@ redis==2.10.5
 requests==2.18.4
 GitPython==2.1.7
 -e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=django_admin_bootstrapped-2.5.8
+-e git+https://github.com/TheMickeyMike/python-varnish.git#egg=python_varnish-0.2.1
 -e git+https://github.com/TheMickeyMike/django-ace.git@v1.2.4#egg=django_ace-1.2.4

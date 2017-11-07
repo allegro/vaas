@@ -39,7 +39,7 @@ env = Environment(
 
 class Vcl(object):
     def __init__(self, content, name='default'):
-        self.version = hashlib.md5(str(content)).hexdigest()[:5]
+        self.version = hashlib.md5(str(content).encode('utf-8')).hexdigest()[:5]
         self.name = "{}-vol.{}".format(name, self.version)
         self.content = content.replace('##VCL_VERSION##', self.version)
 
@@ -47,7 +47,7 @@ class Vcl(object):
         return otherName[-5:] == self.name[-5:]
 
     def __eq__(self, other):
-        return hashlib.md5(str(self)).hexdigest() == hashlib.md5(str(other)).hexdigest()
+        return hashlib.md5(str(self).encode('utf-8')).hexdigest() == hashlib.md5(str(other).encode('utf-8')).hexdigest()
 
     def __str__(self):
         return self.content + '\n'
@@ -76,9 +76,9 @@ class VclTagExpander(object):
 
     def get_db_tag_content(self, vcl_template):
         if self.can_overwrite is True:
-            vcl_template_blocks = filter(
+            vcl_template_blocks = list(filter(
                 lambda block: block.template == vcl_template and block.tag == self.tag, self.input.template_blocks
-            )
+            ))
             if len(vcl_template_blocks) == 1:
                 return vcl_template_blocks[0].content
         return ""
@@ -116,7 +116,7 @@ class VclTagBuilder(object):
     def prepare_active_directors(self, directors, vcl_directors):
         result = []
         for director in directors:
-            if len(filter(lambda vcl_director: vcl_director.director.id == director.id, vcl_directors)) > 0:
+            if len(list(filter(lambda vcl_director: vcl_director.director.id == director.id, vcl_directors))) > 0:
                 result.append(director)
         return result
 

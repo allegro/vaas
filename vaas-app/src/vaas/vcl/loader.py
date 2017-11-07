@@ -3,7 +3,7 @@
 import logging
 import time
 from enum import Enum
-from renderer import VclRenderer
+from vaas.vcl.renderer import VclRenderer
 from vaas.cluster.exceptions import VclLoadException
 
 

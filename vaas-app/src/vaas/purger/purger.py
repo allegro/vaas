@@ -1,6 +1,6 @@
 import logging
-from urlparse import urlparse
-from httplib import HTTPConnection, BadStatusLine
+from urllib.parse import urlparse
+from http.client import HTTPConnection, BadStatusLine
 
 
 class VarnishPurger(object):

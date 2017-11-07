@@ -33,7 +33,7 @@ class OutdatedServerManagerTest(TestCase):
         m.get('http://127.0.0.2:8080/vaas/', json={"vcl_version": "current_version"})
 
         expected_server = OutdatedServer(
-            outdated.pk, u'127.0.0.1', 6082, u'dc1-coh', u'cluster-coherency', u'outdated_version'
+            outdated.pk, '127.0.0.1', 6082, 'dc1-coh', 'cluster-coherency', 'outdated_version'
         )
 
         self.assertEqual([expected_server], OutdatedServerManager().load('cluster-coherency'))
@@ -46,7 +46,7 @@ class OutdatedServerManagerTest(TestCase):
         m.get('http://127.0.0.2:8080/vaas/', json={"vcl_version": "outdated_version"})
 
         expected_server = OutdatedServer(
-            outdated.pk, u'127.0.0.2', 6082, u'dc1-coh', u'cluster-coherency', u'outdated_version'
+            outdated.pk, '127.0.0.2', 6082, 'dc1-coh', 'cluster-coherency', 'outdated_version'
         )
 
         self.assertEqual([expected_server], OutdatedServerManager().load('cluster-coherency'))
