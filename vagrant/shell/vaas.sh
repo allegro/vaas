@@ -72,4 +72,8 @@ if [ ! -f /tmp/db.sqlite3 ] ; then
   $VAAS_SRC_HOME/manage.py loaddata $VAAS_SRC_HOME/vaas/resources/data.yaml
 fi
 
+if [ $(grep -q PYTHONPATH ~/.bash_profile; echo $?) -ne 0 ] ; then
+    echo export PYTHONPATH=/home/ubuntu/vaas/plugins >> ~/.bash_profile
+fi
+
 $VAAS_SRC_HOME/manage.py runserver 0.0.0.0:3030 &

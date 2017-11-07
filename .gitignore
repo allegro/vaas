@@ -14,3 +14,5 @@ vagrant/puppet/manifests/build/
 site/
 venv/
 vaas-app/src/src/
+plugins/*
+!plugins/.keep
