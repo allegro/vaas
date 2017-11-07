@@ -3,11 +3,11 @@
 import logging
 
 from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_delete, post_delete, m2m_changed
+from django.db.models.signals import pre_save, post_save, pre_delete, post_delete, m2m_changed
 from django.conf import settings
 
 from vaas.external.request import get_current_request
-from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock
+from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, VclVariable
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
 
@@ -142,13 +142,19 @@ def vcl_update(sender, **kwargs):
                 logger.debug("vcl_update(): %s" % str(varnish.cluster))
                 clusters_to_refresh.append(varnish.cluster)
     # TimeProfile
-    if sender is TimeProfile:
+    elif sender is TimeProfile:
         for director in Director.objects.all():
             if director.time_profile.id == instance.id:
                 for cluster in director.cluster.all():
                     logger.debug("vcl_update(): %s" % str(cluster))
                     if cluster not in clusters_to_refresh:
                         clusters_to_refresh.append(cluster)
+    # VclVariable
+    elif sender is VclVariable:
+        for varnish_server in VarnishServer.objects.all():
+            if varnish_server.cluster == instance.cluster:
+                logger.debug("vcl_update(): %s" % str(varnish_server.cluster))
+                clusters_to_refresh.append(varnish_server.cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:
@@ -162,6 +168,44 @@ def clean_up_tags(sender, **kwargs):
         delete_unused_tags(instance)
 
 
+@receiver(pre_save)
+def pre_save_vcl_update(sender, **kwargs):
+    logger = logging.getLogger('vaas')
+
+    if sender is None:
+        return
+
+    if sender.__name__ not in settings.REFRESH_TRIGGERS_CLASS:
+        return
+
+    if settings.SIGNALS != 'on':
+        return
+
+    instance = kwargs['instance']
+    logger.debug("sender: " + str(sender))
+    logger.debug("instance: " + str(instance))
+
+    # list of clusters to refresh
+    clusters_to_refresh = []
+
+    #VclVariable
+    if sender is VclVariable:
+        old_instance = VclVariable.objects.get(pk=instance.pk)
+        for varnish_server in VarnishServer.objects.all():
+            if varnish_server.cluster == old_instance.cluster:
+                logger.debug("vcl_update(): %s" % str(varnish_server.cluster))
+                clusters_to_refresh.append(varnish_server.cluster)
+    # Backend
+    elif sender is Backend:
+        old_instance = Backend.objects.get(pk=instance.pk)
+        for cluster in old_instance.director.cluster.all():
+            logger.debug("vcl_update(): %s" % str(cluster))
+            if cluster not in clusters_to_refresh:
+                clusters_to_refresh.append(cluster)
+
+    regenerate_and_reload_vcl(clusters_to_refresh)
+
+
 def director_update(**kwargs):
     logger = logging.getLogger('vaas')
     instance = kwargs['instance']
@@ -171,7 +215,7 @@ def director_update(**kwargs):
         return
 
     clusters_to_refresh = get_clusters_to_refresh(instance)
-    logger.info("[director_update(instance=%s, action=%s)] Clusters to refresh: %s",
+    logger.debug("[director_update(instance=%s, action=%s)] Clusters to refresh: %s",
                 instance, action, clusters_to_refresh)
     regenerate_and_reload_vcl(clusters_to_refresh)
     mark_cluster_as_refreshed(instance, clusters_to_refresh)
