@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import re
+
 from django.utils import timezone
 from taggit.managers import TaggableManager
 from tastypie import fields
 from django.db import models
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator, ValidationError
 from simple_history.models import HistoricalRecords
 
-from vaas.validators import vcl_name_validator
+from vaas.validators import vcl_name_validator, vcl_variable_validator
 
 
 class LogicalCluster(models.Model):
@@ -52,6 +55,9 @@ class VclTemplate(models.Model):
 
     def get_template_version(self):
         return self.version
+
+    def clean(self):
+        vcl_variable_validator(self.content, self.pk, VclVariable, VarnishServer)
 
 
 class VarnishServer(models.Model):
@@ -105,6 +111,9 @@ class VclTemplateBlock(models.Model):
     template = models.ForeignKey(VclTemplate, on_delete=models.PROTECT)
     content = models.TextField()
     history = HistoricalRecords()
+
+    def clean(self):
+        vcl_variable_validator(self.content, self.template.pk, VclVariable, VarnishServer)
 
     class Meta:
         unique_together = (('tag', 'template'))

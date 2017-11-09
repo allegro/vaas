@@ -3,6 +3,7 @@ from __future__ import unicode_literals, absolute_import
 
 import os
 import environ
+import re
 from django.conf import global_settings
 from django.contrib import messages
 
@@ -154,6 +155,9 @@ VAAS_LOADER_MAX_WORKERS = 30
 REFRESH_TRIGGERS_CLASS = (
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable'
 )
+
+
+VCL_VARIABLE_PATTERN = re.compile('#{.*}', re.MULTILINE)
 
 # CELERY
 BROKER_URL = env.str('BROKER_URL', default='redis://localhost:6379/1')

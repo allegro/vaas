@@ -5,6 +5,7 @@ import logging
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete, post_delete, m2m_changed
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from vaas.external.request import get_current_request
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, VclVariable
@@ -190,18 +191,25 @@ def pre_save_vcl_update(sender, **kwargs):
 
     # VclVariable
     if sender is VclVariable:
-        old_instance = VclVariable.objects.get(pk=instance.pk)
-        for varnish_server in VarnishServer.objects.all():
-            if varnish_server.cluster == old_instance.cluster:
-                logger.debug("vcl_update(): %s" % str(varnish_server.cluster))
-                clusters_to_refresh.append(varnish_server.cluster)
+        try:
+            old_instance = VclVariable.objects.get(pk=instance.pk)
+            for varnish_server in VarnishServer.objects.all():
+                if varnish_server.cluster == old_instance.cluster:
+                    logger.debug("vcl_update(): %s" % str(varnish_server.cluster))
+                    clusters_to_refresh.append(varnish_server.cluster)
+        except ObjectDoesNotExist:
+            pass
+
     # Backend
     elif sender is Backend:
-        old_instance = Backend.objects.get(pk=instance.pk)
-        for cluster in old_instance.director.cluster.all():
-            logger.debug("vcl_update(): %s" % str(cluster))
-            if cluster not in clusters_to_refresh:
-                clusters_to_refresh.append(cluster)
+        try:
+            old_instance = Backend.objects.get(pk=instance.pk)
+            for cluster in old_instance.director.cluster.all():
+                logger.debug("vcl_update(): %s" % str(cluster))
+                if cluster not in clusters_to_refresh:
+                    clusters_to_refresh.append(cluster)
+        except ObjectDoesNotExist:
+            pass
 
     regenerate_and_reload_vcl(clusters_to_refresh)
 

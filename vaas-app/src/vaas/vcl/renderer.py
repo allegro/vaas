@@ -4,11 +4,14 @@ import logging
 import os
 import hashlib
 import time
+import re
+
+from django.conf import settings
 
 from jinja2 import Environment, FileSystemLoader
 from vaas.manager.models import Backend, Director
-from vaas.cluster.models import VclTemplateBlock, Dc
-
+from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
+from vaas.validators import VclVariableValidator
 
 VCL_TAGS = {
     '3.0': [
@@ -54,6 +57,29 @@ class Vcl(object):
 
     def __unicode__(self):
         return self.content + '\n'
+
+
+class VclVariableExpander(object):
+    def __init__(self, varnish, vcl_input):
+        self.varnish = varnish
+        self.input = vcl_input
+        self.logger = logging.getLogger('vaas')
+
+    def expand_variables(self, vcl):
+
+        for variable in self.input.vcl_variables:
+            if self.varnish.cluster == variable.cluster:
+                vcl_variable_key = "#{{{}}}".format(variable.key)
+                vcl = vcl.replace(vcl_variable_key, variable.value)
+
+        not_expanded_variables_found = re.findall(settings.VCL_VARIABLE_PATTERN, vcl)
+        if not_expanded_variables_found:
+            result = '\n'.join(not_expanded_variables_found)
+            raise VclVariableValidator('''Not all variables expanded.
+            cluster: {}
+            server: {}
+            variables: {}'''.format(self.varnish.cluster, self.varnish, result))
+        return vcl
 
 
 class VclTagExpander(object):
@@ -205,6 +231,7 @@ class VclRendererInput(object):
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
+        self.vcl_variables = list(VclVariable.objects.all().prefetch_related('cluster'))
         backends = list(Backend.objects.all().prefetch_related('director', 'dc', 'tags'))
         self.distributed_backends = self.distribute_backends(backends)
         self.distributed_canary_backends = self.prepare_canary_backends(backends)
@@ -257,10 +284,11 @@ class VclRenderer(object):
     def render(self, varnish, version, input):
         start = time.time()
         vcl_tag_builder = VclTagBuilder(varnish, input)
+        vcl_variable_expander = VclVariableExpander(varnish, input)
         logging.getLogger('vaas').debug(
             "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
         )
-        content = varnish.template.content
+        content = vcl_variable_expander.expand_variables(varnish.template.content)
         for vcl_tags_level in VCL_TAGS[varnish.template.version]:
             for tag_name in vcl_tags_level:
                 for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
