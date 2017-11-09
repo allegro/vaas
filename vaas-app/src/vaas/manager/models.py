@@ -121,7 +121,6 @@ class Director(models.Model):
         return self.name
 
 
-
 class Backend(models.Model):
     address = models.GenericIPAddressField(protocol='IPv4')
     port = models.PositiveIntegerField(
@@ -169,7 +168,6 @@ class Backend(models.Model):
 
     def __str__(self):
         return make_backend_name(self)
-
 
     class Meta:
         unique_together = (('address', 'port', 'director'),)

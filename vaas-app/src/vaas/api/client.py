@@ -11,6 +11,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
 )
 
+
 class VarnishApi(varnish.VarnishHandler):
     def __init__(self, host_port_timeout, secret=None, **kwargs):
         self.id = host_port_timeout[0]

@@ -54,8 +54,6 @@ class DjangoTestRunner(test):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vaas.settings")
         from django.core.management import execute_from_command_line
         execute_from_command_line(['manage.py', 'test'])
-        from atexit import _exithandlers
-        del _exithandlers[:]
 
 
 class VaaSEggInfo(org_egg_info):
@@ -88,7 +86,7 @@ for requirement in parse_requirements('{}/requirements/test.txt'.format(current_
     if dependency_link and str(dependency_link) not in dependency_links:
         dependency_links.append(str(dependency_link))
 
-dependency_links = filter(lambda x: x is not None, dependency_links)
+dependency_links = list(filter(lambda x: x is not None, dependency_links))
 
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
