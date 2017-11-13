@@ -67,7 +67,7 @@ class YamlConfigLoaderTest(TestCase):
         }
         assert_equals(None, YamlConfigLoader().determine_config_file('test.yaml'))
 
-    @patch('__builtin__.open', mock_open(read_data="key1: value1\nkey2: value2"))
+    @patch('builtins.open', mock_open(read_data="key1: value1\nkey2: value2"))
     def test_should_return_config_tree(self):
         expected_tree = {'key1': 'value1', 'key2': 'value2'}
         self.file_existence = {

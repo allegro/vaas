@@ -44,26 +44,26 @@ def export_to_csv(modeladmin, request, queryset):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=backend_list.csv'
     writer = csv.writer(response, csv.excel)
-    response.write(u'\ufeff'.encode('utf8'))
+    response.write('\ufeff'.encode('utf8'))
     writer.writerow([
-        smart_str(u"id"),
-        smart_str(u"address"),
-        smart_str(u"port"),
-        smart_str(u"director"),
-        smart_str(u"dc"),
-        smart_str(u"status"),
-        smart_str(u"enabled"),
-        smart_str(u"inherit_time_profile"),
-        smart_str(u"weight"),
-        smart_str(u"tags")
+        smart_str("id"),
+        smart_str("address"),
+        smart_str("port"),
+        smart_str("director"),
+        smart_str("dc"),
+        smart_str("status"),
+        smart_str("enabled"),
+        smart_str("inherit_time_profile"),
+        smart_str("weight"),
+        smart_str("tags")
 
     ])
     backend_status_list = BackendStatus.objects.all()
     for obj in queryset:
-        status_list = filter(
+        status_list = list(filter(
             lambda backend_status: backend_status.address == obj.address and backend_status.port == obj.port,
             backend_status_list
-        )
+        ))
         status = 'unknown'
         if len(status_list) == 1:
             status = status_list[0].status
@@ -171,10 +171,10 @@ class BackendAdmin(admin.ModelAdmin):
     custom_enabled.short_description = 'Enabled'
 
     def is_healthy(self, obj):
-        status_list = filter(
+        status_list = list(filter(
             lambda backend_status: backend_status.address == obj.address and backend_status.port == obj.port,
             self.backend_status_list
-        )
+        ))
         if len(status_list) == 1:
             if status_list[0].status == 'Healthy':
                 return format_html(

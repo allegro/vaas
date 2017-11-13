@@ -4,7 +4,7 @@ VAAS_SRC_HOME='/home/ubuntu/vaas/vaas-app/src'
 
 # prepare repositories
 sudo apt-get update -y
-sudo apt-get install -y redis-server python-dev
+sudo apt-get install -y redis-server python3.5-dev
 
 sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 

@@ -8,7 +8,7 @@ from vaas.configuration.loader import YamlConfigLoader
 DEBUG = True
 TEMPLATE_DEBUG = True
 
-for key, value in YamlConfigLoader().get_config_tree('dev.yml').iteritems():
+for key, value in YamlConfigLoader().get_config_tree('dev.yml').items():
     globals()[key] = value
 
 INSTALLED_APPS = INSTALLED_APPS + tuple(INSTALLED_PLUGINS)

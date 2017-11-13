@@ -55,22 +55,21 @@ class VarnishApi(varnish.VarnishHandler):
         Run a command on the Varnish backend and return the result
         return value is a tuple of ((status, length), content)
         """
-        logging.debug('SENT: %s: %s' % (self.host, command.splitlines()[0]))
-        self.write('%s\n' % command)
+        self.write(command.encode('utf-8') + b'\n')
         while 1:
-            buffer = self.read_until('\n').strip()
+            buffer = self.read_until(b'\n').strip()
             if len(buffer):
                 break
         status, length = map(int, buffer.split())
-        content = ''
+        content = b''
         while len(content) < length:
-            content += self.read_until('\n')
+            content += self.read_until(b'\n')
         assert status == 200, 'Bad response code: {status} {text} ({command})'.format(
             status=status,
             text=content,
             command=command)
         self.read_eager()
-        return (status, length), content
+        return (status, length), str(content, 'utf-8')
 
     def read_until(self, match, timeout=None):
         # override timeout for case when socket is open but process not responding

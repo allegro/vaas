@@ -75,4 +75,4 @@ class VclRefreshMiddlewareTest(TestCase):
             VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             response = middleware.process_response(request, HttpCreated())
             assert_true(isinstance(response, HttpApplicationError))
-            assert_equals('Exception: load vcl failed', response.content)
+            assert_equals(b'Exception: load vcl failed', response.content)
