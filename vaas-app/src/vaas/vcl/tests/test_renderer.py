@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-from factory import DjangoModelFactory, LazyAttribute, Sequence, SubFactory
+from factory import DjangoModelFactory, Sequence, SubFactory
 from mock import *
 from nose.tools import *
 from django.test import TestCase
-from vaas.vcl.renderer import Vcl, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
+from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
 from vaas.manager.models import Director, Probe, Backend, TimeProfile
-from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster
+from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, VclVariable
 from django.conf import settings
 from taggit.managers import TaggableManager
 
@@ -184,8 +184,12 @@ class VclTagBuilderTest(TestCase):
         )
         canary_backend.tags.add('canary')
 
-        template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>', version='3.0')
+
+
+        template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>\n##{vcl_variable}', version='3.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
+
+        vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
 
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v3, cluster=cluster1)
         self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v3, cluster=cluster1)
@@ -441,3 +445,41 @@ director first_service_dc2 round-robin {
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
 
         assert_equals(expected_content, vcl.content)
+
+
+class VclVariableExpanderTest(TestCase):
+
+    def setUp(self):
+        self.cluster = Mock()
+        self.cluster.id = 1
+        self.cluster_2 = Mock()
+        self.cluster_2.id = 2
+
+        self.variable = Mock()
+        self.variable.key = 'vcl_variable'
+        self.variable.value = 'vcl_variable_value'
+        self.variable.cluster = self.cluster
+
+        self.variable_2 = Mock()
+        self.variable_2.key = 'vcl_variable_2'
+        self.variable_2.value = 'vcl_variable_2_value'
+        self.variable_2.cluster = self.cluster_2
+
+        self.variables = [self.variable, self.variable_2]
+
+    def test_should_expand_variable_in_appropriate_cluster(self):
+
+        content = VclVariableExpander(self.cluster, self.variables).expand_variables(
+            '''\
+<VCL/>
+##{vcl_variable}
+##{vcl_variable_2}
+'''
+        )
+        expected_content = '''\
+<VCL/>
+#vcl_variable_value
+##{vcl_variable_2}
+'''
+
+        assert_equals(content, expected_content)

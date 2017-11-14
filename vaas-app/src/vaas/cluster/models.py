@@ -124,7 +124,7 @@ class VclVariable(models.Model):
     value = models.CharField(max_length=254)
     cluster = models.ForeignKey(LogicalCluster)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}: {}".format(self.key, self.value)
 
     class Meta:
