@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
-
 from django.utils import timezone
 from taggit.managers import TaggableManager
 from tastypie import fields

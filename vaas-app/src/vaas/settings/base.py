@@ -3,7 +3,6 @@ from __future__ import unicode_literals, absolute_import
 
 import os
 import environ
-import re
 from django.conf import global_settings
 from django.contrib import messages
 
