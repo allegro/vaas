@@ -184,8 +184,6 @@ class VclTagBuilderTest(TestCase):
         )
         canary_backend.tags.add('canary')
 
-
-
         template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>\n##{vcl_variable}', version='3.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
