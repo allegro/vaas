@@ -281,7 +281,7 @@ class VclTemplateModelFormTest(TestCase):
     def test_should_raise_validation_exception_for_blank_comment_field(self):
         form = VclTemplateModelForm(data=self.vcl_invalid_template_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'comment': [u'This field is required.']})
+        self.assertEqual(form.errors, {'comment': ['This field is required.']})
 
     def test_should_save_updated_vcl(self):
         form = VclTemplateModelForm(data=self.vcl_valid_template_data)
@@ -300,4 +300,4 @@ class VclTemplateModelFormTest(TestCase):
 
         form = VclTemplateModelForm(instance=obj, data=self.vcl_invalid_template_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'comment': [u'This field is required.']})
+        self.assertEqual(form.errors, {'comment': ['This field is required.']})

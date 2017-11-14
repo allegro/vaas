@@ -14,7 +14,7 @@ from vaas.api.client import VarnishApi
 from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput
-from exceptions import VclLoadException
+from vaas.cluster.exceptions import VclLoadException
 
 
 def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,

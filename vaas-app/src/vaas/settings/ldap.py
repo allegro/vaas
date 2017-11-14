@@ -5,7 +5,7 @@ from vaas.configuration.loader import YamlConfigLoader
 
 ldap_config = YamlConfigLoader().get_config_tree('ldap.yml')
 if ldap_config:
-    for key, value in ldap_config.iteritems():
+    for key, value in ldap_config.items():
         globals()[key] = value
 
     import ldap

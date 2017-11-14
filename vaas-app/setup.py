@@ -10,7 +10,7 @@ from setuptools.command.install import install
 from setuptools.command.egg_info import egg_info as org_egg_info
 from pip.req import parse_requirements
 
-assert sys.version_info >= (2, 7), "Python 2.7+ required."
+assert sys.version_info >= (3, 5), "Python 3.5+ required."
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -54,8 +54,6 @@ class DjangoTestRunner(test):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vaas.settings")
         from django.core.management import execute_from_command_line
         execute_from_command_line(['manage.py', 'test'])
-        from atexit import _exithandlers
-        del _exithandlers[:]
 
 
 class VaaSEggInfo(org_egg_info):
@@ -68,8 +66,8 @@ class VaaSEggInfo(org_egg_info):
                 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vaas.settings.base")
                 from django.core.management import execute_from_command_line
                 execute_from_command_line(['manage.py', 'collectstatic', '--noinput'])
-            except ImportError, e:
-                print "Info: Cannot import: %s, ommit custom egg_info" % (e.message)
+            except ImportError as e:
+                print("Info: Cannot import: {}, ommit custom egg_info".format(e.message))
         org_egg_info.run(self)
 
 base_requirements = []
@@ -88,7 +86,7 @@ for requirement in parse_requirements('{}/requirements/test.txt'.format(current_
     if dependency_link and str(dependency_link) not in dependency_links:
         dependency_links.append(str(dependency_link))
 
-dependency_links = filter(lambda x: x is not None, dependency_links)
+dependency_links = list(filter(lambda x: x is not None, dependency_links))
 
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
@@ -124,8 +122,8 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows :: Windows NT/2000',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 2 :: Only',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3 :: Only',
         'Topic :: Internet :: WWW/HTTP',
     ]
 )

@@ -22,7 +22,7 @@ class LogicalCluster(models.Model):
     last_error_info = models.CharField(max_length=400, null=True, blank=True)
     current_vcls = TaggableManager(blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{} ({})".format(self.name, self.varnish_count())
 
     def __eq__(self, other):
@@ -39,7 +39,7 @@ class Dc(models.Model):
     name = models.CharField(max_length=50)
     symbol = models.CharField(max_length=9, unique=True, validators=[vcl_name_validator])
 
-    def __unicode__(self):
+    def __str__(self):
         return self.symbol
 
 
@@ -50,7 +50,7 @@ class VclTemplate(models.Model):
     comment = models.CharField(max_length=64)
     history = HistoricalRecords()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_template_version(self):
@@ -88,7 +88,7 @@ class VarnishServer(models.Model):
     cluster = models.ForeignKey(LogicalCluster, on_delete=models.PROTECT)
     is_canary = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}:{} ({})".format(self.ip, self.port, self.hostname)
 
     class Meta:

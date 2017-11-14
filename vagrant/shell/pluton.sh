@@ -7,12 +7,13 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc
 
 # install packages
 sudo apt-get update -y
-sudo apt-get -y install docker-engine python-virtualenv python-pip
-sudo pip install virtualenv
+sudo apt-get -y install docker-engine python3.5-venv
+python3.5 -m ensurepip
 
 # prepare venv
 cd ~/
-virtualenv venv
+python3.5 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r vaas/vaas-app/requirements/dev.txt
 echo ". venv/bin/activate" >> ~/.bash_profile

@@ -16,26 +16,26 @@ class Probe(models.Model):
     interval = models.PositiveIntegerField(
         default='3',
         choices=[(x, x) for x in range(1, 301)],
-        verbose_name=u'Interval (s)'
+        verbose_name='Interval (s)'
     )
     timeout = NormalizedDecimalField(
         default='1',
         decimal_places=1,
         max_digits=4,
         choices=generate_choices(1, 51, 10, 1),
-        verbose_name=u'Timeout (s)'
+        verbose_name='Timeout (s)'
     )
     window = models.PositiveIntegerField(
         default='5',
         choices=[(x, x) for x in range(1, 6)],
-        verbose_name=u'Window (s)'
+        verbose_name='Window (s)'
     )
     threshold = models.PositiveIntegerField(
         default='3',
         choices=[(x, x) for x in range(1, 301)]
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.name, self.url)
 
 
@@ -44,16 +44,16 @@ class TimeProfile(models.Model):
     description = models.TextField(blank=True)
     max_connections = models.PositiveIntegerField(default='5')
     connect_timeout = NormalizedDecimalField(
-        default='0.30', decimal_places=2, max_digits=4, verbose_name=u'Connect timeout (s)'
+        default='0.30', decimal_places=2, max_digits=4, verbose_name='Connect timeout (s)'
     )
     first_byte_timeout = NormalizedDecimalField(
-        default='5', decimal_places=2, max_digits=5, verbose_name=u'First byte timeout (s)'
+        default='5', decimal_places=2, max_digits=5, verbose_name='First byte timeout (s)'
     )
     between_bytes_timeout = NormalizedDecimalField(
-        default='1', decimal_places=2, max_digits=5, verbose_name=u'Between bytes timeout (s)'
+        default='1', decimal_places=2, max_digits=5, verbose_name='Between bytes timeout (s)'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -95,7 +95,7 @@ class Director(models.Model):
     )
     route_expression = models.CharField(
         max_length=512,
-        verbose_name=u'Path or domain regex'
+        verbose_name='Path or domain regex'
     )
     active_active = models.BooleanField(
         'DC aware fallback',
@@ -117,7 +117,7 @@ class Director(models.Model):
         elif self.mode == 'fallback':
             return 'fallback()'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -141,21 +141,21 @@ class Backend(models.Model):
         decimal_places=2,
         max_digits=4,
         choices=generate_choices(1, 101, 100),
-        verbose_name=u'Connect timeout (s)'
+        verbose_name='Connect timeout (s)'
     )
     first_byte_timeout = NormalizedDecimalField(
         default='5',
         decimal_places=2,
         max_digits=5,
         choices=generate_choices(1, 8001, 100),
-        verbose_name=u'First byte timeout (s)'
+        verbose_name='First byte timeout (s)'
     )
     between_bytes_timeout = NormalizedDecimalField(
         default='1',
         decimal_places=2,
         max_digits=5,
         choices=generate_choices(1, 8001, 100),
-        verbose_name=u'Between bytes timeout (s)'
+        verbose_name='Between bytes timeout (s)'
     )
     director = models.ForeignKey(
         Director,
@@ -166,7 +166,7 @@ class Backend(models.Model):
     tags = TaggableManager(blank=True)
     inherit_time_profile = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return make_backend_name(self)
 
     class Meta:
