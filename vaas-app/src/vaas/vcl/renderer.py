@@ -60,26 +60,19 @@ class Vcl(object):
 
 
 class VclVariableExpander(object):
-    def __init__(self, varnish, vcl_input):
-        self.varnish = varnish
-        self.input = vcl_input
+    def __init__(self, cluster, variables):
+        self.cluster = cluster
+        self.variables = variables
         self.logger = logging.getLogger('vaas')
 
-    def expand_variables(self, vcl):
+    def expand_variables(self, content):
 
-        for variable in self.input.vcl_variables:
-            if self.varnish.cluster == variable.cluster:
+        for variable in self.variables:
+            if self.cluster.pk == variable.cluster.pk:
                 vcl_variable_key = "#{{{}}}".format(variable.key)
-                vcl = vcl.replace(vcl_variable_key, variable.value)
+                content = content.replace(vcl_variable_key, variable.value)
 
-        not_expanded_variables_found = re.findall(settings.VCL_VARIABLE_PATTERN, vcl)
-        if not_expanded_variables_found:
-            result = '\n'.join(not_expanded_variables_found)
-            raise VclVariableValidator('''Not all variables expanded.
-            cluster: {}
-            server: {}
-            variables: {}'''.format(self.varnish.cluster, self.varnish, result))
-        return vcl
+        return content
 
 
 class VclTagExpander(object):
@@ -284,15 +277,16 @@ class VclRenderer(object):
     def render(self, varnish, version, input):
         start = time.time()
         vcl_tag_builder = VclTagBuilder(varnish, input)
-        vcl_variable_expander = VclVariableExpander(varnish, input)
         logging.getLogger('vaas').debug(
             "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
         )
-        content = vcl_variable_expander.expand_variables(varnish.template.content)
+        content = varnish.template.content
         for vcl_tags_level in VCL_TAGS[varnish.template.version]:
             for tag_name in vcl_tags_level:
                 for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
                     content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
+
+        content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
 
         """
         Comment not expanded parameterized tags
