@@ -9,8 +9,13 @@ from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlock
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource, ReloadTaskResource
 from vaas.purger.api import PurgeUrl
 from django.contrib import admin
+from social_django.models import Association, Nonce, UserSocialAuth
 
 admin.autodiscover()
+
+admin.site.unregister(Association)
+admin.site.unregister(Nonce)
+admin.site.unregister(UserSocialAuth)
 
 v01_api = Api(api_name='v0.1')
 v01_api.register(DcResource())
@@ -34,6 +39,7 @@ urlpatterns = [
     url(r'^account/', include('vaas.account.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(v01_api.urls)),
+    url('', include('social_django.urls', namespace='social'))
 ]
 
 admin.site.site_header = 'VaaS Administration'
