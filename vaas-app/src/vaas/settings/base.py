@@ -156,9 +156,6 @@ REFRESH_TRIGGERS_CLASS = (
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable'
 )
 
-
-VCL_VARIABLE_PATTERN = re.compile('#{.*}', re.MULTILINE)
-
 # CELERY
 BROKER_URL = env.str('BROKER_URL', default='redis://localhost:6379/1')
 CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', default='redis://localhost:6379/2')

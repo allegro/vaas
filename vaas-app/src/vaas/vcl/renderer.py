@@ -4,14 +4,10 @@ import logging
 import os
 import hashlib
 import time
-import re
-
-from django.conf import settings
 
 from jinja2 import Environment, FileSystemLoader
 from vaas.manager.models import Backend, Director
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
-from vaas.validators import VclVariableValidator
 
 VCL_TAGS = {
     '3.0': [
