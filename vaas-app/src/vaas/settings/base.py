@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'vaas.purger',
     'taggit',
     'django_ace',
+    'social_django',
 )
 
 # Plugins definition
