@@ -39,7 +39,8 @@ urlpatterns = [
     url(r'^account/', include('vaas.account.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(v01_api.urls)),
-    url('', include('social_django.urls', namespace='social'))
+    url(r'^plugins/', include('urls', namespace='plugins')),
+    url('', include('social_django.urls', namespace='social')),
 ]
 
 admin.site.site_header = 'VaaS Administration'
