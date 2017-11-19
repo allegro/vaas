@@ -25,4 +25,3 @@ for app in iterate_plugins():
         logger.info('Found urls for plugin: {}'.format(app))
     except ImportError as e:
         pass
-
