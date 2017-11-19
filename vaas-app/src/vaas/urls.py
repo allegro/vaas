@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls import include, url
+from django.contrib.admin.sites import NotRegistered
 from django.views.generic.base import RedirectView
 from tastypie.api import Api
 
@@ -13,9 +14,12 @@ from social_django.models import Association, Nonce, UserSocialAuth
 
 admin.autodiscover()
 
-admin.site.unregister(Association)
-admin.site.unregister(Nonce)
-admin.site.unregister(UserSocialAuth)
+try:
+    admin.site.unregister(Association)
+    admin.site.unregister(Nonce)
+    admin.site.unregister(UserSocialAuth)
+except NotRegistered:
+    pass
 
 v01_api = Api(api_name='v0.1')
 v01_api.register(DcResource())
