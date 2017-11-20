@@ -1,6 +1,6 @@
 from json import dumps
 from tastypie import fields
-from tastypie.authorization import Authorization
+from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.resources import Resource
 from tastypie.http import HttpResponse
@@ -24,7 +24,7 @@ class PurgeUrl(Resource):
     class Meta:
         resource_name = 'purger'
         list_allowed_methods = ['post']
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         fields = ['url', 'clusters']
         include_resource_uri = False
