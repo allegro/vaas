@@ -150,7 +150,7 @@ class BackendResource(ModelResource):
         return orm_filters
 
     def dehydrate_tags(self, bundle):
-        return map(str, bundle.obj.tags.all())
+        return list(map(str, bundle.obj.tags.all()))
 
     def hydrate_tags(self, bundle):
         if isinstance(bundle.data.get('tags'), list):
