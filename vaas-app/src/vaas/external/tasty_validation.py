@@ -36,7 +36,7 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
                 return None
 
         # convert everything to lists
-        multiple = not isinstance(uri, basestring)
+        multiple = not isinstance(uri, str)
         uris = uri if multiple else [uri]
 
         # handle all passed URIs
