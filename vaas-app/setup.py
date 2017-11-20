@@ -67,7 +67,7 @@ class VaaSEggInfo(org_egg_info):
                 from django.core.management import execute_from_command_line
                 execute_from_command_line(['manage.py', 'collectstatic', '--noinput'])
             except ImportError as e:
-                print("Info: Cannot import: {}, ommit custom egg_info".format(e.message))
+                print("Info: Cannot import: {}, ommit custom egg_info".format(e.msg))
         org_egg_info.run(self)
 
 base_requirements = []
