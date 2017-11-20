@@ -184,7 +184,7 @@ class VclTagBuilderTest(TestCase):
         )
         canary_backend.tags.add('canary')
 
-        template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>\n##{vcl_variable}', version='3.0')
+        template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##', version='3.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
         vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
@@ -470,14 +470,14 @@ class VclVariableExpanderTest(TestCase):
         content = VclVariableExpander(self.cluster, self.variables).expand_variables(
             '''\
 <VCL/>
-##{vcl_variable}
-##{vcl_variable_2}
+## #{vcl_variable} ##
+## #{vcl_variable_2} ##
 '''
         )
         expected_content = '''\
 <VCL/>
-#vcl_variable_value
-##{vcl_variable_2}
+## vcl_variable_value ##
+## #{vcl_variable_2} ##
 '''
 
         assert_equals(content, expected_content)
