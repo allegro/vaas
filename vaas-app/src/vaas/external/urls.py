@@ -13,9 +13,9 @@ PLUGIN_DIR = os.path.abspath('{}/../../../../plugins/'.format(os.path.dirname(__
 
 
 def iterate_plugins():
-    for app in next(os.walk(PLUGIN_DIR))[1]:
-        yield app
     for app in getattr(settings, 'INSTALLED_PLUGINS', []):
+        yield app
+    for app in next(os.walk(PLUGIN_DIR))[1]:
         yield app
 
 
