@@ -15,7 +15,8 @@ class BaseApiViewPermissionsTest(ResourceTestCaseMixin, TestCase):
     API_KEY_USER = 'user_123456'
 
     def create_user(self, username, email, password, is_staff, is_superuser):
-        return User.objects.create(username=username, email=email, password=password, is_staff=is_staff, is_superuser=is_superuser)
+        return User.objects.create(username=username, email=email, password=password, is_staff=is_staff,
+                                   is_superuser=is_superuser)
 
     def create_api_key_for_user(self, user, api_key):
         tastypie_api_key = ApiKey.objects.create(user=user)

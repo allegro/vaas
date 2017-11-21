@@ -46,5 +46,7 @@ class TestPurgerApiViewPermissions(BaseApiViewPermissionsTest):
     @patch('http.client.HTTPConnection.request')
     def test_user_without_staff_status_can_not_purge_url(self, response_mock):
         self.assertHttpUnauthorized(self.api_client.post(self.PURGER_RESOURCE, format='json', data=self.purger_data,
-                                                         authentication=self.create_apikey(self.user_non_staff,
-                                                                                           self.API_KEY_NON_STAFF_USER)))
+                                                         authentication=self.create_apikey(
+                                                             self.user_non_staff,
+                                                             self.API_KEY_NON_STAFF_USER)
+                                                         ))

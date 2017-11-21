@@ -8,8 +8,10 @@ from vaas.cluster.models import LogicalCluster
 from .forms import PurgeForm
 from vaas.purger.purger import VarnishPurger
 
+
 def purger_permission(user):
     return user.is_staff
+
 
 @user_passes_test(purger_permission)
 def purge_view(request):

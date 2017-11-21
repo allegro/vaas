@@ -32,7 +32,6 @@ class PurgeUrl(Resource):
     def create_json_response(self, data, http_response_class):
         return http_response_class(content=dumps(data), content_type="application/json; charset=utf-8")
 
-
     def obj_create(self, bundle, **kwargs):
         try:
             if not bundle.request.user.is_staff:
