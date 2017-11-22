@@ -1,10 +1,10 @@
-from unittest import TestCase
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django.test import TestCase
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCaseMixin
-from vaas.manager.models import Director, Backend, Probe, TimeProfile
 from vaas.cluster.models import LogicalCluster, VarnishServer, VclTemplateBlock, VclTemplate, Dc
 
 User = get_user_model()
@@ -22,10 +22,6 @@ class BaseApiViewPermissionsTest(ResourceTestCaseMixin, TestCase):
         tastypie_api_key = ApiKey.objects.create(user=user)
         tastypie_api_key.key = api_key
         tastypie_api_key.save()
-
-    @classmethod
-    def setUpClass(cls):
-        cls.tearDown(cls)
 
     def setUp(self):
         super(BaseApiViewPermissionsTest, self).setUp()
@@ -47,20 +43,6 @@ class BaseApiViewPermissionsTest(ResourceTestCaseMixin, TestCase):
                                             is_superuser=False
                                             )
         self.create_api_key_for_user(self.normal_user, self.API_KEY_USER)
-
-    def tearDown(self):
-        Group.objects.all().delete()
-        ApiKey.objects.all().delete()
-        User.objects.all().delete()
-        Backend.objects.all().delete()
-        Director.objects.all().delete()
-        TimeProfile.objects.all().delete()
-        Probe.objects.all().delete()
-        VarnishServer.objects.all().delete()
-        VclTemplateBlock.objects.all().delete()
-        VclTemplate.objects.all().delete()
-        LogicalCluster.objects.all().delete()
-        Dc.objects.all().delete()
 
 
 class TestApiViewPermissions(BaseApiViewPermissionsTest):
