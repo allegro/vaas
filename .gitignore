@@ -16,3 +16,4 @@ venv/
 vaas-app/src/src/
 plugins/*
 !plugins/.keep
+!plugins/urls.py
