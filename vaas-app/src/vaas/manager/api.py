@@ -2,7 +2,7 @@
 import logging
 
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
-from tastypie.authorization import Authorization
+from tastypie.authorization import DjangoAuthorization
 from tastypie import fields
 from tastypie.fields import ListField
 from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
@@ -23,7 +23,7 @@ class TimeProfileResource(ModelResource):
         queryset = TimeProfile.objects.all()
         resource_name = 'time_profile'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=TimeProfileModelForm)
         always_return_data = True
@@ -40,7 +40,7 @@ class ProbeResource(ModelResource):
         queryset = Probe.objects.all()
         resource_name = 'probe'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=ProbeModelForm)
         always_return_data = True
@@ -65,7 +65,7 @@ class DirectorResource(ModelResource):
         queryset = Director.objects.all()
         resource_name = 'director'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=DirectorModelForm)
         always_return_data = True
@@ -111,7 +111,7 @@ class BackendResource(ModelResource):
         queryset = Backend.objects.all()
         resource_name = 'backend'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=BackendModelForm)
         always_return_data = True
@@ -172,7 +172,7 @@ class ReloadTaskResource(Resource):
     class Meta:
         resource_name = 'task'
         list_allowed_methods = ['get']
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         fields = ['status', 'info']
         include_resource_uri = True

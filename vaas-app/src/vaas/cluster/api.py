@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
-from tastypie.authorization import Authorization
+from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 
 from vaas.cluster.coherency import OutdatedServer, OutdatedServerManager
@@ -24,7 +24,7 @@ class OutdatedServerResource(Resource):
     class Meta:
         resource_name = 'outdated_server'
         object_class = OutdatedServer
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         include_resource_uri = False
         filtering = {
             'cluster__name': ['exact'],
@@ -45,7 +45,7 @@ class LogicalClusterResource(ModelResource):
         queryset = LogicalCluster.objects.all()
         resource_name = 'logical_cluster'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         validation = ModelCleanedDataFormValidation(form_class=LogicalCLusterModelForm)
         authentication = ApiKeyAuthentication()
         always_return_data = True
@@ -64,7 +64,7 @@ class DcResource(ModelResource):
         queryset = Dc.objects.all()
         resource_name = 'dc'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=DcModelForm)
         always_return_data = True
@@ -88,7 +88,7 @@ class VclTemplateResource(ModelResource):
         queryset = VclTemplate.objects.all()
         resource_name = 'vcl_template'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=VclTemplateModelForm)
         always_return_data = True
@@ -107,7 +107,7 @@ class VarnishServerResource(ModelResource):
         queryset = VarnishServer.objects.all()
         resource_name = 'varnish_server'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=VarnishServerModelForm)
         always_return_data = True
@@ -134,7 +134,7 @@ class VclTemplateBlockResource(ModelResource):
         queryset = VclTemplateBlock.objects.all()
         resource_name = 'vcl_template_block'
         serializer = PrettyJSONSerializer()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
         validation = ModelCleanedDataFormValidation(form_class=VclTemplateBlockModelForm)
         always_return_data = True
