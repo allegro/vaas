@@ -7,7 +7,7 @@ prepended with hash sign, for example:
     #{foo}
 
 An important feature of VaaS VCL variables is that they are associated with a VirtualCluster. They are not associated
-directly with VclCluster, VclTemplate nor with VarnishServer. 
+directly with VclCluster, VclTemplate nor with VarnishServer.
 
 Defining VCL Variables
 ----------------------
