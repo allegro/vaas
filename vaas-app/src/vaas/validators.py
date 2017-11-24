@@ -14,7 +14,7 @@ class VclVariableValidatorError(ValidationError):
 
 def vcl_variable_validator(vcl_content, vcl_pk, vcl_variable_class, varnish_server_class):
 
-    pattern = re.compile('#{.*}', re.MULTILINE)
+    pattern = re.compile('#{.\w}', re.MULTILINE)
     placeholders = re.findall(pattern, vcl_content)
     placeholders = {p[2:-1] for p in placeholders}
     vcl_clusters = {server.cluster.pk for server in varnish_server_class.objects.all() if server.template.pk == vcl_pk}
