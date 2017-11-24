@@ -2,7 +2,9 @@ VCL Variables
 =============
 
 VCL variables may be used in VclTemplates or VclTemplateBlocks. VaaS variables should be enclosed with curly braces and
-prepended with hash sign, for example:
+prepended with hash sign. VaaS variable keys have to fulfill the definition of a word in regex terms ('^\w+$').
+
+For example:
 
     #{foo}
 

@@ -7,6 +7,9 @@ from django.core.validators import RegexValidator, ValidationError
 vcl_name_re = re.compile(r'^[a-zA-Z0-9_]+$')
 vcl_name_validator = RegexValidator(vcl_name_re, "Allowed characters: letters, numbers and underscores.", 'invalid')
 
+vcl_variable_key_re = re.compile(r'^\w+$')
+vcl_variable_key_validator = RegexValidator(vcl_variable_key_re, "Characters must match '^\w+$' regex.", 'invalid')
+
 
 class VclVariableValidatorError(ValidationError):
     pass
@@ -14,7 +17,7 @@ class VclVariableValidatorError(ValidationError):
 
 def vcl_variable_validator(vcl_content, vcl_pk, vcl_variable_class, varnish_server_class):
 
-    pattern = re.compile('#{.*}', re.MULTILINE)
+    pattern = re.compile('#{\w+}', re.MULTILINE)
     placeholders = re.findall(pattern, vcl_content)
     placeholders = {p[2:-1] for p in placeholders}
     vcl_clusters = {server.cluster.pk for server in varnish_server_class.objects.all() if server.template.pk == vcl_pk}
