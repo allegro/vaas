@@ -47,6 +47,7 @@ User=ubuntu
 Group=ubuntu
 PermissionsStartOnly=true
 Environment=DJANGO_SETTINGS_MODULE=vaas.settings.local
+Environment=PYTHONPATH=/home/ubuntu/vaas/plugins
 ExecStartPre=/bin/mkdir -p /var/run/celery
 ExecStartPre=/bin/chown -R ubuntu:ubuntu /var/run/celery
 ExecStart=/bin/sh -c '/home/ubuntu/venv/bin/celery multi start worker --workdir=/home/ubuntu/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'

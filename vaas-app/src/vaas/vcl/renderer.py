@@ -7,8 +7,7 @@ import time
 
 from jinja2 import Environment, FileSystemLoader
 from vaas.manager.models import Backend, Director
-from vaas.cluster.models import VclTemplateBlock, Dc
-
+from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
 
 VCL_TAGS = {
     '3.0': [
@@ -54,6 +53,22 @@ class Vcl(object):
 
     def __unicode__(self):
         return self.content + '\n'
+
+
+class VclVariableExpander(object):
+    def __init__(self, cluster, variables):
+        self.cluster = cluster
+        self.variables = variables
+        self.logger = logging.getLogger('vaas')
+
+    def expand_variables(self, content):
+
+        for variable in self.variables:
+            if self.cluster.pk == variable.cluster.pk:
+                vcl_variable_key = "#{{{}}}".format(variable.key)
+                content = content.replace(vcl_variable_key, variable.value)
+
+        return content
 
 
 class VclTagExpander(object):
@@ -205,6 +220,7 @@ class VclRendererInput(object):
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
+        self.vcl_variables = list(VclVariable.objects.all().prefetch_related('cluster'))
         backends = list(Backend.objects.all().prefetch_related('director', 'dc', 'tags'))
         self.distributed_backends = self.distribute_backends(backends)
         self.distributed_canary_backends = self.prepare_canary_backends(backends)
@@ -265,6 +281,8 @@ class VclRenderer(object):
             for tag_name in vcl_tags_level:
                 for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
                     content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
+
+        content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
 
         """
         Comment not expanded parameterized tags

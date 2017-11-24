@@ -6,7 +6,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
 from vaas.cluster.coherency import OutdatedServerManager
-from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster
+from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
 from vaas.cluster.forms import VclTemplateModelForm
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
@@ -202,8 +202,13 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         )
 
 
+class VclVariableAdmin(admin.ModelAdmin):
+    list_display = ['key', 'value', 'cluster']
+
+
 admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, VclTemplateAdmin)
 admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
 admin.site.register(Dc)
 admin.site.register(LogicalCluster, LogicalClusterAdmin)
+admin.site.register(VclVariable, VclVariableAdmin)
