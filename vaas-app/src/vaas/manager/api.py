@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from celery.result import AsyncResult
+
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
-from tastypie.authorization import DjangoAuthorization
 from tastypie import fields
 from tastypie.fields import ListField
 from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
 
+from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.api import DcResource
 from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm, TimeProfileModelForm
 from vaas.manager.models import Backend, Probe, Director, TimeProfile, ReloadTask
 from vaas.monitor.models import BackendStatus
-from celery.result import AsyncResult
+
 
 logger = logging.getLogger('vaas')
 
