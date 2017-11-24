@@ -13,7 +13,6 @@ from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock
 
 
-
 class OutdatedServerResource(Resource):
     id = fields.IntegerField(attribute='id')
     ip = fields.CharField(attribute='ip')
