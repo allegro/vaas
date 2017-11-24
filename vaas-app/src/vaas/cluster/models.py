@@ -5,10 +5,10 @@ from taggit.managers import TaggableManager
 from tastypie import fields
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator, ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from simple_history.models import HistoricalRecords
 
-from vaas.validators import vcl_name_validator, vcl_variable_validator
+from vaas.validators import vcl_name_validator, vcl_variable_validator, vcl_variable_key_validator
 
 
 class LogicalCluster(models.Model):
@@ -118,7 +118,7 @@ class VclTemplateBlock(models.Model):
 
 
 class VclVariable(models.Model):
-    key = models.CharField(max_length=100)
+    key = models.CharField(max_length=100, validators=[vcl_variable_key_validator])
     value = models.CharField(max_length=254)
     cluster = models.ForeignKey(LogicalCluster)
 
