@@ -10,6 +10,7 @@ vcl_name_validator = RegexValidator(vcl_name_re, "Allowed characters: letters, n
 vcl_variable_key_re = re.compile(r'^\w+$')
 vcl_variable_key_validator = RegexValidator(vcl_variable_key_re, "Characters must match '^\w+$' regex.", 'invalid')
 
+
 class VclVariableValidatorError(ValidationError):
     pass
 
