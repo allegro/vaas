@@ -15,6 +15,6 @@ for key, value in YamlConfigLoader().get_config_tree('production.yml').items():
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + tuple(MIDDLEWARE_PLUGINS)
 
-from .ldap import *
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
 from .oauth import *
