@@ -118,7 +118,7 @@ class VclTemplateBlock(models.Model):
 
 
 class VclVariable(models.Model):
-    key = models.CharField(max_length=100, unique=True)
+    key = models.CharField(max_length=100)
     value = models.CharField(max_length=254)
     cluster = models.ForeignKey(LogicalCluster)
 
