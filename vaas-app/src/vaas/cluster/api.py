@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
-from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 
 from vaas.cluster.coherency import OutdatedServer, OutdatedServerManager
 from vaas.cluster.forms import LogicalCLusterModelForm, DcModelForm, VclTemplateModelForm, VarnishServerModelForm, \
     VclTemplateBlockModelForm
 
+from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock
+
 
 
 class OutdatedServerResource(Resource):
