@@ -1,4 +1,3 @@
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -79,11 +78,10 @@ class TestApiViewPermissions(BaseApiViewPermissionsTest):
         self.assertEqual(len(self.deserialize(resp)['objects']), 1)
         self.assertEqual(self.deserialize(resp)['objects'][0]['name'], self.cluster1.name)
 
-    def test_user_without_proper_privileges_dont_get_logical_cluster_list(self):
-        resp = self.api_client.get(self.LOGICAL_CLUSTER_RESOURCE, format='json',
-                                   authentication=self.create_apikey(self.normal_user, self.API_KEY_USER))
-        self.assertValidJSONResponse(resp)
-        self.assertEqual(len(self.deserialize(resp)['objects']), 0)
+    def test_user_without_proper_privileges_cant_post_logical_cluster_list(self):
+        resp = self.api_client.post(self.LOGICAL_CLUSTER_RESOURCE, format='json', data={"name": "cluster1"},
+                                    authentication=self.create_apikey(self.normal_user, self.API_KEY_USER))
+        self.assertHttpUnauthorized(resp)
 
     def test_user_with_proper_privileges_get_logical_cluster_list(self):
         self.normal_user.groups.add(self.cluster_admin_group)
