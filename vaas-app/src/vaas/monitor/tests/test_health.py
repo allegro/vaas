@@ -33,7 +33,7 @@ EXPECTED_BACKEND_TO_STATUS_MAP = {'192.168.199.10:80': 'Healthy',
 
 class BackendStatusManagerTest(TestCase):
     def setUp(self):
-        timestamp = datetime.datetime.utcnow().replace(tzinfo=utc)
+        timestamp = datetime.datetime.utcnow().replace(tzinfo=utc, microsecond=0) - datetime.timedelta(seconds=1)
         dc = Dc.objects.create(name='dc1', symbol='dc1')
         probe = Probe.objects.create(name='probe', url='/')
         director = Director.objects.create(
