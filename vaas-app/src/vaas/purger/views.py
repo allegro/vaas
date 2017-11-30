@@ -13,7 +13,7 @@ def purger_permission(user):
     return user.is_staff
 
 
-@user_passes_test(purger_permission)
+@user_passes_test(purger_permission, login_url='/admin/login')
 def purge_view(request):
     if request.method == 'POST':
         form = PurgeForm(request.POST)
