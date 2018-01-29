@@ -106,6 +106,7 @@ To define a new probe, click on *Manager -> Probes -> Add probe* and fill in the
 * **Name:** name of the probe
 * **Url:** url to test
 * **Expected response:** expected http response code
+* **Start backend as healthy** New backend is starting with healthy status, there is no need to initial health check pass
 
 ## [Manager] Time Profiles
 To define a new time profile, click on *Manager -> Time Profiles -> Add time profile* and fill in the form:

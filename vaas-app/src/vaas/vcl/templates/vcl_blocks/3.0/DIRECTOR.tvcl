@@ -6,6 +6,9 @@ probe {{director.name}}_{{ director.probe.name }}_{{ director.probe.id }} {
     .timeout = {{ director.probe.timeout }}s;
     .window = {{ director.probe.window }};
     .threshold = {{ director.probe.threshold }};
+    {% if director.probe.start_as_healthy %}
+    .initial = {{ director.probe.threshold }};
+    {% endif %}
 }
 
 {% for vcl_director in vcl_directors %}

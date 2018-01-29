@@ -152,6 +152,28 @@ backend seventh_director_hashing_by_url_8_dc1_2_1_80 {
 }
 
 ## END director seventh_director_hashing_by_url ###
+## START director eighth_service ###
+probe eighth_service_test_probe_start_as_healthy_2 {
+    .url = "/status";
+    .expected_response = 200;
+    .interval = 3s;
+    .timeout = 1.0s;
+    .window = 5;
+    .threshold = 3;
+    .initial = 3;
+}
+
+backend eighth_service_10_dc1_3_1_80 {
+    .host = "127.11.3.1";
+    .port = "80";
+    .max_connections = 5;
+    .connect_timeout = 0.30s;
+    .first_byte_timeout = 5.00s;
+    .between_bytes_timeout = 1.00s;
+    .probe = eighth_service_test_probe_start_as_healthy_2;
+}
+
+## END director eighth_service ###
 
 sub vcl_init {
     ## START director init third_service ###
@@ -200,6 +222,13 @@ sub vcl_init {
 
     ## END director init seventh_director_hashing_by_url ###
 
+    ## START director init eighth_service ###
+
+    new eighth_service_dc1 = directors.round_robin();
+    eighth_service_dc1.add_backend(eighth_service_10_dc1_3_1_80);
+
+    ## END director init eighth_service ###
+
 }
 sub vcl_recv {
     if (req.url == "/vaas_status") {
@@ -218,7 +247,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "b8eca", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "4ce43", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -305,6 +334,16 @@ sub vcl_recv {
         set req.http.X-Forwarded-Prefix = "/seventh";
         set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
         set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
+
+    }
+    else if (req.url ~ "^\/eighth([\/\?].*)?$") {
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
+        unset req.http.X-VaaS-Prefix;
+        set req.http.X-VaaS-Prefix = "/eighth";
+        set req.http.X-Forwarded-Prefix = "/eighth";
+        set req.http.X-VaaS-Director = "dc1/eighth_service";
+        set req.backend_hint = eighth_service_dc1.backend();
 
     }
 

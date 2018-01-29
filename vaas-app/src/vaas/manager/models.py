@@ -34,6 +34,11 @@ class Probe(models.Model):
         default='3',
         choices=[(x, x) for x in range(1, 301)]
     )
+    start_as_healthy = models.BooleanField(
+        'Start backend as healthy',
+        default=False,
+        help_text='<i>New backend is starting with healthy status, there is no need to initial health check pass</i>'
+    )
 
     def __str__(self):
         return "%s (%s)" % (self.name, self.url)
