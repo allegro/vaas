@@ -161,6 +161,12 @@ class VclTagBuilderTest(TestCase):
             mode='hash',
             hashing_policy='req.url'
         )
+        active_active_with_start_as_healthy_probe = DirectorFactory.create(
+            name='eighth_service',
+            mode='round-robin',
+            route_expression='/eighth',
+            probe=Probe.objects.create(name='test_probe_start_as_healthy', url='/status', start_as_healthy=True)
+        )
         """ connect directors to clusters """
         non_active_active_routed_by_path.cluster.add(1, 2)
         active_active_remove_path.cluster.add(1, 2)
@@ -169,6 +175,7 @@ class VclTagBuilderTest(TestCase):
         active_active_absent_in_second_cluster.cluster.add(1)
         active_active_hashing_by_cookie.cluster.add(1, 2)
         active_active_hashing_by_url.cluster.add(1, 2)
+        active_active_with_start_as_healthy_probe.cluster.add(1, 2)
 
         BackendFactory.create(
             address='127.0.1.1', dc=dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
@@ -182,6 +189,7 @@ class VclTagBuilderTest(TestCase):
         canary_backend = BackendFactory.create(
             address='127.4.2.2', dc=dc1, director=active_active_remove_path, weight=0
         )
+        BackendFactory.create(address='127.11.3.1', dc=dc1, director=active_active_with_start_as_healthy_probe)
         canary_backend.tags.add('canary')
 
         template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##', version='3.0')

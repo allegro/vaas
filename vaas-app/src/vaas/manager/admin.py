@@ -199,7 +199,7 @@ class BackendAdmin(admin.ModelAdmin):
 class ProbeAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('name', 'url', 'expected_response')
+            'fields': ('name', 'url', 'expected_response', 'start_as_healthy')
         }),
         ('Advanced options', {
             'classes': ('collapse',),
