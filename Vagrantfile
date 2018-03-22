@@ -9,8 +9,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "vaas", primary: true do |vaas|
 
-    vaas.vm.box_url = "https://storage.googleapis.com/allegro-vaas-public/vaas_dev_v1.00.box"
-    vaas.vm.box = "vaas_dev_v1.00.box"
+    vaas.vm.box = "allegrotech/vaas"
+    vaas.vm.box_version = "1.0.0"
     vaas.vm.synced_folder ".", "/home/ubuntu/vaas"
     vaas.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
     vaas.vm.provision :shell, :privileged => false, :path => "vagrant/shell/prepare_git_repo.sh"
