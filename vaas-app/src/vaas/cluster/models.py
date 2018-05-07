@@ -9,7 +9,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from simple_history.models import HistoricalRecords
 
 from vaas.validators import vcl_name_validator, vcl_variable_validator, vcl_variable_key_validator,\
-    vcl_template_comment_validator
+    vcl_template_comment_validator, vcl_dc_name_validator
 
 
 class LogicalCluster(models.Model):
@@ -36,7 +36,7 @@ class LogicalCluster(models.Model):
 
 class Dc(models.Model):
     name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=9, unique=True, validators=[vcl_name_validator])
+    symbol = models.CharField(max_length=9, unique=True, validators=[vcl_dc_name_validator])
 
     def __str__(self):
         return self.symbol

@@ -31,9 +31,15 @@ class BackendStatusManager(object):
                         backend = re.search(pattern, backend_status[0])
 
                         if backend is not None:
-                            backend_id = int(backend.group(1).split('_')[-5])
+                            backend_id_mapping_candidate = backend.group(1).split('_')[-5]
+                            try:
+                                backend_id = int(backend_id_mapping_candidate)
+                            except ValueError:
+                                self.logger.error('Mapping backend id failed. Expected parsable string to int, got {}'
+                                                  .format(backend_id_mapping_candidate))
+                                backend_id = None
                             status = backend_status[-2]
-                            if backend_id not in backend_to_status_map or status == 'Sick':
+                            if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
                                 backend_address = backends.get(backend_id)
                                 if backend_address is not None:
                                     backend_to_status_map[backend_address] = status
