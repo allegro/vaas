@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+import re
+
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CheckboxSelectMultiple, FileField
 from vaas.manager.models import Probe, Director, Backend, TimeProfile
+from vaas.cluster.helpers import BaseHelpers
 
 
 class ProbeModelForm(ModelForm):
@@ -27,6 +30,13 @@ class DirectorModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(DirectorModelForm, self).__init__(*args, **kwargs)
         self.fields['probe'].queryset = Probe.objects.order_by('name')
+
+    def clean_name(self):
+        data = self.cleaned_data['name']
+        regex_result = re.findall(BaseHelpers.dynamic_regex_with_datacenters(), data)
+        if len(regex_result) > 0:
+            raise ValidationError(message='Director name cannot be used with a preceeding number')
+        return data
 
 
 class BackendModelForm(ModelForm):

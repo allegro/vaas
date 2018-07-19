@@ -9,6 +9,7 @@ from django.utils.timezone import utc
 from vaas.monitor.models import BackendStatus
 from vaas.manager.models import Backend
 from vaas.cluster.cluster import VarnishApiProvider, VclLoadException, ServerExtractor
+from vaas.cluster.helpers import BaseHelpers
 
 
 class BackendStatusManager(object):
@@ -31,13 +32,14 @@ class BackendStatusManager(object):
                         backend = re.search(pattern, backend_status[0])
 
                         if backend is not None:
-                            backend_id_mapping_candidate = backend.group(1).split('_')[-5]
-                            try:
-                                backend_id = int(backend_id_mapping_candidate)
-                            except ValueError:
-                                self.logger.error('Mapping backend id failed. Expected parsable string to int, got {}'
-                                                  .format(backend_id_mapping_candidate))
+                            regex_result = re.findall(BaseHelpers.dynamic_regex_with_datacenters(), backend.group(1))
+                            if len(regex_result) > 1:
                                 backend_id = None
+                                self.logger.error('Found multiple regex patterns for possible backend id: {} '
+                                                  '(dc name found in director name)'.format(regex_result))
+                            else:
+                                backend_id = int(regex_result[0][0])
+
                             status = backend_status[-2]
                             if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
                                 backend_address = backends.get(backend_id)
