@@ -6,11 +6,11 @@ from taggit.managers import TaggableManager
 
 from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_backend_name
-from vaas.validators import vcl_name_validator
+from vaas.validators import name_validator
 
 
 class Probe(models.Model):
-    name = models.CharField(max_length=30, validators=[vcl_name_validator], unique=True)
+    name = models.CharField(max_length=30, validators=[name_validator], unique=True)
     url = models.CharField(max_length=50)
     expected_response = models.PositiveIntegerField(default='200')
     interval = models.PositiveIntegerField(
@@ -82,7 +82,7 @@ class Director(models.Model):
         ('https', 'HTTPS'),
         ('both', 'BOTH'),
     )
-    name = models.CharField(max_length=54, unique=True, validators=[vcl_name_validator])
+    name = models.CharField(max_length=54, unique=True, validators=[name_validator])
     service = models.CharField(max_length=128, default='')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)

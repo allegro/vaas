@@ -8,13 +8,13 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from simple_history.models import HistoricalRecords
 
-from vaas.validators import vcl_name_validator, vcl_variable_validator, vcl_variable_key_validator,\
-    vcl_template_comment_validator, vcl_dc_name_validator
+from vaas.validators import vcl_variable_validator, vcl_variable_key_validator,\
+    vcl_template_comment_validator, name_validator
 
 
 class LogicalCluster(models.Model):
     """Model representing a cluster of varnish servers"""
-    name = models.CharField(max_length=100, validators=[vcl_name_validator], unique=True)
+    name = models.CharField(max_length=100, validators=[name_validator], unique=True)
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
     reload_timestamp = models.DateTimeField(default=timezone.now)
     error_timestamp = models.DateTimeField(default=timezone.now)
@@ -36,14 +36,14 @@ class LogicalCluster(models.Model):
 
 class Dc(models.Model):
     name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=9, unique=True, validators=[vcl_dc_name_validator])
+    symbol = models.CharField(max_length=9, unique=True, validators=[name_validator])
 
     def __str__(self):
         return self.symbol
 
 
 class VclTemplate(models.Model):
-    name = models.CharField(max_length=100, unique=True, validators=[vcl_name_validator])
+    name = models.CharField(max_length=100, unique=True, validators=[name_validator])
     content = models.TextField()
     version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='4.0')
     comment = models.CharField(max_length=64, validators=[vcl_template_comment_validator])

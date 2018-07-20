@@ -5,11 +5,9 @@ import re
 from django.core.validators import RegexValidator, ValidationError
 from django.conf import settings
 
-vcl_name_re = re.compile(r'^[a-zA-Z0-9_]+$')
-vcl_name_validator = RegexValidator(vcl_name_re, "Allowed characters: letters, numbers and underscores.", 'invalid')
 
-vcl_dc_name_re = re.compile(r'^[a-zA-Z0-9]+$')
-vcl_dc_name_validator = RegexValidator(vcl_dc_name_re, "Allowed characters: letters and numbers", 'invalid')
+name_re = re.compile(r'^[a-zA-Z0-9_]+$')
+name_validator = RegexValidator(name_re, "Allowed characters: letters, numbers and underscores.", 'invalid')
 
 vcl_variable_key_re = re.compile(r'^\w+$')
 vcl_variable_key_validator = RegexValidator(vcl_variable_key_re, "Characters must match '^\w+$' regex.", 'invalid')
