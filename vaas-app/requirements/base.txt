@@ -19,6 +19,6 @@ redis==2.10.5
 requests==2.18.4
 GitPython==2.1.7
 social-auth-app-django==2.0.0
--e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@master#egg=django_admin_bootstrapped-2.5.8
--e git+https://github.com/TheMickeyMike/python-varnish.git#egg=python_varnish-0.2.1
--e git+https://github.com/TheMickeyMike/django-ace.git@v1.2.4#egg=django_ace-1.2.4
+-e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.8#egg=django_admin_bootstrapped
+-e git+https://github.com/TheMickeyMike/python-varnish.git@0.2.2#egg=python_varnish
+-e git+https://github.com/TheMickeyMike/django-ace.git@v1.2.5#egg=django_ace
