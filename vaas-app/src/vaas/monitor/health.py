@@ -30,15 +30,20 @@ class BackendStatusManager(object):
                 for backend_status in backend_statuses:
                     if len(backend_status):
                         backend = re.search(pattern, backend_status[0])
-
                         if backend is not None:
+                            backend_id = None
                             regex_result = re.findall(BaseHelpers.dynamic_regex_with_datacenters(), backend.group(1))
-                            if len(regex_result) > 1:
-                                backend_id = None
-                                self.logger.error('Found multiple regex patterns for possible backend id: {} '
-                                                  '(dc name found in director name)'.format(regex_result))
+
+                            if len(regex_result) == 1:
+                                try:
+                                    backend_id = int(regex_result[0][0])
+                                except ValueError:
+                                    self.logger.error(
+                                        'Mapping backend id failed. Expected parsable string to int, got {}'
+                                            .format(regex_result[0][0]))
                             else:
-                                backend_id = int(regex_result[0][0])
+                                self.logger.error('Regex patterns matches for possible backend id: {} '
+                                                  .format(regex_result))
 
                             status = backend_status[-2]
                             if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
