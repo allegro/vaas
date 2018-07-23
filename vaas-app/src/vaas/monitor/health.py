@@ -39,8 +39,8 @@ class BackendStatusManager(object):
                                     backend_id = int(regex_result[0][0])
                                 except ValueError:
                                     self.logger.error(
-                                        'Mapping backend id failed. Expected parsable string to int, got {}'
-                                            .format(regex_result[0][0]))
+                                        'Mapping backend id failed. Expected parsable string to int, got {}'.format(
+                                            regex_result[0][0]))
                             else:
                                 self.logger.error('Regex patterns matches for possible backend id: {} '
                                                   .format(regex_result))
