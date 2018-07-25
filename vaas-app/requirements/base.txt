@@ -14,7 +14,7 @@ django-secure==1.0.1
 django-environ==0.4.4
 lockfile==0.12.2
 django-taggit==0.22.1
-celery==4.0.2
+celery==4.2.1
 redis==2.10.5
 requests==2.18.4
 GitPython==2.1.7
