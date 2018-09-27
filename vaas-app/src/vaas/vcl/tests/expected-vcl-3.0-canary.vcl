@@ -243,7 +243,7 @@ sub vcl_error {
     if (obj.status == 989) {
         set obj.status = 200;
         set obj.http.Content-Type = "application/json";
-        synthetic {"{ "vcl_version" : "0171a", "varnish_status": "disabled" }"};
+        synthetic {"{ "vcl_version" : "fcbd1", "varnish_status": "disabled" }"};
         return (deliver);
     }
 }
@@ -361,4 +361,11 @@ sub vcl_recv {
     return (lookup);
 }
 ## other functions ##
+## empty director synth ##
+sub vcl_error {
+    if (obj.status == 404) {
+        synthetic {"" + obj.response + ""};
+        return (deliver);
+    }
+}
 ## vcl_variable_content ##

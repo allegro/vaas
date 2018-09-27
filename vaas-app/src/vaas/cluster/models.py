@@ -105,6 +105,7 @@ class VclTemplateBlock(models.Model):
         ('ROUTER', 'VCL/RECEIVE/ROUTER'),
         ('PROPER_PROTOCOL_REDIRECT', 'RECEIVE/PROPER_PROTOCOL_REDIRECT'),
         ('OTHER_FUNCTIONS', 'VCL/OTHER_FUNCTIONS'),
+        ('EMPTY_DIRECTOR_SYNTH', 'VCL/EMPTY_DIRECTOR_SYNTH'),
     )
     tag = models.CharField(max_length=100, choices=TAG_CHOICES)
     template = models.ForeignKey(VclTemplate, on_delete=models.PROTECT)
