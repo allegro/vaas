@@ -4,6 +4,7 @@ import logging
 import os
 import hashlib
 import time
+import re
 
 from jinja2 import Environment, FileSystemLoader
 from vaas.manager.models import Backend, Director
@@ -12,14 +13,14 @@ from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
 VCL_TAGS = {
     '3.0': [
         ['VCL'],
-        ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS'],
+        ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
         ['ROUTER', 'EXPLICITE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'PROPER_PROTOCOL_REDIRECT'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
     ],
     '4.0': [
         ['VCL'],
-        ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS'],
+        ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
         ['ROUTER', 'EXPLICITE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}', 'PROPER_PROTOCOL_REDIRECT'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
@@ -283,6 +284,26 @@ class VclRenderer(object):
                     content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
 
         content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
+
+        """
+        If can not expand SET_BACKEND_director_name tag, replace this with synth html response which
+        contains information about empty director, or director with disabled all backends.
+        Replace only if rendered vcl contains empty director synth.
+        """
+        for vcl_tags_level in VCL_TAGS[varnish.template.version]:
+            for tag_name in vcl_tags_level:
+                if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '3.0':
+                    content = re.sub(
+                        r'<SET_BACKEND_([^\/]+)/>',
+                        r'error 404 "<!--Director \1 has no backends or is disabled-->";',
+                        content
+                    )
+                elif 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
+                    content = re.sub(
+                        r'<SET_BACKEND_([^\/]+)/>',
+                        r'return(synth(404, "<!--Director \1 has no backends or is disabled-->"));',
+                        content
+                    )
 
         """
         Comment not expanded parameterized tags

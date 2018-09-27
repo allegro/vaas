@@ -1,0 +1,8 @@
+## empty director synth ##
+sub vcl_synth {
+    if (resp.status == 404) {
+        synthetic (resp.reason);
+        set resp.status = 404;
+        return (deliver);
+    }
+}
