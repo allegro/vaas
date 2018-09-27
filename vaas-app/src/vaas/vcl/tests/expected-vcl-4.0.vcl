@@ -247,7 +247,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "4ce43", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "69395", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -357,3 +357,11 @@ sub vcl_recv {
     return (hash);
 }
 ## other functions ##
+## empty director synth ##
+sub vcl_synth {
+    if (resp.status == 404) {
+        synthetic (resp.reason);
+        set resp.status = 404;
+        return (deliver);
+    }
+}
