@@ -36,7 +36,7 @@ class VclTagExpanderTest(TestCase):
     def test_tag_should_be_expanded_from_file_template(self):
         tag_expander = VclTagExpander('VCL', 'VCL', VclRendererInput())
         expected_v3 = '<HEADERS/>\n<ACL/>\n<DIRECTORS/>\n<VAAS_STATUS/>\n<RECV/>\n' \
-                      '<OTHER_FUNCTIONS/>'
+                      '<OTHER_FUNCTIONS/>\n<EMPTY_DIRECTOR_SYNTH/>'
         expected_v4 = '''\
 # Marker to tell the VCL compiler that this VCL has been adapted to the
 # new 4.0 format.
@@ -50,7 +50,8 @@ import directors;
 <DIRECTORS/>
 <VAAS_STATUS/>
 <RECV/>
-<OTHER_FUNCTIONS/>'''
+<OTHER_FUNCTIONS/>
+<EMPTY_DIRECTOR_SYNTH/>'''
 
         assert_equals(expected_v3, tag_expander.expand(self.vcl_template3))
         assert_equals(expected_v4, tag_expander.expand(self.vcl_template4))
@@ -167,6 +168,12 @@ class VclTagBuilderTest(TestCase):
             route_expression='/eighth',
             probe=Probe.objects.create(name='test_probe_start_as_healthy', url='/status', start_as_healthy=True)
         )
+        active_active_without_backends = DirectorFactory.create(
+            name='ningth_director_without_backends',
+            route_expression='/ningth',
+            mode='hash',
+            hashing_policy='req.url'
+        )
         """ connect directors to clusters """
         non_active_active_routed_by_path.cluster.add(1, 2)
         active_active_remove_path.cluster.add(1, 2)
@@ -176,6 +183,7 @@ class VclTagBuilderTest(TestCase):
         active_active_hashing_by_cookie.cluster.add(1, 2)
         active_active_hashing_by_url.cluster.add(1, 2)
         active_active_with_start_as_healthy_probe.cluster.add(1, 2)
+        active_active_without_backends.cluster.add(1, 2)
 
         BackendFactory.create(
             address='127.0.1.1', dc=dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
@@ -445,6 +453,38 @@ director first_service_dc2 round-robin {
 }
 ## END director first_service ###
 #<DIRECTOR_disabled_service/>\
+'''
+
+        self.varnish.template = vcl_template_with_unused_director
+        vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
+
+        assert_equals(expected_content, vcl.content)
+
+    def test_should_replace_emty_or_disabled_director_with_information_in_error_response_varnish3(self):
+        vcl_renderer = VclRenderer()
+        vcl_template_with_unused_director = VclTemplate.objects.create(
+            name='template-with-unused-director',
+            content='<SET_BACKEND_ningth_director_without_backends/>',
+            version='3.0'
+        )
+        expected_content = '''\
+error 404 "<!--Director ningth_director_without_backends has no backends or is disabled-->";\
+'''
+
+        self.varnish.template = vcl_template_with_unused_director
+        vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
+
+        assert_equals(expected_content, vcl.content)
+
+    def test_should_replace_emty_or_disabled_director_with_information_in_error_response_varnish4(self):
+        vcl_renderer = VclRenderer()
+        vcl_template_with_unused_director = VclTemplate.objects.create(
+            name='template-with-unused-director',
+            content='<SET_BACKEND_ningth_director_without_backends/>',
+            version='4.0'
+        )
+        expected_content = '''\
+return(synth(404, "<!--Director ningth_director_without_backends has no backends or is disabled-->"));\
 '''
 
         self.varnish.template = vcl_template_with_unused_director
