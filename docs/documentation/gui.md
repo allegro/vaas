@@ -1,8 +1,8 @@
 VaaS GUI
 ========
-This article will demonstrate the features of VaaS GUI. Scren shots below come from [VaaS in Vagrant](../quick-start/vagrant.md).
+This article will demonstrate the features of VaaS GUI. Screen shots below come from [VaaS in Vagrant](../quick-start/vagrant.md).
 
-VaaS comprizes several Django apps, of which two are available via a web browser: *Cluster* and *Manager*.
+VaaS comprises of several Django apps, two of which are available via a web browser: *Cluster* and *Manager*.
 
 In the **Cluster** app you can:
 

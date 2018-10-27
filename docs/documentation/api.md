@@ -19,7 +19,7 @@ The following resources are available:
 |*VCL Template Block*|A VCL template block                                                      |preview, **add, edit, delete**|
 |*VCL Template*      |A VCL template                                                            |preview, **add, edit, delete**|
 |*Time Profile*      |Default timeouts profile for director                                     |preview, **add, edit, delete**|
-|*Purger*            |purge object from varnishes from a given cluster                          |                              |
+|*Purger*            |Purge object from varnishes from a given cluster                          |                              |
 |*Outdated Server*   |Represents active varnish servers with outdated vcl                       |preview                       |
 |*Task*              |Represents state of reloading task - check [VaaS Request Flow](./flow.md) |preview                       |
 
@@ -223,4 +223,4 @@ To list backends located in specified DC belonging to specified Director:
 Explore more
 ============
 
-Detailed information about interaction with api based on tastypie you can find [here](http://django-tastypie.readthedocs.io/en/latest/interacting.html).
+Detailed information about interaction with api based on tastypie can be found [here](http://django-tastypie.readthedocs.io/en/latest/interacting.html).
