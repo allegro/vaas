@@ -95,7 +95,7 @@ class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
     list_display = ('name', 'service', 'get_clusters', 'route_expression', 'probe', 'protocol', 'custom_enabled')
-    list_filter = ['cluster__name']
+    list_filter = ['cluster__name', 'service']
     filter_horizontal = ('cluster',)
     actions = [enable_director, disable_director]
 
@@ -129,7 +129,7 @@ class DirectorAdmin(admin.ModelAdmin):
 class BackendAdmin(admin.ModelAdmin):
     search_fields = ['address', 'director__name', 'tags__name']
     list_display = ('address', 'port', 'director', 'dc', 'is_healthy', 'custom_enabled', 'get_tags')
-    list_filter = ['director__name', 'director__cluster__name', 'dc__symbol']
+    list_filter = ['director__name', 'director__service', 'director__cluster__name', 'dc__symbol']
     actions = [enable_backend, disable_backend, switch_backend_status, export_to_csv]
     fieldsets = (
         (None, {
