@@ -60,3 +60,9 @@ services:
     networks:
       vaas:
         ipv4_address: 192.168.199.5
+  varnish-6.0:
+    build: ./vagrant/docker/varnish-6.0
+    image: allegro/vaas-varnish-6.0
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.6
