@@ -1,4 +1,4 @@
-django==1.11.2
+django==1.11.16
 django_nose==1.4.4
 enum34==1.1.6
 wheel==0.29.0
@@ -16,7 +16,7 @@ lockfile==0.12.2
 django-taggit==0.22.1
 celery==4.2.1
 redis==2.10.5
-requests==2.18.4
+requests==2.20.1
 GitPython==2.1.7
 social-auth-app-django==2.0.0
 -e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.8#egg=django_admin_bootstrapped
