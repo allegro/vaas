@@ -15,7 +15,7 @@ VaaS in Vagrant requires Virtual Box, Vagrant and Git to be installed on your ma
     cd vaas
     vagrant up
 
-This will spawn a Virtual Box machine and mount VaaS repo as a local file system within the machine. You can use this environment to familiarize yourself with VaaS as well as to modify and develop VaaS code.
+This will spawn a Virtual Box machine and mount the VaaS repo as a local file system within the machine. You can use this environment to familiarize yourself with VaaS as well as to modify and develop VaaS code.
 
 Log in to VaaS
 --------------
@@ -24,7 +24,7 @@ Point your browser to <http://localhost:3030/> and log in using the following cr
     User: admin
     Password: admin
 
-You will see a django admin GUI with two apps: Cluster and Manager. Configure your sample Varnish servers and VCL templates in Cluster app. Configure your backends, directors and probes in the Manager app. Reffer to [GUI](../documentation/gui.md) or [API](../documentation/api.md) documentation to see how to do this.
+You will see a django admin GUI with two apps: Cluster and Manager. Configure your sample Varnish servers and VCL templates in Cluster app. Configure your backends, directors and probes in the Manager app. Refer to [GUI](../documentation/gui.md) or [API](../documentation/api.md) documentation to see how to do this.
 
 Current VCL for the test Varnish instances can be previewed by clicking on Cluster -> Varnish servers -> Show vcl. HINT: Freshly after booting up VaaS in Vagrant, the configuration of the Varnish servers will not be loaded. Make some changes to the test backends or re-enable the test Varnish instances to trigger loading of the configuration.
 

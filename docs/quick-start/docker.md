@@ -1,24 +1,24 @@
 VaaS in Docker
 ==============
-VaaS in Docker is a preconfigured instance of VaaS varnish configuration tool. It is meant as a demo application that can help to understand how VaaS works. 
+VaaS in Docker is a preconfigured instance of VaaS varnish configuration tool. It is meant as a demo application that can help you understand how VaaS works. 
 
 How to run VaaS in Docker
 -------------------------
-By default, the container starts with no data loaded and with admin user identified by admin password:
+By default, the container starts with no data loaded and with an admin user identified by admin password:
 
     sudo docker run -p 80:80 -d -t allegro/vaas
 
-You will now be able to log in to your container pointing your browser to the IP of your docker host.
-If you want, You can start container with selected username and password as folows:
+You will now be able to log in to your container pointing your browser to the IP address of your docker host.
+If you want, you can start the container with selected username and password as follows:
 
     sudo docker run -p 80:80 -d -t allegro/vaas <username> <email> <password> <api_key>
 
-The last argument is optional. If you don't specify api_key, a random key will be generated.
+The last argument is optional. If you don't specify an api_key, a random one will be generated.
 
 Starting VaaS in Docker with API access
 ---------------------------------------
 
-First, create a data.yaml file that will only contain an admin user definition with a preconfigured password "admin" and api key "vagrant_api_key" (do not copy directly copy and paste the data.yaml file contents below, use cat to generate it):
+First, create a data.yaml file that will only contain an admin user definition with a preconfigured password "admin" and api key "vagrant_api_key" (do not directly copy and paste the data.yaml file contents below, use cat to generate it):
 
     cat > /var/tmp/data.yaml <<EOF
     - fields:
@@ -45,4 +45,4 @@ Then, run the container as follows:
 
     sudo docker run -v /var/tmp/data.yaml:/data/data.yaml -p 80:80 -d -t allegro/vaas
 
-You can now start populating VaaS database with data, as described in [VaaS API](../documentation/api.md)
+You can now start populating the VaaS database with data, as described in [VaaS API](../documentation/api.md)

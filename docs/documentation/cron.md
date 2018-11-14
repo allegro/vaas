@@ -12,7 +12,7 @@ On each Varnish server controlled by VaaS, run the following job to save running
 
     */5 * * * * bash -c "source /usr/local/bin/vcl_save.sh && save_vcl && put_vcl_in_place"
 
-Aditionally, you may want to keep a backup of the last known good configuration - in case of an emergency:
+Additionally, you may want to keep a backup of the last known good configuration - in case of an emergency:
 
     * */6 * * * bash -c "source /usr/local/bin/vcl_save.sh && rotate_vcls"
 

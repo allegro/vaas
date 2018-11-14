@@ -36,11 +36,11 @@ Install Mysql server and create a new database and user for VaaS.
 VaaS configuration location
 ---------------------------
 
-All django related settings should be store in location
+All django related settings should be stored in location
 
     ~/.vaas
 
-VaaS application handle three files in yaml format, but only one is required:
+VaaS application handles three files in yaml format, but only one is required:
      * db_config.yml - database configuration *required*
      * production.yml - place to override some django settings *optional*
      * ldap.yml - ldap integration config *optional* - more at [ldap configuration](../documentation/ldap.md)

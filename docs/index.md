@@ -12,11 +12,11 @@ What it offers
 --------------
 There are many benefits from using VaaS, including:
 
-* Backend and Director deffinitions as well as VCL templates are kept in a database. No more VCS repos.
+* Backend and Director definitions as well as VCL templates are kept in a database. No more VCS repos.
 * Teams responsible for services can manage their directors and backends directly.
 * VaaS prevents typos in VCLs as they are generated automatically.
 * VaaS uses Varnish API, there is no need for a configuration agent on each Varnish server.
-* VaaS free to use subject to Apache Version 2.0 License.
+* VaaS is free to use subject to Apache Version 2.0 License.
 
 Try it
 ------
