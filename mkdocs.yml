@@ -1,15 +1,18 @@
 site_name: VaaS
+repo_url: https://github.com/allegro/vaas
 pages:
-- ['index.md', 'About']
-- ['quick-start/vagrant.md', 'Quick Start', 'VaaS in Vagrant']
-- ['quick-start/docker.md', 'Quick Start', 'VaaS in Docker']
-- ['quick-start/production.md', 'Quick Start', 'VaaS in Production']
-- ['documentation/flow.md', 'Documentation', 'VaaS request flow']
-- ['documentation/gui.md', 'Documentation', 'VaaS GUI']
-- ['documentation/api.md', 'Documentation', 'VaaS API']
-- ['documentation/vcl.md', 'Documentation', 'VCL templates']
-- ['documentation/dc.md', 'Documentation', 'VaaS in multiple DC scenario']
-- ['documentation/protocol.md', 'Documentation', 'Protocol Support']
-- ['documentation/ldap.md', 'Documentation', 'Authentication with LDAP']
-- ['documentation/cron.md', 'Documentation', 'VaaS cron jobs']
-- ['documentation/canary.md', 'Documentation', 'Canary deployments support']
+- 'About': 'index.md'
+- 'Quick Start':
+  - 'VaaS in Vagrant': 'quick-start/vagrant.md'
+  - 'VaaS in Docker': 'quick-start/docker.md'
+  - 'VaaS in Production': 'quick-start/production.md'
+- 'Documentation':
+  - 'VaaS request flow': 'documentation/flow.md'
+  - 'VaaS GUI': 'documentation/gui.md' 
+  - 'VaaS API': 'documentation/api.md'
+  - 'VCL templates': 'documentation/vcl.md'
+  - 'VaaS in multiple DC scenario': 'documentation/dc.md'
+  - 'Protocol Support': 'documentation/protocol.md'
+  - 'Authentication with LDAP': 'documentation/ldap.md'
+  - 'VaaS cron jobs': 'documentation/cron.md'
+  - 'Canary deployments support': 'documentation/canary.md'
