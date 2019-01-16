@@ -25,6 +25,6 @@ class YamlConfigLoader(object):
         config_full_path = self.determine_config_file(config_file)
         if config_full_path:
             with open(config_full_path) as file_stream:
-                return yaml.load(file_stream.read())
+                return yaml.safe_load(file_stream.read())
 
         return {}
