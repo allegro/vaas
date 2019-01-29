@@ -11,5 +11,6 @@ ADD ./start /start
 ADD ./monitrc /etc/monitrc
 ADD ./secret /etc/varnish/secret
 ADD ./varnish /etc/default/varnish
+RUN chmod +x /start
 RUN chmod 600 /etc/monitrc /etc/varnish/secret
 CMD ["/start"]
