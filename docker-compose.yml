@@ -38,11 +38,6 @@ services:
     networks:
       vaas:
         ipv4_address: 192.168.199.15
-  varnish-3:
-    image: allegro/vaas-varnish-3
-    networks:
-      vaas:
-        ipv4_address: 192.168.199.2
   varnish-4:
     image: allegro/vaas-varnish-4
     networks:
@@ -60,3 +55,9 @@ services:
     networks:
       vaas:
         ipv4_address: 192.168.199.5
+  varnish-6.0.2:
+    build: ./vagrant/docker/varnish-6.0.2
+    image: allegro/vaas-varnish-6.0.2
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.6
