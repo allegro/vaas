@@ -25,11 +25,6 @@
 - fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
   model: cluster.vcltemplate
   pk: 2
-- fields: {cluster: 1, cluster_weight: 1, dc: 1, status: active, hostname: varnish-3,
-    ip: 192.168.199.2, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 1}
-  model: cluster.varnishserver
-  pk: 1
 - fields: {cluster: 2, cluster_weight: 1, dc: 1, status: active, hostname: varnish-4,
     ip: 192.168.199.3, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
     template: 2}
