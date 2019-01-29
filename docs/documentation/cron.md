@@ -5,7 +5,7 @@ Remember how we wrote that VaaS does not use an agent? That was a lie. VaaS uses
 ### Saving backend status to the database
 Assuming you followed our quick-start instruction on [running VaaS in production](../quick-start/production.md), this cron job should run on VaaS application server:
 
-    0-58/2 * * * * /home/ubuntu/prod-env/bin/backend_statuses
+    0-58/2 * * * * /home/vagrant/prod-env/bin/backend_statuses
 
 ### Generating a startup VCL
 On each Varnish server controlled by VaaS, run the following job to save running VCL so that it is available immediately after Varnish restarts:

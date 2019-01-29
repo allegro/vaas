@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VAAS_SRC_HOME='/home/ubuntu/vaas/vaas-app/src'
+VAAS_SRC_HOME='/home/vagrant/vaas/vaas-app/src'
 
 # prepare repositories
 sudo apt-get update -y
@@ -43,16 +43,16 @@ After=syslog.target
 
 [Service]
 Type=forking
-User=ubuntu
-Group=ubuntu
+User=vagrant
+Group=vagrant
 PermissionsStartOnly=true
 Environment=DJANGO_SETTINGS_MODULE=vaas.settings.local
-Environment=PYTHONPATH=/home/ubuntu/vaas/plugins
+Environment=PYTHONPATH=/home/vagrant/vaas/plugins
 ExecStartPre=/bin/mkdir -p /var/run/celery
-ExecStartPre=/bin/chown -R ubuntu:ubuntu /var/run/celery
-ExecStart=/bin/sh -c '/home/ubuntu/venv/bin/celery multi start worker --workdir=/home/ubuntu/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
-ExecStop=/bin/sh -c '/home/ubuntu/venv/bin/celery multi stopwait worker --pidfile=/var/run/celery/calery.pid'
-ExecReload=/bin/sh -c '/home/ubuntu/venv/bin/celery multi restart worker --workdir=/home/ubuntu/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
+ExecStartPre=/bin/chown -R vagrant:vagrant /var/run/celery
+ExecStart=/bin/sh -c '/home/vagrant/venv/bin/celery multi start worker --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
+ExecStop=/bin/sh -c '/home/vagrant/venv/bin/celery multi stopwait worker --pidfile=/var/run/celery/calery.pid'
+ExecReload=/bin/sh -c '/home/vagrant/venv/bin/celery multi restart worker --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
 
 [Install]
 WantedBy=multi-user.target
@@ -74,7 +74,7 @@ if [ ! -f /tmp/db.sqlite3 ] ; then
 fi
 
 if [ $(grep -q PYTHONPATH ~/.bash_profile; echo $?) -ne 0 ] ; then
-    echo export PYTHONPATH=/home/ubuntu/vaas/plugins >> ~/.bash_profile
+    echo export PYTHONPATH=/home/vagrant/vaas/plugins >> ~/.bash_profile
 fi
 
 $VAAS_SRC_HOME/manage.py runserver 0.0.0.0:3030 &

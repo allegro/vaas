@@ -6,7 +6,7 @@ from .base import *
 DEBUG = False
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = ["*"]
-STATIC_ROOT = '/home/ubuntu/static'
+STATIC_ROOT = '/home/vagrant/static'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

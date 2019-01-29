@@ -68,7 +68,7 @@ One way to run Uwsgi is to configure it with upstart. Create a file called /etc/
     start on runlevel [2345]
     stop on runlevel [06]
     
-    exec /home/ubuntu/prod-env/bin/uwsgi --env DJANGO_SETTINGS_MODULE=vaas.settings --uid ubuntu --master --processes 8 --die-on-term --socket /tmp/vaas.sock -H /home/ubuntu/prod-env --module vaas.external.wsgi --chmod-socket=666 --logto /tmp/uwsgi.log
+    exec /home/vagrant/prod-env/bin/uwsgi --env DJANGO_SETTINGS_MODULE=vaas.settings --uid vagrant --master --processes 8 --die-on-term --socket /tmp/vaas.sock -H /home/vagrant/prod-env --module vaas.external.wsgi --chmod-socket=666 --logto /tmp/uwsgi.log
 
 Then start uwsgi with:
 
@@ -90,7 +90,7 @@ Create a file in /etc/nginx/sites-available/vaas.conf and link it to /etc/nginx/
         client_max_body_size 75M;
     
         location /static {
-            alias /home/ubuntu/prod-env/local/lib/python2.7/site-packages/vaas/static;
+            alias /home/vagrant/prod-env/local/lib/python2.7/site-packages/vaas/static;
         }
     
         location / {

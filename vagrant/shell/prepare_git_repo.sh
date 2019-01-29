@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-privileged_user=ubuntu
+privileged_user=vagrant
 GIT=/usr/bin/git
 
 $(which git > /dev/null 2>&1)
