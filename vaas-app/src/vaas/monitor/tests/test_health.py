@@ -20,10 +20,10 @@ deleted_backend_666_dc1_199_99_80(192.168.199.99,,80) 1      probe      Healthy 
 """
 
 BACKEND_LIST_RAW_RESPONSE_V4_1 = """Backend name                   Admin      Probe
-vagrant_template_4-2016-04-20T13:01:31.254336-vol.6a200.first_service_1_dc1_199_10_80 probe      Healthy 5/5
-vagrant_template_4-2016-04-20T13:01:31.254336-vol.6a200.first_service_2_dc1_199_11_80 probe      Sick 5/5
-vagrant_template_4-2016-04-20T13:01:31.254336-vol.6a200.first_service_3_dc1_199_12_80 probe      Healthy 5/5
-vagrant_template_4-2016-04-20T13:01:31.254336-vol.6a200.deleted_backend_666_dc1_199_99_80 probe      Healthy 5/5
+vagrant_template_4-20160420_13_01_31-vol_6a200.first_service_1_dc1_199_10_80 probe      Healthy 5/5
+vagrant_template_4-20160420_13_01_31-vol_6a200.first_service_2_dc1_199_11_80 probe      Sick 5/5
+vagrant_template_4-20160420_13_01_31-vol_6a200.first_service_3_dc1_199_12_80 probe      Healthy 5/5
+vagrant_template_4-20160420_13_01_31-vol_6a200.deleted_backend_666_dc1_199_99_80 probe      Healthy 5/5
 """
 
 EXPECTED_BACKEND_TO_STATUS_MAP = {'192.168.199.10:80': 'Healthy',

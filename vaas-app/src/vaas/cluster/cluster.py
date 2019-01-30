@@ -47,7 +47,9 @@ class VarnishCluster(object):
 
     def load_vcl(self, start_processing_time, clusters):
         servers = ServerExtractor().extract_servers_by_clusters(clusters)
-        vcl_list = ParallelRenderer(self.max_workers).render_vcl_for_servers(start_processing_time.isoformat(), servers)
+        vcl_list = ParallelRenderer(self.max_workers).render_vcl_for_servers(
+            start_processing_time.strftime("%Y%m%d_%H_%M_%S"), servers
+        )
         parallel_loader = make_parallel_loader(self.max_workers)
 
         try:
