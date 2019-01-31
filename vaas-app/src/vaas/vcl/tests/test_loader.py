@@ -11,7 +11,7 @@ class VclLoaderTest(TestCase):
 
     @patch('vaas.api.client.VarnishApi')
     def test_vcl_is_not_changed(self, varnish_api_mock):
-        varnish_api_mock.vcl_active_name.return_value = 'vcl-current-vol.cfff2'
+        varnish_api_mock.vcl_active_name.return_value = 'vcl-current-vol_cfff2'
 
         vcl = Vcl('vcl content')
         vcl.name = 'vcl-new-vol.cfff2'
@@ -30,9 +30,9 @@ class VclLoaderTest(TestCase):
 
     @patch('vaas.api.client.VarnishApi')
     def test_do_not_load_new_vcl_if_no_changes(self, varnish_api_mock):
-        varnish_api_mock.vcl_active_name.return_value = 'vcl-current-vol.cfff4'
+        varnish_api_mock.vcl_active_name.return_value = 'vcl-current-vol_cfff4'
         vcl = Mock()
-        vcl.name = 'vcl-new-vol.cfff4'
+        vcl.name = 'vcl-new-vol_cfff4'
 
         loader = VclLoader(varnish_api_mock)
 

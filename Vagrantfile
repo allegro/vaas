@@ -18,6 +18,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   end
 
+  config.vm.provider "virtualbox" do |v|
+    v.customize [
+      "storagectl", :id,
+      "--name", "SCSI",
+      "--hostiocache", "on"
+    ]
+  end
+
   config.vm.define "pluton", autostart: false do |pluton|
 
     pluton.vm.box = "ubuntu/xenial64"

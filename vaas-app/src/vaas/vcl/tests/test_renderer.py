@@ -19,12 +19,12 @@ class VclTest(TestCase):
     @patch('vaas.vcl.renderer.hashlib.md5', Mock(return_value=md5_mock))
     def test_name_should_contain_version_based_on_digest(self):
         vcl = Vcl('some_content', 'new-vcl')
-        assert_equals('new-vcl-vol.ca5ef', vcl.name)
+        assert_equals('new-vcl-vol_ca5ef', vcl.name)
 
     @patch('vaas.vcl.renderer.hashlib.md5', Mock(return_value=md5_mock))
     def test_should_compare_versions(self):
         vcl = Vcl('some_content', 'new-vcl')
-        assert_true(vcl.compareVersion('other-vcl-vol.ca5ef'))
+        assert_true(vcl.compareVersion('other-vcl-vol_ca5ef'))
 
 
 class VclTagExpanderTest(TestCase):
