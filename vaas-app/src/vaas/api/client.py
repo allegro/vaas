@@ -44,6 +44,16 @@ class VarnishApi(varnish.VarnishHandler):
     def vcl_active_name(self):
         return self.vcls()['active']
 
+    def daemon_version(self):
+        version = 'unknown'
+        _, result = self.fetch('banner')
+        for line in result.splitlines():
+            if line.startswith('varnish'):
+                pass
+                version = line.split(' ')[0]
+
+        return version
+
     def vcl_show(self, configname):
         """
         vcl.show configname overloaded due to syntax error in original class

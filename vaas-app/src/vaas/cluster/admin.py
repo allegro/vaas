@@ -98,10 +98,11 @@ class VarnishServerAdmin(admin.ModelAdmin):
     def is_connected(self, obj):
         if obj.status == 'active':
             try:
-                self.varnish_api_provider.get_api(obj)
+                api = self.varnish_api_provider.get_api(obj)
+                version = api.daemon_version()
                 return format_html(
                     "<div class='span13 text-center'>" +
-                    "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok'></i></a>" +
+                    "<a class='btn btn-xs btn-success' href='#'>" + version + "</a>" +
                     "</div>"
                 )
             except:
