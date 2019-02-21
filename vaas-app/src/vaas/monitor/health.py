@@ -44,8 +44,12 @@ class BackendStatusManager(object):
                             else:
                                 self.logger.error('Regex patterns matches for possible backend id: {} '
                                                   .format(regex_result))
-
-                            status = backend_status[-2]
+                            # for varnish v6.0 LTS
+                            if len(backend_status) == 10:
+                                status = backend_status[-8]
+                            else:
+                                # for varnish v4
+                                status = backend_status[-2]
                             if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
                                 backend_address = backends.get(backend_id)
                                 if backend_address is not None:
