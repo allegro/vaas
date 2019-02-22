@@ -49,7 +49,6 @@ class VarnishApi(varnish.VarnishHandler):
         _, result = self.fetch('banner')
         for line in result.splitlines():
             if line.startswith('varnish'):
-                pass
                 version = line.split(' ')[0]
 
         return version
