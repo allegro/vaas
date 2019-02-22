@@ -35,6 +35,11 @@
     template: 2}
   model: cluster.varnishserver
   pk: 3
+- fields: {cluster: 1, cluster_weight: 1, dc: 1, status: active, hostname: varnish-6,
+    ip: 192.168.199.6, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
+    template: 2}
+  model: cluster.varnishserver
+  pk: 4
 - fields: {expected_response: 200, interval: 3, name: default_probe, threshold: 3,
     timeout: '1', url: /ts.1, window: 5}
   model: manager.probe
