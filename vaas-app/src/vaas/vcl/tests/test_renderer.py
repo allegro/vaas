@@ -58,7 +58,6 @@ import directors;
 
 
 class DcFactory(DjangoModelFactory):
-
     class Meta:
         model = Dc
 
@@ -67,7 +66,6 @@ class DcFactory(DjangoModelFactory):
 
 
 class LogicalClusterFactory(DjangoModelFactory):
-
     class Meta:
         model = LogicalCluster
 
@@ -75,7 +73,6 @@ class LogicalClusterFactory(DjangoModelFactory):
 
 
 class DirectorFactory(DjangoModelFactory):
-
     class Meta:
         model = Director
 
@@ -196,13 +193,16 @@ class VclTagBuilderTest(TestCase):
         BackendFactory.create(address='127.11.3.1', dc=dc1, director=active_active_with_start_as_healthy_probe)
         canary_backend.tags.add('canary')
 
-        template_v4_with_tag = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##', version='4.0')
+        template_v4_with_tag = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##',
+                                                          version='4.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
         vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
 
-        self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v4_with_tag, cluster=cluster1)
-        self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v4_with_tag, cluster=cluster1)
+        self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v4_with_tag,
+                                                    cluster=cluster1)
+        self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v4_with_tag,
+                                                        cluster=cluster1)
         self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=dc2, template=template_v4, cluster=cluster2)
         self.varnish3_canary = VarnishServer.objects.create(
             ip='127.0.0.3', dc=dc2, template=template_v4_with_tag, cluster=cluster1, is_canary=True
@@ -386,7 +386,6 @@ class VclRendererTest(TestCase):
         assert_equals('new-v4-1', vcl.name[:-10])
         assert_equals(expected_content, vcl.content)
 
-
     def test_should_prepare_default_vcl_version4_with_canary_backend(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4_canary, '1', VclRendererInput())
@@ -433,7 +432,6 @@ backend first_service_1_dc2_1_1_80 {
 
         assert_equals(expected_content, vcl.content)
 
-
     def test_should_replace_emty_or_disabled_director_with_information_in_error_response_varnish4(self):
         vcl_renderer = VclRenderer()
         vcl_template_with_unused_director = VclTemplate.objects.create(
@@ -472,7 +470,6 @@ class VclVariableExpanderTest(TestCase):
         self.variables = [self.variable, self.variable_2]
 
     def test_should_expand_variable_in_appropriate_cluster(self):
-
         content = VclVariableExpander(self.cluster, self.variables).expand_variables(
             '''\
 <VCL/>
