@@ -29,9 +29,8 @@ class VclTest(TestCase):
 
 class VclTagExpanderTest(TestCase):
     def setUp(self):
-        self.vcl_template3 = VclTemplate.objects.create(name='default-template', version='4.0')
         self.vcl_template4 = VclTemplate.objects.create(name='default-template-v4', version='4.0')
-        VclTemplateBlock.objects.create(tag='ACL', content='## ACL custom content ##', template=self.vcl_template3)
+        VclTemplateBlock.objects.create(tag='ACL', content='## ACL custom content ##', template=self.vcl_template4)
 
     def test_tag_should_be_expanded_from_file_template(self):
         tag_expander = VclTagExpander('VCL', 'VCL', VclRendererInput())
@@ -54,7 +53,7 @@ import directors;
 
     def test_tag_should_be_expanded_from_database(self):
         tag_expander = VclTagExpander('ACL', 'ACL', VclRendererInput(), can_overwrite=True)
-        assert_equals('## ACL custom content ##', tag_expander.expand(self.vcl_template3))
+        assert_equals('## ACL custom content ##', tag_expander.expand(self.vcl_template4))
 
 
 class DcFactory(DjangoModelFactory):
@@ -204,7 +203,7 @@ class VclTagBuilderTest(TestCase):
         self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v4_with_tag,
                                                         cluster=cluster1)
         self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=dc2, template=template_v4, cluster=cluster2)
-        self.varnish3_canary = VarnishServer.objects.create(
+        self.varnish4_canary = VarnishServer.objects.create(
             ip='127.0.0.3', dc=dc2, template=template_v4_with_tag, cluster=cluster1, is_canary=True
         )
         self.varnish4_canary = VarnishServer.objects.create(
