@@ -430,7 +430,6 @@ backend first_service_1_dc2_1_1_80 {
 
         self.varnish.template = vcl_template_with_unused_director
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
-        print(vcl.content)
 
         assert_equals(expected_content, vcl.content)
 
