@@ -15,7 +15,7 @@ django-environ==0.4.4
 lockfile==0.12.2
 django-taggit==0.22.1
 celery==4.2.1
-redis==2.10.5
+redis==3.2.0
 requests==2.20.1
 GitPython==2.1.7
 social-auth-app-django==2.0.0
