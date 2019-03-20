@@ -1,7 +1,0 @@
-## empty director synth ##
-sub vcl_error {
-    if (obj.status == 404) {
-        synthetic {"" + obj.response + ""};
-        return (deliver);
-    }
-}

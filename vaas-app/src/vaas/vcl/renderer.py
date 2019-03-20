@@ -11,13 +11,6 @@ from vaas.manager.models import Backend, Director
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
 
 VCL_TAGS = {
-    '3.0': [
-        ['VCL'],
-        ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
-        ['ROUTER', 'EXPLICITE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'PROPER_PROTOCOL_REDIRECT'],
-        ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}'],
-        ['BACKEND_LIST_{DIRECTOR}_{DC}']
-    ],
     '4.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
@@ -292,13 +285,7 @@ class VclRenderer(object):
         """
         for vcl_tags_level in VCL_TAGS[varnish.template.version]:
             for tag_name in vcl_tags_level:
-                if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '3.0':
-                    content = re.sub(
-                        r'<SET_BACKEND_([^\/]+)/>',
-                        r'error 404 "<!--Director \1 has no backends or is disabled-->";',
-                        content
-                    )
-                elif 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
+                if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
                     content = re.sub(
                         r'<SET_BACKEND_([^\/]+)/>',
                         r'return(synth(404, "<!--Director \1 has no backends or is disabled-->"));',

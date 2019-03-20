@@ -29,14 +29,12 @@ class VclTest(TestCase):
 
 class VclTagExpanderTest(TestCase):
     def setUp(self):
-        self.vcl_template3 = VclTemplate.objects.create(name='default-template', version='3.0')
+        self.vcl_template3 = VclTemplate.objects.create(name='default-template', version='4.0')
         self.vcl_template4 = VclTemplate.objects.create(name='default-template-v4', version='4.0')
         VclTemplateBlock.objects.create(tag='ACL', content='## ACL custom content ##', template=self.vcl_template3)
 
     def test_tag_should_be_expanded_from_file_template(self):
         tag_expander = VclTagExpander('VCL', 'VCL', VclRendererInput())
-        expected_v3 = '<HEADERS/>\n<ACL/>\n<DIRECTORS/>\n<VAAS_STATUS/>\n<RECV/>\n' \
-                      '<OTHER_FUNCTIONS/>\n<EMPTY_DIRECTOR_SYNTH/>'
         expected_v4 = '''\
 # Marker to tell the VCL compiler that this VCL has been adapted to the
 # new 4.0 format.
@@ -52,8 +50,6 @@ import directors;
 <RECV/>
 <OTHER_FUNCTIONS/>
 <EMPTY_DIRECTOR_SYNTH/>'''
-
-        assert_equals(expected_v3, tag_expander.expand(self.vcl_template3))
         assert_equals(expected_v4, tag_expander.expand(self.vcl_template4))
 
     def test_tag_should_be_expanded_from_database(self):
@@ -200,16 +196,16 @@ class VclTagBuilderTest(TestCase):
         BackendFactory.create(address='127.11.3.1', dc=dc1, director=active_active_with_start_as_healthy_probe)
         canary_backend.tags.add('canary')
 
-        template_v3 = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##', version='3.0')
+        template_v4_with_tag = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##', version='4.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
         vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
 
-        self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v3, cluster=cluster1)
-        self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v3, cluster=cluster1)
+        self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v4_with_tag, cluster=cluster1)
+        self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v4_with_tag, cluster=cluster1)
         self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=dc2, template=template_v4, cluster=cluster2)
         self.varnish3_canary = VarnishServer.objects.create(
-            ip='127.0.0.3', dc=dc2, template=template_v3, cluster=cluster1, is_canary=True
+            ip='127.0.0.3', dc=dc2, template=template_v4_with_tag, cluster=cluster1, is_canary=True
         )
         self.varnish4_canary = VarnishServer.objects.create(
             ip='127.0.0.4', dc=dc2, template=template_v4, cluster=cluster2, is_canary=True
@@ -381,15 +377,6 @@ class VclRendererInputTest(TestCase):
 class VclRendererTest(TestCase):
     setUp = VclTagBuilderTest.__dict__['setUp']
 
-    def test_should_prepare_default_vcl_version3(self):
-        vcl_renderer = VclRenderer()
-        vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-3.0.vcl', 'r') as f:
-            expected_content = f.read()
-
-        assert_equals('new-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
-
     def test_should_prepare_default_vcl_version4(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput())
@@ -399,14 +386,6 @@ class VclRendererTest(TestCase):
         assert_equals('new-v4-1', vcl.name[:-10])
         assert_equals(expected_content, vcl.content)
 
-    def test_should_prepare_default_vcl_version3_with_canary_backend(self):
-        vcl_renderer = VclRenderer()
-        vcl = vcl_renderer.render(self.varnish3_canary, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-3.0-canary.vcl', 'r') as f:
-            expected_content = f.read()
-
-        assert_equals('new-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
 
     def test_should_prepare_default_vcl_version4_with_canary_backend(self):
         vcl_renderer = VclRenderer()
@@ -422,7 +401,7 @@ class VclRendererTest(TestCase):
         vcl_template_with_unused_director = VclTemplate.objects.create(
             name='template-with-unused-director',
             content='<DIRECTOR_first_service/>\n<DIRECTOR_disabled_service/>',
-            version='3.0'
+            version='4.0'
         )
         expected_content = '''\
 ## START director first_service ###
@@ -445,36 +424,16 @@ backend first_service_1_dc2_1_1_80 {
     .probe = first_service_test_probe_1;
 }
 
-director first_service_dc2 round-robin {
-    {
-      .backend = first_service_1_dc2_1_1_80;
-    }
-
-}
 ## END director first_service ###
 #<DIRECTOR_disabled_service/>\
 '''
 
         self.varnish.template = vcl_template_with_unused_director
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
+        print(vcl.content)
 
         assert_equals(expected_content, vcl.content)
 
-    def test_should_replace_emty_or_disabled_director_with_information_in_error_response_varnish3(self):
-        vcl_renderer = VclRenderer()
-        vcl_template_with_unused_director = VclTemplate.objects.create(
-            name='template-with-unused-director',
-            content='<SET_BACKEND_ningth_director_without_backends/>',
-            version='3.0'
-        )
-        expected_content = '''\
-error 404 "<!--Director ningth_director_without_backends has no backends or is disabled-->";\
-'''
-
-        self.varnish.template = vcl_template_with_unused_director
-        vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
-
-        assert_equals(expected_content, vcl.content)
 
     def test_should_replace_emty_or_disabled_director_with_information_in_error_response_varnish4(self):
         vcl_renderer = VclRenderer()
