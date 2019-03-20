@@ -1,4 +1,4 @@
-django==1.11.18
+django==1.11.20
 django_nose==1.4.4
 enum34==1.1.6
 wheel==0.29.0
