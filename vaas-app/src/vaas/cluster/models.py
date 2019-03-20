@@ -45,7 +45,7 @@ class Dc(models.Model):
 class VclTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, validators=[name_validator])
     content = models.TextField()
-    version = models.CharField(max_length=3, choices=(('3.0', 'Vcl 3.0'), ('4.0', 'Vcl 4.0')), default='4.0')
+    version = models.CharField(max_length=3, choices=(('4.0', 'Vcl 4.0'),), default='4.0')
     comment = models.CharField(max_length=64, validators=[vcl_template_comment_validator])
     history = HistoricalRecords()
 

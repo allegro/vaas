@@ -3,7 +3,6 @@ VaaS in Vagrant
 VaaS in Vagrant is a preconfigured VaaS application instance packed into a Vagrant box. It is useful for experimentation, testing and development purposes. The box runs the following services:
 
 * VaaS application
-* Varnish v3 instance in a docker container
 * Varnish v4 instance in a docker container
 * Several Nginx instances each in a separate docker container
 

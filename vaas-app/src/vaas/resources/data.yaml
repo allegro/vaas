@@ -19,9 +19,6 @@
 - fields: {name: Second datacenter, symbol: dc2}
   model: cluster.dc
   pk: 2
-- fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_3, version: '3.0'}
-  model: cluster.vcltemplate
-  pk: 1
 - fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
   model: cluster.vcltemplate
   pk: 2
