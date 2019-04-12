@@ -21,6 +21,7 @@ GitPython==2.1.7
 social-auth-app-django==2.0.0
 defusedxml==0.5.0
 lxml==4.3.3
--e git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.8#egg=django_admin_bootstrapped
--e git+https://github.com/TheMickeyMike/python-varnish.git@0.2.2#egg=python_varnish
--e git+https://github.com/TheMickeyMike/django-ace.git@v1.2.5#egg=django_ace
+http.client==0.1.22
+django_admin_bootstrapped @ git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.8#egg=django_admin_bootstrapped
+python_varnish @ git+https://github.com/TheMickeyMike/python-varnish@0.2.2#egg=python_varnish
+django_ace @ git+https://github.com/TheMickeyMike/django-ace@v1.2.5#egg=django_ace

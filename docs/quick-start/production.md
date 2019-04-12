@@ -4,13 +4,13 @@ VaaS is a Django application. It can be run in multiple ways, as documented in [
 
 Python Support
 --------------
-VaaS run on Python3.5+ versions. 
+VaaS run on Python3.5+ versions.
 
 Ubuntu system packages requirements
--------------------
+-----------------------------------
 Make sure you have installed packages on machine:
 
-     sudo apt-get install python3.5-dev python3-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev
+     sudo apt-get install python3.5-dev python3-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
 
 Build VaaS package
 ------------------
@@ -25,6 +25,8 @@ Use the commands below to build VaaS from source:
     pip install -r src/vaas.egg-info/requires.txt
     python setup.py sdist --format=zip
 
+Package will be located in dist directory.
+
 Install VaaS package
 --------------------
 Use the commands below to install VaaS package built in the previous step on a web server:
@@ -35,9 +37,9 @@ Use the commands below to install VaaS package built in the previous step on a w
     pip install python-ldap==3.2.0
     pip install django-auth-ldap==1.7.0
     pip install mysqlclient==1.4.2.post1
-    // pip install lck.django ? nie moge zainstalowac bo dep
+    pip install lck.django
     pip install uwsgi
-    pip install dist/vaas-{version-number}.zip
+    pip install vaas-{version-number}.zip
 
 
 Configure Mysql
@@ -86,6 +88,33 @@ Then start uwsgi with:
 
     service uwsgi start
 
+
+Configure Service
+-----------------
+For modern OS we use Systemd service for mange UWsgi. Create service file /lib/systemd/system/vaas.service with the following contents:
+
+    [Unit]
+    Description=Varnish As A Service
+    After=network.target
+
+    [Service]
+    ExecStart=//home/vagrant/prod-env/bin/uwsgi --env DJANGO_SETTINGS_MODULE=vaas.settings --uid vagrant --master --processes 8 --die-on-term --socket /tmp/vaas.sock -H /home/vagrant/prod-env --module vaas.external.wsgi --chmod-socket=666 --logto /tmp/uwsgi.log
+    Restart=on-failure
+    Type=notify
+
+    [Install]
+    WantedBy=multi-user.target
+    Alias=vaas.service
+
+After add file you need to reload Systemd configuration:
+
+    systemctl daemon-reload
+
+Run VaaS:
+
+    service vaas start
+
+
 Configure Nginx
 ---------------
 Create a file in /etc/nginx/sites-available/vaas.conf and link it to /etc/nginx/sites-enabled. Add the following contents to the file replacing SERVER_NAME with your server name:
@@ -129,24 +158,23 @@ production.yml:
 
 Troubleshooting
 ---------------
-If you cannot create virtualenv on Ubuntu 16.04 and have error like
-```
-The virtual environment was not created successfully because ensurepip is not
-available.  On Debian/Ubuntu systems, you need to install the python3-venv
-package using the following command.
+If you cannot create virtualenv on Ubuntu 16.04 and have error like this:
 
-    apt-get install python3-venv
+    The virtual environment was not created successfully because ensurepip is not
+    available.  On Debian/Ubuntu systems, you need to install the python3-venv
+    package using the following command.
 
-You may need to use sudo with that command.  After installing the python3-venv
-package, recreate your virtual environment.
+        apt-get install python3-venv
 
-Failing command: ['/tmp/vaas/dist-venv/bin/python3.5', '-Im', 'ensurepip', '--upgrade', '--default-pip']
+    You may need to use sudo with that command.  After installing the python3-venv
+    package, recreate your virtual environment.
 
-```
+    Failing command: ['/tmp/vaas/dist-venv/bin/python3.5', '-Im', 'ensurepip', '--upgrade', '--default-pip']
+
 You need to update your locale. For example:
-```
-export LC_ALL="en_US.UTF-8"
-export LC_CTYPE="en_US.UTF-8"
-sudo dpkg-reconfigure locales
-```
+
+    export LC_ALL="en_US.UTF-8"
+    export LC_CTYPE="en_US.UTF-8"
+    sudo dpkg-reconfigure locales
+
 After that commend ```sudo python3.5 -m venv dist-venv``` will work properly.
