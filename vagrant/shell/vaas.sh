@@ -4,13 +4,14 @@ VAAS_SRC_HOME='/home/vagrant/vaas/vaas-app/src'
 
 # prepare repositories
 sudo apt-get update -y
-sudo apt-get install -y redis-server python3.5-dev
+sudo apt-get install -y redis-server python3.5-dev python3.5-dev python3-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
 
 sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 
 # update venv
 cd ~/
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r vaas/vaas-app/requirements/dev.txt
 
 # Kill the server if it is already running:

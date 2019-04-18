@@ -7,7 +7,7 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc
 
 # install packages
 sudo apt-get update -y
-sudo apt-get -y install docker-engine python3.5-venv
+sudo apt-get -y install docker-engine python3.5-dev python3-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
 python3.5 -m ensurepip
 
 # prepare venv
