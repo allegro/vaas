@@ -1,7 +1,7 @@
 import csv
 
 from django.contrib import admin
-from vaas.manager.models import Director, Backend, Probe, TimeProfile
+from vaas.manager.models import Director, Backend, Probe, TimeProfile, Route
 from vaas.manager.forms import DirectorModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
@@ -207,6 +207,15 @@ class ProbeAdmin(admin.ModelAdmin):
         }),
     )
 
+class RouteAdmin(admin.ModelAdmin):
+    search_fields = ['condition', 'cluster__name', 'director__name']
+    list_display = ['condition', 'director', 'cluster', 'priority', 'action']
+    fieldsets = (
+        (None, {
+            'fields': ('condition', 'priority', 'action', 'cluster', 'director')
+        }),
+    )
+
 
 class TimeProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'max_connections', 'connect_timeout', 'first_byte_timeout', 'between_bytes_timeout')
@@ -215,3 +224,4 @@ admin.site.register(Director, DirectorAdmin)
 admin.site.register(Backend, BackendAdmin)
 admin.site.register(Probe, ProbeAdmin)
 admin.site.register(TimeProfile, TimeProfileAdmin)
+admin.site.register(Route, RouteAdmin)

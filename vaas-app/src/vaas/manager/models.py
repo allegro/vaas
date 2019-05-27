@@ -189,3 +189,16 @@ class ReloadTask(object):
 
     def __repr__(self):
         return '{}'.format(self.__dict__)
+
+class Route(models.Model):
+    ACTION_CHOICES = (
+        ('pass', 'pass route directly'),
+    )
+    condition = models.CharField(max_length=512)
+    priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], unique=True)
+    cluster = models.OneToOneField(LogicalCluster, on_delete=models.PROTECT)
+    director = models.OneToOneField(Director, on_delete=models.PROTECT)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+
+    class Meta:
+        unique_together = (('priority', 'cluster', 'director'),)
