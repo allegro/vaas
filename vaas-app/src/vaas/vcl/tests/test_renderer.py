@@ -6,7 +6,8 @@ from mock import *
 from nose.tools import *
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
-from vaas.manager.models import Director, Probe, Backend, TimeProfile, Route
+from vaas.manager.models import Director, Probe, Backend, TimeProfile
+from vaas.router.models import Route
 from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, VclVariable
 from django.conf import settings
 from taggit.managers import TaggableManager

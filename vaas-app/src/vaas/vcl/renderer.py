@@ -7,7 +7,8 @@ import time
 import re
 
 from jinja2 import Environment, FileSystemLoader
-from vaas.manager.models import Backend, Director, Route
+from vaas.manager.models import Backend, Director
+from vaas.router.models import Route
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
 
 VCL_TAGS = {
