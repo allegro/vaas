@@ -56,6 +56,7 @@ class ProbeResource(ModelResource):
             'expected_response': ['exact']
         }
 
+
 class DirectorResource(ModelResource):
     probe = fields.ForeignKey(ProbeResource, 'probe', full=True)
     time_profile = fields.ForeignKey(TimeProfileResource, 'time_profile', full=True)
@@ -107,6 +108,7 @@ class DirectorResource(ModelResource):
 
         return super(DirectorResource, self).update_in_place(request, original_bundle, new_data)
 
+
 class RouteResource(ModelResource):
     director = fields.ForeignKey(DirectorResource, 'director')
     cluster = fields.ForeignKey('vaas.cluster.api.LogicalClusterResource', 'cluster')
@@ -125,7 +127,7 @@ class RouteResource(ModelResource):
 
     def dehydrate_director(self, bundle):
         return bundle.obj.director.name
-    
+
     def dehydrate_cluster(self, bundle):
         return bundle.obj.cluster.name
 
@@ -134,9 +136,10 @@ class RouteResource(ModelResource):
             bundle.data['director'] = Director.objects.get(name=bundle.data['director'])
         except ObjectDoesNotExist:
             logger.info("[RouteResource.hydrate_director()] provided name = %s", bundle.data['director'])
-            raise ApiFieldError("Could not find the provided director via resource name '%s'." % bundle.data['director'])
+            raise ApiFieldError("Could not find the provided director via resource name '%s'."
+                                % bundle.data['director'])
         return bundle
-    
+
     def hydrate_cluster(self, bundle):
         try:
             bundle.data['cluster'] = LogicalCluster.objects.get(name=bundle.data['cluster'])
@@ -144,6 +147,7 @@ class RouteResource(ModelResource):
             logger.info("[RouteResource.hydrate_cluster()] provided name = %s", bundle.data['cluster'])
             raise ApiFieldError("Could not find the provided cluster via resource name '%s'." % bundle.data['cluster'])
         return bundle
+
 
 class BackendResource(ModelResource):
     dc = fields.ForeignKey(DcResource, 'dc', full=True)

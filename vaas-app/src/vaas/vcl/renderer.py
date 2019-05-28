@@ -14,8 +14,10 @@ VCL_TAGS = {
     '4.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
-        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}', 'PROPER_PROTOCOL_REDIRECT'],
-        ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}', 'SET_ROUTE_{ROUTE}'],
+        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
+            'PROPER_PROTOCOL_REDIRECT'],
+        ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
+            'SET_ROUTE_{ROUTE}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
     ]
 }
@@ -200,10 +202,11 @@ class VclTagBuilder(object):
                 )
 
         if tag_name.endswith('{ROUTE}'):
-             applied_rules = True
-             for route in self.placeholders['routes']:
+            applied_rules = True
+            for route in self.placeholders['routes']:
                 filtered_vcl_directors = filter(
-                    lambda vcl_director: vcl_director.director.id == route.director.id, self.placeholders['vcl_director']
+                    lambda vcl_director: vcl_director.director.id == route.director.id,
+                    self.placeholders['vcl_director']
                 )
                 result.append(
                     VclTagExpander(
@@ -235,7 +238,7 @@ class VclTagBuilder(object):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
             vcl_tag.parameters['directors'] = self.placeholders['active_director']
             vcl_tag.parameters['probes'] = self.placeholders['probe']
-        elif tag_name=='FLEXIBLE_ROUTER':
+        elif tag_name == 'FLEXIBLE_ROUTER':
             vcl_tag.parameters['routes'] = self.placeholders['routes']
 
         return vcl_tag

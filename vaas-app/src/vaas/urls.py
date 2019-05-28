@@ -7,7 +7,8 @@ from tastypie.api import Api
 
 from vaas.cluster.api import DcResource, VarnishServerResource, VclTemplateBlockResource, VclTemplateResource, \
     LogicalClusterResource, OutdatedServerResource
-from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource, ReloadTaskResource, RouteResource
+from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource, \
+    ReloadTaskResource, RouteResource
 from vaas.purger.api import PurgeUrl
 from django.contrib import admin
 from social_django.models import Association, Nonce, UserSocialAuth

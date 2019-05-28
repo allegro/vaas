@@ -207,6 +207,7 @@ class ProbeAdmin(admin.ModelAdmin):
         }),
     )
 
+
 class RouteAdmin(admin.ModelAdmin):
     search_fields = ['condition', 'cluster__name', 'director__name']
     list_display = ['condition', 'director', 'cluster', 'priority', 'action']
