@@ -1,0 +1,1 @@
+{% spaceless %}{% for widget in widget.subwidgets %}<div class="{{ widget.attrs.col }}" style="padding-left: 0px">{% include widget.template_name %}</div>{% endfor %}{% endspaceless %}

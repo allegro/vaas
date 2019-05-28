@@ -2,7 +2,7 @@ import csv
 
 from django.contrib import admin
 from vaas.manager.models import Director, Backend, Probe, TimeProfile, Route
-from vaas.manager.forms import DirectorModelForm
+from vaas.manager.forms import DirectorModelForm, RouteModelForm
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from taggit.models import Tag
@@ -209,6 +209,7 @@ class ProbeAdmin(admin.ModelAdmin):
 
 
 class RouteAdmin(admin.ModelAdmin):
+    form = RouteModelForm
     search_fields = ['condition', 'cluster__name', 'director__name']
     list_display = ['condition', 'director', 'cluster', 'priority', 'action']
     fieldsets = (
