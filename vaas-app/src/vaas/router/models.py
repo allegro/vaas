@@ -7,7 +7,6 @@ from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
 
 
-
 class Route(models.Model):
     ACTION_CHOICES = (
         ('pass', 'pass route directly'),

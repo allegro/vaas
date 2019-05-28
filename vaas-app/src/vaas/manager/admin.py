@@ -207,8 +207,10 @@ class ProbeAdmin(admin.ModelAdmin):
         }),
     )
 
+
 class TimeProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'max_connections', 'connect_timeout', 'first_byte_timeout', 'between_bytes_timeout')
+
 
 admin.site.register(Director, DirectorAdmin)
 admin.site.register(Backend, BackendAdmin)
