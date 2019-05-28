@@ -128,5 +128,5 @@
   model: tastypie.apikey
   pk: 1
 - fields: {condition: 'req.url ~ "^\/flexible"', director: 1, cluster: 1, priority: 1, action: 'pass'}
-  model: manager.route
+  model: router.route
   pk: 1

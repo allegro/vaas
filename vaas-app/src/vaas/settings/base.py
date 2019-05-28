@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'simple_history',
     'vaas.manager',
     'vaas.cluster',
+    'vaas.router',
     'vaas.monitor',
     'vaas.account',
     'vaas.purger',
