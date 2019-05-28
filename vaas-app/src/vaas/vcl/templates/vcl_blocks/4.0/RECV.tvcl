@@ -1,6 +1,7 @@
 <PROPER_PROTOCOL_REDIRECT/>
 sub vcl_recv {
 <ROUTER/>
+<FLEXIBLE_ROUTER/>
     # Call protocol redirect sub
     call protocol_redirect;
 

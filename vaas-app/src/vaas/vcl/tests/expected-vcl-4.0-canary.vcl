@@ -224,7 +224,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "c1dbc", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "3fe29", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -317,6 +317,18 @@ sub vcl_recv {
         set req.http.X-Forwarded-Prefix = "/eighth";
         set req.http.X-VaaS-Director = "dc1/eighth_service";
         set req.backend_hint = eighth_service_dc1.backend();
+
+    }
+
+# Flexible ROUTER
+    if (req.url ~ "^\/flexible") {
+        unset req.http.X-Accept-Proto;
+        set req.http.X-Accept-Proto = "https";
+        unset req.http.X-VaaS-Prefix;
+        unset req.http.X-Forwarded-Prefix;
+        set req.http.X-Route = "1";
+        set req.http.X-VaaS-Director = "dc2/first_service";
+        set req.backend_hint = first_service_dc2.backend();
 
     }
 

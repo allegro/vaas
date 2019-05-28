@@ -198,7 +198,7 @@ To list backends located in specified DC belonging to specified Director:
     "http://localhost:3030/api/v0.1/purger/?username=admin&api_key=vagrant_api_key"
 
 
-###List outdated servers from single logical cluster
+### List outdated servers from single logical cluster
 
     curl "http://localhost:3030/api/v0.1/outdated_server/?username=admin&api_key=vagrant_api_key&cluster=clusterA"
 
@@ -219,6 +219,28 @@ To list backends located in specified DC belonging to specified Director:
     curl -i "http://localhost:3030/api/v0.1/task/578d87b6-4dd5-4786-961d-4b3717e616c8/?username=admin&api_key=vagrant_api_key"
 
 
+### List routes
+
+    curl "http://localhost:3030/api/v0.1/route/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Create new route
+
+    curl -X POST \
+    -d '{"action":"pass", "cluster": "cluster3_siteA_dev", "condition": "/path", "director":"second_service", "priority":4}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/route/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Delete single route
+
+    curl -X DELETE \
+    "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Partially update route
+
+    curl -X PATCH \
+    -d '{"action":"pass", "cluster": "cluster3_siteA_dev", "condition": "/path2", "director":"third_service", "priority":4}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
 
 Explore more
 ============

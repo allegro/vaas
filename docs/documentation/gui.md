@@ -127,3 +127,11 @@ To purge object from varnishes from a given cluster, click on *Manager -> Purger
 
 * **Url to purge:** url of object to purge eg. http://example.com/contact
 * **Varnish Cluster:** select cluster to purge
+
+![Manager - Routes](img/manager_add_route.png)
+
+* **Condition:** condition to be met
+* **Priority:** priority of the route
+* **Action:** action for the route
+* **Cluster:** related cluster
+* **Director:** related director
