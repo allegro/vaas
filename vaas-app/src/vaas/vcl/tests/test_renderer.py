@@ -6,7 +6,7 @@ from mock import *
 from nose.tools import *
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
-from vaas.manager.models import Director, Probe, Backend, TimeProfile
+from vaas.manager.models import Director, Probe, Backend, TimeProfile, Route
 from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, VclVariable
 from django.conf import settings
 from taggit.managers import TaggableManager
@@ -197,6 +197,14 @@ class VclTagBuilderTest(TestCase):
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
         vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
+
+        route = Route.objects.create(
+            condition='req.url ~ "^\/flexible"',
+            director=non_active_active_routed_by_path,
+            cluster=cluster2,
+            priority=1,
+            action='pass'
+        )
 
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v4_with_tag,
                                                     cluster=cluster1)
@@ -431,7 +439,7 @@ backend first_service_1_dc2_1_1_80 {
 
         assert_equals(expected_content, vcl.content)
 
-    def test_should_replace_emty_or_disabled_director_with_information_in_error_response_varnish4(self):
+    def test_should_replace_empty_or_disabled_director_with_information_in_error_response_varnish4(self):
         vcl_renderer = VclRenderer()
         vcl_template_with_unused_director = VclTemplate.objects.create(
             name='template-with-unused-director',

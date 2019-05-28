@@ -7,15 +7,15 @@ import time
 import re
 
 from jinja2 import Environment, FileSystemLoader
-from vaas.manager.models import Backend, Director
+from vaas.manager.models import Backend, Director, Route
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
 
 VCL_TAGS = {
     '4.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
-        ['ROUTER', 'EXPLICITE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}', 'PROPER_PROTOCOL_REDIRECT'],
-        ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}'],
+        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}', 'PROPER_PROTOCOL_REDIRECT'],
+        ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}', 'SET_ROUTE_{ROUTE}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
     ]
 }
@@ -111,15 +111,16 @@ class VclDirector(object):
 
 
 class VclTagBuilder(object):
-    def __init__(self, varnish, input):
-        self.input = input
+    def __init__(self, varnish, input_data):
+        self.input = input_data
         self.varnish = varnish
         vcl_directors = self.prepare_vcl_directors(varnish)
         self.placeholders = {
             'dc': self.input.dcs,
             'vcl_director': vcl_directors,
             'probe': self.prepare_probe(vcl_directors),
-            'active_director': self.prepare_active_directors(self.input.directors, vcl_directors)
+            'active_director': self.prepare_active_directors(self.input.directors, vcl_directors),
+            'routes': self.prepare_route(self.varnish, vcl_directors)
         }
 
     def prepare_active_directors(self, directors, vcl_directors):
@@ -128,6 +129,16 @@ class VclTagBuilder(object):
             if len(list(filter(lambda vcl_director: vcl_director.director.id == director.id, vcl_directors))) > 0:
                 result.append(director)
         return result
+
+    def prepare_route(self, varnish, vcl_directors):
+        routes = []
+        for route in self.input.routes:
+            if route.director.enabled is True and varnish.cluster.id == route.cluster.id:
+                for vcl_director in vcl_directors:
+                    if vcl_director.director.id == route.director.id:
+                        routes.append(route)
+                        break
+        return routes
 
     def prepare_vcl_directors(self, varnish):
         vcl_directors = []
@@ -188,13 +199,33 @@ class VclTagBuilder(object):
                     )
                 )
 
+        if tag_name.endswith('{ROUTE}'):
+             applied_rules = True
+             for route in self.placeholders['routes']:
+                filtered_vcl_directors = filter(
+                    lambda vcl_director: vcl_director.director.id == route.director.id, self.placeholders['vcl_director']
+                )
+                result.append(
+                    VclTagExpander(
+                        tag_name.replace('{ROUTE}', str(route.id)),
+                        self.get_tag_template_name(tag_name),
+                        self.input,
+                        parameters={
+                            'vcl_directors': sorted(
+                                filtered_vcl_directors, key=lambda vcl_director: not vcl_director.is_active()
+                            ),
+                            'route': route
+                        }
+                    )
+                )
+
         if not applied_rules:
             return [self.decorate_single_tag(tag_name)]
 
         return result
 
     def get_tag_template_name(self, tag_name):
-        return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '')
+        return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '').replace('_{ROUTE}', '')
 
     def decorate_single_tag(self, tag_name):
         vcl_tag = VclTagExpander(tag_name, self.get_tag_template_name(tag_name), self.input, can_overwrite=True)
@@ -204,6 +235,9 @@ class VclTagBuilder(object):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
             vcl_tag.parameters['directors'] = self.placeholders['active_director']
             vcl_tag.parameters['probes'] = self.placeholders['probe']
+        elif tag_name=='FLEXIBLE_ROUTER':
+            vcl_tag.parameters['routes'] = self.placeholders['routes']
+
         return vcl_tag
 
 
@@ -212,6 +246,8 @@ class VclRendererInput(object):
         """Prefetch data needed by renderer."""
         self.directors = list(Director.objects.all().prefetch_related('probe', 'cluster', 'time_profile'))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
+        self.routes = list(Route.objects.all().prefetch_related('director', 'cluster'))
+        self.routes.sort(key=lambda route: "{}_{}".format(route.priority, route.director.name))
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all().prefetch_related('cluster'))
