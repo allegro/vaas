@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from decimal import Decimal
-
 from django import forms
+
+
+class PrioritySelect(forms.Select):
+    def __init__(self, attrs=None, choices=()):
+        super().__init__(attrs, choices)
+        self.template_name = 'forms/priority.html'
 
 
 class ConditionWidget(forms.MultiWidget):

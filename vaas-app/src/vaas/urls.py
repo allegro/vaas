@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^admin/purger/', include('vaas.purger.urls')),
     url(r'^$', RedirectView.as_view(url='/admin')),
     url(r'^manager/', include('vaas.manager.urls')),
+    url(r'^router/', include('vaas.router.urls')),
     url(r'^account/', include('vaas.account.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(v01_api.urls)),

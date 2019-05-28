@@ -251,7 +251,7 @@ class VclRendererInput(object):
         self.directors = list(Director.objects.all().prefetch_related('probe', 'cluster', 'time_profile'))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
         self.routes = list(Route.objects.all().prefetch_related('director', 'cluster'))
-        self.routes.sort(key=lambda route: "{}_{}".format(route.priority, route.director.name))
+        self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all().prefetch_related('cluster'))

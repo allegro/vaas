@@ -1,0 +1,36 @@
+{% spaceless %}{% include 'django/forms/widgets/select.html' %}{% endspaceless %}
+<script>
+    function reloadPriorities() {
+        var cluster_id = $("[name=cluster]").val() || 0,
+            director_id = $("[name=director]").val() || 0,
+            current = $("[name=priority]").val(),
+            route_id=0;
+
+        if (window.location.href.includes('change')) {
+
+            route_id = window.location.href.split('/')[6];
+        }
+
+        $.ajax(
+                {
+                    url: "/router/route/priorities/"+director_id+"/"+cluster_id+"/"+route_id+"/"+current+"/",
+                    success: function(result){
+                        $('[name=priority]').find('option').remove();
+                        result['values'].forEach(
+                            function(value){
+                                var options = "<option value='" + value + "'>" + value + "</option>";
+                                $("[name=priority]").append(options);
+                            }
+                        );
+                        $("[name=priority]").val(result['choose']);
+                    }
+                }
+        );
+    }
+
+    $ (document).ready(function(){
+        $('[name=cluster]').change(reloadPriorities);
+        $('[name=director]').change(reloadPriorities);
+        reloadPriorities();
+    });
+</script>
