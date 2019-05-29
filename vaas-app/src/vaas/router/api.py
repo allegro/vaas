@@ -19,7 +19,7 @@ logger = logging.getLogger('vaas')
 
 
 class RouteResource(ModelResource):
-    director = fields.ForeignKey('vaas.manager.api.LogicalClusterResource', 'director')
+    director = fields.ForeignKey('vaas.manager.api.DirectorResource', 'director')
     cluster = fields.ForeignKey('vaas.cluster.api.LogicalClusterResource', 'cluster')
 
     class Meta:
