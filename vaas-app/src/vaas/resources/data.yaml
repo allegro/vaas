@@ -127,6 +127,6 @@
 - fields: {created: '2014-12-12 12:00:00+00:00', key: vagrant_api_key, user: 1}
   model: tastypie.apikey
   pk: 1
-- fields: {condition: 'req.url ~ "^\/flexible"', director: 1, cluster: 1, priority: 1, action: 'pass'}
+- fields: {condition: 'req.url ~ "^\/flexible"', director: 1, cluster: 1, priority: 50, action: 'pass'}
   model: router.route
   pk: 1
