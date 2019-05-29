@@ -156,7 +156,7 @@ VAAS_LOADER_PARTIAL_RELOAD = False
 VAAS_LOADER_MAX_WORKERS = 30
 
 REFRESH_TRIGGERS_CLASS = (
-    'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable'
+    'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable', 'Route'
 )
 
 # CELERY
