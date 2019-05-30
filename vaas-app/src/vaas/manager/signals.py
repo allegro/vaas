@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from vaas.external.request import get_current_request
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, VclVariable
+from vaas.router.models import Route
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
 
@@ -156,6 +157,12 @@ def vcl_update(sender, **kwargs):
             if varnish_server.cluster == instance.cluster:
                 logger.debug("vcl_update(): %s" % str(varnish_server.cluster))
                 clusters_to_refresh.append(varnish_server.cluster)
+    # Route
+    elif sender is Route:
+        for route in Route.objects.all():
+            if route.cluster == instance.cluster:
+                logger.debug("vcl_update(): %s" % str(route.cluster))
+                clusters_to_refresh.append(route.cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:
