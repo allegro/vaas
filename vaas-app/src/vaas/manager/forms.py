@@ -40,8 +40,9 @@ class DirectorModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(DirectorModelForm, self).__init__(*args, **kwargs)
         self.fields['probe'].queryset = Probe.objects.order_by('name')
-        self.fields['probe'].widget = self.fields['probe'].widget.widget
-        self.fields['time_profile'].widget = self.fields['time_profile'].widget.widget
+        for related in ('probe', 'time_profile'):
+            if hasattr(self.fields[related].widget, 'widget'):
+                self.fields[related].widget = self.fields[related].widget.widget
 
     def clean_name(self):
         data = self.cleaned_data['name']
