@@ -9,6 +9,21 @@ class PrioritySelect(forms.Select):
         self.template_name = 'forms/priority.html'
 
 
+class SearchableSelect(forms.Select):
+    def __init__(self, attrs=None, choices=()):
+        if attrs is None:
+            attrs = {}
+        attrs['class'] = 'selectpicker form-control'
+        attrs['data-live-search'] = 'true'
+        super().__init__(attrs, choices)
+
+    class Media:
+        css = {
+            'all': ('bootstrap-select/css/bootstrap-select.min.css',)
+        }
+        js = ('bootstrap-select/js/bootstrap-select.min.js',)
+
+
 class ConditionWidget(forms.MultiWidget):
     def __init__(self, variables, operators, *args, **kwargs):
         widgets = [

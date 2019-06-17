@@ -2,7 +2,8 @@
 import re
 
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, CheckboxSelectMultiple, FileField, Select
+from django.forms import ModelForm, CheckboxSelectMultiple, FileField, Select, TextInput
+from vaas.adminext.widgets import SearchableSelect
 from vaas.manager.models import Probe, Director, Backend, TimeProfile
 from vaas.cluster.helpers import BaseHelpers
 
@@ -22,7 +23,16 @@ class TimeProfileModelForm(ModelForm):
 class DirectorModelForm(ModelForm):
     class Meta:
         widgets = {
-            'cluster': CheckboxSelectMultiple()
+            'name': TextInput(attrs={'class': 'form-control'}),
+            'service': TextInput(attrs={'class': 'form-control'}),
+            'route_expression': TextInput(attrs={'class': 'form-control'}),
+            'cluster': CheckboxSelectMultiple(),
+            'mode': SearchableSelect(),
+            'protocol': SearchableSelect(),
+            'hashing_policy': SearchableSelect(),
+            'router': SearchableSelect(),
+            'probe': SearchableSelect(),
+            'time_profile': SearchableSelect(),
         }
         model = Director
         fields = '__all__'
@@ -30,6 +40,8 @@ class DirectorModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(DirectorModelForm, self).__init__(*args, **kwargs)
         self.fields['probe'].queryset = Probe.objects.order_by('name')
+        self.fields['probe'].widget = self.fields['probe'].widget.widget
+        self.fields['time_profile'].widget = self.fields['time_profile'].widget.widget
 
     def clean_name(self):
         data = self.cleaned_data['name']
