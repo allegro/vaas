@@ -7,7 +7,7 @@ from django_ace import AceWidget
 
 from vaas.cluster.coherency import OutdatedServerManager
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
-from vaas.cluster.forms import VclTemplateModelForm
+from vaas.cluster.forms import VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
 
@@ -45,6 +45,7 @@ class OutdatedFilter(SimpleListFilter):
 
 
 class VarnishServerAdmin(admin.ModelAdmin):
+    form = VarnishServerModelForm
     search_fields = ['dc__symbol', 'ip', 'hostname', 'template__name']
     list_filter = ['cluster__name', OutdatedFilter]
     list_display = (
@@ -204,6 +205,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
 
 class VclVariableAdmin(admin.ModelAdmin):
+    form = VclVariableModelForm
     list_display = ['key', 'value', 'cluster']
 
 

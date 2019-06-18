@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-import re
 
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
+
+from vaas.adminext.widgets import ConditionWidget, PrioritySelect, SearchableSelect
+from vaas.cluster.models import LogicalCluster
+from vaas.manager.models import Director
 from vaas.router.models import Route
-from vaas.router.fields import ConditionWidget, PrioritySelect
 
 
 class RouteModelForm(ModelForm):
@@ -13,6 +15,10 @@ class RouteModelForm(ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 50
+        self.fields['cluster'].queryset = LogicalCluster.objects.order_by('name')
+        self.fields['director'].queryset = Director.objects.order_by('name')
+        self.fields['cluster'].widget = self.fields['cluster'].widget.widget
+        self.fields['director'].widget = self.fields['director'].widget.widget
 
     class Meta:
         model = Route
@@ -24,7 +30,9 @@ class RouteModelForm(ModelForm):
             ),
             'priority': PrioritySelect(
                 choices=([(i, i)for i in range(1, 100)]),
-            )
+            ),
+            'cluster': SearchableSelect(),
+            'director': SearchableSelect(),
         }
 
     def clean_condition(self):
