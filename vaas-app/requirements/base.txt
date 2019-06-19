@@ -15,12 +15,12 @@ django-environ==0.4.4
 lockfile==0.12.2
 django-taggit==0.22.1
 celery==4.2.1
-redis==3.2.0
 requests==2.20.1
 GitPython==2.1.7
 social-auth-app-django==2.0.0
 defusedxml==0.5.0
 lxml==4.3.3
+redis @ git+https://github.com/ziollek/redis-py@3.2.2#egg=redis
 django_admin_bootstrapped @ git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.8#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/TheMickeyMike/python-varnish@0.2.2#egg=python_varnish
 django_ace @ git+https://github.com/TheMickeyMike/django-ace@v1.2.5#egg=django_ace
