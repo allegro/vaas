@@ -140,7 +140,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Create a new Varnish server
 
     curl -X POST \
-    -d '{ "ip": "172.17.0.7", "hostname": "varnish3", "dc": "/api/v0.1/dc/1/", "port": "6082", "secret": "edcf6c52-6f93-4d0d-82b9-cd74239146b0", "template": "/api/v0.1/template/1/", "cluster": "/api/v0.1/cluster/1/", "enabled": "True" }' \
+    -d '{ "ip": "172.17.0.7", "hostname": "varnish3", "dc": "/api/v0.1/dc/1/", "port": "6082", "secret": "edcf6c52-6f93-4d0d-82b9-cd74239146b0", "template": "/api/v0.1/vcl_template/1/", "cluster": "/api/v0.1/logical_cluster/1/", "enabled": "True" }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/varnish_server/?username=admin&api_key=vagrant_api_key"
 

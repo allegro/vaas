@@ -32,7 +32,8 @@ class VarnishServerModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(VarnishServerModelForm, self).__init__(*args, **kwargs)
         for related in ('dc', 'template', 'cluster'):
-            self.fields[related].widget = self.fields[related].widget.widget
+            if hasattr(self.fields[related].widget, 'widget'):
+                self.fields[related].widget = self.fields[related].widget.widget
 
     class Meta:
         model = VarnishServer
@@ -52,7 +53,8 @@ class VarnishServerModelForm(ModelForm):
 class VclVariableModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(VclVariableModelForm, self).__init__(*args, **kwargs)
-        self.fields['cluster'].widget = self.fields['cluster'].widget.widget
+        if hasattr(self.fields['cluster'].widget, 'widget'):
+            self.fields['cluster'].widget = self.fields['cluster'].widget.widget
 
     class Meta:
         model = VclVariable
