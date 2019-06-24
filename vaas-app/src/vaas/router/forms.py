@@ -17,8 +17,9 @@ class RouteModelForm(ModelForm):
         self.fields['priority'].initial = 50
         self.fields['cluster'].queryset = LogicalCluster.objects.order_by('name')
         self.fields['director'].queryset = Director.objects.order_by('name')
-        self.fields['cluster'].widget = self.fields['cluster'].widget.widget
-        self.fields['director'].widget = self.fields['director'].widget.widget
+        for related in ('cluster', 'director'):
+            if hasattr(self.fields[related].widget, 'widget'):
+                self.fields[related].widget = self.fields[related].widget.widget
 
     class Meta:
         model = Route
