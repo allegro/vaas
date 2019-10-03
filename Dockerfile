@@ -1,30 +1,30 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 RUN apt-get update &&\
-    apt-get install -y python python-virtualenv git python-dev python-pip python-setupdocs sqlite3 nginx libsasl2-dev libldap2-dev libssl-dev redis-server &&\
+    apt-get install -y git python3.5 libxml2-dev libxslt1-dev python3.5-dev python3-venv sqlite3 libssl-dev libtool libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev nginx redis-server &&\
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/* &&\
     rm /etc/nginx/sites-enabled/default
 
-RUN useradd -d /home/ubuntu ubuntu &&\
-    mkdir /home/ubuntu
+RUN useradd -d /home/vagrant vagrant &&\
+    mkdir /home/vagrant
 
 ADD ./docker/vaas.conf /etc/nginx/sites-enabled/vaas.conf
 ADD ./docker/start.sh /var/tmp/start.sh
 ADD ./docker/backend_statuses.sh /var/tmp/backend_statuses.sh
-ADD ./vaas-app/ /home/ubuntu/vaas-app/
+ADD ./vaas-app/ /home/vagrant/vaas-app/
 
-RUN chown -R ubuntu:ubuntu /home/ubuntu &&\
+RUN chown -R vagrant:vagrant /home/vagrant &&\
     chmod 755 /var/tmp/*.sh
 
-USER ubuntu
+USER vagrant
 
-RUN cd /home/ubuntu &&\
-    virtualenv prod-env &&\
+RUN cd /home/vagrant &&\
+    python3.5 -m venv prod-env &&\
     . prod-env/bin/activate &&\
-    cd /home/ubuntu/vaas-app &&\
+    cd /home/vagrant/vaas-app &&\
     touch src/vaas/settings/__init__.py &&\
     pip install --upgrade pip &&\
-    pip install uwsgi &&\
+    pip install uwsgi importlib-metadata &&\
     python setup.py install &&\
     cd &&\
     rm -r vaas-app
