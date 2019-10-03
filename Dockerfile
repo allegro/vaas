@@ -30,5 +30,5 @@ RUN cd /home/vagrant &&\
     rm -r vaas-app
 
 USER root
-# ENTRYPOINT ["/var/tmp/start.sh"]
-# CMD ["admin", "admin@domain.example.com", "admin", "admin"]
+ENTRYPOINT ["/var/tmp/start.sh"]
+CMD ["admin", "admin@domain.example.com", "admin", "admin"]
