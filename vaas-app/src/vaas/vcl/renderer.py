@@ -126,6 +126,10 @@ class VclTagBuilder(object):
             'routes': self.prepare_route(self.varnish, vcl_directors)
         }
 
+        logging.getLogger('vaas').debug(
+            "XXX {}".format(self.placeholders['routes'])
+        )
+
     def prepare_active_directors(self, directors, vcl_directors):
         result = []
         for director in directors:
@@ -134,12 +138,15 @@ class VclTagBuilder(object):
         return result
 
     def prepare_route(self, varnish, vcl_directors):
+        logging.getLogger('vaas').debug("WWW {}".format(vcl_directors))
         routes = []
         for route in self.input.routes:
             if route.director.enabled is True:
                 for cluster in route.clusters.all():
                     if varnish.cluster.id == cluster.id:
+                        logging.getLogger('vaas').debug("YYY")
                         for vcl_director in vcl_directors:
+                            logging.getLogger('vaas').debug("SSS {}: {}".format(vcl_director.director.id, route.director.id))
                             if vcl_director.director.id == route.director.id:
                                 routes.append(route)
                                 break

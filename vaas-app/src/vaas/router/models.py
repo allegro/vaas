@@ -13,7 +13,7 @@ class Route(models.Model):
     )
     condition = models.CharField(max_length=512)
     priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
-    # cluster = models.ForeignKey(LogicalCluster, on_delete=models.PROTECT)
+    #cluster = models.ForeignKey(LogicalCluster, on_delete=models.PROTECT)
     clusters = models.ManyToManyField(LogicalCluster)
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
