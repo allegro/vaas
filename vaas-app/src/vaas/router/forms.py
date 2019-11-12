@@ -15,9 +15,9 @@ class RouteModelForm(ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 50
-        self.fields['cluster'].queryset = LogicalCluster.objects.order_by('name')
+        self.fields['clusters'].queryset = LogicalCluster.objects.order_by('name')
         self.fields['director'].queryset = Director.objects.order_by('name')
-        for related in ('cluster', 'director'):
+        for related in ('clusters', 'director'):
             if hasattr(self.fields[related].widget, 'widget'):
                 self.fields[related].widget = self.fields[related].widget.widget
 
@@ -32,7 +32,7 @@ class RouteModelForm(ModelForm):
             'priority': PrioritySelect(
                 choices=([(i, i)for i in range(1, 100)]),
             ),
-            'cluster': SearchableSelect(),
+            'clusters': SearchableSelect(),
             'director': SearchableSelect(),
         }
 
