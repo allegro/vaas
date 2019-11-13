@@ -1,19 +1,26 @@
 {% spaceless %}{% include 'django/forms/widgets/select.html' %}{% endspaceless %}
 <script>
+
     function reloadPriorities() {
         var cluster_id = $("[name=cluster]").val() || 0,
             director_id = $("[name=director]").val() || 0,
             current = $("[name=priority]").val(),
             route_id=0;
 
+
         if (window.location.href.includes('change')) {
 
             route_id = window.location.href.split('/')[6];
         }
 
+
+        // url: "/router/route/priorities/"+director_id+"/"+cluster_id+"/"+route_id+"/"+current+"/",
+        //$.ajaxSettings.traditional = true;
+        //url: "/router/route/priorities/"+director_id+"/"+route_id+"/"+current+"/?clusters="+cluster_id,
         $.ajax(
                 {
-                    url: "/router/route/priorities/"+director_id+"/"+cluster_id+"/"+route_id+"/"+current+"/",
+                    //url: "/router/route/priorities/"+director_id+"/"+route_id+"/"+current+"/?clusters="+cluster_id,
+                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getClusters()}`,
                     success: function(result){
                         $('[name=priority]').find('option').remove();
                         result['values'].forEach(
@@ -31,6 +38,13 @@
     $ (document).ready(function(){
         $('[name=cluster]').change(reloadPriorities);
         $('[name=director]').change(reloadPriorities);
+        $('[name=clusters]').change(reloadPriorities);
+        getClusters = function getClusters() {
+        clusters = document.getElementById('id_clusters_to')
+        for (index = 0; index < clusters.length; ++index) {
+            console.log(clusters[index].value);
+            }
+        }
         reloadPriorities();
     });
 </script>
