@@ -1,133 +1,594 @@
-# To generate a new data.yaml file run:
-# ./manage.py dumpdata cluster.LogicalCluster manager.Probe cluster.Dc cluster.VclTemplate \
-# manager.Director manager.Backend cluster.VarnishServer auth.user --format yaml --natural
-- fields: {name: cluster1_siteA_test}
-  model: cluster.logicalcluster
+- model: contenttypes.contenttype
   pk: 1
-- fields: {name: cluster2_siteB_test}
-  model: cluster.logicalcluster
+  fields: {app_label: admin, model: logentry}
+- model: contenttypes.contenttype
   pk: 2
-- fields: {name: cluster3_siteA_dev}
-  model: cluster.logicalcluster
+  fields: {app_label: auth, model: user}
+- model: contenttypes.contenttype
   pk: 3
-- fields: {name: cluster4_siteC_prod}
-  model: cluster.logicalcluster
+  fields: {app_label: auth, model: group}
+- model: contenttypes.contenttype
   pk: 4
-- fields: {name: First datacenter, symbol: dc1}
-  model: cluster.dc
+  fields: {app_label: auth, model: permission}
+- model: contenttypes.contenttype
+  pk: 5
+  fields: {app_label: contenttypes, model: contenttype}
+- model: contenttypes.contenttype
+  pk: 6
+  fields: {app_label: sessions, model: session}
+- model: contenttypes.contenttype
+  pk: 7
+  fields: {app_label: tastypie, model: apikey}
+- model: contenttypes.contenttype
+  pk: 8
+  fields: {app_label: tastypie, model: apiaccess}
+- model: contenttypes.contenttype
+  pk: 9
+  fields: {app_label: manager, model: probe}
+- model: contenttypes.contenttype
+  pk: 10
+  fields: {app_label: manager, model: timeprofile}
+- model: contenttypes.contenttype
+  pk: 11
+  fields: {app_label: manager, model: director}
+- model: contenttypes.contenttype
+  pk: 12
+  fields: {app_label: manager, model: backend}
+- model: contenttypes.contenttype
+  pk: 13
+  fields: {app_label: cluster, model: logicalcluster}
+- model: contenttypes.contenttype
+  pk: 14
+  fields: {app_label: cluster, model: dc}
+- model: contenttypes.contenttype
+  pk: 15
+  fields: {app_label: cluster, model: historicalvcltemplate}
+- model: contenttypes.contenttype
+  pk: 16
+  fields: {app_label: cluster, model: vcltemplate}
+- model: contenttypes.contenttype
+  pk: 17
+  fields: {app_label: cluster, model: varnishserver}
+- model: contenttypes.contenttype
+  pk: 18
+  fields: {app_label: cluster, model: historicalvcltemplateblock}
+- model: contenttypes.contenttype
+  pk: 19
+  fields: {app_label: cluster, model: vcltemplateblock}
+- model: contenttypes.contenttype
+  pk: 20
+  fields: {app_label: cluster, model: vclvariable}
+- model: contenttypes.contenttype
+  pk: 21
+  fields: {app_label: router, model: route}
+- model: contenttypes.contenttype
+  pk: 22
+  fields: {app_label: monitor, model: backendstatus}
+- model: contenttypes.contenttype
+  pk: 23
+  fields: {app_label: taggit, model: taggeditem}
+- model: contenttypes.contenttype
+  pk: 24
+  fields: {app_label: taggit, model: tag}
+- model: contenttypes.contenttype
+  pk: 25
+  fields: {app_label: social_django, model: association}
+- model: contenttypes.contenttype
+  pk: 26
+  fields: {app_label: social_django, model: usersocialauth}
+- model: contenttypes.contenttype
+  pk: 27
+  fields: {app_label: social_django, model: nonce}
+- model: contenttypes.contenttype
+  pk: 28
+  fields: {app_label: social_django, model: partial}
+- model: contenttypes.contenttype
+  pk: 29
+  fields: {app_label: social_django, model: code}
+- model: sessions.session
+  pk: kvk76zllmtvj41qk51oq53fmok9q5f9b
+  fields: {session_data: Mzc5OTFhYTEyNDU5N2ZjM2QyMGVhMWEyMjkyYjlhYjNkNDljZDZhZTp7Il9hdXRoX3VzZXJfaGFzaCI6ImFiODI5ZTVmNmY4MjFlYWJmMWQ5NDFlZmMwNTQ0NDBmZWNiZDdmYzMiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=,
+    expire_date: !!timestamp '2019-11-26 12:05:33.445503+00:00'}
+- model: manager.probe
   pk: 1
-- fields: {name: Second datacenter, symbol: dc2}
-  model: cluster.dc
-  pk: 2
-- fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
-  model: cluster.vcltemplate
-  pk: 2
-- fields: {cluster: 2, cluster_weight: 1, dc: 1, status: active, hostname: varnish-4,
-    ip: 192.168.199.3, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 2}
-  model: cluster.varnishserver
-  pk: 2
-- fields: {cluster: 2, cluster_weight: 1, dc: 1, status: active, hostname: varnish-4.1,
-    ip: 192.168.199.4, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 2}
-  model: cluster.varnishserver
-  pk: 3
-- fields: {cluster: 1, cluster_weight: 1, dc: 1, status: active, hostname: varnish-6,
-    ip: 192.168.199.6, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 2}
-  model: cluster.varnishserver
-  pk: 4
-- fields: {expected_response: 200, interval: 3, name: default_probe, threshold: 3,
-    timeout: '1', url: /ts.1, window: 5}
-  model: manager.probe
+  fields: {name: default_probe, url: /ts.1, expected_response: 200, interval: 3, timeout: '1.0',
+    window: 5, threshold: 3, start_as_healthy: false}
+- model: manager.timeprofile
   pk: 1
-- fields:
-    name: 'generic profile'
-    description: ''
-    between_bytes_timeout: 1
-    connect_timeout: 0.3
-    first_byte_timeout: 5
-    max_connections: 5
-  model: manager.timeprofile
+  fields: {name: generic profile, description: '', max_connections: 5, connect_timeout: '0.30',
+    first_byte_timeout: '5.00', between_bytes_timeout: '1.00'}
+- model: manager.director
   pk: 1
-- fields:
-    active_active: true
-    cluster: [1]
-    enabled: true
-    hashing_policy: req.url
-    mode: random
+  fields:
     name: first_service
     service: Cart
-    probe: 1
-    remove_path: false
-    route_expression: /first
-    router: req.url
-    time_profile: 1
-  model: manager.director
-  pk: 1
-- fields:
-    active_active: true
-    cluster: [2]
-    enabled: true
+    mode: random
+    protocol: both
     hashing_policy: req.url
-    mode: round-robin
+    router: req.url
+    route_expression: /first
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1]
+- model: manager.director
+  pk: 2
+  fields:
     name: second_service
     service: Order
-    probe: 1
-    remove_path: false
-    route_expression: second.*
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
     router: req.http.host
+    route_expression: second.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
     time_profile: 1
-  model: manager.director
-  pk: 2
-- fields: {address: 192.168.199.10, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 1, inherit_time_profile: True}
-  model: manager.backend
+    cluster: [2]
+- model: manager.backend
   pk: 1
-- fields: {address: 192.168.199.11, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 1, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.10, port: 80, weight: 1, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 1, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 2
-- fields: {address: 192.168.199.12, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 2, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.11, port: 80, weight: 1, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 1, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 3
-- fields: {address: 192.168.199.13, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 3, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.12, port: 80, weight: 2, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 1, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 4
-- fields: {address: 192.168.199.14, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 4, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.13, port: 80, weight: 3, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 2, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 5
-- fields: {address: 192.168.199.15, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 5, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.14, port: 80, weight: 4, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 2, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 6
-- fields:
-    email: admin@vaas.allegrogroup.com
-    first_name: ''
-    groups: []
-    is_active: true
-    is_staff: true
+  fields: {address: 192.168.199.15, port: 80, weight: 5, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 2, enabled: true, inherit_time_profile: true}
+- model: cluster.logicalcluster
+  pk: 1
+  fields: {name: cluster1_siteA_test, reload_timestamp: !!timestamp '2019-11-12 12:04:47.745124+00:00',
+    error_timestamp: !!timestamp '2019-11-12 07:36:16.846817+00:00', last_error_info: null}
+- model: cluster.logicalcluster
+  pk: 2
+  fields: {name: cluster2_siteB_test, reload_timestamp: !!timestamp '2019-11-12 12:04:47.745124+00:00',
+    error_timestamp: !!timestamp '2019-11-12 07:36:16.849517+00:00', last_error_info: null}
+- model: cluster.logicalcluster
+  pk: 3
+  fields: {name: cluster3_siteA_dev, reload_timestamp: !!timestamp '2019-11-12 07:36:16.850222+00:00',
+    error_timestamp: !!timestamp '2019-11-12 07:36:16.850228+00:00', last_error_info: null}
+- model: cluster.logicalcluster
+  pk: 4
+  fields: {name: cluster4_siteC_prod, reload_timestamp: !!timestamp '2019-11-12 12:04:47.745124+00:00',
+    error_timestamp: !!timestamp '2019-11-12 07:36:16.850803+00:00', last_error_info: null}
+- model: cluster.dc
+  pk: 1
+  fields: {name: First datacenter, symbol: dc1}
+- model: cluster.dc
+  pk: 2
+  fields: {name: Second datacenter, symbol: dc2}
+- model: cluster.vcltemplate
+  pk: 2
+  fields: {name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n    <FLEXIBLE_ROUTER/>\r\
+      \n}", version: '4.0', comment: wef}
+- model: cluster.varnishserver
+  pk: 2
+  fields: {ip: 192.168.199.3, hostname: varnish-4, cluster_weight: 1, http_port: 80,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 2, is_canary: false}
+- model: cluster.varnishserver
+  pk: 3
+  fields: {ip: 192.168.199.4, hostname: varnish-4.1, cluster_weight: 1, http_port: 80,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 2, is_canary: false}
+- model: cluster.varnishserver
+  pk: 4
+  fields: {ip: 192.168.199.6, hostname: varnish-6, cluster_weight: 1, http_port: 80,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: router.route
+  pk: 2
+  fields:
+    condition: req.url ~ "/wef"
+    priority: 47
+    director: 2
+    action: pass
+    clusters: [1]
+- model: router.route
+  pk: 3
+  fields:
+    condition: req.url ~ "/wefwef"
+    priority: 47
+    director: 2
+    action: pass
+    clusters: [1]
+- model: taggit.tag
+  pk: 1
+  fields: {name: 9255a, slug: 9255a}
+- model: taggit.tag
+  pk: 2
+  fields: {name: 7219e, slug: 7219e}
+- model: taggit.tag
+  pk: 3
+  fields: {name: 54b38, slug: 54b38}
+- model: taggit.tag
+  pk: 4
+  fields: {name: 3fd12, slug: 3fd12}
+- model: taggit.tag
+  pk: 5
+  fields: {name: ef6a4, slug: ef6a4}
+- model: taggit.tag
+  pk: 6
+  fields: {name: 533f8, slug: 533f8}
+- model: taggit.taggeditem
+  pk: 22
+  fields: {tag: 4, content_type: 13, object_id: 1}
+- model: taggit.taggeditem
+  pk: 23
+  fields: {tag: 6, content_type: 13, object_id: 2}
+- model: auth.permission
+  pk: 1
+  fields: {name: Can add log entry, content_type: 1, codename: add_logentry}
+- model: auth.permission
+  pk: 2
+  fields: {name: Can change log entry, content_type: 1, codename: change_logentry}
+- model: auth.permission
+  pk: 3
+  fields: {name: Can delete log entry, content_type: 1, codename: delete_logentry}
+- model: auth.permission
+  pk: 4
+  fields: {name: Can add user, content_type: 2, codename: add_user}
+- model: auth.permission
+  pk: 5
+  fields: {name: Can change user, content_type: 2, codename: change_user}
+- model: auth.permission
+  pk: 6
+  fields: {name: Can delete user, content_type: 2, codename: delete_user}
+- model: auth.permission
+  pk: 7
+  fields: {name: Can add group, content_type: 3, codename: add_group}
+- model: auth.permission
+  pk: 8
+  fields: {name: Can change group, content_type: 3, codename: change_group}
+- model: auth.permission
+  pk: 9
+  fields: {name: Can delete group, content_type: 3, codename: delete_group}
+- model: auth.permission
+  pk: 10
+  fields: {name: Can add permission, content_type: 4, codename: add_permission}
+- model: auth.permission
+  pk: 11
+  fields: {name: Can change permission, content_type: 4, codename: change_permission}
+- model: auth.permission
+  pk: 12
+  fields: {name: Can delete permission, content_type: 4, codename: delete_permission}
+- model: auth.permission
+  pk: 13
+  fields: {name: Can add content type, content_type: 5, codename: add_contenttype}
+- model: auth.permission
+  pk: 14
+  fields: {name: Can change content type, content_type: 5, codename: change_contenttype}
+- model: auth.permission
+  pk: 15
+  fields: {name: Can delete content type, content_type: 5, codename: delete_contenttype}
+- model: auth.permission
+  pk: 16
+  fields: {name: Can add session, content_type: 6, codename: add_session}
+- model: auth.permission
+  pk: 17
+  fields: {name: Can change session, content_type: 6, codename: change_session}
+- model: auth.permission
+  pk: 18
+  fields: {name: Can delete session, content_type: 6, codename: delete_session}
+- model: auth.permission
+  pk: 19
+  fields: {name: Can add api key, content_type: 7, codename: add_apikey}
+- model: auth.permission
+  pk: 20
+  fields: {name: Can change api key, content_type: 7, codename: change_apikey}
+- model: auth.permission
+  pk: 21
+  fields: {name: Can delete api key, content_type: 7, codename: delete_apikey}
+- model: auth.permission
+  pk: 22
+  fields: {name: Can add api access, content_type: 8, codename: add_apiaccess}
+- model: auth.permission
+  pk: 23
+  fields: {name: Can change api access, content_type: 8, codename: change_apiaccess}
+- model: auth.permission
+  pk: 24
+  fields: {name: Can delete api access, content_type: 8, codename: delete_apiaccess}
+- model: auth.permission
+  pk: 25
+  fields: {name: Can add probe, content_type: 9, codename: add_probe}
+- model: auth.permission
+  pk: 26
+  fields: {name: Can change probe, content_type: 9, codename: change_probe}
+- model: auth.permission
+  pk: 27
+  fields: {name: Can delete probe, content_type: 9, codename: delete_probe}
+- model: auth.permission
+  pk: 28
+  fields: {name: Can add time profile, content_type: 10, codename: add_timeprofile}
+- model: auth.permission
+  pk: 29
+  fields: {name: Can change time profile, content_type: 10, codename: change_timeprofile}
+- model: auth.permission
+  pk: 30
+  fields: {name: Can delete time profile, content_type: 10, codename: delete_timeprofile}
+- model: auth.permission
+  pk: 31
+  fields: {name: Can add director, content_type: 11, codename: add_director}
+- model: auth.permission
+  pk: 32
+  fields: {name: Can change director, content_type: 11, codename: change_director}
+- model: auth.permission
+  pk: 33
+  fields: {name: Can delete director, content_type: 11, codename: delete_director}
+- model: auth.permission
+  pk: 34
+  fields: {name: Can add backend, content_type: 12, codename: add_backend}
+- model: auth.permission
+  pk: 35
+  fields: {name: Can change backend, content_type: 12, codename: change_backend}
+- model: auth.permission
+  pk: 36
+  fields: {name: Can delete backend, content_type: 12, codename: delete_backend}
+- model: auth.permission
+  pk: 37
+  fields: {name: Can add logical cluster, content_type: 13, codename: add_logicalcluster}
+- model: auth.permission
+  pk: 38
+  fields: {name: Can change logical cluster, content_type: 13, codename: change_logicalcluster}
+- model: auth.permission
+  pk: 39
+  fields: {name: Can delete logical cluster, content_type: 13, codename: delete_logicalcluster}
+- model: auth.permission
+  pk: 40
+  fields: {name: Can add dc, content_type: 14, codename: add_dc}
+- model: auth.permission
+  pk: 41
+  fields: {name: Can change dc, content_type: 14, codename: change_dc}
+- model: auth.permission
+  pk: 42
+  fields: {name: Can delete dc, content_type: 14, codename: delete_dc}
+- model: auth.permission
+  pk: 43
+  fields: {name: Can add historical vcl template, content_type: 15, codename: add_historicalvcltemplate}
+- model: auth.permission
+  pk: 44
+  fields: {name: Can change historical vcl template, content_type: 15, codename: change_historicalvcltemplate}
+- model: auth.permission
+  pk: 45
+  fields: {name: Can delete historical vcl template, content_type: 15, codename: delete_historicalvcltemplate}
+- model: auth.permission
+  pk: 46
+  fields: {name: Can add vcl template, content_type: 16, codename: add_vcltemplate}
+- model: auth.permission
+  pk: 47
+  fields: {name: Can change vcl template, content_type: 16, codename: change_vcltemplate}
+- model: auth.permission
+  pk: 48
+  fields: {name: Can delete vcl template, content_type: 16, codename: delete_vcltemplate}
+- model: auth.permission
+  pk: 49
+  fields: {name: Can add varnish server, content_type: 17, codename: add_varnishserver}
+- model: auth.permission
+  pk: 50
+  fields: {name: Can change varnish server, content_type: 17, codename: change_varnishserver}
+- model: auth.permission
+  pk: 51
+  fields: {name: Can delete varnish server, content_type: 17, codename: delete_varnishserver}
+- model: auth.permission
+  pk: 52
+  fields: {name: Can add historical vcl template block, content_type: 18, codename: add_historicalvcltemplateblock}
+- model: auth.permission
+  pk: 53
+  fields: {name: Can change historical vcl template block, content_type: 18, codename: change_historicalvcltemplateblock}
+- model: auth.permission
+  pk: 54
+  fields: {name: Can delete historical vcl template block, content_type: 18, codename: delete_historicalvcltemplateblock}
+- model: auth.permission
+  pk: 55
+  fields: {name: Can add vcl template block, content_type: 19, codename: add_vcltemplateblock}
+- model: auth.permission
+  pk: 56
+  fields: {name: Can change vcl template block, content_type: 19, codename: change_vcltemplateblock}
+- model: auth.permission
+  pk: 57
+  fields: {name: Can delete vcl template block, content_type: 19, codename: delete_vcltemplateblock}
+- model: auth.permission
+  pk: 58
+  fields: {name: Can add vcl variable, content_type: 20, codename: add_vclvariable}
+- model: auth.permission
+  pk: 59
+  fields: {name: Can change vcl variable, content_type: 20, codename: change_vclvariable}
+- model: auth.permission
+  pk: 60
+  fields: {name: Can delete vcl variable, content_type: 20, codename: delete_vclvariable}
+- model: auth.permission
+  pk: 61
+  fields: {name: Can add route, content_type: 21, codename: add_route}
+- model: auth.permission
+  pk: 62
+  fields: {name: Can change route, content_type: 21, codename: change_route}
+- model: auth.permission
+  pk: 63
+  fields: {name: Can delete route, content_type: 21, codename: delete_route}
+- model: auth.permission
+  pk: 64
+  fields: {name: Can add backend status, content_type: 22, codename: add_backendstatus}
+- model: auth.permission
+  pk: 65
+  fields: {name: Can change backend status, content_type: 22, codename: change_backendstatus}
+- model: auth.permission
+  pk: 66
+  fields: {name: Can delete backend status, content_type: 22, codename: delete_backendstatus}
+- model: auth.permission
+  pk: 67
+  fields: {name: Can add Tagged Item, content_type: 23, codename: add_taggeditem}
+- model: auth.permission
+  pk: 68
+  fields: {name: Can change Tagged Item, content_type: 23, codename: change_taggeditem}
+- model: auth.permission
+  pk: 69
+  fields: {name: Can delete Tagged Item, content_type: 23, codename: delete_taggeditem}
+- model: auth.permission
+  pk: 70
+  fields: {name: Can add Tag, content_type: 24, codename: add_tag}
+- model: auth.permission
+  pk: 71
+  fields: {name: Can change Tag, content_type: 24, codename: change_tag}
+- model: auth.permission
+  pk: 72
+  fields: {name: Can delete Tag, content_type: 24, codename: delete_tag}
+- model: auth.permission
+  pk: 73
+  fields: {name: Can add association, content_type: 25, codename: add_association}
+- model: auth.permission
+  pk: 74
+  fields: {name: Can change association, content_type: 25, codename: change_association}
+- model: auth.permission
+  pk: 75
+  fields: {name: Can delete association, content_type: 25, codename: delete_association}
+- model: auth.permission
+  pk: 76
+  fields: {name: Can add user social auth, content_type: 26, codename: add_usersocialauth}
+- model: auth.permission
+  pk: 77
+  fields: {name: Can change user social auth, content_type: 26, codename: change_usersocialauth}
+- model: auth.permission
+  pk: 78
+  fields: {name: Can delete user social auth, content_type: 26, codename: delete_usersocialauth}
+- model: auth.permission
+  pk: 79
+  fields: {name: Can add nonce, content_type: 27, codename: add_nonce}
+- model: auth.permission
+  pk: 80
+  fields: {name: Can change nonce, content_type: 27, codename: change_nonce}
+- model: auth.permission
+  pk: 81
+  fields: {name: Can delete nonce, content_type: 27, codename: delete_nonce}
+- model: auth.permission
+  pk: 82
+  fields: {name: Can add partial, content_type: 28, codename: add_partial}
+- model: auth.permission
+  pk: 83
+  fields: {name: Can change partial, content_type: 28, codename: change_partial}
+- model: auth.permission
+  pk: 84
+  fields: {name: Can delete partial, content_type: 28, codename: delete_partial}
+- model: auth.permission
+  pk: 85
+  fields: {name: Can add code, content_type: 29, codename: add_code}
+- model: auth.permission
+  pk: 86
+  fields: {name: Can change code, content_type: 29, codename: change_code}
+- model: auth.permission
+  pk: 87
+  fields: {name: Can delete code, content_type: 29, codename: delete_code}
+- model: auth.user
+  pk: 1
+  fields:
+    password: pbkdf2_sha256$36000$MHz5hbLNGClg$aG9kSuNj/3uXgjbECpnfkadDWQJ2I6jKnMHMauM0wcM=
+    last_login: 2019-11-12 07:37:15.607066+00:00
     is_superuser: true
-    last_name: ''
-    # plain text password: admin
-    password: pbkdf2_sha256$12000$yxB95qHh91x5$oYW0Jrsb8jLGVo0tKypOPRap/wr+n+3TjkOP6cT9G4o=
-    user_permissions: []
     username: admin
-  model: auth.user
+    first_name: ''
+    last_name: ''
+    email: admin@vaas.allegrogroup.com
+    is_staff: true
+    is_active: true
+    date_joined: 2019-11-12 07:36:17.383617+00:00
+    groups: []
+    user_permissions: []
+- model: tastypie.apikey
   pk: 1
-- fields: {created: '2014-12-12 12:00:00+00:00', key: vagrant_api_key, user: 1}
-  model: tastypie.apikey
+  fields: {user: 1, key: vagrant_api_key, created: !!timestamp '2014-12-12 12:00:00+00:00'}
+- model: cluster.historicalvcltemplate
   pk: 1
-#- fields: {condition: 'req.url ~ "^\/flexible"', director: 1, cluster: 1, priority: 50, action: 'pass'}  
-- fields: {condition: 'req.url ~ "^\/flexible"', director: 1, clusters: 1, priority: 50, action: 'pass'}
-  model: router.route
+  fields: {id: 2, name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n\
+      \    <FLEXIBLE_ROUTER/>\r\n}", version: '4.0', comment: wef, history_date: !!timestamp '2019-11-12
+      07:59:14.788965+00:00', history_user: 1, history_type: '~'}
+- model: admin.logentry
   pk: 1
+  fields: {action_time: !!timestamp '2019-11-12 07:54:58.448945+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 50) if (req.url ~ req.url ~ "^\/flexible")
+      then pass for first_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["clusters"]}}]'}
+- model: admin.logentry
+  pk: 2
+  fields: {action_time: !!timestamp '2019-11-12 07:55:16.652114+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 50) if (req.url ~ req.url ~ "^\/flexible")
+      then pass for first_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["clusters"]}}]'}
+- model: admin.logentry
+  pk: 3
+  fields: {action_time: !!timestamp '2019-11-12 07:57:49.657308+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 50) if (req.url ~ req.url ~ "^\/flexible")
+      then pass for first_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["clusters"]}}]'}
+- model: admin.logentry
+  pk: 4
+  fields: {action_time: !!timestamp '2019-11-12 07:57:56.263503+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "^\/flexible")
+      then pass for first_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["priority"]}}]'}
+- model: admin.logentry
+  pk: 5
+  fields: {action_time: !!timestamp '2019-11-12 07:59:14.805627+00:00', user: 1, content_type: 16,
+    object_id: '2', object_repr: vagrant_template_4, action_flag: 2, change_message: '[{"changed":
+      {"fields": ["content", "comment"]}}]'}
+- model: admin.logentry
+  pk: 6
+  fields: {action_time: !!timestamp '2019-11-12 08:02:19.625304+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "^\/flexible")
+      then pass for first_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["clusters"]}}]'}
+- model: admin.logentry
+  pk: 7
+  fields: {action_time: !!timestamp '2019-11-12 08:41:50.333038+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "^\/flexible")
+      then pass for second_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["director"]}}]'}
+- model: admin.logentry
+  pk: 8
+  fields: {action_time: !!timestamp '2019-11-12 08:44:26.872440+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "^\/flexibleee")
+      then pass for second_service', action_flag: 2, change_message: '[{"changed":
+      {"fields": ["condition"]}}]'}
+- model: admin.logentry
+  pk: 9
+  fields: {action_time: !!timestamp '2019-11-12 12:02:28.431524+00:00', user: 1, content_type: 21,
+    object_id: '2', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "/wef") then
+      pass for second_service', action_flag: 1, change_message: '[{"added": {}}]'}
+- model: admin.logentry
+  pk: 10
+  fields: {action_time: !!timestamp '2019-11-12 12:04:47.702354+00:00', user: 1, content_type: 21,
+    object_id: '2', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "/wef") then
+      pass for second_service', action_flag: 2, change_message: '[{"changed": {"fields":
+      ["clusters"]}}]'}
+- model: admin.logentry
+  pk: 11
+  fields: {action_time: !!timestamp '2019-11-12 12:05:10.578116+00:00', user: 1, content_type: 21,
+    object_id: '1', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "^\/flexibleee")
+      then pass for second_service', action_flag: 3, change_message: ''}
+- model: admin.logentry
+  pk: 12
+  fields: {action_time: !!timestamp '2019-11-12 12:05:33.367926+00:00', user: 1, content_type: 21,
+    object_id: '3', object_repr: '(Priority: 47) if (req.url ~ req.url ~ "/wefwef")
+      then pass for second_service', action_flag: 1, change_message: '[{"added": {}}]'}
