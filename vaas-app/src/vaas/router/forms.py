@@ -36,11 +36,11 @@ class RouteModelForm(ModelForm):
                 variables=(('req.url', 'URL'), ('req.http.Host', 'Domain'),),
                 operators=(('==', 'exact'), ('!=', 'is different'), ('~', 'match'))
             ),
-            # 'priority': PrioritySelect(
-            #     choices=([(i, i)for i in range(1, 100)]),
-            # ),
+            'priority': PrioritySelect(
+                choices=([(i, i)for i in range(1, 100)]),
+            ),
             # 'clusters': SearchableSelect(),
-            # 'director': SearchableSelect(),
+            'director': SearchableSelect(),
         }
 
     def clean_condition(self):

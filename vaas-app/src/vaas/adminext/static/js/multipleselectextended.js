@@ -1,14 +1,18 @@
-(function($) {
-window.addEventListener('load', (event) => {
+(function ($) {
+    window.addEventListener('load', (event) => {
 
-    $('#szymon_to').change(function( ) {
-        $('#szymon_to option').each(function() {
-            console.log($(this).val())
-         })
+        function displayDate() {
+            console.log(SelectBox.cache.szymon_to)
+        }
+
+        document.getElementById("szymon_add_link").addEventListener("click", displayDate);
+        document.getElementById("szymon_remove_link").addEventListener("click", displayDate);
+        document.getElementById("szymon_add_all_link").addEventListener("click", displayDate);
+        document.getElementById("szymon_remove_all_link").addEventListener("click", displayDate);
+        document.getElementById("szymon_from").addEventListener("dblclick", displayDate);
+        document.getElementById("szymon_to").addEventListener("dblclick", displayDate);
     });
 
-    // var box = document.getElementById('szymon_to');
-    // console.log(box);
-  });
+
 })(django.jQuery);
 
