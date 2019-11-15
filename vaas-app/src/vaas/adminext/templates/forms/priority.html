@@ -13,14 +13,11 @@
             route_id = window.location.href.split('/')[6];
         }
 
-
-        // url: "/router/route/priorities/"+director_id+"/"+cluster_id+"/"+route_id+"/"+current+"/",
-        //$.ajaxSettings.traditional = true;
-        //url: "/router/route/priorities/"+director_id+"/"+route_id+"/"+current+"/?clusters="+cluster_id,
         $.ajax(
                 {
                     //url: "/router/route/priorities/"+director_id+"/"+route_id+"/"+current+"/?clusters="+cluster_id,
-                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getClusters()}`,
+                    //url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getClusters()}`,
+                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?$`,
                     success: function(result){
                         $('[name=priority]').find('option').remove();
                         result['values'].forEach(
@@ -39,12 +36,6 @@
         $('[name=cluster]').change(reloadPriorities);
         $('[name=director]').change(reloadPriorities);
         $('[name=clusters]').change(reloadPriorities);
-        getClusters = function getClusters() {
-        clusters = document.getElementById('id_clusters_to')
-        for (index = 0; index < clusters.length; ++index) {
-            console.log(clusters[index].value);
-            }
-        }
         reloadPriorities();
     });
 </script>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 
 class PrioritySelect(forms.Select):
@@ -23,6 +24,12 @@ class SearchableSelect(forms.Select):
         }
         js = ('bootstrap-select/js/bootstrap-select.min.js',)
 
+class MultipleSelectExtended(FilteredSelectMultiple):
+    def __init__(self, verbose_name, is_stacked, attrs):
+        super().__init__(verbose_name, is_stacked, attrs)
+    class Media:
+        js = ('js/multipleselectextended.js',)
+        # self.template_name = 'forms/multipleselectextended.html'
 
 class ConditionWidget(forms.MultiWidget):
     def __init__(self, variables, operators, *args, **kwargs):

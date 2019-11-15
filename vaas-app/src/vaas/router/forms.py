@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm
+from django.forms import ModelForm, ModelMultipleChoiceField
 
-from vaas.adminext.widgets import ConditionWidget, PrioritySelect, SearchableSelect
+from vaas.adminext.widgets import ConditionWidget, PrioritySelect, SearchableSelect, MultipleSelectExtended
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
 from vaas.router.models import Route
@@ -15,11 +15,18 @@ class RouteModelForm(ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 50
-        self.fields['clusters'].queryset = LogicalCluster.objects.order_by('name')
+        # self.fields['clusters'].queryset = LogicalCluster.objects.order_by('name')
         self.fields['director'].queryset = Director.objects.order_by('name')
-        for related in ('clusters', 'director'):
-            if hasattr(self.fields[related].widget, 'widget'):
-                self.fields[related].widget = self.fields[related].widget.widget
+        self.fields['clusters'] = ModelMultipleChoiceField(
+            queryset=LogicalCluster.objects.order_by('name'), 
+            widget=MultipleSelectExtended(
+            is_stacked=False, 
+            verbose_name='clusters', 
+            attrs={'id': 'szymon','class':'form-control'}),
+            label='Clusters',)
+        # for related in ('clusters', 'director'):
+        #     if hasattr(self.fields[related].widget, 'widget'):
+        #         self.fields[related].widget = self.fields[related].widget.widget
 
     class Meta:
         model = Route
@@ -29,11 +36,11 @@ class RouteModelForm(ModelForm):
                 variables=(('req.url', 'URL'), ('req.http.Host', 'Domain'),),
                 operators=(('==', 'exact'), ('!=', 'is different'), ('~', 'match'))
             ),
-            'priority': PrioritySelect(
-                choices=([(i, i)for i in range(1, 100)]),
-            ),
-            'clusters': SearchableSelect(),
-            'director': SearchableSelect(),
+            # 'priority': PrioritySelect(
+            #     choices=([(i, i)for i in range(1, 100)]),
+            # ),
+            # 'clusters': SearchableSelect(),
+            # 'director': SearchableSelect(),
         }
 
     def clean_condition(self):
