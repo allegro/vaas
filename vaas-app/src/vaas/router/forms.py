@@ -57,14 +57,13 @@ class RouteModelForm(ModelForm):
         routes = Route.objects.filter(
                 director=cleaner_data.get('director'),
                 priority=cleaner_data.get('priority'),
-                clusters__in=cleaner_data.get('clusters'))
+                clusters__id__in=cleaner_data.get('clusters'))
         routes_count = routes.count()
         if routes_count == 0:
             return
-        if routes_count > 1:
-                raise ValidationError('There are already conflicting records in db: {}'.format(routes))
-        
-        if self.instance.pk and routes[0].pk != self.instance.pk:
-            raise ValidationError('This combination of director, cluster and priority already exists')
-        else:
-            raise ValidationError('This combination of director, cluster and priority already exists')
+        if self.instance.pk:
+            if routes.exclude(pk=self.instance.pk).exists():
+                raise ValidationError('This combination of director, cluster and priority already exists')
+            else:
+                return
+        raise ValidationError('This combination of director, cluster and priority already exists')
