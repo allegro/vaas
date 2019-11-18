@@ -1,9 +1,19 @@
 {% spaceless %}{% include 'django/forms/widgets/select.html' %}{% endspaceless %}
 <script>
 
+    function getChosenClusters() {
+            let clusterQuery = ""
+            SelectBox.cache.szymon_to.forEach((e, idx) => {
+                clusterQuery += `clusters=${e.value}`;
+                if (idx < (SelectBox.cache.szymon_to.length-1)) {
+                    clusterQuery += "&";
+                }
+            })
+            return clusterQuery;
+        }
+
     function reloadPriorities() {
-        var cluster_id = $("[name=cluster]").val() || 0,
-            director_id = $("[name=director]").val() || 0,
+        var director_id = $("[name=director]").val() || 0,
             current = $("[name=priority]").val(),
             route_id=0;
 
@@ -15,9 +25,7 @@
 
         $.ajax(
                 {
-                    //url: "/router/route/priorities/"+director_id+"/"+route_id+"/"+current+"/?clusters="+cluster_id,
-                    //url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getClusters()}`,
-                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?$`,
+                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getChosenClusters()}`,
                     success: function(result){
                         $('[name=priority]').find('option').remove();
                         result['values'].forEach(
@@ -32,10 +40,19 @@
         );
     }
 
-    $ (document).ready(function(){
-        $('[name=cluster]').change(reloadPriorities);
+    (function ($) {
+    window.addEventListener('load', (event) => {
+
+        document.getElementById("szymon_add_link").addEventListener("click", reloadPriorities);
+        document.getElementById("szymon_remove_link").addEventListener("click", reloadPriorities);
+        document.getElementById("szymon_add_all_link").addEventListener("click", reloadPriorities);
+        document.getElementById("szymon_remove_all_link").addEventListener("click", reloadPriorities);
+
         $('[name=director]').change(reloadPriorities);
-        $('[name=clusters]').change(reloadPriorities);
         reloadPriorities();
     });
+
+
+})(django.jQuery);
+
 </script>
