@@ -49,3 +49,22 @@ class RouteModelForm(ModelForm):
         if '""' in condition:
             raise ValidationError(message='Condition cannot be empty')
         return condition
+    
+    def clean(self):
+        cleaner_data = super(RouteModelForm, self).clean()
+        if self._errors:
+            return cleaner_data
+        routes = Route.objects.filter(
+                director=cleaner_data.get('director'),
+                priority=cleaner_data.get('priority'),
+                clusters__in=cleaner_data.get('clusters'))
+        routes_count = routes.count()
+        if routes_count == 0:
+            return
+        if routes_count > 1:
+                raise ValidationError('There are already conflicting records in db: {}'.format(routes))
+        
+        if self.instance.pk and routes[0].pk != self.instance.pk:
+            raise ValidationError('This combination of director, cluster and priority already exists')
+        else:
+            raise ValidationError('This combination of director, cluster and priority already exists')
