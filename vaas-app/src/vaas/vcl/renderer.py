@@ -138,15 +138,12 @@ class VclTagBuilder(object):
         return result
 
     def prepare_route(self, varnish, vcl_directors):
-        logging.getLogger('vaas').debug("WWW {}".format(vcl_directors))
         routes = []
         for route in self.input.routes:
             if route.director.enabled is True:
                 for cluster in route.clusters.all():
                     if varnish.cluster.id == cluster.id:
-                        logging.getLogger('vaas').debug("YYY")
                         for vcl_director in vcl_directors:
-                            logging.getLogger('vaas').debug("SSS {}: {}".format(vcl_director.director.id, route.director.id))
                             if vcl_director.director.id == route.director.id:
                                 routes.append(route)
                                 break
@@ -316,9 +313,6 @@ class VclRenderer(object):
     def render(self, varnish, version, input):
         start = time.time()
         vcl_tag_builder = VclTagBuilder(varnish, input)
-        logging.getLogger('vaas').debug(
-            "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
-        )
         content = varnish.template.content
         for vcl_tags_level in VCL_TAGS[varnish.template.version]:
             for tag_name in vcl_tags_level:

@@ -3,9 +3,9 @@
 
     function getChosenClusters() {
             let clusterQuery = ""
-            SelectBox.cache.szymon_to.forEach((e, idx) => {
+            SelectBox.cache.id_clusters_to.forEach((e, idx) => {
                 clusterQuery += `clusters=${e.value}`;
-                if (idx < (SelectBox.cache.szymon_to.length-1)) {
+                if (idx < (SelectBox.cache.id_clusters_to.length-1)) {
                     clusterQuery += "&";
                 }
             })
@@ -43,10 +43,10 @@
     (function ($) {
     window.addEventListener('load', (event) => {
 
-        document.getElementById("szymon_add_link").addEventListener("click", reloadPriorities);
-        document.getElementById("szymon_remove_link").addEventListener("click", reloadPriorities);
-        document.getElementById("szymon_add_all_link").addEventListener("click", reloadPriorities);
-        document.getElementById("szymon_remove_all_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_add_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_remove_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_add_all_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_remove_all_link").addEventListener("click", reloadPriorities);
 
         $('[name=director]').change(reloadPriorities);
         reloadPriorities();

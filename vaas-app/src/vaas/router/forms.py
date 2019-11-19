@@ -20,10 +20,8 @@ class RouteModelForm(ModelForm):
         self.fields['clusters'] = ModelMultipleChoiceField(
             queryset=LogicalCluster.objects.order_by('name'), 
             widget=FilteredSelectMultiple(
-            is_stacked=False, 
-            verbose_name='clusters', 
-            attrs={'id': 'szymon','class':'form-control'}),
-            label='Clusters',)
+            is_stacked=False,
+            verbose_name='clusters'))
         for related in ('clusters', 'director'):
             if hasattr(self.fields[related].widget, 'widget'):
                 self.fields[related].widget = self.fields[related].widget.widget
