@@ -126,10 +126,6 @@ class VclTagBuilder(object):
             'routes': self.prepare_route(self.varnish, vcl_directors)
         }
 
-        logging.getLogger('vaas').debug(
-            "XXX {}".format(self.placeholders['routes'])
-        )
-
     def prepare_active_directors(self, directors, vcl_directors):
         result = []
         for director in directors:
