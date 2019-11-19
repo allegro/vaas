@@ -16,10 +16,7 @@ from vaas.manager.models import Director
 from vaas.router.models import Route
 from vaas.router.forms import RouteModelForm
 
-
-
 logger = logging.getLogger('vaas')
-
 
 class RouteResource(ModelResource):
     director = fields.ForeignKey('vaas.manager.api.DirectorResource', 'director')
