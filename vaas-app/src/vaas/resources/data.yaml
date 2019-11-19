@@ -40,8 +40,10 @@
     cluster: [1, 2, 3, 4]
 - model: cluster.dc
   pk: 1
+  fields: {name: First datacenter, symbol: dc1}
 - model: cluster.dc
   pk: 2
+  fields: {name: Second datacenter, symbol: dc2}
 - model: manager.backend
   pk: 1
   fields: {address: 192.168.199.10, port: 80, weight: 1, dc: 1, max_connections: 5,
@@ -88,7 +90,6 @@
   pk: 4
   fields: {name: cluster4_siteC_prod, reload_timestamp: !!timestamp '2019-11-18 14:30:12.551574+00:00',
     error_timestamp: !!timestamp '2019-11-13 07:46:40.454405+00:00', last_error_info: null}
-  fields: {name: Second datacenter, symbol: dc2}
 - model: cluster.vcltemplate
   pk: 2
   fields: {name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n    <FLEXIBLE_ROUTER/>\r\
