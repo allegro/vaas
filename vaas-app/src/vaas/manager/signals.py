@@ -159,10 +159,12 @@ def vcl_update(sender, **kwargs):
                 clusters_to_refresh.append(varnish_server.cluster)
     # Route
     elif sender is Route:
-        for route in Route.objects.all():
-            if route.cluster == instance.cluster:
-                logger.debug("vcl_update(): %s" % str(route.cluster))
-                clusters_to_refresh.append(route.cluster)
+        for route in Route.objects.all().prefetch_related('clusters'):
+            for cluster in route.clusters.all():
+                for instance_cluster in instance.clusters.all():
+                    if cluster == instance_cluster:
+                        logger.debug("vcl_update(): %s" % str(cluster))
+                        clusters_to_refresh.append(cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:

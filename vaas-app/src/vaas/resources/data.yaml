@@ -1,132 +1,133 @@
-# To generate a new data.yaml file run:
-# ./manage.py dumpdata cluster.LogicalCluster manager.Probe cluster.Dc cluster.VclTemplate \
-# manager.Director manager.Backend cluster.VarnishServer auth.user --format yaml --natural
-- fields: {name: cluster1_siteA_test}
-  model: cluster.logicalcluster
+- model: manager.timeprofile
   pk: 1
-- fields: {name: cluster2_siteB_test}
-  model: cluster.logicalcluster
-  pk: 2
-- fields: {name: cluster3_siteA_dev}
-  model: cluster.logicalcluster
-  pk: 3
-- fields: {name: cluster4_siteC_prod}
-  model: cluster.logicalcluster
-  pk: 4
-- fields: {name: First datacenter, symbol: dc1}
-  model: cluster.dc
+  fields: {name: generic profile, description: '', max_connections: 5, connect_timeout: '0.30',
+    first_byte_timeout: '5.00', between_bytes_timeout: '1.00'}
+- model: manager.probe
   pk: 1
-- fields: {name: Second datacenter, symbol: dc2}
-  model: cluster.dc
-  pk: 2
-- fields: {comment: 'Create template', content: <VCL/>, name: vagrant_template_4, version: '4.0'}
-  model: cluster.vcltemplate
-  pk: 2
-- fields: {cluster: 2, cluster_weight: 1, dc: 1, status: active, hostname: varnish-4,
-    ip: 192.168.199.3, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 2}
-  model: cluster.varnishserver
-  pk: 2
-- fields: {cluster: 2, cluster_weight: 1, dc: 1, status: active, hostname: varnish-4.1,
-    ip: 192.168.199.4, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 2}
-  model: cluster.varnishserver
-  pk: 3
-- fields: {cluster: 1, cluster_weight: 1, dc: 1, status: active, hostname: varnish-6,
-    ip: 192.168.199.6, port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
-    template: 2}
-  model: cluster.varnishserver
-  pk: 4
-- fields: {expected_response: 200, interval: 3, name: default_probe, threshold: 3,
-    timeout: '1', url: /ts.1, window: 5}
-  model: manager.probe
+  fields: {name: default_probe, url: /ts.1, expected_response: 200, interval: 3, timeout: '1.0',
+    window: 5, threshold: 3, start_as_healthy: false}
+- model: manager.director
   pk: 1
-- fields:
-    name: 'generic profile'
-    description: ''
-    between_bytes_timeout: 1
-    connect_timeout: 0.3
-    first_byte_timeout: 5
-    max_connections: 5
-  model: manager.timeprofile
-  pk: 1
-- fields:
-    active_active: true
-    cluster: [1]
-    enabled: true
-    hashing_policy: req.url
-    mode: random
+  fields:
     name: first_service
     service: Cart
-    probe: 1
-    remove_path: false
-    route_expression: /first
-    router: req.url
-    time_profile: 1
-  model: manager.director
-  pk: 1
-- fields:
-    active_active: true
-    cluster: [2]
-    enabled: true
+    mode: random
+    protocol: both
     hashing_policy: req.url
-    mode: round-robin
+    router: req.url
+    route_expression: /first
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1]
+- model: manager.director
+  pk: 2
+  fields:
     name: second_service
     service: Order
-    probe: 1
-    remove_path: false
-    route_expression: second.*
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
     router: req.http.host
+    route_expression: second.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
     time_profile: 1
-  model: manager.director
-  pk: 2
-- fields: {address: 192.168.199.10, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 1, inherit_time_profile: True}
-  model: manager.backend
+    cluster: [1, 2, 3, 4]
+- model: cluster.dc
   pk: 1
-- fields: {address: 192.168.199.11, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 1, inherit_time_profile: True}
-  model: manager.backend
+  fields: {name: First datacenter, symbol: dc1}
+- model: cluster.dc
   pk: 2
-- fields: {address: 192.168.199.12, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 1, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 2, inherit_time_profile: True}
-  model: manager.backend
+  fields: {name: Second datacenter, symbol: dc2}
+- model: manager.backend
+  pk: 1
+  fields: {address: 192.168.199.10, port: 80, weight: 1, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 1, enabled: true, inherit_time_profile: true}
+- model: manager.backend
+  pk: 2
+  fields: {address: 192.168.199.11, port: 80, weight: 1, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 1, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 3
-- fields: {address: 192.168.199.13, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 3, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.12, port: 80, weight: 2, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 1, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 4
-- fields: {address: 192.168.199.14, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 4, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.13, port: 80, weight: 3, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 2, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 5
-- fields: {address: 192.168.199.15, between_bytes_timeout: '1', connect_timeout: '0.3',
-    dc: 1, director: 2, enabled: true, first_byte_timeout: '5', max_connections: 5,
-    port: 80, weight: 5, inherit_time_profile: True}
-  model: manager.backend
+  fields: {address: 192.168.199.14, port: 80, weight: 4, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 2, enabled: true, inherit_time_profile: true}
+- model: manager.backend
   pk: 6
-- fields:
-    email: admin@vaas.allegrogroup.com
-    first_name: ''
-    groups: []
-    is_active: true
-    is_staff: true
+  fields: {address: 192.168.199.15, port: 80, weight: 5, dc: 1, max_connections: 5,
+    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
+    director: 2, enabled: true, inherit_time_profile: true}
+- model: cluster.logicalcluster
+  pk: 1
+  fields: {name: cluster1_siteA_test, reload_timestamp: !!timestamp '2019-11-19 08:02:15.994071+00:00',
+    error_timestamp: !!timestamp '2019-11-13 07:46:40.450785+00:00', last_error_info: null}
+- model: cluster.logicalcluster
+  pk: 2
+  fields: {name: cluster2_siteB_test, reload_timestamp: !!timestamp '2019-11-18 14:16:58.664933+00:00',
+    error_timestamp: !!timestamp '2019-11-13 07:46:40.453146+00:00', last_error_info: null}
+- model: cluster.logicalcluster
+  pk: 3
+  fields: {name: cluster3_siteA_dev, reload_timestamp: !!timestamp '2019-11-18 14:16:58.664933+00:00',
+    error_timestamp: !!timestamp '2019-11-13 07:46:40.453839+00:00', last_error_info: null}
+- model: cluster.logicalcluster
+  pk: 4
+  fields: {name: cluster4_siteC_prod, reload_timestamp: !!timestamp '2019-11-18 14:30:12.551574+00:00',
+    error_timestamp: !!timestamp '2019-11-13 07:46:40.454405+00:00', last_error_info: null}
+- model: cluster.vcltemplate
+  pk: 2
+  fields: {name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n    <FLEXIBLE_ROUTER/>\r\
+      \n}", version: '4.0', comment: wefwef}
+- model: cluster.varnishserver
+  pk: 2
+  fields: {ip: 192.168.199.3, hostname: varnish-4, cluster_weight: 1, http_port: 80,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: cluster.varnishserver
+  pk: 3
+  fields: {ip: 192.168.199.4, hostname: varnish-4.1, cluster_weight: 1, http_port: 80,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 2, is_canary: false}
+- model: cluster.varnishserver
+  pk: 4
+  fields: {ip: 192.168.199.6, hostname: varnish-6, cluster_weight: 1, http_port: 80,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: router.route
+  pk: 1
+  fields:
+    condition: req.url ~ "^\/flexibleee"
+    priority: 51
+    director: 2
+    action: pass
+    clusters: [4]
+- model: auth.user
+  fields:
+    password: pbkdf2_sha256$36000$HSNx3yHNXG51$yggojN+90XWiHuGBK7YnrUZMWtMKpck45CsSel0JxUk=
+    last_login: 2019-11-19 11:24:56.296352+00:00
     is_superuser: true
-    last_name: ''
-    # plain text password: admin
-    password: pbkdf2_sha256$12000$yxB95qHh91x5$oYW0Jrsb8jLGVo0tKypOPRap/wr+n+3TjkOP6cT9G4o=
-    user_permissions: []
     username: admin
-  model: auth.user
-  pk: 1
-- fields: {created: '2014-12-12 12:00:00+00:00', key: vagrant_api_key, user: 1}
-  model: tastypie.apikey
-  pk: 1
-- fields: {condition: 'req.url ~ "^\/flexible"', director: 1, cluster: 1, priority: 50, action: 'pass'}
-  model: router.route
-  pk: 1
+    first_name: ''
+    last_name: ''
+    email: admin@vaas.allegrogroup.com
+    is_staff: true
+    is_active: true
+    date_joined: 2019-11-13 07:46:40.829872+00:00
+    groups: []
+    user_permissions: []

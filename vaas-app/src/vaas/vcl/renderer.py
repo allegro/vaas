@@ -136,11 +136,13 @@ class VclTagBuilder(object):
     def prepare_route(self, varnish, vcl_directors):
         routes = []
         for route in self.input.routes:
-            if route.director.enabled is True and varnish.cluster.id == route.cluster.id:
-                for vcl_director in vcl_directors:
-                    if vcl_director.director.id == route.director.id:
-                        routes.append(route)
-                        break
+            if route.director.enabled is True:
+                for cluster in route.clusters.all():
+                    if varnish.cluster.id == cluster.id:
+                        for vcl_director in vcl_directors:
+                            if vcl_director.director.id == route.director.id:
+                                routes.append(route)
+                                break
         return routes
 
     def prepare_vcl_directors(self, varnish):
@@ -250,7 +252,7 @@ class VclRendererInput(object):
         """Prefetch data needed by renderer."""
         self.directors = list(Director.objects.all().prefetch_related('probe', 'cluster', 'time_profile'))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
-        self.routes = list(Route.objects.all().prefetch_related('director', 'cluster'))
+        self.routes = list(Route.objects.all().prefetch_related('director', 'clusters'))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))

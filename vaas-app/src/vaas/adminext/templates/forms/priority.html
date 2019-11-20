@@ -1,10 +1,22 @@
 {% spaceless %}{% include 'django/forms/widgets/select.html' %}{% endspaceless %}
 <script>
+
+    function getChosenClusters() {
+            let cluster_query = "";
+            SelectBox.cache.id_clusters_to.forEach((e, idx) => {
+                cluster_query += `clusters=${e.value}`;
+                if (idx < (SelectBox.cache.id_clusters_to.length-1)) {
+                    cluster_query += "&";
+                }
+            });
+            return cluster_query;
+        }
+
     function reloadPriorities() {
-        var cluster_id = $("[name=cluster]").val() || 0,
-            director_id = $("[name=director]").val() || 0,
+        var director_id = $("[name=director]").val() || 0,
             current = $("[name=priority]").val(),
             route_id=0;
+
 
         if (window.location.href.includes('change')) {
 
@@ -13,7 +25,7 @@
 
         $.ajax(
                 {
-                    url: "/router/route/priorities/"+director_id+"/"+cluster_id+"/"+route_id+"/"+current+"/",
+                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getChosenClusters()}`,
                     success: function(result){
                         $('[name=priority]').find('option').remove();
                         result['values'].forEach(
@@ -28,9 +40,19 @@
         );
     }
 
-    $ (document).ready(function(){
-        $('[name=cluster]').change(reloadPriorities);
+    (function ($) {
+    window.addEventListener('load', (event) => {
+
+        document.getElementById("id_clusters_add_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_remove_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_add_all_link").addEventListener("click", reloadPriorities);
+        document.getElementById("id_clusters_remove_all_link").addEventListener("click", reloadPriorities);
+
         $('[name=director]').change(reloadPriorities);
         reloadPriorities();
     });
+
+
+})(django.jQuery);
+
 </script>

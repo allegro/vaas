@@ -202,10 +202,10 @@ class VclTagBuilderTest(TestCase):
         route = Route.objects.create(
             condition='req.url ~ "^\/flexible"',
             director=non_active_active_routed_by_path,
-            cluster=cluster2,
             priority=1,
             action='pass'
         )
+        route.clusters.add(cluster2)
 
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v4_with_tag,
                                                     cluster=cluster1)
