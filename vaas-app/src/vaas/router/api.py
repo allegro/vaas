@@ -21,10 +21,10 @@ logger = logging.getLogger('vaas')
 
 class RouteResource(ModelResource):
     director = fields.ForeignKey('vaas.manager.api.DirectorResource', 'director')
-    cluster = fields.ForeignKey('vaas.cluster.api.LogicalClusterResource', 'cluster')
+    clusters = fields.ToManyField('vaas.cluster.api.LogicalClusterResource', 'clusters')
 
     class Meta:
-        queryset = Route.objects.all()
+        queryset = Route.objects.all().prefetch_related('clusters')
         resource_name = 'route'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
@@ -33,14 +33,14 @@ class RouteResource(ModelResource):
         always_return_data = True
         filtering = {
             'director': ALL_WITH_RELATIONS,
-            'cluster': ALL_WITH_RELATIONS
+            'clusters': ALL_WITH_RELATIONS
         }
 
     def dehydrate_director(self, bundle):
         return bundle.obj.director.name
 
-    def dehydrate_cluster(self, bundle):
-        return bundle.obj.cluster.name
+    def dehydrate_clusters(self, bundle):
+        return list(bundle.obj.clusters.values_list('name', flat=True))
 
     def hydrate_director(self, bundle):
         try:
@@ -51,10 +51,10 @@ class RouteResource(ModelResource):
                                 % bundle.data['director'])
         return bundle
 
-    def hydrate_cluster(self, bundle):
+    def hydrate_clusters(self, bundle):
         try:
-            bundle.data['cluster'] = LogicalCluster.objects.get(name=bundle.data['cluster'])
+            bundle.data['clusters'] = LogicalCluster.objects.get(name__in=bundle.data['clusters'])
         except ObjectDoesNotExist:
-            logger.info("[RouteResource.hydrate_cluster()] provided name = %s", bundle.data['cluster'])
-            raise ApiFieldError("Could not find the provided cluster via resource name '%s'." % bundle.data['cluster'])
+            logger.info("[RouteResource.hydrate_clusters()] provided name = %s", bundle.data['clusters'])
+            raise ApiFieldError("Could not find the provided cluster via resource name '%s'." % bundle.data['clusters'])
         return bundle
