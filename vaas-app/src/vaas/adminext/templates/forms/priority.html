@@ -2,14 +2,14 @@
 <script>
 
     function getChosenClusters() {
-            let clusterQuery = ""
+            let cluster_query = "";
             SelectBox.cache.id_clusters_to.forEach((e, idx) => {
-                clusterQuery += `clusters=${e.value}`;
+                cluster_query += `clusters=${e.value}`;
                 if (idx < (SelectBox.cache.id_clusters_to.length-1)) {
-                    clusterQuery += "&";
+                    cluster_query += "&";
                 }
-            })
-            return clusterQuery;
+            });
+            return cluster_query;
         }
 
     function reloadPriorities() {

@@ -2,7 +2,8 @@ from django.test import TestCase
 from vaas.router.models import Route
 from vaas.router.forms import RouteModelForm
 from vaas.manager.models import Director, Probe, TimeProfile
-from vaas.cluster.models import  LogicalCluster
+from vaas.cluster.models import LogicalCluster
+
 
 class MyTests(TestCase):
     def setUp(self):
@@ -39,7 +40,7 @@ class MyTests(TestCase):
             'condition_1': '~',
             'condition_2': '/test',
             'priority': '50',
-            'action':'pass',
+            'action': 'pass',
             'clusters': [self.cluster1.pk],
             'director': self.director1.pk,
         }
@@ -62,7 +63,7 @@ class MyTests(TestCase):
             'condition_1': '~',
             'condition_2': '/test',
             'priority': '51',
-            'action':'pass',
+            'action': 'pass',
             'clusters': [self.cluster1.pk],
             'director': self.director1.pk,
         }
@@ -77,7 +78,7 @@ class MyTests(TestCase):
             'condition_1': '~',
             'condition_2': '/test',
             'priority': '50',
-            'action':'pass',
+            'action': 'pass',
             'clusters': [self.cluster1.pk],
             'director': self.director1.pk,
         }
@@ -103,7 +104,7 @@ class MyTests(TestCase):
             'condition_1': '~',
             'condition_2': '/test',
             'priority': '50',
-            'action':'pass',
+            'action': 'pass',
             'clusters': [self.cluster1.pk],
             'director': self.director1.pk,
         }

@@ -23,6 +23,7 @@ class SearchableSelect(forms.Select):
         }
         js = ('bootstrap-select/js/bootstrap-select.min.js',)
 
+
 class ConditionWidget(forms.MultiWidget):
     def __init__(self, variables, operators, *args, **kwargs):
         widgets = [

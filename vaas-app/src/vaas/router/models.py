@@ -2,10 +2,10 @@
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError
 
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
+
 
 class Route(models.Model):
     ACTION_CHOICES = (

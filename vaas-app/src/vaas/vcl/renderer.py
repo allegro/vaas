@@ -309,6 +309,9 @@ class VclRenderer(object):
     def render(self, varnish, version, input):
         start = time.time()
         vcl_tag_builder = VclTagBuilder(varnish, input)
+        logging.getLogger('vaas').debug(
+            "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
+        )
         content = varnish.template.content
         for vcl_tags_level in VCL_TAGS[varnish.template.version]:
             for tag_name in vcl_tags_level:
