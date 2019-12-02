@@ -35,19 +35,23 @@ class ConditionWidget(forms.MultiWidget):
         self.template_name = 'forms/condition.html'
 
     def decompress(self, value):
-        if value:
-            parts = value.split(' ')
-            left = parts.pop(0)
-            operator = parts.pop(0)
-            right = ' '.join(parts)
-            if len(right) and right[0] == '"':
-                right = right[1:]
-            if right[-1] == '"':
-                right = right[:-1]
-            return left, operator, right
-        return ['req.url', '~', '']
+        return split_condition(value)
 
     def value_from_datadict(self, data, files, name):
         parts = super(ConditionWidget, self).value_from_datadict(data, files, name)
         parts[2] = '"{}"'.format(parts[2])
         return ' '.join(parts)
+
+
+def split_condition(value):
+    if value:
+        parts = value.split(' ')
+        left = parts.pop(0)
+        operator = parts.pop(0)
+        right = ' '.join(parts)
+        if len(right) and right[0] == '"':
+            right = right[1:]
+        if right[-1] == '"':
+            right = right[:-1]
+        return left, operator, right
+    return ['req.url', '~', '']
