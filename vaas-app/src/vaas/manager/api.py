@@ -15,6 +15,7 @@ from vaas.cluster.api import DcResource
 from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm, TimeProfileModelForm
 from vaas.manager.models import Backend, Probe, Director, TimeProfile, ReloadTask
 from vaas.monitor.models import BackendStatus
+from vaas.external.oauth import VaasMultiAuthentication
 
 
 logger = logging.getLogger('vaas')
@@ -26,7 +27,7 @@ class TimeProfileResource(ModelResource):
         resource_name = 'time_profile'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=TimeProfileModelForm)
         always_return_data = True
         filtering = {
@@ -43,7 +44,7 @@ class ProbeResource(ModelResource):
         resource_name = 'probe'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=ProbeModelForm)
         always_return_data = True
         filtering = {
@@ -68,7 +69,7 @@ class DirectorResource(ModelResource):
         resource_name = 'director'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=DirectorModelForm)
         always_return_data = True
         filtering = {
@@ -115,7 +116,7 @@ class BackendResource(ModelResource):
         resource_name = 'backend'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=BackendModelForm)
         always_return_data = True
         filtering = {
@@ -176,7 +177,7 @@ class ReloadTaskResource(Resource):
         resource_name = 'task'
         list_allowed_methods = ['get']
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         fields = ['status', 'info']
         include_resource_uri = True
 

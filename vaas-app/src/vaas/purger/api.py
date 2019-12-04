@@ -8,6 +8,7 @@ from tastypie.exceptions import ImmediateHttpResponse, Unauthorized
 from vaas.cluster.cluster import ServerExtractor
 from vaas.cluster.models import LogicalCluster
 from vaas.purger.purger import VarnishPurger
+from vaas.external.oauth import VaasMultiAuthentication
 
 
 class Purger(object):
@@ -25,7 +26,7 @@ class PurgeUrl(Resource):
         resource_name = 'purger'
         list_allowed_methods = ['post']
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         fields = ['url', 'clusters']
         include_resource_uri = False
 
