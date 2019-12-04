@@ -9,6 +9,7 @@ from vaas.external.serializer import PrettyJSONSerializer
 from vaas.router.models import Route
 from vaas.router.forms import RouteModelForm
 from vaas.adminext.widgets import split_condition
+from vaas.external.oauth import VaasMultiAuthentication
 
 
 class RouteResource(ModelResource):
@@ -20,7 +21,7 @@ class RouteResource(ModelResource):
         resource_name = 'route'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=RouteModelForm)
         always_return_data = True
         filtering = {

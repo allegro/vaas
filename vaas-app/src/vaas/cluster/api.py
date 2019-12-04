@@ -11,6 +11,7 @@ from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock
+from vaas.external.oauth import VaasMultiAuthentication
 
 
 class OutdatedServerResource(Resource):
@@ -47,7 +48,7 @@ class LogicalClusterResource(ModelResource):
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
         validation = ModelCleanedDataFormValidation(form_class=LogicalCLusterModelForm)
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         always_return_data = True
         filtering = {
             'name': ['exact'],
@@ -65,7 +66,7 @@ class DcResource(ModelResource):
         resource_name = 'dc'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=DcModelForm)
         always_return_data = True
         filtering = {
@@ -89,7 +90,7 @@ class VclTemplateResource(ModelResource):
         resource_name = 'vcl_template'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=VclTemplateModelForm)
         always_return_data = True
         filtering = {
@@ -108,7 +109,7 @@ class VarnishServerResource(ModelResource):
         resource_name = 'varnish_server'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=VarnishServerModelForm)
         always_return_data = True
         filtering = {
@@ -135,7 +136,7 @@ class VclTemplateBlockResource(ModelResource):
         resource_name = 'vcl_template_block'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         validation = ModelCleanedDataFormValidation(form_class=VclTemplateBlockModelForm)
         always_return_data = True
         filtering = {
