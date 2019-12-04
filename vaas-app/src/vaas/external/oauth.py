@@ -2,8 +2,8 @@ import importlib
 from django.conf import settings
 from tastypie.authentication import MultiAuthentication
 
-# If Oauth enabled for API, and custom module (OAUTH_AUTH_MODULE)
-# is not set TastyPie default OAuthAuthentication will be used
+# If Oauth for API is enabled & custom module (OAUTH_AUTH_MODULE) is not present,
+# default TastyPie OAuthAuthentication backend will be used
 
 API_OAUTH_ENABLED = getattr(settings, 'API_OAUTH_ENABLED', False)
 OAUTH_AUTH_MODULE = getattr(settings, 'OAUTH_AUTH_MODULE', 'tastypie.authentication')
