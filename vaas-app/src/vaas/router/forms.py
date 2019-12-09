@@ -15,7 +15,7 @@ class RouteModelForm(ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
-        self.fields['priority'].initial = 50
+        self.fields['priority'].initial = 250
         self.fields['director'].queryset = Director.objects.order_by('name')
         self.fields['clusters'] = ModelMultipleChoiceField(
             queryset=LogicalCluster.objects.order_by('name'),
@@ -34,7 +34,7 @@ class RouteModelForm(ModelForm):
                 operators=(('==', 'exact'), ('!=', 'is different'), ('~', 'match'))
             ),
             'priority': PrioritySelect(
-                choices=([(i, i) for i in range(1, 100)]),
+                choices=([(i, i) for i in range(1, 500)]),
             ),
             'director': SearchableSelect(),
         }

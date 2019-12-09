@@ -12,12 +12,12 @@ class Route(models.Model):
         ('pass', 'pass route directly'),
     )
     condition = models.CharField(max_length=512)
-    priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
+    priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     clusters = models.ManyToManyField(LogicalCluster)
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
 
     def __str__(self):
-        name = "(Priority: %s) if (req.url ~ %s) then %s for %s" % (
+        name = "(Priority: %s) if (%s) then %s for %s" % (
             self.priority, self.condition, self.action, str(self.director))
         return name
