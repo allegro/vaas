@@ -8,7 +8,7 @@ from vaas.router.forms import RouteModelForm
 class RouteAdmin(admin.ModelAdmin):
     form = RouteModelForm
     filter_horizontal = ('clusters',)
-    search_fields = ['condition', 'cluster__name', 'director__name']
+    search_fields = ['condition', 'clusters__name', 'director__name']
     list_display = ['condition', 'director', 'priority', 'action', 'get_clusters']
     fieldsets = (
         (None, {
