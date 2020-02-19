@@ -22,6 +22,8 @@ The following resources are available:
 |*Purger*            |Purge object from varnishes from a given cluster                          |                              |
 |*Outdated Server*   |Represents active varnish servers with outdated vcl                       |preview                       |
 |*Task*              |Represents state of reloading task - check [VaaS Request Flow](./flow.md) |preview                       |
+|*Route*             |Represents conditional routing to desidered Director                      |preview, **add, edit, delete**|
+|*RouteConfig*       |Represents possible request parameters, operators & actions, which can be used in Routes|preview|
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -241,6 +243,10 @@ To list backends located in specified DC belonging to specified Director:
     -d '{"action":"pass", "cluster": "cluster3_siteA_dev", "condition": "/path2", "director":"third_service", "priority":4}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Examine route config
+
+    curl "http://localhost:3030/api/v0.1/route_config/?username=admin&api_key=vagrant_api_key&format=json"
 
 Explore more
 ============

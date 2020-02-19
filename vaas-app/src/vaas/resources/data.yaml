@@ -76,20 +76,20 @@
     director: 2, enabled: true, inherit_time_profile: true}
 - model: cluster.logicalcluster
   pk: 1
-  fields: {name: cluster1_siteA_test, reload_timestamp: !!timestamp '2019-11-19 08:02:15.994071+00:00',
-    error_timestamp: !!timestamp '2019-11-13 07:46:40.450785+00:00', last_error_info: null}
+  fields: {name: cluster1_siteA_test, reload_timestamp: '2019-11-19T08:02:15.994071+00:00',
+    error_timestamp: '2019-11-13T07:46:40.450785+00:00', last_error_info: null}
 - model: cluster.logicalcluster
   pk: 2
-  fields: {name: cluster2_siteB_test, reload_timestamp: !!timestamp '2019-11-18 14:16:58.664933+00:00',
-    error_timestamp: !!timestamp '2019-11-13 07:46:40.453146+00:00', last_error_info: null}
+  fields: {name: cluster2_siteB_test, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
+    error_timestamp: '2019-11-13T07:46:40.453146+00:00', last_error_info: null}
 - model: cluster.logicalcluster
   pk: 3
-  fields: {name: cluster3_siteA_dev, reload_timestamp: !!timestamp '2019-11-18 14:16:58.664933+00:00',
-    error_timestamp: !!timestamp '2019-11-13 07:46:40.453839+00:00', last_error_info: null}
+  fields: {name: cluster3_siteA_dev, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
+    error_timestamp: '2019-11-13T07:46:40.453839+00:00', last_error_info: null}
 - model: cluster.logicalcluster
   pk: 4
-  fields: {name: cluster4_siteC_prod, reload_timestamp: !!timestamp '2019-11-18 14:30:12.551574+00:00',
-    error_timestamp: !!timestamp '2019-11-13 07:46:40.454405+00:00', last_error_info: null}
+  fields: {name: cluster4_siteC_prod, reload_timestamp: '2019-11-18T14:30:12.551574+00:00',
+    error_timestamp: '2019-11-13T07:46:40.454405+00:00', last_error_info: null}
 - model: cluster.vcltemplate
   pk: 2
   fields: {name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n    <FLEXIBLE_ROUTER/>\r\
@@ -120,7 +120,7 @@
 - model: auth.user
   fields:
     password: pbkdf2_sha256$36000$HSNx3yHNXG51$yggojN+90XWiHuGBK7YnrUZMWtMKpck45CsSel0JxUk=
-    last_login: 2019-11-19 11:24:56.296352+00:00
+    last_login: '2019-11-19T11:24:56.296352+00:00'
     is_superuser: true
     username: admin
     first_name: ''
@@ -128,6 +128,6 @@
     email: admin@vaas.allegrogroup.com
     is_staff: true
     is_active: true
-    date_joined: 2019-11-13 07:46:40.829872+00:00
+    date_joined: '2019-11-13T07:46:40.829872+00:00'
     groups: []
     user_permissions: []
