@@ -8,7 +8,7 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, RouteConfiguration, Left, Operator, Action
+from vaas.router.models import Route, RouteConfiguration, Left, Operator, Action, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.adminext.widgets import split_condition
 from vaas.external.oauth import VaasMultiAuthentication
@@ -94,20 +94,7 @@ class RouteConfigurationResource(Resource):
     def obj_get(self, bundle, **kwargs):
         if 'pk' in kwargs:
             raise ObjectDoesNotExist()
-        return RouteConfiguration(
-            [
-                Left(left='req.url', name='URL'),
-                Left(left='req.http.Host', name='Domain'),
-            ],
-            [
-                Operator(operator='==', name='exact'),
-                Operator(operator='!=', name='is different'),
-                Operator(operator='~', name='match'),
-            ],
-            [
-                Action(action='pass', name='pass route directly'),
-            ],
-        )
+        return provide_route_configuration()
 
     def get_object_list(self, request):
         return None

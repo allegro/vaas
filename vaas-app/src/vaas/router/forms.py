@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, ModelMultipleChoiceField
+from django.forms import ModelForm, ModelMultipleChoiceField, Select
 
 from vaas.adminext.widgets import ConditionWidget, PrioritySelect, SearchableSelect
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
-from vaas.router.models import Route
+from vaas.router.models import Route, provide_route_configuration
 
 
 class RouteModelForm(ModelForm):
@@ -28,10 +28,14 @@ class RouteModelForm(ModelForm):
     class Meta:
         model = Route
         fields = '__all__'
+        configuration = provide_route_configuration()
         widgets = {
             'condition': ConditionWidget(
-                variables=(('req.url', 'URL'), ('req.http.Host', 'Domain'),),
-                operators=(('==', 'exact'), ('!=', 'is different'), ('~', 'match'))
+                variables=((l.left, l.name) for l in configuration.lefts),
+                operators=((o.operator, o.name) for o in configuration.operators)
+            ),
+            'action': Select(
+                choices=((a.action, a.name) for a in configuration.actions)
             ),
             'priority': PrioritySelect(
                 choices=([(i, i) for i in range(1, 500)]),
