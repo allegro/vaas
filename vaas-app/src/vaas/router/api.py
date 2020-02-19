@@ -26,7 +26,8 @@ class RouteResource(ModelResource):
         always_return_data = True
         filtering = {
             'director': ALL_WITH_RELATIONS,
-            'clusters': ALL_WITH_RELATIONS
+            'clusters': ALL_WITH_RELATIONS,
+            'condition': ['icontains']
         }
 
     def hydrate_condition(self, bundle):
