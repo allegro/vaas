@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from vaas.cluster.models import LogicalCluster
@@ -57,10 +58,7 @@ class RouteConfiguration(object):
 
 def provide_route_configuration():
     return RouteConfiguration(
-        [
-            Left(left='req.url', name='URL'),
-            Left(left='req.http.Host', name='Domain'),
-        ],
+        [Left(left=k, name=v) for k, v in settings.ROUTES_LEFT_CONDITIONS.items()],
         [
             Operator(operator='==', name='exact'),
             Operator(operator='!=', name='is different'),
