@@ -8,14 +8,11 @@ from vaas.manager.models import Director
 
 
 class Route(models.Model):
-    ACTION_CHOICES = (
-        ('pass', 'pass route directly'),
-    )
     condition = models.CharField(max_length=512)
     priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     clusters = models.ManyToManyField(LogicalCluster)
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
-    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    action = models.CharField(max_length=20)
 
     def __str__(self):
         name = "(Priority: %s) if (%s) then %s for %s" % (
@@ -56,3 +53,20 @@ class RouteConfiguration(object):
 
     def __repr__(self):
         return '{}'.format(self.__dict__)
+
+
+def provide_route_configuration():
+    return RouteConfiguration(
+        [
+            Left(left='req.url', name='URL'),
+            Left(left='req.http.Host', name='Domain'),
+        ],
+        [
+            Operator(operator='==', name='exact'),
+            Operator(operator='!=', name='is different'),
+            Operator(operator='~', name='match'),
+        ],
+        [
+            Action(action='pass', name='pass route directly'),
+        ],
+    )
