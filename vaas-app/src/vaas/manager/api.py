@@ -61,7 +61,7 @@ class DirectorResource(ModelResource):
         'vaas.manager.api.BackendResource', 'backends', null=True
     )
     cluster = fields.ToManyField(
-        'vaas.cluster.api.LogicalClusterResource', 'cluster', null=False
+        'vaas.cluster.api.LogicalClusterResource', 'cluster', null=False, full=True
     )
 
     class Meta:
