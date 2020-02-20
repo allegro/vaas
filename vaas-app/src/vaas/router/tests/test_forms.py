@@ -35,10 +35,10 @@ class MyTests(TestCase):
         route1.clusters.add(self.cluster1)
 
         form_data = {
-            'condition_0': 'req.url',
+            'condition_0_0': 'req.url',
             'action': 'pass',
-            'condition_1': '~',
-            'condition_2': '/test',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
             'priority': '50',
             'action': 'pass',
             'clusters': [self.cluster1.pk],
@@ -47,6 +47,34 @@ class MyTests(TestCase):
 
         form = RouteModelForm(data=form_data)
         self.assertTrue(form.is_valid())
+        self.assertEqual('req.url ~ "/test"', form.cleaned_data['condition'])
+
+    def test_should_validate_form_with_complex_condition_successfully(self):
+        route1 = Route.objects.create(
+            condition='some condition',
+            priority=51,
+            director=self.director1,
+            action='pass',
+        )
+        route1.clusters.add(self.cluster1)
+
+        form_data = {
+            'condition_0_0': 'req.url',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
+            'condition_1_0': 'req.http.Host',
+            'condition_1_1': '==',
+            'condition_1_2': 'example.com',
+            'action': 'pass',
+            'priority': '50',
+            'action': 'pass',
+            'clusters': [self.cluster1.pk],
+            'director': self.director1.pk,
+        }
+
+        form = RouteModelForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual('req.url ~ "/test" && req.http.Host == "example.com"', form.cleaned_data['condition'])
 
     def test_should_validate_form_with_conflict_error(self):
         route1 = Route.objects.create(
@@ -58,10 +86,10 @@ class MyTests(TestCase):
         route1.clusters.add(self.cluster1)
 
         form_data = {
-            'condition_0': 'req.url',
+            'condition_0_0': 'req.url',
             'action': 'pass',
-            'condition_1': '~',
-            'condition_2': '/test',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
             'priority': '51',
             'action': 'pass',
             'clusters': [self.cluster1.pk],
@@ -73,10 +101,10 @@ class MyTests(TestCase):
 
     def test_should_save_updated_form_shouldnt_conflict_with_self(self):
         form_data = {
-            'condition_0': 'req.url',
+            'condition_0_0': 'req.url',
             'action': 'pass',
-            'condition_1': '~',
-            'condition_2': '/test',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
             'priority': '50',
             'action': 'pass',
             'clusters': [self.cluster1.pk],
@@ -99,10 +127,10 @@ class MyTests(TestCase):
         route1.clusters.add(self.cluster1)
 
         form_data = {
-            'condition_0': 'req.url',
             'action': 'pass',
-            'condition_1': '~',
-            'condition_2': '/test',
+            'condition_0_0': 'req.url',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
             'priority': '50',
             'action': 'pass',
             'clusters': [self.cluster1.pk],
