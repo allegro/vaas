@@ -228,7 +228,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Create new route
 
     curl -X POST \
-    -d '{"action":"pass", "cluster": "cluster3_siteA_dev", "condition": "/path", "director":"second_service", "priority":4}' \
+    -d '{"action":"pass", "cluster": ["/api/v0.1/cluster/1/"], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/?username=admin&api_key=vagrant_api_key&format=json"
 
@@ -240,7 +240,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Partially update route
 
     curl -X PATCH \
-    -d '{"action":"pass", "cluster": "cluster3_siteA_dev", "condition": "/path2", "director":"third_service", "priority":4}' \
+    -d '{"action":"pass", "cluster": ["/api/v0.1/cluster/1/"], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
 

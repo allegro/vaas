@@ -3,7 +3,7 @@
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, ModelMultipleChoiceField, Select
 
-from vaas.adminext.widgets import ConditionWidget, PrioritySelect, SearchableSelect
+from vaas.adminext.widgets import ComplexConditionWidget, PrioritySelect, SearchableSelect, split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
@@ -30,26 +30,28 @@ class RouteModelForm(ModelForm):
         fields = '__all__'
         configuration = provide_route_configuration()
         widgets = {
-            'condition': ConditionWidget(
-                variables=((l.left, l.name) for l in configuration.lefts),
-                operators=((o.operator, o.name) for o in configuration.operators)
+            'condition': ComplexConditionWidget(
+                variables=tuple((l.left, l.name) for l in configuration.lefts),
+                operators=tuple((o.operator, o.name) for o in configuration.operators)
             ),
             'action': Select(
-                choices=((a.action, a.name) for a in configuration.actions)
+                choices=tuple((a.action, a.name) for a in configuration.actions)
             ),
             'priority': PrioritySelect(
-                choices=([(i, i) for i in range(1, 500)]),
+                choices=tuple([(i, i) for i in range(1, 500)]),
             ),
             'director': SearchableSelect(),
         }
 
     def clean_condition(self):
-        condition = self.cleaned_data['condition']
-        if condition.count('"') > 2:
-            raise ValidationError(message='Double quotes not allowed')
-        if '""' in condition:
-            raise ValidationError(message='Condition cannot be empty')
-        return condition
+        complex_condition = self.cleaned_data['condition']
+
+        for condition in split_complex_condition(complex_condition):
+            if condition.count('"') > 2:
+                raise ValidationError(message='Double quotes not allowed')
+            if '""' in condition:
+                raise ValidationError(message='Condition cannot be empty')
+        return self.cleaned_data['condition']
 
     def clean(self):
         cleaner_data = super(RouteModelForm, self).clean()
