@@ -8,9 +8,9 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, RouteConfiguration, Left, Operator, Action, provide_route_configuration
+from vaas.router.models import Route, provide_route_configuration
 from vaas.router.forms import RouteModelForm
-from vaas.adminext.widgets import split_condition
+from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
 
@@ -33,9 +33,9 @@ class RouteResource(ModelResource):
         }
 
     def hydrate_condition(self, bundle):
-        bundle.data['condition_0'], bundle.data['condition_1'], bundle.data['condition_2'] = split_condition(
-            bundle.data['condition']
-        )
+        for i, condition in enumerate(split_complex_condition(bundle.data['condition'])):
+            for j, part in enumerate(split_condition(condition)):
+                bundle.data['condition_{}_{}'.format(i, j)] = part
         return bundle
 
     def dehydrate_director(self, bundle):

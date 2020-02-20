@@ -1,0 +1,57 @@
+{% spaceless %}
+{% for widget in widget.subwidgets %}
+    <div id="condition_{{forloop.counter}}">
+    {% include widget.template_name %}
+    </div>
+
+    {% if forloop.last %}
+    <div class="row finish"></div>
+    <hr/>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-danger" id="del_condition">-</button>
+    </div>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-primary" id="add_condition">+</button>
+    </div>
+    {% else %}
+    <div class="row" id="conjunction_{{forloop.counter}}"><strong>AND </strong></div>
+    {% endif %}
+
+{% endfor %}
+{% endspaceless %}
+
+
+<script>
+    var conditionNumbers = {{ widget.subwidgets|length }};
+    (function ($) {
+        function addCondition() {
+            conditionNumbers++;
+            var newCondition = $('#condition_1').clone();
+            newCondition.find("[name]").each(function(){
+                $(this).attr('name', $(this).attr('name').replace('condition_0','condition_' + conditionNumbers));
+                $(this).attr('id', $(this).attr('id').replace('id_condition_0','id_condition_' + conditionNumbers));
+            });
+            newCondition.find("input").each(function(){
+                $(this).attr("value", "");
+            });
+            $('.finish').before('<div class="row" id="conjunction_' + conditionNumbers + '"><strong>AND </strong></div><div id="condition_' + conditionNumbers + '">' + newCondition.html() + '</div>');
+        }
+
+        function delCondition() {
+            var lastCondition = $("[id^='condition_']").last();
+            if (lastCondition.attr('id') != 'condition_1') {
+                lastCondition.remove();
+                $("[id^='conjunction_']").last().remove();
+            }
+            conditionNumbers--;
+        }
+
+        window.addEventListener('load', (event) => {
+            document.getElementById("add_condition").addEventListener("click", addCondition);
+            document.getElementById("del_condition").addEventListener("click", delCondition);
+        });
+
+
+    })(django.jQuery);
+
+</script>
