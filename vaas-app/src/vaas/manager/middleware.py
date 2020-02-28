@@ -90,7 +90,7 @@ class VclRefreshMiddleware(object):
                     if isinstance(result.result, Exception):
                         raise result.result
             except SoftTimeLimitExceeded:
-                logging.info("Time for finish the task has been reached: The task with id {} will be killed.".format(
+                logging.error("Time for finish the task has been reached: The task with id {} will be killed.".format(
                     result.id))
             except Exception as e:
                 logging.info("Error while reloading cluster: %s (%s)" % (e, type(response)))
