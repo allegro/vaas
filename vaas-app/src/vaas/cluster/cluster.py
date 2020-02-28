@@ -5,6 +5,7 @@ import time
 
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
+from celery.exceptions import SoftTimeLimitExceeded
 
 from vaas.settings.celery import app
 
@@ -25,7 +26,7 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
         return ParallelLoader(max_workers)
 
 
-@app.task(bind=True)
+@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT)
 def load_vcl_task(self, emmit_time, cluster_ids):
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
