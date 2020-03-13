@@ -84,7 +84,7 @@ class ComplexConditionWidget(forms.MultiWidget):
 def split_complex_condition(value):
     if value:
         return value.split(CONJUNCTION)
-    return ['req.url ~  ""']
+    return ['req.url ~ ""']
 
 
 def split_condition(value):

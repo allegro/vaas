@@ -177,6 +177,10 @@ def clean_up_tags(sender, **kwargs):
     if sender is Backend:
         delete_unused_tags(instance)
 
+    if sender in [Route, Director]:
+        kwargs['action'] = 'pre_delete'
+        model_update(**kwargs)
+
 
 @receiver(pre_save)
 def pre_save_vcl_update(sender, **kwargs):
@@ -223,23 +227,23 @@ def pre_save_vcl_update(sender, **kwargs):
     regenerate_and_reload_vcl(clusters_to_refresh)
 
 
-def director_update(**kwargs):
+def model_update(**kwargs):
     logger = logging.getLogger('vaas')
     instance = kwargs['instance']
     action = kwargs['action']
 
-    if action not in ['post_add', 'pre_remove', 'pre_clear']:
+    if action not in ['post_add', 'pre_remove', 'pre_clear', 'pre_delete']:
         return
 
     clusters_to_refresh = get_clusters_to_refresh(instance)
-    logger.debug("[director_update(instance=%s, action=%s)] Clusters to refresh: %s",
+    logger.debug("[model_update(instance=%s, action=%s)] Clusters to refresh: %s",
                  instance, action, clusters_to_refresh)
     regenerate_and_reload_vcl(clusters_to_refresh)
     mark_cluster_as_refreshed(instance, clusters_to_refresh)
 
 
 def get_clusters_to_refresh(instance):
-    all_clusters = list(instance.cluster.all())
+    all_clusters = list(instance.get_clusters())
     try:
         new_clusters_set = set(instance.new_clusters)
         old_clusters_set = set(instance.old_clusters)
@@ -271,4 +275,5 @@ def is_only_cluster_update(instance):
         return False
 
 
-m2m_changed.connect(director_update, sender=Director.cluster.through)
+m2m_changed.connect(model_update, sender=Director.cluster.through)
+m2m_changed.connect(model_update, sender=Route.clusters.through)

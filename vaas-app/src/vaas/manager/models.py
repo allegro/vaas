@@ -122,6 +122,9 @@ class Director(models.Model):
         elif self.mode == 'fallback':
             return 'fallback()'
 
+    def get_clusters(self):
+        return self.cluster.all()
+
     def __str__(self):
         return self.name
 
