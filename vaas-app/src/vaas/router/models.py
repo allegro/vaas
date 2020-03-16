@@ -15,6 +15,9 @@ class Route(models.Model):
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
     action = models.CharField(max_length=20)
 
+    def get_clusters(self):
+        return self.clusters.all()
+
     def __str__(self):
         name = "(Priority: %s) if (%s) then %s for %s" % (
             self.priority, self.condition, self.action, str(self.director))
