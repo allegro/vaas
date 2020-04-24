@@ -48,7 +48,7 @@ class DirectorModelForm(ModelForm):
         data = self.cleaned_data['name']
         regex_result = re.findall(BaseHelpers.dynamic_regex_with_datacenters(), data)
         if len(regex_result) > 0:
-            raise ValidationError(message='Director name cannot be used with a preceeding number')
+            raise ValidationError(message='Director name cannot be used with a preceding number')
         return data
 
 
