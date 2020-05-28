@@ -3,7 +3,7 @@ from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.resources import Resource
-from tastypie.http import HttpResponse
+from tastypie.http import HttpResponse, HttpApplicationError
 from tastypie.exceptions import ImmediateHttpResponse, Unauthorized
 from vaas.cluster.cluster import ServerExtractor
 from vaas.cluster.models import LogicalCluster
@@ -47,7 +47,10 @@ class PurgeUrl(Resource):
             clusters = [clusters]
 
         servers = ServerExtractor().extract_servers_by_clusters(LogicalCluster.objects.filter(name__in=clusters))
-        raise ImmediateHttpResponse(self.create_json_response(purger.purge_url(url, servers), HttpResponse))
+        purger_result = purger.purge_url(url, servers)
+        if len(purger_result.get("error")) > 0:
+             raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpApplicationError))
+        raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpResponse))
 
     def get_object_list(self, request):
         return None
