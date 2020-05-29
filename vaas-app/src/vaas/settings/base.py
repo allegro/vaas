@@ -183,3 +183,5 @@ ROUTES_LEFT_CONDITIONS = {
     'req.url': 'URL',
     'req.http.Host': 'Domain'
 }
+
+PURGER_HTTP_CLIENT_TIMEOUT = env.str('PURGER_HTTP_CLIENT_TIMEOUT', default=10)
