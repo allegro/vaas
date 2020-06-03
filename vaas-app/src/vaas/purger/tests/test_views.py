@@ -27,7 +27,7 @@ class TestPurgerApiViewPermissions(BaseApiViewPermissionsTest):
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', hostname='server1', dc=dc1, status='enabled',
                                                     template=template_v4, cluster=cluster1)
 
-        self.purger_data = {"url": "http://example.com/contact", "clusters": "first_cluster", "headers": {"key1": "val1"}}
+        self.purger_data = {"url": "http://example.com/contact", "clusters": "first_cluster", "headers": {"key1": ["val1"]}}
 
     def test_get_directors_unauthenticated(self):
         self.assertHttpUnauthorized(self.api_client.post(self.PURGER_RESOURCE, format='json', data=self.purger_data))
@@ -41,7 +41,7 @@ class TestPurgerApiViewPermissions(BaseApiViewPermissionsTest):
         print(self.deserialize(resp)['success'])
         self.assertEqual(
             self.deserialize(resp)['success'],
-            {'127.0.0.1': "varnish http response code: 200, url=http://example.com/contact, headers=[('Host', 'example.com'), ('key1', 'val1')], server=127.0.0.1:80"}
+            {'127.0.0.1': ["varnish http response code: 200, url=http://example.com/contact, headers=[('Host', 'example.com'), ('key1', 'val1')], server=127.0.0.1:80"]}
         )
         request_mock.assert_called_with('PURGE', '/contact', body='', headers={'key1': 'val1', 'Host': 'example.com'})
 
