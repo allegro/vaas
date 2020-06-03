@@ -1,3 +1,2 @@
--r test.txt
 docker-compose==1.17.1
 ipython==4.1.2

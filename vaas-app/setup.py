@@ -8,10 +8,6 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test
 from setuptools.command.install import install
 from setuptools.command.egg_info import egg_info as org_egg_info
-try: # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
-    from pip.req import parse_requirements
 
 assert sys.version_info >= (3, 5), "Python 3.5+ required."
 
@@ -74,23 +70,14 @@ class VaaSEggInfo(org_egg_info):
         org_egg_info.run(self)
 
 
-base_requirements = []
-test_requirements = []
-dependency_links = []
+base_requirements = None
+test_requirements = None
 
-for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt'.format(current_dir), session=False)):
-    base_requirements.append(str(requirement.req))
-    dependency_link = getattr(requirement, 'link')
-    if dependency_link:
-        dependency_links.append(str(dependency_link))
+with open(os.path.join(current_dir, 'requirements/base.txt')) as reqs_file:
+    base_requirements = reqs_file.read().splitlines()
 
-for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
-    test_requirements.append(str(requirement.req))
-    dependency_link = getattr(requirement, 'link')
-    if dependency_link and str(dependency_link) not in dependency_links:
-        dependency_links.append(str(dependency_link))
-
-dependency_links = list(filter(lambda x: x is not None, dependency_links))
+with open(os.path.join(current_dir, 'requirements/test.txt')) as reqs_file:
+    test_requirements = reqs_file.read().splitlines()
 
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
@@ -110,7 +97,6 @@ setup(
     package_dir={'': 'src'},
     zip_safe=False,  # because templates are loaded from file path
     tests_require=test_requirements,
-    dependency_links=dependency_links,
     install_requires=base_requirements,
     entry_points={
         'console_scripts': [
