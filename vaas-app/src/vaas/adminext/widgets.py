@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from django import forms
 
 
@@ -25,6 +24,36 @@ class SearchableSelect(forms.Select):
             'all': ('bootstrap-select/css/bootstrap-select.min.css',)
         }
         js = ('bootstrap-select/js/bootstrap-select.min.js',)
+
+
+class MultiUrlWidget(forms.MultiWidget):
+    def __init__(self, *args, **kwargs):
+        self.base_widget = forms.URLInput(attrs={'class': 'form-control', 'col': 'col-md-8'})
+        super(MultiUrlWidget, self).__init__([self.base_widget], *args, **kwargs)
+        self.template_name = 'forms/multi_url.html'
+
+    def decompress(self, value):
+        if value is None:
+            value = []
+        if len(value) > 1:
+            self.widgets = [
+                forms.URLInput(attrs={'class': 'form-control', 'col': 'col-md-8'}) for _ in range(0, len(value))
+            ]
+        return value
+
+    def value_from_datadict(self, data, files, name):
+        return [self.base_widget.value_from_datadict(data, files, name + '_%s' % i) for i in self.get_ids(data, name)]
+
+    def get_ids(self, data, name):
+        ids = []
+        prefix = '{}_'.format(name)
+        for field_name in data:
+            if field_name.startswith(prefix):
+                field_id = int(field_name[len(prefix):].split("_")[0])
+                if field_id not in ids:
+                    ids.append(field_id)
+        ids.sort()
+        return ids
 
 
 class ConditionWidget(forms.MultiWidget):

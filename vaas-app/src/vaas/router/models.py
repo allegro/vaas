@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -22,6 +21,13 @@ class Route(models.Model):
         name = "(Priority: %s) if (%s) then %s for %s" % (
             self.priority, self.condition, self.action, str(self.director))
         return name
+
+
+class PositiveUrl(models.Model):
+    url = models.URLField()
+    route = models.ForeignKey(
+        'Route', on_delete=models.CASCADE, related_name='positive_urls', related_query_name='positive_url'
+    )
 
 
 class Left(object):
