@@ -8,7 +8,6 @@ from concurrent import futures
 from django.conf import settings
 
 
-
 class VarnishPurger(object):
 
     def __init__(self):
@@ -23,7 +22,7 @@ class VarnishPurger(object):
         if headers is not None and 'Host' not in headers.keys():
             headers['Host'] = [parsed_url.hostname]
         if headers is None:
-            headers = {'Host':[parsed_url.hostname]}
+            headers = {'Host': [parsed_url.hostname]}
         headers_combinations = self.prepare_headers_combinations(headers)
         data = {'success': defaultdict(list), 'error': defaultdict(list)}
         with futures.ThreadPoolExecutor(max_workers=settings.PURGER_MAX_HTTP_WORKERS) as executor:
@@ -44,16 +43,19 @@ class VarnishPurger(object):
                 purge_url = "{}?{}".format(parsed_url.path, parsed_url.query)
             conn.request("PURGE", purge_url, body='', headers=headers)
             resp = conn.getresponse().status
-            data['success'][server.ip].append("varnish http response code: {}, url={}, headers={}, server={}:{}".format(
-                resp, url, sorted(headers.items(), key=lambda x: x[0]), server.ip, server.http_port)
+            data['success'][server.ip].append(
+                "varnish http response code: {}, url={}, headers={}, server={}:{}".format(
+                    resp, url, sorted(headers.items(), key=lambda x: x[0]), server.ip, server.http_port)
             )
         except BadStatusLine:
-            data['error'][server.ip].append("Bad status line from varnish server, url={}, headers={}, server={}:{}".format(
-                url, sorted(headers.items(), key=lambda x: x[0]), server.ip, server.http_port)
+            data['error'][server.ip].append(
+                "Bad status line from varnish server, url={}, headers={}, server={}:{}".format(
+                    url, sorted(headers.items(), key=lambda x: x[0]), server.ip, server.http_port)
             )
         except Exception as e:
-            data['error'][server.ip].append("Unexpected error: {}, url={}, headers={}, server={}:{}".format(
-                e, url, sorted(headers.items(), key=lambda x: x[0]), server.ip, server.http_port)
+            data['error'][server.ip].append(
+                "Unexpected error: {}, url={}, headers={}, server={}:{}".format(
+                    e, url, sorted(headers.items(), key=lambda x: x[0]), server.ip, server.http_port)
             )
 
     def prepare_headers_combinations(self, headers):

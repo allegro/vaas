@@ -50,7 +50,7 @@ class PurgeUrl(Resource):
         servers = ServerExtractor().extract_servers_by_clusters(LogicalCluster.objects.filter(name__in=clusters))
         purger_result = purger.purge_url(url, servers, headers)
         if len(purger_result.get("error")) > 0:
-             raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpApplicationError))
+            raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpApplicationError))
         raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpResponse))
 
     def get_object_list(self, request):
