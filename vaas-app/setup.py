@@ -83,9 +83,11 @@ def extract_requirement(requirement):
     elif hasattr(requirement, 'requirement'):
         from pip._internal.req.constructors import parse_req_from_line
         parts = parse_req_from_line(requirement.requirement, requirement.line_source)
-        req = str(parts.requirement.name)
         if parts.requirement.url:
+            req = str(parts.requirement.name)
             link = str(parts.requirement.url)
+        else:
+            req = requirement.requirement
 
     assert req is not None, "Unknown requirement, cannot find properties req or requirement {}".format(requirement.__dict__)
     return req, link
