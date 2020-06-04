@@ -1,5 +1,5 @@
 -r base.txt
-mock>=1.0.1
+mock>=1.0.1,<4.0
 nose-exclude>=0.5.0
 pep8==1.5.7
 factory-boy>=2.8.1

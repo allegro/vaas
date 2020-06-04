@@ -2,7 +2,6 @@
 
 import os
 import sys
-from os.path import expanduser
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test
@@ -79,10 +78,15 @@ def extract_requirement(requirement):
     link = None
     if hasattr(requirement, 'req'):
         req = str(getattr(requirement, 'req'))
+        if hasattr(requirement, 'link'):
+            link = str(getattr(requirement, 'link'))
     elif hasattr(requirement, 'requirement'):
-        req = str(getattr(requirement, 'requirement'))
-    if hasattr(requirement, 'link'):
-        link = str(getattr(requirement, 'link'))
+        from pip._internal.req.constructors import parse_req_from_line
+        parts = parse_req_from_line(requirement.requirement, requirement.line_source)
+        req = str(parts.requirement.name)
+        if parts.requirement.url:
+            link = str(parts.requirement.url)
+
     assert req is not None, "Unknown requirement, cannot find properties req or requirement {}".format(requirement.__dict__)
     return req, link
 
@@ -104,7 +108,6 @@ for requirement in parse_requirements('{}/requirements/test.txt'.format(current_
         dependency_links.append(dependency_link)
 
 dependency_links = list(filter(lambda x: x is not None, dependency_links))
-
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
     name='vaas',
