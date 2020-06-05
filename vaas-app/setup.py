@@ -2,7 +2,6 @@
 
 import os
 import sys
-from os.path import expanduser
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test
@@ -74,24 +73,43 @@ class VaaSEggInfo(org_egg_info):
         org_egg_info.run(self)
 
 
+def extract_requirement(requirement):
+    req = None
+    link = None
+    if hasattr(requirement, 'req'):
+        req = str(getattr(requirement, 'req'))
+        if hasattr(requirement, 'link'):
+            link = str(getattr(requirement, 'link'))
+    elif hasattr(requirement, 'requirement'):
+        from pip._internal.req.constructors import parse_req_from_line
+        parts = parse_req_from_line(requirement.requirement, requirement.line_source)
+        if parts.requirement.url:
+            req = str(parts.requirement.name)
+            link = str(parts.requirement.url)
+        else:
+            req = requirement.requirement
+
+    assert req is not None, "Unknown requirement, cannot find properties req or requirement {}".format(requirement.__dict__)
+    return req, link
+
+
 base_requirements = []
 test_requirements = []
 dependency_links = []
 
 for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt'.format(current_dir), session=False)):
-    base_requirements.append(str(requirement.req))
-    dependency_link = getattr(requirement, 'link')
+    req, dependency_link = extract_requirement(requirement)
+    base_requirements.append(req)
     if dependency_link:
-        dependency_links.append(str(dependency_link))
+        dependency_links.append(dependency_link)
 
 for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
-    test_requirements.append(str(requirement.req))
-    dependency_link = getattr(requirement, 'link')
-    if dependency_link and str(dependency_link) not in dependency_links:
-        dependency_links.append(str(dependency_link))
+    req, dependency_link = extract_requirement(requirement)
+    test_requirements.append(req)
+    if dependency_link and dependency_link not in dependency_links:
+        dependency_links.append(dependency_link)
 
 dependency_links = list(filter(lambda x: x is not None, dependency_links))
-
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
     name='vaas',

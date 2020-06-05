@@ -1,0 +1,57 @@
+{% spaceless %}
+{% for widget in widget.subwidgets %}
+    <div id="url_{{forloop.counter}}">
+    {% include widget.template_name %}
+    </div>
+
+    {% if forloop.last %}
+    <div class="row u_finish"></div>
+    <hr/>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-danger" id="del_url">-</button>
+    </div>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-primary" id="add_url">+</button>
+    </div>
+    {% else %}
+    <div class="row" id="u_spanner_{{forloop.counter}}"></div>
+    {% endif %}
+
+{% endfor %}
+{% endspaceless %}
+
+
+<script>
+    var urlNumbers = {{ widget.subwidgets|length }};
+    (function ($) {
+        function addUrl() {
+            urlNumbers++;
+            var newUrl = $('#url_1').clone();
+            newUrl.find("[name]").each(function(){
+                $(this).attr('name', $(this).attr('name').replace('positive_urls_0','positive_urls_' + urlNumbers));
+                $(this).attr('id', $(this).attr('id').replace('id_positive_urls_0','id_positive_urls_' + urlNumbers));
+            });
+            newUrl.find("input").each(function(){
+                $(this).attr("value", "");
+            });
+            $('.u_finish').before('<div class="row" id="u_spanner_' + urlNumbers + '"></div><div id="url_' + urlNumbers + '">' + newUrl.html() + '</div>');
+        }
+
+        function delUrl() {
+            var lastUrl = $("[id^='url_']").last();
+            if (lastUrl.attr('id') != 'url_1') {
+                lastUrl.remove();
+                $("[id^='u_spanner_']").last().remove();
+            }
+            urlNumbers--;
+        }
+
+        window.addEventListener('load', (event) => {
+            document.getElementById("add_url").addEventListener("click", addUrl);
+            document.getElementById("del_url").addEventListener("click", delUrl);
+        });
+
+
+    })(django.jQuery);
+
+</script>
