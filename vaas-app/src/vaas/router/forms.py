@@ -1,17 +1,30 @@
 # -*- coding: utf-8 -*-
-
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, ModelMultipleChoiceField, Select
+from django.forms import ModelForm, ModelMultipleChoiceField, Select, MultiValueField
 
-from vaas.adminext.widgets import ComplexConditionWidget, PrioritySelect, SearchableSelect, split_complex_condition
+from vaas.adminext.widgets import ComplexConditionWidget, MultiUrlWidget, PrioritySelect, SearchableSelect, \
+    split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
-from vaas.router.models import Route, provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, provide_route_configuration
+
+
+class MultipleUrl(MultiValueField):
+    def clean(self, value):
+        return value
 
 
 class RouteModelForm(ModelForm):
+    positive_urls = MultipleUrl(widget=MultiUrlWidget())
+
     def __init__(self, *args, **kwargs):
+        initial_urls = []
+        if kwargs.get('instance', None):
+            if not kwargs.get('initial', None):
+                kwargs['initial'] = {}
+            initial_urls = [p.url for p in kwargs['instance'].positive_urls.all()]
+            kwargs['initial']['positive_urls'] = initial_urls
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
@@ -21,6 +34,7 @@ class RouteModelForm(ModelForm):
             queryset=LogicalCluster.objects.order_by('name'),
             widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters')
         )
+        self.fields['positive_urls'].widget.decompress(initial_urls)
         for related in ('clusters', 'director'):
             if hasattr(self.fields[related].widget, 'widget'):
                 self.fields[related].widget = self.fields[related].widget.widget
@@ -42,6 +56,16 @@ class RouteModelForm(ModelForm):
             ),
             'director': SearchableSelect(),
         }
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.save()
+        instance.positive_urls.exclude(url__in=self.cleaned_data['positive_urls']).delete()
+        existing_urls = instance.positive_urls.values_list('url', flat=True)
+        for url in self.cleaned_data['positive_urls']:
+            if url not in existing_urls:
+                PositiveUrl.objects.create(url=url, route=instance)
+        return instance
 
     def clean_condition(self):
         complex_condition = self.cleaned_data['condition']

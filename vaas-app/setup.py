@@ -2,11 +2,9 @@
 
 import os
 import sys
-from os.path import expanduser
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test
-from setuptools.command.install import install
 from setuptools.command.egg_info import egg_info as org_egg_info
 
 assert sys.version_info >= (3, 5), "Python 3.5+ required."
@@ -70,15 +68,43 @@ class VaaSEggInfo(org_egg_info):
         org_egg_info.run(self)
 
 
-base_requirements = None
-test_requirements = None
+def extract_requirement(requirement):
+    req = None
+    link = None
+    if hasattr(requirement, 'req'):
+        req = str(getattr(requirement, 'req'))
+        if hasattr(requirement, 'link'):
+            link = str(getattr(requirement, 'link'))
+    elif hasattr(requirement, 'requirement'):
+        from pip._internal.req.constructors import parse_req_from_line
+        parts = parse_req_from_line(requirement.requirement, requirement.line_source)
+        if parts.requirement.url:
+            req = str(parts.requirement.name)
+            link = str(parts.requirement.url)
+        else:
+            req = requirement.requirement
 
-with open(os.path.join(current_dir, 'requirements/base.txt')) as reqs_file:
-    base_requirements = reqs_file.read().splitlines()
+    assert req is not None, "Unknown requirement, cannot find properties req or requirement {}".format(requirement.__dict__)
+    return req, link
 
-with open(os.path.join(current_dir, 'requirements/test.txt')) as reqs_file:
-    test_requirements = reqs_file.read().splitlines()
 
+base_requirements = []
+test_requirements = []
+dependency_links = []
+
+for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt'.format(current_dir), session=False)):
+    req, dependency_link = extract_requirement(requirement)
+    base_requirements.append(req)
+    if dependency_link:
+        dependency_links.append(dependency_link)
+
+for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
+    req, dependency_link = extract_requirement(requirement)
+    test_requirements.append(req)
+    if dependency_link and dependency_link not in dependency_links:
+        dependency_links.append(dependency_link)
+
+dependency_links = list(filter(lambda x: x is not None, dependency_links))
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
     name='vaas',
