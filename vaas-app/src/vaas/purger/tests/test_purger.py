@@ -31,8 +31,8 @@ class VarnishPurgerTest(TestCase):
         request_mock.assert_has_calls(calls, any_order=True)
 
         self.assertEqual(2, len(result['success']))
-        self.assertEqual(expected_message_varnish1, result['success']['127.0.0.1'])
-        self.assertEqual(expected_message_varnish2, result['success']['127.0.0.2'])
+        self.assertCountEqual(expected_message_varnish1, result['success']['127.0.0.1'])
+        self.assertCountEqual(expected_message_varnish2, result['success']['127.0.0.2'])
 
     @patch('http.client.HTTPConnection.getresponse', Mock(return_value=Mock(status=200)))
     @patch('http.client.HTTPConnection.request')
@@ -73,4 +73,4 @@ class VarnishPurgerTest(TestCase):
             "header2": ["val1", "val2"]
         }
         result = VarnishPurger().prepare_headers_combinations(headers)
-        self.assertEqual(result, excepted_result)
+        self.assertCountEqual(result, excepted_result)
