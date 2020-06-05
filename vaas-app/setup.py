@@ -6,6 +6,10 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test
 from setuptools.command.egg_info import egg_info as org_egg_info
+try: # for pip >= 10
+    from pip._internal.req import parse_requirements
+except ImportError: # for pip <= 9.0.3
+    from pip.req import parse_requirements
 
 assert sys.version_info >= (3, 5), "Python 3.5+ required."
 
@@ -123,6 +127,7 @@ setup(
     package_dir={'': 'src'},
     zip_safe=False,  # because templates are loaded from file path
     tests_require=test_requirements,
+    dependency_links=dependency_links,
     install_requires=base_requirements,
     entry_points={
         'console_scripts': [
