@@ -27,20 +27,29 @@ class TestPurgerApiViewPermissions(BaseApiViewPermissionsTest):
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', hostname='server1', dc=dc1, status='enabled',
                                                     template=template_v4, cluster=cluster1)
 
-        self.purger_data = {"url": "http://example.com/contact", "clusters": "first_cluster"}
+        self.purger_data = {
+            "url": "http://example.com/contact", "clusters": "first_cluster", "headers": {"key1": ["val1"]}
+        }
 
     def test_get_directors_unauthenticated(self):
         self.assertHttpUnauthorized(self.api_client.post(self.PURGER_RESOURCE, format='json', data=self.purger_data))
 
     @patch('vaas.purger.purger.HTTPConnection.getresponse', Mock(return_value=Mock(status=200)))
     @patch('http.client.HTTPConnection.request')
-    def test_user_with_staff_status_can_purge_url(self, response_mock):
+    def test_user_with_staff_status_can_purge_url(self, request_mock):
         resp = self.api_client.post(self.PURGER_RESOURCE, format='json', data=self.purger_data,
                                     authentication=self.create_apikey(self.normal_user, self.API_KEY_USER))
         self.assertValidJSONResponse(resp)
-        self.assertEqual(self.deserialize(resp)['success'], {
-            '{}'.format(self.varnish.ip): 'varnish http response code: 200, url={}'.format(self.purger_data['url'])
-        })
+        print(self.deserialize(resp)['success'])
+        self.assertEqual(
+            self.deserialize(resp)['success'],
+            {
+                '127.0.0.1': [
+                    "varnish http response code: 200, url=http://example.com/contact, headers=[('Host', 'example.com'), ('key1', 'val1')], server=127.0.0.1:80"   # noqa
+                ]
+            }
+        )
+        request_mock.assert_called_with('PURGE', '/contact', body='', headers={'key1': 'val1', 'Host': 'example.com'})
 
     @patch('vaas.purger.purger.HTTPConnection.getresponse', Mock(return_value=Mock(status=200)))
     @patch('http.client.HTTPConnection.request')

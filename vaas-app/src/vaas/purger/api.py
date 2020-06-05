@@ -3,7 +3,7 @@ from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.resources import Resource
-from tastypie.http import HttpResponse
+from tastypie.http import HttpResponse, HttpApplicationError
 from tastypie.exceptions import ImmediateHttpResponse, Unauthorized
 from vaas.cluster.cluster import ServerExtractor
 from vaas.cluster.models import LogicalCluster
@@ -20,6 +20,7 @@ class Purger(object):
 
 class PurgeUrl(Resource):
     url = fields.CharField(attribute='url')
+    headers = fields.DictField(attribute='headers')
     clusters = fields.CharField(attribute='clusters')
 
     class Meta:
@@ -40,14 +41,17 @@ class PurgeUrl(Resource):
         except Unauthorized as e:
             self.unauthorized_result(e)
 
-        url, clusters = bundle.data['url'], bundle.data['clusters']
+        url, clusters, headers = bundle.data['url'], bundle.data['clusters'], bundle.data.get('headers')
         purger = VarnishPurger()
 
         if not isinstance(clusters, list):
             clusters = [clusters]
 
         servers = ServerExtractor().extract_servers_by_clusters(LogicalCluster.objects.filter(name__in=clusters))
-        raise ImmediateHttpResponse(self.create_json_response(purger.purge_url(url, servers), HttpResponse))
+        purger_result = purger.purge_url(url, servers, headers)
+        if len(purger_result.get("error")) > 0:
+            raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpApplicationError))
+        raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpResponse))
 
     def get_object_list(self, request):
         return None
