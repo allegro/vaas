@@ -61,7 +61,7 @@ class RouteModelForm(ModelForm):
         instance = super().save(*args, **kwargs)
         instance.save()
         instance.positive_urls.exclude(url__in=self.cleaned_data['positive_urls']).delete()
-        existing_urls = [p.url for p in instance.positive_urls.all()]
+        existing_urls = instance.positive_urls.values_list('url', flat=True)
         for url in self.cleaned_data['positive_urls']:
             if url not in existing_urls:
                 PositiveUrl.objects.create(url=url, route=instance)
