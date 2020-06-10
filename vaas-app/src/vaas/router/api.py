@@ -8,18 +8,28 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
 
+class PositiveUrlResource(Resource):
+    url = fields.CharField(attribute='url')
+
+    def dehydrate(self, bundle):
+        bundle = super().dehydrate(bundle)
+        del bundle.data['resource_uri']
+        return bundle
+
+
 class RouteResource(ModelResource):
     director = fields.ForeignKey('vaas.manager.api.DirectorResource', 'director')
     clusters = fields.ToManyField('vaas.cluster.api.LogicalClusterResource', 'clusters')
+    positive_urls = fields.ToManyField('vaas.router.api.PositiveUrlResource', 'positive_urls', full=True)
 
     class Meta:
-        queryset = Route.objects.all().prefetch_related('clusters')
+        queryset = Route.objects.all().prefetch_related('clusters', 'positive_urls')
         resource_name = 'route'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
@@ -38,11 +48,27 @@ class RouteResource(ModelResource):
                 bundle.data['condition_{}_{}'.format(i, j)] = part
         return bundle
 
+    def full_hydrate(self, bundle):
+        positive_urls = bundle.data.get('positive_urls', [])
+        bundle = super().full_hydrate(bundle)
+        bundle.data['positive_urls'] = [p['url'] for p in positive_urls]
+        return bundle
+
     def dehydrate_director(self, bundle):
         return bundle.obj.director.name
 
     def dehydrate_clusters(self, bundle):
         return list(bundle.obj.clusters.values_list('name', flat=True))
+
+    def save(self, bundle, *args, **kwargs):
+        positive_urls = bundle.data.get('positive_urls', [])
+        bundle = super().save(bundle, *args, **kwargs)
+        bundle.obj.positive_urls.exclude(url__in=positive_urls).delete()
+        existing_urls = bundle.obj.positive_urls.values_list('url', flat=True)
+        for url in positive_urls:
+            if url not in existing_urls:
+                PositiveUrl.objects.create(url=url, route=bundle.obj)
+        return bundle
 
 
 class LeftResource(Resource):
