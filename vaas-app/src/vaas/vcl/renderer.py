@@ -6,7 +6,9 @@ import hashlib
 import time
 import re
 
+from django.conf import settings
 from jinja2 import Environment, FileSystemLoader
+
 from vaas.manager.models import Backend, Director
 from vaas.router.models import Route
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
@@ -16,7 +18,7 @@ VCL_TAGS = {
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
         ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
-            'PROPER_PROTOCOL_REDIRECT'],
+            'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
             'SET_ROUTE_{ROUTE}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
@@ -243,6 +245,8 @@ class VclTagBuilder(object):
             vcl_tag.parameters['probes'] = self.placeholders['probe']
         elif tag_name == 'FLEXIBLE_ROUTER':
             vcl_tag.parameters['routes'] = self.placeholders['routes']
+        elif tag_name == 'TEST_ROUTER':
+            vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
 
         return vcl_tag
 
@@ -307,45 +311,50 @@ class VclRendererInput(object):
 
 class VclRenderer(object):
     def render(self, varnish, version, input):
-        start = time.time()
-        vcl_tag_builder = VclTagBuilder(varnish, input)
-        logging.getLogger('vaas').debug(
-            "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
-        )
-        content = varnish.template.content
-        for vcl_tags_level in VCL_TAGS[varnish.template.version]:
-            for tag_name in vcl_tags_level:
-                for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
-                    content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
+        try:
+            start = time.time()
+            vcl_tag_builder = VclTagBuilder(varnish, input)
+            logging.getLogger('vaas').debug(
+                "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
+            )
 
-        content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
+            content = varnish.template.content
+            for vcl_tags_level in VCL_TAGS[varnish.template.version]:
+                for tag_name in vcl_tags_level:
+                    for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
+                        content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
 
-        """
-        If can not expand SET_BACKEND_director_name tag, replace this with synth html response which
-        contains information about empty director, or director with disabled all backends.
-        Replace only if rendered vcl contains empty director synth.
-        """
-        for vcl_tags_level in VCL_TAGS[varnish.template.version]:
-            for tag_name in vcl_tags_level:
-                if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
-                    content = re.sub(
-                        r'<SET_BACKEND_([^\/]+)/>',
-                        r'return(synth(404, "<!--Director \1 has no backends or is disabled-->"));',
-                        content
-                    )
+            content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
 
-        """
-        Comment not expanded parameterized tags
-        """
-        for vcl_tags_level in VCL_TAGS[varnish.template.version]:
-            for tag_name in vcl_tags_level:
-                if '{' in tag_name:
-                    tag_prefix = '<' + tag_name[0: tag_name.find("{")]
-                    content = content.replace(tag_prefix, '#' + tag_prefix)
+            """
+            If can not expand SET_BACKEND_director_name tag, replace this with synth html response which
+            contains information about empty director, or director with disabled all backends.
+            Replace only if rendered vcl contains empty director synth.
+            """
+            for vcl_tags_level in VCL_TAGS[varnish.template.version]:
+                for tag_name in vcl_tags_level:
+                    if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
+                        content = re.sub(
+                            r'<SET_BACKEND_([^\/]+)/>',
+                            r'return(synth(404, "<!--Director \1 has no backends or is disabled-->"));',
+                            content
+                        )
 
-        content = content.replace("\r", '')
-        vcl = Vcl(content, name=str(varnish.template.name + '-' + version))
-        logging.getLogger('vaas').debug(
-            "[%s] vcl '%s' rendering time: %f" % (varnish.ip, vcl.name, time.time() - start)
-        )
-        return vcl
+            """
+            Comment not expanded parameterized tags
+            """
+            for vcl_tags_level in VCL_TAGS[varnish.template.version]:
+                for tag_name in vcl_tags_level:
+                    if '{' in tag_name:
+                        tag_prefix = '<' + tag_name[0: tag_name.find("{")]
+                        content = content.replace(tag_prefix, '#' + tag_prefix)
+
+            content = content.replace("\r", '')
+            vcl = Vcl(content, name=str(varnish.template.name + '-' + version))
+            logging.getLogger('vaas').debug(
+                "[%s] vcl '%s' rendering time: %f" % (varnish.ip, vcl.name, time.time() - start)
+            )
+            return vcl
+        except:
+            logging.getLogger('vaas').exception('Cannot render template')
+            raise

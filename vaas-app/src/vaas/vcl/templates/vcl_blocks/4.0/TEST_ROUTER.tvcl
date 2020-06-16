@@ -1,0 +1,4 @@
+# Test ROUTER
+if (req.http.{{ validation_header }} == "1") {
+    return (synth(601, "Test routing response"));
+}
