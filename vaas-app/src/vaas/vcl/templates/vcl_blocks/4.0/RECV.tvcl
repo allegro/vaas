@@ -2,6 +2,7 @@
 sub vcl_recv {
 <ROUTER/>
 <FLEXIBLE_ROUTER/>
+<TEST_ROUTER/>
     # Call protocol redirect sub
     call protocol_redirect;
 
@@ -11,3 +12,5 @@ sub vcl_recv {
     }
     return (hash);
 }
+
+<TEST_RESPONSE_SYNTH/>

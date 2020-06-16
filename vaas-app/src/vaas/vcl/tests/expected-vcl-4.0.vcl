@@ -247,7 +247,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "cbfa3", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "5d384", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -359,6 +359,10 @@ sub vcl_recv {
 
     }
 
+# Test ROUTER
+if (req.http.x-validation == "1") {
+    return (synth(601, "Test routing response"));
+}
     # Call protocol redirect sub
     call protocol_redirect;
 
@@ -367,6 +371,18 @@ sub vcl_recv {
         return (pass);
     }
     return (hash);
+}
+
+## test response synth ##
+sub vcl_synth {
+    if (resp.status == 601) {
+        set req.http.X-Director = regsuball(req.http.X-VaaS-Director, ".*/", "\1");
+        synthetic ( {"{ "route": ""} + req.http.X-Route + {"", "director": ""} + req.http.X-Director + {"" }"} );
+        set resp.http.X-Validation-Response = 1;
+        set resp.http.Content-Type = "application/json";
+        set resp.status = 203;
+        return (deliver);
+    }
 }
 ## other functions ##
 ## empty director synth ##

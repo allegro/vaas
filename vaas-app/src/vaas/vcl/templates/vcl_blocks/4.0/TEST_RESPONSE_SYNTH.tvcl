@@ -1,0 +1,11 @@
+## test response synth ##
+sub vcl_synth {
+    if (resp.status == 601) {
+        set req.http.X-Director = regsuball(req.http.X-VaaS-Director, ".*/", "\1");
+        synthetic ( {"{ "route": ""} + req.http.X-Route + {"", "director": ""} + req.http.X-Director + {"" }"} );
+        set resp.http.X-Validation-Response = 1;
+        set resp.http.Content-Type = "application/json";
+        set resp.status = 203;
+        return (deliver);
+    }
+}
