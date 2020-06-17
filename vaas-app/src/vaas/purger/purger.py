@@ -1,7 +1,6 @@
 import logging
 from itertools import product
 from collections import defaultdict
-from itertools import repeat
 from urllib.parse import urlparse
 from http.client import HTTPConnection, BadStatusLine
 from concurrent import futures
@@ -29,7 +28,12 @@ class VarnishPurger(object):
             requests_futures = []
             for server in servers:
                 for header_combination in headers_combinations:
-                    executor.submit(self.purge_server, url, parsed_url, data, server, header_combination)
+                    requests_futures.append(executor.submit(self.purge_server,
+                                                            url,
+                                                            parsed_url,
+                                                            data, server,
+                                                            header_combination)
+                                            )
         for future in futures.as_completed(requests_futures):
             pass
 
