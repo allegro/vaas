@@ -172,6 +172,11 @@ CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
 # 5min we will wait for kill task
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = 300
 
+CELERY_ROUTES = {
+    'vaas.router.test.make_routes_test': {'queue': 'routes_test_queue'},
+    'vaas.*': {'queue': 'worker_queue'},
+}
+
 VARNISH_COMMAND_TIMEOUT = 5
 
 # UWSGI CONTEXT SWITCH (UGREEN)

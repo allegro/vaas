@@ -30,6 +30,19 @@ class PositiveUrl(models.Model):
     )
 
 
+class RoutesTestTask(object):
+    def __init__(self, pk=None, status=None, info=None):
+        self.pk = pk
+        self.status = status
+        self.info = info
+
+    def __eq__(self, other):
+        return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
+
+    def __repr__(self):
+        return '{}'.format(self.__dict__)
+
+
 class Left(object):
     def __init__(self, left, name):
         self.pk = left
