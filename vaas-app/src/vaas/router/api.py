@@ -11,9 +11,9 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, PositiveUrl, RoutesTestTask, provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, RoutesTestTask, ValidationReport, provide_route_configuration
 from vaas.router.forms import RouteModelForm
-from vaas.router.test import make_routes_test
+from vaas.router.report import fetch_urls_async, prepare_report_from_task
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
@@ -25,48 +25,6 @@ class PositiveUrlResource(Resource):
         bundle = super().dehydrate(bundle)
         del bundle.data['resource_uri']
         return bundle
-
-
-class RoutesTestRequest(Resource):
-
-    class Meta:
-        resource_name = 'routes_test_request'
-        list_allowed_methods = ['post']
-        authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
-        include_resource_uri = False
-
-    def obj_create(self, bundle, **kwargs):
-        task = make_routes_test.delay()
-        raise ImmediateHttpResponse(self.create_http_response(task.id))
-
-    def get_object_list(self, request):
-        return None
-
-    def create_http_response(self, task_id):
-        response = HttpResponse(status=202)
-        response.setdefault('Location', '/api/v0.1/routes_test_task/{}/'.format(task_id))
-        return response
-
-
-class RoutesTestTaskResult(Resource):
-    status = fields.CharField(attribute='status')
-    info = fields.CharField(attribute='info')
-
-    class Meta:
-        resource_name = 'routes_test_task'
-        list_allowed_methods = ['get']
-        authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
-        fields = ['status', 'info']
-        include_resource_uri = False
-
-    def obj_get(self, bundle, **kwargs):
-        task = AsyncResult(kwargs['pk'])
-        return RoutesTestTask(kwargs['pk'], task.status, '{}'.format(task.info))
-
-    def get_object_list(self, request):
-        return None
 
 
 class RouteResource(ModelResource):
@@ -172,17 +130,39 @@ class RouteConfigurationResource(Resource):
         return None
 
 
+class ValidateRoutesRequest(Resource):
+
+    class Meta:
+        resource_name = 'validate_routes'
+        list_allowed_methods = ['post']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        include_resource_uri = False
+
+    def obj_create(self, bundle, **kwargs):
+        task = fetch_urls_async.delay()
+        raise ImmediateHttpResponse(self.create_http_response(task.id))
+
+    def get_object_list(self, request):
+        return None
+
+    def create_http_response(self, task_id):
+        response = HttpResponse(status=202)
+        response.setdefault('Location', '/api/v0.1/validation_report/{}/'.format(task_id))
+        return response
+
+
 class NamedResource(Resource):
-    id = fields.IntegerField(attribute='id')
-    name = fields.CharField(attribute='name')
+    id = fields.IntegerField(attribute='id', null=True)
+    name = fields.CharField(attribute='name', null=True)
 
     class Meta:
         include_resource_uri = False
 
 
 class AssertionResource(Resource):
-    route = fields.ToOneField(NamedResource, attribute='route', full=True)
-    director = fields.ToOneField(NamedResource, attribute='director', full=True)
+    route = fields.ToOneField(NamedResource, attribute='route', full=True, null=True)
+    director = fields.ToOneField(NamedResource, attribute='director', full=True, null=True)
 
     class Meta:
         include_resource_uri = False
@@ -191,22 +171,29 @@ class AssertionResource(Resource):
 class ValidationResultResource(Resource):
     url = fields.CharField(attribute='url')
     result = fields.CharField(attribute='result')
-    expected = fields.ToOneField(AssertionResource, attribute='expected', full=True)
-    current = fields.ToOneField(AssertionResource, attribute='current', full=True)
-    error_message = fields.CharField(attribute='error_message')
+    expected = fields.ToOneField(AssertionResource, attribute='expected', full=True, null=True)
+    current = fields.ToOneField(AssertionResource, attribute='current', full=True, null=True)
+    error_message = fields.CharField(attribute='error_message', null=True)
 
     class Meta:
         include_resource_uri = False
 
 
 class ValidationReportResource(Resource):
-    validation_results = fields.ToManyField(ValidationResultResource, 'validation_results', full=True)
-    status = fields.CharField(attribute='status')
+    validation_results = fields.ToManyField(ValidationResultResource, 'validation_results', full=True, null=True)
+    validation_status = fields.CharField(attribute='validation_status', null=True)
+    task_status = fields.CharField(attribute='task_status')
 
     class Meta:
         resource_name = 'validation_report'
         list_allowed_methods = ['get']
         authorization = DjangoAuthorization()
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
-        fields = ['validation_results', 'status']
+        fields = ['validation_results', 'validation_status', 'task_status']
         include_resource_uri = False
+
+    def obj_get(self, bundle, **kwargs):
+        return prepare_report_from_task(kwargs['pk'])
+
+    def get_object_list(self, request):
+        return None

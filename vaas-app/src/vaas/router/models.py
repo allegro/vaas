@@ -116,6 +116,7 @@ class ValidationResult(DictEqual):
 
 
 class ValidationReport(object):
-    def __init__(self, validation_results, status):
+    def __init__(self, validation_results, validation_status):
         self.validation_results = validation_results
-        self.status = status
+        self.validation_status = validation_status
+        self.task_status = 'Unknown'

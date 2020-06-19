@@ -173,7 +173,7 @@ CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = 300
 
 CELERY_ROUTES = {
-    'vaas.router.test.make_routes_test': {'queue': 'routes_test_queue'},
+    'vaas.router.report.*': {'queue': 'routes_test_queue'},
     'vaas.*': {'queue': 'worker_queue'},
 }
 

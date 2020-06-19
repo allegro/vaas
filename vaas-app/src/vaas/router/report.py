@@ -1,4 +1,45 @@
-from vaas.router.models import Assertion, Named, ValidationReport, ValidationResult
+from celery.result import AsyncResult
+from django.conf import settings
+
+from vaas.manager.models import Director
+from vaas.router.fetcher import Fetcher, ValidationResponse
+from vaas.router.models import Assertion, Named, PositiveUrl, Route, ValidationReport, ValidationResult
+from vaas.settings.celery import app
+
+
+def _to_dict(element):
+    result = element
+    if hasattr(element, '__dict__'):
+        result = {}
+        for k, v in element.__dict__.items():
+            result[k] = _to_dict(v)
+
+    elif type(element) == list:
+        result = []
+        for subelement in element:
+            result.append(_to_dict(subelement))
+    return result
+
+
+@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+def fetch_urls_async(self):
+    positive_urls = PositiveUrl.objects.all()
+    return _to_dict(Fetcher().check_urls(positive_urls))
+
+
+def prepare_report_from_task(task_id):
+    task = AsyncResult(task_id)
+    report = ValidationReport(None, None)
+    if task.ready() and task.successful():
+        validation_responses = [ValidationResponse(**response_dict) for response_dict in task.get()]
+        directors = Director.objects.all()
+        routes = Route.objects.all()
+        report = ReportGenerator(directors, routes).generate_report(
+            validation_responses
+        )
+    report.task_status = task.status
+    report.pk = task_id
+    return report
 
 
 class ReportGenerator(object):
