@@ -7,8 +7,8 @@ import requests
 class ValidationResponse(object):
 
     def __init__(self, url, director, route, status_code, expected_route):
-        self.url = url,
-        self.director = director,
+        self.url = url
+        self.director = director
         self.route = route
         self.status_code = status_code
         self.expected_route = expected_route

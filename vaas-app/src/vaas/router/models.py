@@ -43,39 +43,41 @@ class RoutesTestTask(object):
         return '{}'.format(self.__dict__)
 
 
-class Left(object):
+class DictEqual(object):
+    def __repr__(self):
+        return '{}'.format(self.__dict__)
+
+    def __eq__(self, other):
+        return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
+
+
+class Left(DictEqual):
     def __init__(self, left, name):
         self.pk = left
         self.left = left
         self.name = name
 
 
-class Operator(object):
+class Operator(DictEqual):
     def __init__(self, operator, name):
         self.pk = operator
         self.operator = operator
         self.name = name
 
 
-class Action(object):
+class Action(DictEqual):
     def __init__(self, action, name):
         self.pk = action
         self.action = action
         self.name = name
 
 
-class RouteConfiguration(object):
+class RouteConfiguration(DictEqual):
     def __init__(self, lefts, operators, actions):
         self.pk = 'configuration'
         self.lefts = lefts
         self.operators = operators
         self.actions = actions
-
-    def __eq__(self, other):
-        return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
-
-    def __repr__(self):
-        return '{}'.format(self.__dict__)
 
 
 def provide_route_configuration():
@@ -90,3 +92,30 @@ def provide_route_configuration():
             Action(action='pass', name='pass route directly'),
         ],
     )
+
+
+class Named(DictEqual):
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+
+
+class Assertion(DictEqual):
+    def __init__(self, route, director):
+        self.route = route
+        self.director = director
+
+
+class ValidationResult(DictEqual):
+    def __init__(self, url, result, expected, current, error_message):
+        self.url = url
+        self.result = result
+        self.expected = expected
+        self.current = current
+        self.error_message = error_message
+
+
+class ValidationReport(object):
+    def __init__(self, validation_results, status):
+        self.validation_results = validation_results
+        self.status = status
