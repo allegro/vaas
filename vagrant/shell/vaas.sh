@@ -51,9 +51,9 @@ Environment=DJANGO_SETTINGS_MODULE=vaas.settings.local
 Environment=PYTHONPATH=/home/vagrant/vaas/plugins
 ExecStartPre=/bin/mkdir -p /var/run/celery
 ExecStartPre=/bin/chown -R vagrant:vagrant /var/run/celery
-ExecStart=/bin/sh -c '/home/vagrant/venv/bin/celery multi start worker --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
-ExecStop=/bin/sh -c '/home/vagrant/venv/bin/celery multi stopwait worker --pidfile=/var/run/celery/calery.pid'
-ExecReload=/bin/sh -c '/home/vagrant/venv/bin/celery multi restart worker --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings worker --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery.pid --concurrency=1'
+ExecStart=/bin/sh -c '/home/vagrant/venv/bin/celery multi start worker routes_test -c:worker 1 -c:routes_test 1 -Q:worker worker_queue -Q:routes_test routes_test_queue --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery_%%n.pid'
+ExecStop=/bin/sh -c '/home/vagrant/venv/bin/celery multi stopwait worker routes_test --pidfile=/var/run/celery/celery_%%n.pid'
+ExecReload=/bin/sh -c '/home/vagrant/venv/bin/celery multi restart worker routes_test -c:worker 1 -c:routes_test 1 -Q:worker worker_queue -Q:routes_test routes_test_queue --workdir=/home/vagrant/vaas/vaas-app/src -A vaas.settings  --logfile=/tmp/celery.log --pidfile=/var/run/celery/celery_%%n.pid'
 
 [Install]
 WantedBy=multi-user.target

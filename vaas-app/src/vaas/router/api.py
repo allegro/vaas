@@ -2,14 +2,18 @@
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
 from tastypie.authentication import ApiKeyAuthentication, MultiAuthentication, SessionAuthentication
+from tastypie.exceptions import ImmediateHttpResponse
+from celery.result import AsyncResult
+from django.http.response import HttpResponse
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, PositiveUrl, provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, RoutesTestTask, provide_route_configuration
 from vaas.router.forms import RouteModelForm
+from vaas.router.test import make_routes_test
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
@@ -21,6 +25,48 @@ class PositiveUrlResource(Resource):
         bundle = super().dehydrate(bundle)
         del bundle.data['resource_uri']
         return bundle
+
+
+class RoutesTestRequest(Resource):
+
+    class Meta:
+        resource_name = 'routes_test_request'
+        list_allowed_methods = ['post']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        include_resource_uri = False
+
+    def obj_create(self, bundle, **kwargs):
+        task = make_routes_test.delay()
+        raise ImmediateHttpResponse(self.create_http_response(task.id))
+
+    def get_object_list(self, request):
+        return None
+
+    def create_http_response(self, task_id):
+        response = HttpResponse(status=202)
+        response.setdefault('Location', '/api/v0.1/routes_test_task/{}/'.format(task_id))
+        return response
+
+
+class RoutesTestTaskResult(Resource):
+    status = fields.CharField(attribute='status')
+    info = fields.CharField(attribute='info')
+
+    class Meta:
+        resource_name = 'routes_test_task'
+        list_allowed_methods = ['get']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        fields = ['status', 'info']
+        include_resource_uri = False
+
+    def obj_get(self, bundle, **kwargs):
+        task = AsyncResult(kwargs['pk'])
+        return RoutesTestTask(kwargs['pk'], task.status, '{}'.format(task.info))
+
+    def get_object_list(self, request):
+        return None
 
 
 class RouteResource(ModelResource):
