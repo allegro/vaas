@@ -170,3 +170,43 @@ class RouteConfigurationResource(Resource):
 
     def get_object_list(self, request):
         return None
+
+
+class NamedResource(Resource):
+    id = fields.IntegerField(attribute='id')
+    name = fields.CharField(attribute='name')
+
+    class Meta:
+        include_resource_uri = False
+
+
+class AssertionResource(Resource):
+    route = fields.ToOneField(NamedResource, attribute='route', full=True)
+    director = fields.ToOneField(NamedResource, attribute='director', full=True)
+
+    class Meta:
+        include_resource_uri = False
+
+
+class ValidationResultResource(Resource):
+    url = fields.CharField(attribute='url')
+    result = fields.CharField(attribute='result')
+    expected = fields.ToOneField(AssertionResource, attribute='expected', full=True)
+    current = fields.ToOneField(AssertionResource, attribute='current', full=True)
+    error_message = fields.CharField(attribute='error_message')
+
+    class Meta:
+        include_resource_uri = False
+
+
+class ValidationReportResource(Resource):
+    validation_results = fields.ToManyField(ValidationResultResource, 'validation_results', full=True)
+    status = fields.CharField(attribute='status')
+
+    class Meta:
+        resource_name = 'validation_report'
+        list_allowed_methods = ['get']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        fields = ['validation_results', 'status']
+        include_resource_uri = False

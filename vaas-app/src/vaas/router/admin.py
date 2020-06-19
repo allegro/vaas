@@ -1,7 +1,7 @@
 import csv
 
 from django.contrib import admin
-from vaas.router.models import PositiveUrl, Route
+from vaas.router.models import Route
 from vaas.router.forms import RouteModelForm
 
 
