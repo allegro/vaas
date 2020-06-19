@@ -35,12 +35,15 @@ class Fetcher(object):
     def fetch(self, url, route_id):
         try:
             response = requests.get(url, headers={settings.VALIDATION_HEADER: '1'})
-            data = response.json()
-            return ValidationResponse(url,
-                                      data.get('director', None),
-                                      data.get('route', None),
-                                      response.status_code,
-                                      route_id)
+            data = {}
+            try:
+                data = response.json()
+            finally:
+                return ValidationResponse(url,
+                                          data.get('director', None),
+                                          data.get('route', None),
+                                          response.status_code,
+                                          route_id)
 
         except requests.exceptions.RequestException as e:  # This is the correct syntax
             return ValidationResponse(url, None, None, -1, route_id)

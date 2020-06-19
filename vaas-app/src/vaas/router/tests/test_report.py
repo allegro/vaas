@@ -45,7 +45,7 @@ class TestReportGenerator(TestCase):
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
-        self.assertEqual('PASS', report.status)
+        self.assertEqual('PASS', report.validation_status)
         self._assert_tests_equal(expected_tests, report.validation_results)
 
     def test_should_return_failed_report_if_one_validation_response_is_incorrect(self):
@@ -71,7 +71,7 @@ class TestReportGenerator(TestCase):
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
-        self.assertEqual('FAIL', report.status)
+        self.assertEqual('FAIL', report.validation_status)
         self._assert_tests_equal(expected_tests, report.validation_results)
 
     def test_should_return_provided_different_error_messages_for_different_fails(self):
@@ -107,5 +107,5 @@ class TestReportGenerator(TestCase):
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
-        self.assertEqual('FAIL', report.status)
+        self.assertEqual('FAIL', report.validation_status)
         self._assert_tests_equal(expected_tests, report.validation_results)
