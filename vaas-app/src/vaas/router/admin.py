@@ -19,9 +19,9 @@ class RouteAdmin(admin.ModelAdmin):
 
     def get_clusters(self, obj):
         return [c.name for c in obj.clusters.all()]
-        
+
     def changelist_view(self, request, extra_context=None):
-        ctx = { 'route_tests_enabled': settings.ROUTE_TESTS_ENABLED }
+        ctx = {'route_tests_enabled': settings.ROUTE_TESTS_ENABLED}
         return super().changelist_view(request, extra_context=ctx)
 
 admin.site.register(Route, RouteAdmin)
