@@ -22,8 +22,9 @@ The following resources are available:
 |*Purger*            |Purge object from varnishes from a given cluster                          |                              |
 |*Outdated Server*   |Represents active varnish servers with outdated vcl                       |preview                       |
 |*Task*              |Represents state of reloading task - check [VaaS Request Flow](./flow.md) |preview                       |
-|*Route*             |Represents conditional routing to desidered Director                      |preview, **add, edit, delete**|
+|*Route*             |Represents conditional routing to desired Director                        |preview, **add, edit, delete**|
 |*RouteConfig*       |Represents possible request parameters, operators & actions, which can be used in Routes|preview|
+|*ValidationReport*  |Represents report of positive urls validation which checks if positive urls are handled by desired Routes|preview|
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -255,6 +256,22 @@ To list backends located in specified DC belonging to specified Director:
 ### Examine route config
 
     curl "http://localhost:3030/api/v0.1/route_config/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Trigger positive url validation (check if positive urls are routed via desired Routes)
+
+    curl -XPOST "http://localhost:3030/api/v0.1/validate_routes/?username=admin&api_key=admin_api_key&format=json"  -H'Content-Type: application/json' -d'{}'
+
+Above request is asynchronous, it means all checks are verified in background.
+Response contains *Location* header which provides url to validation report.
+Report will be available after validation is finished.
+
+### Fetch positive url validation report
+
+    curl "http://localhost:3030/api/v0.1/validation_report/<REPORT-ID>/?username=admin&api_key=admin_api_key&format=json"
+
+If report is available, field status will be set to "SUCCESS".
+Otherwise, please try again in a moment.
+The validation report is available for 500 seconds after its ready.
 
 Explore more
 ============
