@@ -136,7 +136,7 @@ class ValidateRoutesRequest(Resource):
         resource_name = 'validate_routes'
         list_allowed_methods = ['post']
         authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         include_resource_uri = False
 
     def obj_create(self, bundle, **kwargs):
@@ -188,7 +188,7 @@ class ValidationReportResource(Resource):
         resource_name = 'validation_report'
         list_allowed_methods = ['get']
         authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         fields = ['validation_results', 'validation_status', 'task_status']
         include_resource_uri = False
 

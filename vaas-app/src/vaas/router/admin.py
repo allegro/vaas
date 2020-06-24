@@ -3,6 +3,7 @@ import csv
 from django.contrib import admin
 from vaas.router.models import Route
 from vaas.router.forms import RouteModelForm
+from django.conf import settings
 
 
 class RouteAdmin(admin.ModelAdmin):
@@ -19,5 +20,8 @@ class RouteAdmin(admin.ModelAdmin):
     def get_clusters(self, obj):
         return [c.name for c in obj.clusters.all()]
 
+    def changelist_view(self, request, extra_context=None):
+        ctx = {'route_tests_enabled': settings.ROUTE_TESTS_ENABLED}
+        return super().changelist_view(request, extra_context=ctx)
 
 admin.site.register(Route, RouteAdmin)

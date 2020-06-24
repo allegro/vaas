@@ -1,0 +1,219 @@
+{% if route_tests_enabled %}
+<style>
+  .loader {
+    border: 5px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 5px solid #555;
+    width: 50px;
+    height: 50px;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+  }
+
+  @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+<script>
+  var taskURL = '';
+  const noDataPlaceholder = { name: 'no data', id: 'no data' };
+  const csrfToken = getCookie('csrftoken');
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  function csrfSafeMethod(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  function handleError(request, textStatus, errorThrown) {
+    $('#spinner').hide()
+    console.error(textStatus, errorThrown)
+    showError(errorThrown || `${textStatus}, check console log for more details`)
+  }
+  function createTask(callback) {
+    return $.ajax({
+      type: 'POST',
+      url: '/api/v0.1/validate_routes/',
+      data: '{}',
+      dataType: 'json',
+      contentType: "application/json; charset=utf-8",
+      error: handleError,
+      beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        }
+      },
+      success: callback,
+    });
+  }
+  function poolTaskStatus(url) {
+    var continuePooling = true;
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      error: handleError,
+      success: function (data, textStatus, request) {
+        const status = data.task_status
+        if (status === 'FAILURE') {
+          showError("Can't generate report. Task failed. Refresh page and try again")
+          continuePooling = false;
+          $('#spinner').hide()
+        }
+        else if (status === 'SUCCESS') {
+          const validationResults = data.validation_results;
+          const validationStatus = data.validation_status;
+          $('#results').append(createTestResult(validationResults));
+          $('#pass-count').text(countResult('PASS', validationResults));
+          $('#failed-count').text(countResult('FAIL', validationResults));
+          $('#rapport-result').addClass(`label-${statusToClass(validationStatus)}`).text(validationStatus);
+          continuePooling = false;
+          $('#spinner').hide()
+        }
+        $('#task-status').removeClass();
+        $('#task-status').addClass(`label label-${statusToClass(status)}`).text(status);
+      },
+      complete: function () { if (continuePooling) { setTimeout(function () { poolTaskStatus(url) }, 5000) } },
+      timeout: 60
+    });
+  }
+  function showError(message) {
+    $('.modal-body').prepend(`<div id="error-message" class="alert alert-danger" role="alert">${message}</div>`)
+  }
+  function statusToClass(status) {
+    switch (status) {
+      case 'PENDING':
+        return 'info';
+      case 'PASS':
+      case 'SUCCESS':
+        return 'success'
+      case 'FAIL':
+      case 'FAILURE':
+        return 'danger'
+      default:
+        return 'default'
+    }
+  }
+  function createTestResult(records) {
+    var html = '';
+    records.forEach(function (record) {
+      var errorMsg = ''
+      if (!record.current.route) record.current.route = noDataPlaceholder
+      if (!record.current.director) record.current.director = noDataPlaceholder
+      if (record.error_message) errorMsg = `<div class="alert alert-danger" role="alert">${record.error_message}</div>`
+      html += `<div class="panel panel-${statusToClass(record.result)}">
+          <div class="panel-heading">
+            <h3 class="panel-title">${record.url}</h3>
+          </div>
+          <div class="panel-body">
+            ${errorMsg}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <h5><strong>Director: </strong>${record.expected.director.name}</h5>
+                    <h5><strong>Route:</strong> <code>${record.expected.route.name}</code></h5>
+                    <h6 class="text-muted">director.id: ${record.expected.director.id}</h6>
+                    <h6 class="text-muted">route.id: ${record.expected.route.id}</h6>
+                  </div>
+                  <div class="panel-footer">
+                    Expected
+                  </div>
+                </div>
+              </div>
+                <div class="col-md-6">
+                  <div class="panel panel-default">
+                    <div class="panel-body">
+                      <h5>Director: ${record.current.director.name}</h5>
+                      <h5>Route: <code>${record.current.route.name}</code></h5>
+                      <h6 class="text-muted">director.id: ${record.current.director.id}</h6>
+                      <h6 class="text-muted">route.id: ${record.current.route.id}</h6>
+                    </div>
+                    <div class="panel-footer">Current</div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>`
+    });
+    return html
+  }
+  function countResult(resultString, records) {
+    var counter = 0;
+    records.forEach(function (record) {
+      if (record.result === resultString) {
+        counter += 1
+      }
+    })
+    return counter;
+  }
+
+  $(document).ready(function () {
+    var testResultModalEl = $('#testResultModal');
+    testResultModalEl.on('show.bs.modal', function (event) {
+      if (!taskURL) {
+        $('#error-message').remove()
+        $('#spinner').show()
+        createTask(function (data, textStatus, request) {
+          taskURL = request.getResponseHeader('Location')
+          $('#task-id').text(taskURL.split('/')[4]);
+          poolTaskStatus(taskURL);
+        });
+      }
+    });
+  })
+</script>
+<div class='pull-right'>
+  <button id="test" type="button" class="btn btn-info" data-toggle="modal" data-target="#testResultModal">
+    Run routes test
+  </button>
+</div>
+<div class="modal fade" id="testResultModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document" style="width: 80%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Routes Test Rapport</h4>
+      </div>
+      <div class="modal-body">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Task info</h3>
+          </div>
+          <div class="panel-body">
+            <h5>Task status: <span id="task-status" class="label label-default">unknown</span></h5>
+            <h5>Task ID: <span id="task-id" class="label label-default"></span></h5>
+          </div>
+        </div>
+        <h2>Tests rapport result: <span id="rapport-result" class="label label-default">UNKNOWN</span></h2>
+        <h4>
+          Details:
+          <span class="label label-success">PASS <span id="pass-count" class="badge">0</span></span>
+          <span class="label label-danger">FAILED <span id="failed-count" class="badge">0</span></span>
+        </h4>
+        <div id="spinner" class="loader center-block"></div>
+        <div id="results"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
