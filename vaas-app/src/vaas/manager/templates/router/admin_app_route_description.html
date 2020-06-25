@@ -89,10 +89,11 @@
         $('#task-status').addClass(`label label-${statusToClass(status)}`).text(status);
       },
       complete: function () { if (continuePooling) { setTimeout(function () { poolTaskStatus(url) }, 5000) } },
-      timeout: 60
+      timeout: 5000
     });
   }
   function showError(message) {
+    $('#error-message').remove()
     $('.modal-body').prepend(`<div id="error-message" class="alert alert-danger" role="alert">${message}</div>`)
   }
   function statusToClass(status) {
