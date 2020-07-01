@@ -95,7 +95,7 @@ class ReportGenerator(object):
             if current_route != validation_response.expected_route:
                 return 'FAIL', 'Request was routed to improper route'
             return 'PASS', ''
-        except:
+        except Exception:
             return 'FAIL', self._prepare_error_message_for_no_route(validation_response)
 
     def _prepare_error_message_for_no_route(self, validation_response):
