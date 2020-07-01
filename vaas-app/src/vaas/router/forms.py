@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.forms import ModelForm, ModelMultipleChoiceField, Select, MultiValueField
 
 from vaas.adminext.widgets import ComplexConditionWidget, MultiUrlWidget, PrioritySelect, SearchableSelect, \
@@ -11,12 +12,30 @@ from vaas.router.models import Route, PositiveUrl, provide_route_configuration
 
 
 class MultipleUrl(MultiValueField):
+    default_error_messages = {
+        'invalid': 'Enter a list of proper urls.',
+        'incomplete': 'Enter a complete url.',
+    }
+
     def clean(self, value):
-        return value
+        super().clean(value)
+        clean_data = [v for v in value if v not in self.empty_values]
+        self.widget.decompress(value)
+        out = self.compress(clean_data)
+        self.validate(out)
+        self.run_validators(out)
+        return clean_data
+
+    def compress(self, data_list):
+        return data_list
+
+    def run_validators(self, value):
+        for v in value:
+            super().run_validators(v)
 
 
 class RouteModelForm(ModelForm):
-    positive_urls = MultipleUrl(widget=MultiUrlWidget())
+    positive_urls = MultipleUrl(widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
 
     def __init__(self, *args, **kwargs):
         initial_urls = []

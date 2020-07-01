@@ -24,4 +24,5 @@ class RouteAdmin(admin.ModelAdmin):
         ctx = {'route_tests_enabled': settings.ROUTE_TESTS_ENABLED}
         return super().changelist_view(request, extra_context=ctx)
 
+
 admin.site.register(Route, RouteAdmin)
