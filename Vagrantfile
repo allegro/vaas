@@ -9,8 +9,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "vaas", primary: true do |vaas|
 
-    vaas.vm.box_url = "https://storage.googleapis.com/allegro-vaas-public/vaas_dev_v1.01.box"
-    vaas.vm.box = "vaas_dev_v1.01.box"
+    vaas.vm.box_url = "https://storage.googleapis.com/allegro-vaas-public/vaas_dev_v1.02.box"
+    vaas.vm.box = "vaas_dev_v1.02.box"
     vaas.vm.synced_folder ".", "/home/vagrant/vaas"
     vaas.vm.provision :shell, :privileged => false, run: "always", :path => "vagrant/shell/vaas.sh"
     vaas.vm.provision :shell, :privileged => false, :path => "vagrant/shell/prepare_git_repo.sh"
@@ -24,6 +24,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       "--name", "SCSI",
       "--hostiocache", "on"
     ]
+    # https://github.com/hashicorp/vagrant/issues/10680
+    v.customize [ "modifyvm", :id, "--uartmode1", "file", File.join(Dir.pwd, "ubuntu-xenial-16.04-cloudimg-console.log") ]
   end
 
   config.vm.define "pluton", autostart: false do |pluton|
