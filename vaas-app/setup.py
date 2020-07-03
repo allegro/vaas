@@ -7,10 +7,6 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test
 from setuptools.command.install import install
 from setuptools.command.egg_info import egg_info as org_egg_info
-try: # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
-    from pip.req import parse_requirements
 
 assert sys.version_info >= (3, 5), "Python 3.5+ required."
 
@@ -73,40 +69,19 @@ class VaaSEggInfo(org_egg_info):
         org_egg_info.run(self)
 
 
-def extract_requirement(requirement):
-    req = None
-    link = None
-    if hasattr(requirement, 'req'):
-        req = str(getattr(requirement, 'req'))
-        if hasattr(requirement, 'link'):
-            link = str(getattr(requirement, 'link'))
-    elif hasattr(requirement, 'requirement'):
-        from pip._internal.req.constructors import parse_req_from_line
-        parts = parse_req_from_line(requirement.requirement, requirement.line_source)
-        req = requirement.requirement
-        if parts.requirement.url:
-            link = str(parts.requirement.url)
-    assert req is not None, "Unknown requirement, cannot find properties req or requirement {}".format(requirement.__dict__)
-    return req, link
-
-
 base_requirements = []
 test_requirements = []
-dependency_links = []
 
-for index, requirement in enumerate(parse_requirements('{}/requirements/base.txt'.format(current_dir), session=False)):
-    req, dependency_link = extract_requirement(requirement)
-    base_requirements.append(req)
-    if dependency_link:
-        dependency_links.append(dependency_link)
+with open('{}/requirements/base.txt'.format(current_dir)) as f:
+    for line in f.read().splitlines():
+        if not line.lstrip().startswith(('#', '-r'),0,2):
+            base_requirements.append(line)
 
-for requirement in parse_requirements('{}/requirements/test.txt'.format(current_dir), session=False):
-    req, dependency_link = extract_requirement(requirement)
-    test_requirements.append(req)
-    if dependency_link and dependency_link not in dependency_links:
-        dependency_links.append(dependency_link)
+with open('{}/requirements/test.txt'.format(current_dir)) as f:
+    for line in f.read().splitlines():
+        if not line.lstrip().startswith(('#', '-r'),0,2):
+            test_requirements.append(line)
 
-dependency_links = list(filter(lambda x: x is not None, dependency_links))
 setup(
     cmdclass={'test': DjangoTestRunner, 'egg_info': VaaSEggInfo},
     name='vaas',
@@ -125,7 +100,6 @@ setup(
     package_dir={'': 'src'},
     zip_safe=False,  # because templates are loaded from file path
     tests_require=test_requirements,
-    dependency_links=dependency_links,
     install_requires=base_requirements,
     entry_points={
         'console_scripts': [

@@ -2,7 +2,7 @@ language: python
 python:
   - "3.5"
 install:
-  - pip install --upgrade pip
+  - pip install --upgrade pip setuptools
   - pip install pep8==1.5.7
   - pip install coveralls
 before_script:
