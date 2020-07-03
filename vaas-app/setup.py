@@ -74,12 +74,12 @@ test_requirements = []
 
 with open('{}/requirements/base.txt'.format(current_dir)) as f:
     for line in f.read().splitlines():
-        if not line.lstrip().startswith('-'):
+        if not line.lstrip().startswith(('#', '-r'),0,2):
             base_requirements.append(line)
 
 with open('{}/requirements/test.txt'.format(current_dir)) as f:
     for line in f.read().splitlines():
-        if not line.lstrip().startswith('-'):
+        if not line.lstrip().startswith(('#', '-r'),0,2):
             test_requirements.append(line)
 
 setup(
