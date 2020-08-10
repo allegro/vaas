@@ -33,7 +33,6 @@ class MultipleUrl(MultiValueField):
         for v in value:
             super().run_validators(v)
 
-
 class RouteModelForm(ModelForm):
     positive_urls = MultipleUrl(widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
 
