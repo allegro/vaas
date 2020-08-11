@@ -186,7 +186,7 @@ VCL_TEMPLATE_COMMENT_REGEX = env.str('VCL_TEMPLATE_COMMENT_REGEX', default=None)
 VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE', default=None)
 
 
-ROUTES_LEFT_CONDITIONS = env.str('ROUTES_LEFT_CONDITIONS', default={
+ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
     'req.url': 'URL',
     'req.http.Host': 'Domain',
     'req.http.X-Example': 'X-Example',
