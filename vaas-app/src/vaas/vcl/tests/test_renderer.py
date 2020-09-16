@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from factory import DjangoModelFactory, Sequence, SubFactory
+from factory.django import DjangoModelFactory
+from factory import Sequence, SubFactory
 from mock import *
 from nose.tools import *
 from django.test import TestCase

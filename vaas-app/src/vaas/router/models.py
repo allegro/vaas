@@ -87,6 +87,7 @@ def provide_route_configuration():
             Operator(operator='==', name='exact'),
             Operator(operator='!=', name='is different'),
             Operator(operator='~', name='match'),
+            Operator(operator='!~', name='not match'),
         ],
         [
             Action(action='pass', name='pass route directly'),
