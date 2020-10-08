@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError
 
 validate_url = URLValidator()
 
+
 class Purger(object):
     def __init__(self, url, clusters):
         self.url = url
@@ -36,6 +37,7 @@ class PurgeUrlValidation(Validation):
         except ValidationError:
             errors['url'] = 'Provided url is not valid '
         return errors
+
 
 class PurgeUrl(Resource):
     url = fields.CharField(attribute='url')
