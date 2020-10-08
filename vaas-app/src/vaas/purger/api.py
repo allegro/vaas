@@ -4,12 +4,17 @@ from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.resources import Resource
 from tastypie.http import HttpResponse, HttpApplicationError
+from tastypie.validation import Validation
 from tastypie.exceptions import ImmediateHttpResponse, Unauthorized
 from vaas.cluster.cluster import ServerExtractor
 from vaas.cluster.models import LogicalCluster
 from vaas.purger.purger import VarnishPurger
 from vaas.external.oauth import VaasMultiAuthentication
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
+
+validate_url = URLValidator()
 
 class Purger(object):
     def __init__(self, url, clusters):
@@ -17,6 +22,20 @@ class Purger(object):
         self.clusters = clusters
         self.resource_url = 1
 
+
+class PurgeUrlValidation(Validation):
+    def is_valid(self, bundle, request=None):
+        if not bundle.data:
+            return {'__all__': 'No data found in payload'}
+        errors = {}
+        if not bundle.data.get('url', None):
+            errors['url'] = 'This field is required'
+            return errors
+        try:
+            validate_url(bundle.data['url'])
+        except ValidationError:
+            errors['url'] = 'Provided url is not valid '
+        return errors
 
 class PurgeUrl(Resource):
     url = fields.CharField(attribute='url')
@@ -28,6 +47,7 @@ class PurgeUrl(Resource):
         list_allowed_methods = ['post']
         authorization = DjangoAuthorization()
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        validation = PurgeUrlValidation()
         fields = ['url', 'clusters']
         include_resource_uri = False
 
@@ -40,7 +60,9 @@ class PurgeUrl(Resource):
                 raise Unauthorized()
         except Unauthorized as e:
             self.unauthorized_result(e)
-
+        self.is_valid(bundle)
+        if bundle.errors:
+            raise ImmediateHttpResponse(response=self.error_response(bundle.request, bundle.errors))
         url, clusters, headers = bundle.data['url'], bundle.data['clusters'], bundle.data.get('headers')
         purger = VarnishPurger()
 
