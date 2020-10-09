@@ -1,24 +1,2 @@
-{% for vcl_director in vcl_directors %}
-    {% if loop.index == 1 %}
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "{{vcl_director.director.protocol}}";
-        unset req.http.X-VaaS-Prefix;
-        unset req.http.X-Forwarded-Prefix;
-        set req.http.X-Route = "{{ route.id }}";
-        set req.http.X-VaaS-Director = "{{ vcl_director.dc.symbol }}/{{ vcl_director.director.name }}";
-        {% if vcl_director.director.mode == 'hash' %}
-        set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend({{ vcl_director.director.hashing_policy }});
-        {% else %}
-        set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend();
-        {% endif %}
-    {% else %}
-        if (!std.healthy(req.backend_hint)) {
-            set req.http.X-VaaS-Director = "{{ vcl_director.dc.symbol }}/{{ vcl_director.director.name }}";
-            {% if vcl_director.director.mode == 'hash' %}
-            set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend({{ vcl_director.director.hashing_policy }});
-            {% else %}
-            set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend();
-            {% endif %}
-        }
-    {% endif %}
-{% endfor %}
+set req.http.X-Route = "{{ route.id }}";
+        call use_director_{{route.director.name}};

@@ -1,6 +1,6 @@
 # Flexible ROUTER
 {% for route in routes %}
     {% if loop.index > 1 %}    else if {% else %}    if {% endif %}({{ route.condition }}) {
-<SET_ROUTE_{{route.id}}/>
+        <SET_ROUTE_{{route.id}}/>
     }
 {% endfor %}
