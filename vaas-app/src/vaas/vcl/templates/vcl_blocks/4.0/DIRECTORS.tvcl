@@ -3,7 +3,12 @@
 {% endfor %}
 
 sub vcl_init {
-    {% for director in directors %}
+{% for director in directors %}
     <DIRECTOR_INIT_{{director.name}}/>
-    {% endfor %}
+{% endfor %}
 }
+
+{% for director in directors %}
+<USE_DIRECTOR_{{director.name}}/>
+{% endfor %}
+

@@ -207,6 +207,69 @@ sub vcl_init {
     ## END director init eighth_service ###
 
 }
+
+sub use_director_third_service {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "third.service.org";
+    set req.http.X-VaaS-Director = "dc1/third_service";
+    set req.backend_hint = third_service_dc1.backend();
+}
+sub use_director_fourth_director_which_has_a_ridiculously_long_name {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "unusual.name.org";
+    set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
+    set req.backend_hint = fourth_director_which_has_a_ridiculously_long_name_dc1.backend();
+}
+sub use_director_first_service {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/first";
+    set req.http.X-Forwarded-Prefix = "/first";
+    set req.http.X-VaaS-Director = "dc2/first_service";
+    set req.backend_hint = first_service_dc2.backend();
+}
+sub use_director_second_service {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/second";
+    set req.http.X-Forwarded-Prefix = "/second";
+    set req.http.X-VaaS-Director = "dc1/second_service";
+    set req.backend_hint = second_service_dc1.backend();
+}
+sub use_director_sixth_director_hashing_by_cookie {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/sixth";
+    set req.http.X-Forwarded-Prefix = "/sixth";
+    set req.http.X-VaaS-Director = "dc1/sixth_director_hashing_by_cookie";
+    set req.backend_hint = sixth_director_hashing_by_cookie_dc1.backend(req.http.cookie);
+}
+sub use_director_seventh_director_hashing_by_url {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/seventh";
+    set req.http.X-Forwarded-Prefix = "/seventh";
+    set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
+    set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
+}
+sub use_director_eighth_service {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/eighth";
+    set req.http.X-Forwarded-Prefix = "/eighth";
+    set req.http.X-VaaS-Director = "dc1/eighth_service";
+    set req.backend_hint = eighth_service_dc1.backend();
+}
+
 sub vcl_recv {
     if (req.url == "/vaas_status") {
         return (synth(999, ""));
@@ -224,7 +287,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "05a8a", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "7d1d5", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -251,85 +314,32 @@ sub protocol_redirect {
 }
 sub vcl_recv {
     if (req.http.host ~ "^third.service.org") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "third.service.org";
-        set req.http.X-VaaS-Director = "dc1/third_service";
-        set req.backend_hint = third_service_dc1.backend();
-
+        call use_director_third_service;
     }
     else if (req.http.host ~ "^unusual.name.org") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "unusual.name.org";
-        set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
-        set req.backend_hint = fourth_director_which_has_a_ridiculously_long_name_dc1.backend();
-
+        call use_director_fourth_director_which_has_a_ridiculously_long_name;
     }
     else if (req.url ~ "^\/first([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "/first";
-        set req.http.X-Forwarded-Prefix = "/first";
-        set req.http.X-VaaS-Director = "dc2/first_service";
-        set req.backend_hint = first_service_dc2.backend();
-
+        call use_director_first_service;
     }
     else if (req.url ~ "^\/second([\/\?].*)?$") {
-        set req.url = regsub(req.url, "^/second(/)?", "/");
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "/second";
-        set req.http.X-Forwarded-Prefix = "/second";
-        set req.http.X-VaaS-Director = "dc1/second_service";
-        set req.backend_hint = second_service_dc1.backend();
-
+    set req.url = regsub(req.url, "^/second(/)?", "/");
+        call use_director_second_service;
     }
     else if (req.url ~ "^\/sixth([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "/sixth";
-        set req.http.X-Forwarded-Prefix = "/sixth";
-        set req.http.X-VaaS-Director = "dc1/sixth_director_hashing_by_cookie";
-        set req.backend_hint = sixth_director_hashing_by_cookie_dc1.backend(req.http.cookie);
-
+        call use_director_sixth_director_hashing_by_cookie;
     }
     else if (req.url ~ "^\/seventh([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "/seventh";
-        set req.http.X-Forwarded-Prefix = "/seventh";
-        set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
-        set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
-
+        call use_director_seventh_director_hashing_by_url;
     }
     else if (req.url ~ "^\/eighth([\/\?].*)?$") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        set req.http.X-VaaS-Prefix = "/eighth";
-        set req.http.X-Forwarded-Prefix = "/eighth";
-        set req.http.X-VaaS-Director = "dc1/eighth_service";
-        set req.backend_hint = eighth_service_dc1.backend();
-
+        call use_director_eighth_service;
     }
 
 # Flexible ROUTER
     if (req.url ~ "^\/flexible") {
-        unset req.http.X-Accept-Proto;
-        set req.http.X-Accept-Proto = "https";
-        unset req.http.X-VaaS-Prefix;
-        unset req.http.X-Forwarded-Prefix;
         set req.http.X-Route = "1";
-        set req.http.X-VaaS-Director = "dc2/first_service";
-        set req.backend_hint = first_service_dc2.backend();
-
+        call use_director_first_service;
     }
 
 # Test ROUTER

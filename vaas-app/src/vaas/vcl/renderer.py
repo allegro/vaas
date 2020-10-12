@@ -18,7 +18,7 @@ VCL_TAGS = {
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH'],
         ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
-            'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH'],
+            'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH', 'USE_DIRECTOR_{DIRECTOR}'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
             'SET_ROUTE_{ROUTE}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}']
@@ -209,19 +209,12 @@ class VclTagBuilder(object):
         if tag_name.endswith('{ROUTE}'):
             applied_rules = True
             for route in self.placeholders['routes']:
-                filtered_vcl_directors = filter(
-                    lambda vcl_director: vcl_director.director.id == route.director.id,
-                    self.placeholders['vcl_director']
-                )
                 result.append(
                     VclTagExpander(
                         tag_name.replace('{ROUTE}', str(route.id)),
                         self.get_tag_template_name(tag_name),
                         self.input,
                         parameters={
-                            'vcl_directors': sorted(
-                                filtered_vcl_directors, key=lambda vcl_director: not vcl_director.is_active()
-                            ),
                             'route': route
                         }
                     )
