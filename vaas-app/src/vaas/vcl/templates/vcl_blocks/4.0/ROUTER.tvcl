@@ -1,4 +1,4 @@
-{% for director in directors %}
+{% for director in cluster_directors %}
     {% if loop.index > 1 %}    else if {% else %}    if {% endif %}({{ director.router }} ~ "^{{ director.route_expression.replace('/', '\/') }}{{ director.suffix }}") {
 <SET_BACKEND_{{director.name}}/>
     }

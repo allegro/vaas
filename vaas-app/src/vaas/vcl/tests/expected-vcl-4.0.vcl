@@ -296,6 +296,14 @@ sub use_director_eighth_service {
     set req.http.X-VaaS-Director = "dc1/eighth_service";
     set req.backend_hint = eighth_service_dc1.backend();
 }
+sub use_director_ningth_director_without_backends {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/ningth";
+    set req.http.x-action = "nobackend";
+    set req.http.x-director = "ningth_director_without_backends";
+}
 
 sub vcl_recv {
     if (req.url == "/vaas_status") {
@@ -314,7 +322,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "783c5", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "0a5ad", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -362,6 +370,9 @@ sub vcl_recv {
     else if (req.url ~ "^\/eighth([\/\?].*)?$") {
         call use_director_eighth_service;
     }
+    else if (req.url ~ "^\/ningth([\/\?].*)?$") {
+        call use_director_ningth_director_without_backends;
+    }
 
 # Flexible ROUTER
     if (req.url ~ "^\/flexible") {
@@ -375,6 +386,11 @@ if (req.http.x-validation == "1") {
 }
     # Call protocol redirect sub
     call protocol_redirect;
+
+    # Handler for no backend in director
+    if(req.http.x-action == "nobackend") {
+        return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
+    }
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {
