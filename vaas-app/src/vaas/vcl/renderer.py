@@ -332,20 +332,6 @@ class VclRenderer(object):
             content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
 
             """
-            If can not expand SET_BACKEND_director_name tag, replace this with synth html response which
-            contains information about empty director, or director with disabled all backends.
-            Replace only if rendered vcl contains empty director synth.
-            """
-            for vcl_tags_level in VCL_TAGS[varnish.template.version]:
-                for tag_name in vcl_tags_level:
-                    if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
-                        content = re.sub(
-                            r'<SET_BACKEND_([^\/]+)/>',
-                            r'return(synth(404, "<!--Director \1 has no backends or is disabled-->"));',
-                            content
-                        )
-
-            """
             Comment not expanded parameterized tags
             """
             for vcl_tags_level in VCL_TAGS[varnish.template.version]:
