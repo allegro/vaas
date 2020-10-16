@@ -1,10 +1,10 @@
 sub use_director_{{director.name}} {
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "{{director.protocol}}";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "{{ director.route_expression }}";
 {% for vcl_director in vcl_directors %}
 {% if loop.index == 1 %}
-    unset req.http.X-Accept-Proto;
-    set req.http.X-Accept-Proto = "{{vcl_director.director.protocol}}";
-    unset req.http.X-VaaS-Prefix;
-    set req.http.X-VaaS-Prefix = "{{ vcl_director.director.route_expression }}";
     {% if vcl_director.director.router == 'req.url' %}
     set req.http.X-Forwarded-Prefix = "{{ vcl_director.director.route_expression }}";
     {% endif %}
@@ -24,5 +24,8 @@ sub use_director_{{director.name}} {
         {% endif %}
     }
 {% endif %}
+{% else %}
+    set req.http.x-action = "nobackend";
+    set req.http.x-director = "{{director.name}}";
 {% endfor %}
 }

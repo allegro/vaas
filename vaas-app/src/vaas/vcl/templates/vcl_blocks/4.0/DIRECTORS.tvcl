@@ -8,7 +8,7 @@ sub vcl_init {
 {% endfor %}
 }
 
-{% for director in directors %}
+{% for director in cluster_directors %}
 <USE_DIRECTOR_{{director.name}}/>
 {% endfor %}
 

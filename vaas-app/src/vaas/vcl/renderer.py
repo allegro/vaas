@@ -120,12 +120,14 @@ class VclTagBuilder(object):
         self.input = input_data
         self.varnish = varnish
         vcl_directors = self.prepare_vcl_directors(varnish)
+        cluster_director = self.prepare_cluster_director()
         self.placeholders = {
             'dc': self.input.dcs,
             'vcl_director': vcl_directors,
             'probe': self.prepare_probe(vcl_directors),
             'active_director': self.prepare_active_directors(self.input.directors, vcl_directors),
-            'routes': self.prepare_route(self.varnish, vcl_directors)
+            'routes': self.prepare_route(self.varnish, cluster_director),
+            'cluster_directors': cluster_director,
         }
 
     def prepare_active_directors(self, directors, vcl_directors):
@@ -135,14 +137,14 @@ class VclTagBuilder(object):
                 result.append(director)
         return result
 
-    def prepare_route(self, varnish, vcl_directors):
+    def prepare_route(self, varnish, cluster_directors):
         routes = []
         for route in self.input.routes:
             if route.director.enabled is True:
                 for cluster in route.clusters.all():
                     if varnish.cluster.id == cluster.id:
-                        for vcl_director in vcl_directors:
-                            if vcl_director.director.id == route.director.id:
+                        for cluster_director in cluster_directors:
+                            if cluster_director.id == route.director.id:
                                 routes.append(route)
                                 break
         return routes
@@ -188,7 +190,7 @@ class VclTagBuilder(object):
 
         if tag_name.endswith('{DIRECTOR}'):
             applied_rules = True
-            for director in self.placeholders['active_director']:
+            for director in self.placeholders['cluster_directors']:
                 filtered_vcl_directors = filter(
                     lambda vcl_director: vcl_director.director.id == director.id, self.placeholders['vcl_director']
                 )
@@ -225,6 +227,15 @@ class VclTagBuilder(object):
 
         return result
 
+    def prepare_cluster_director(self):
+        result = []
+        for director in self.input.directors:
+            for cluster in director.cluster.all():
+                if cluster.id == self.varnish.cluster.id and director.enabled is True:
+                    result.append(director)
+
+        return result
+
     def get_tag_template_name(self, tag_name):
         return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '').replace('_{ROUTE}', '')
 
@@ -236,6 +247,7 @@ class VclTagBuilder(object):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
             vcl_tag.parameters['directors'] = self.placeholders['active_director']
             vcl_tag.parameters['probes'] = self.placeholders['probe']
+            vcl_tag.parameters['cluster_directors'] = self.placeholders['cluster_directors']
         elif tag_name == 'FLEXIBLE_ROUTER':
             vcl_tag.parameters['routes'] = self.placeholders['routes']
         elif tag_name == 'TEST_ROUTER':
@@ -318,20 +330,6 @@ class VclRenderer(object):
                         content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
 
             content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
-
-            """
-            If can not expand SET_BACKEND_director_name tag, replace this with synth html response which
-            contains information about empty director, or director with disabled all backends.
-            Replace only if rendered vcl contains empty director synth.
-            """
-            for vcl_tags_level in VCL_TAGS[varnish.template.version]:
-                for tag_name in vcl_tags_level:
-                    if 'SET_BACKEND_{DIRECTOR}' in tag_name and varnish.template.version == '4.0':
-                        content = re.sub(
-                            r'<SET_BACKEND_([^\/]+)/>',
-                            r'return(synth(404, "<!--Director \1 has no backends or is disabled-->"));',
-                            content
-                        )
 
             """
             Comment not expanded parameterized tags

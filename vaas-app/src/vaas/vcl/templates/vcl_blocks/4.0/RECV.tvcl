@@ -6,6 +6,11 @@ sub vcl_recv {
     # Call protocol redirect sub
     call protocol_redirect;
 
+    # Handler for no backend in director
+    if(req.http.x-action == "nobackend") {
+        return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
+    }
+
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {
         return (pass);

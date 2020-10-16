@@ -449,7 +449,7 @@ backend first_service_1_dc2_1_1_80 {
             version='4.0'
         )
         expected_content = '''\
-return(synth(404, "<!--Director ningth_director_without_backends has no backends or is disabled-->"));\
+        call use_director_ningth_director_without_backends;\
 '''
 
         self.varnish.template = vcl_template_with_unused_director
