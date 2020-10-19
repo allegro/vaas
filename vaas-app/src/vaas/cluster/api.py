@@ -114,6 +114,8 @@ class VarnishServerResource(ModelResource):
         always_return_data = True
         filtering = {
             'ip': ['exact'],
+            'port': ['exact'],
+            'http_port': ['exact'],
             'cluster': ['exact']
         }
 
