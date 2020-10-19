@@ -12,3 +12,15 @@ sub vcl_init {
 <USE_DIRECTOR_{{director.name}}/>
 {% endfor %}
 
+sub vcl_recv {
+if (req.http.x-use-director) {
+{% for director in cluster_directors %}
+    if (req.http.x-use-director == "{{director.name}}") {
+        call use_director_{{director.name}};
+    }
+{% endfor %}
+    if (req.http.X-VaaS-Director) {
+        return(pass);
+    }
+}
+}
