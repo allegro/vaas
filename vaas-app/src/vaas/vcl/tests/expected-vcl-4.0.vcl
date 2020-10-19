@@ -306,6 +306,37 @@ sub use_director_ningth_director_without_backends {
 }
 
 sub vcl_recv {
+if (req.http.x-use-director) {
+    if (req.http.x-use-director == "third_service") {
+        call use_director_third_service;
+    }
+    if (req.http.x-use-director == "fourth_director_which_has_a_ridiculously_long_name") {
+        call use_director_fourth_director_which_has_a_ridiculously_long_name;
+    }
+    if (req.http.x-use-director == "first_service") {
+        call use_director_first_service;
+    }
+    if (req.http.x-use-director == "second_service") {
+        call use_director_second_service;
+    }
+    if (req.http.x-use-director == "sixth_director_hashing_by_cookie") {
+        call use_director_sixth_director_hashing_by_cookie;
+    }
+    if (req.http.x-use-director == "seventh_director_hashing_by_url") {
+        call use_director_seventh_director_hashing_by_url;
+    }
+    if (req.http.x-use-director == "eighth_service") {
+        call use_director_eighth_service;
+    }
+    if (req.http.x-use-director == "ningth_director_without_backends") {
+        call use_director_ningth_director_without_backends;
+    }
+    if (req.http.X-VaaS-Director) {
+        return(pass);
+    }
+}
+}
+sub vcl_recv {
     if (req.url == "/vaas_status") {
         return (synth(999, ""));
     }
@@ -322,7 +353,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "0a5ad", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "f2a50", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
