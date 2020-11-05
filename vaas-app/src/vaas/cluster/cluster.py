@@ -37,21 +37,22 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 
 class VarnishCluster(object):
 
-    def __init__(self, timeout=1, max_workers=30):
+    def __init__(self, timeout=1):
         self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
         self.logger = logging.getLogger('vaas')
         self.timeout = timeout
-        self.max_workers = max_workers
+        self.renderer_max_workers = settings.VAAS_RENDERER_MAX_WORKERS
+        self.loader_max_workers = settings.VAAS_LOADER_MAX_WORKERS
 
     def get_vcl_content(self, varnish_server_pk):
         return VarnishApiProvider().get_api(VarnishServer.objects.get(pk=varnish_server_pk)).vcl_content_active()
 
     def load_vcl(self, start_processing_time, clusters):
         servers = ServerExtractor().extract_servers_by_clusters(clusters)
-        vcl_list = ParallelRenderer(self.max_workers).render_vcl_for_servers(
+        vcl_list = ParallelRenderer(self.renderer_max_workers).render_vcl_for_servers(
             start_processing_time.strftime("%Y%m%d_%H_%M_%S"), servers
         )
-        parallel_loader = make_parallel_loader(self.max_workers)
+        parallel_loader = make_parallel_loader(self.loader_max_workers)
 
         try:
             loaded_vcl_list = parallel_loader.load_vcl_list(vcl_list)
