@@ -5,7 +5,6 @@ import time
 
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
-from celery.exceptions import SoftTimeLimitExceeded
 
 from vaas.settings.celery import app
 
@@ -14,7 +13,7 @@ from django.conf import settings
 from vaas.api.client import VarnishApi
 from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
-from vaas.vcl.renderer import VclRenderer, VclRendererInput
+from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing
 from vaas.cluster.exceptions import VclLoadException
 
 
@@ -29,7 +28,9 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
     start_processing_time = timezone.now()
-    clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
+    clusters = LogicalCluster.objects.filter(
+        pk__in=cluster_ids, reload_timestamp__lte=emmit_time
+    ).prefetch_related('varnishserver_set')
     if len(clusters) > 0:
         return VarnishCluster().load_vcl(start_processing_time, clusters)
     return True
@@ -38,7 +39,7 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 class VarnishCluster(object):
 
     def __init__(self, timeout=1):
-        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
+        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template')
         self.logger = logging.getLogger('vaas')
         self.timeout = timeout
         self.renderer_max_workers = settings.VAAS_RENDERER_MAX_WORKERS
@@ -48,6 +49,7 @@ class VarnishCluster(object):
         return VarnishApiProvider().get_api(VarnishServer.objects.get(pk=varnish_server_pk)).vcl_content_active()
 
     def load_vcl(self, start_processing_time, clusters):
+        processing_stats = init_processing()
         servers = ServerExtractor().extract_servers_by_clusters(clusters)
         vcl_list = ParallelRenderer(self.renderer_max_workers).render_vcl_for_servers(
             start_processing_time.strftime("%Y%m%d_%H_%M_%S"), servers
@@ -70,6 +72,11 @@ class VarnishCluster(object):
             raise e
         else:
             return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
+        finally:
+            for phase, processing in processing_stats.items():
+                self.logger.info(
+                    "vcl reload phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
+                )
 
 
 class VarnishApiProvider(object):
@@ -101,11 +108,13 @@ class ServerExtractor(object):
 
     def __init__(self):
         self.logger = logging.getLogger('vaas')
-        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
+        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template')
 
+    @collect_processing
     def extract_servers_by_clusters(self, clusters):
+        cluster_ids = [cluster.id for cluster in clusters]
         self.logger.debug("Names of cluster used by load_vcl: %s" % ([cluster.name for cluster in clusters]))
-        extracted_servers = [server for server in self.servers if server.cluster in clusters]
+        extracted_servers = [server for server in self.servers if server.cluster_id in cluster_ids]
         self.logger.debug("Names of servers used by load_vcl: %s" % ([server.hostname for server in extracted_servers]))
 
         return extracted_servers
@@ -124,13 +133,13 @@ class ParallelRenderer(ParallelExecutor):
         ParallelExecutor.__init__(self, max_workers)
         self.renderer = VclRenderer()
 
+    @collect_processing
     def render_vcl_for_servers(self, vcl_name, servers):
         vcl_list = []
 
         start = time.time()
         render_input = VclRendererInput()
         self.logger.debug("vcl's prepare input data: %f" % (time.time() - start))
-
         start = time.time()
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
@@ -142,7 +151,6 @@ class ParallelRenderer(ParallelExecutor):
                 vcl_list.append(tuple([server, future_result.result()]))
 
         self.logger.debug("vcl's render time: %f" % (time.time() - start))
-
         return vcl_list
 
 
@@ -152,21 +160,25 @@ class ParallelLoader(ParallelExecutor):
         ParallelExecutor.__init__(self, max_workers)
         self.api_provider = VarnishApiProvider()
 
+    @collect_processing
     def _append_vcl(self, vcl, server, future_results, executor):
         """Suppress exceptions if cannot load vcl for server in maintenance state"""
         loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
         future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
 
+    @collect_processing
     def _format_vcl_list(self, to_use, aggregated_result):
         if not aggregated_result:
             raise VclLoadException
 
         return to_use
 
+    @collect_processing
     def _discard_unused_vcls(self, server, loader, executor, discard_results):
         discard_results.append(tuple([server, executor.submit(loader.discard_unused_vcls)]))
         return discard_results
 
+    @collect_processing
     def load_vcl_list(self, vcl_list):
         to_use = []
         start = time.time()
@@ -198,6 +210,7 @@ class ParallelLoader(ParallelExecutor):
 
         return self._format_vcl_list(to_use, aggregated_result)
 
+    @collect_processing
     def use_vcl_list(self, vcl_name, vcl_loaded_list):
         self.logger.info("Call use vcl for %d servers" % len(vcl_loaded_list))
         result = True

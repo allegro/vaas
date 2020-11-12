@@ -31,7 +31,7 @@ class LogicalCluster(models.Model):
             return False
 
     def varnish_count(self):
-        return VarnishServer.objects.filter(cluster=self).count()
+        return self.varnishserver_set.count()
 
 
 class Dc(models.Model):
