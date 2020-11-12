@@ -28,21 +28,28 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
+    emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                                           timezone=timezone.utc)
     if settings.STATSD_ENABLE:
-        total_processing_load_vcl_task_time = timezone.now() - timezone.make_aware(
-            datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            timezone=timezone.utc
-        )
-        statsd.timing( 'total_processing_time_from_order_to_execute_task', total_processing_load_vcl_task_time)
+        total_processing_load_vcl_task_time = timezone.now() - emmit_time_aware
+        statsd.timing('queue_time_from_order_to_execute_task', total_processing_load_vcl_task_time)
 
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
     if len(clusters) > 0:
+        varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
         if settings.STATSD_ENABLE:
-            statsd.gauge( 'events_with_change', 1)
-        return VarnishCluster().load_vcl(start_processing_time, clusters)
+            statsd.gauge('events_with_change', 1)
+            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
+            statsd.timing('total_time_of_processing_vcl_task_with_change',
+                           total_time_of_processing_vcl_task_with_change)
+        return varnish_cluster_load_vcl
+
     if settings.STATSD_ENABLE:
-        statsd.gauge( 'events_without_change', 1)
+        statsd.gauge('events_without_change', 1)
+        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
+        statsd.timing('total_time_of_processing_vcl_task_without_change',
+                       total_time_of_processing_vcl_task_without_change)
     return True
 
 class VarnishCluster(object):
@@ -80,11 +87,6 @@ class VarnishCluster(object):
             raise e
         else:
             return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
-        finally:
-            if settings.STATSD_ENABLE:
-                total_time_of_processing_vcl_task = timezone.now() - start_processing_time
-                statsd.timing( 'total_time_of_processing_vcl_task', total_time_of_processing_vcl_task)
-
 
 
 class VarnishApiProvider(object):
