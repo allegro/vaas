@@ -8,7 +8,8 @@ from vaas.cluster.models import LogicalCluster, VclTemplate, Dc, VarnishServer
 class OutdatedServerManagerTest(TestCase):
     def setUp(self):
         self.cluster = LogicalCluster.objects.create(name='cluster-coherency')
-        self.cluster.current_vcls.add("current_version")
+        self.cluster.current_vcls = set(["current_version"])
+        self.cluster.save()
         self.template = VclTemplate.objects.create(name='template-coherency')
         self.dc = Dc.objects.create(name='dc', symbol='dc1-coh')
 
@@ -35,7 +36,6 @@ class OutdatedServerManagerTest(TestCase):
         expected_server = OutdatedServer(
             outdated.pk, '127.0.0.1', 6082, 'dc1-coh', 'cluster-coherency', 'outdated_version'
         )
-
         self.assertEqual([expected_server], OutdatedServerManager().load('cluster-coherency'))
 
     @requests_mock.mock()

@@ -187,7 +187,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
 
     def get_tags(self, obj):
-        return ", ".join([tag.name for tag in obj.current_vcls.all()])
+        return ", ".join(obj.current_vcls)
 
     get_tags.short_description = 'Current vcls'
 
