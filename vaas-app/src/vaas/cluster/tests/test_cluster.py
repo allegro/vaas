@@ -13,9 +13,9 @@ from vaas.vcl.renderer import VclRenderer, Vcl
 from vaas.api.client import VarnishApi
 
 dc = Dc(name='Tokyo', symbol='dc2')
-cluster1 = LogicalCluster(name='cluster1')
-cluster2 = LogicalCluster(name='cluster2')
-cluster3 = LogicalCluster(name='cluster3')
+cluster1 = LogicalCluster(name='cluster1', id=1)
+cluster2 = LogicalCluster(name='cluster2', id=2)
+cluster3 = LogicalCluster(name='cluster3', id=3)
 
 servers = [
     VarnishServer(

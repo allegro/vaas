@@ -469,17 +469,17 @@ class VclVariableExpanderTest(TestCase):
         self.variable = Mock()
         self.variable.key = 'vcl_variable'
         self.variable.value = 'vcl_variable_value'
-        self.variable.cluster = self.cluster
+        self.variable.cluster_id = 1
 
         self.variable_2 = Mock()
         self.variable_2.key = 'vcl_variable_2'
         self.variable_2.value = 'vcl_variable_2_value'
-        self.variable_2.cluster = self.cluster_2
+        self.variable_2.cluster_id = 2
 
         self.variables = [self.variable, self.variable_2]
 
     def test_should_expand_variable_in_appropriate_cluster(self):
-        content = VclVariableExpander(self.cluster, self.variables).expand_variables(
+        content = VclVariableExpander(self.cluster.id, self.variables).expand_variables(
             '''\
 <VCL/>
 ## #{vcl_variable} ##

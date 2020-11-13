@@ -4,14 +4,15 @@ import logging
 import os
 import hashlib
 import time
-import re
+import functools
 
 from django.conf import settings
+from django.db.models import Prefetch
 from jinja2 import Environment, FileSystemLoader
 
 from vaas.manager.models import Backend, Director
 from vaas.router.models import Route
-from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable
+from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
 
 VCL_TAGS = {
     '4.0': [
@@ -31,8 +32,34 @@ ROUTE_SETTINGS = {
 }
 
 env = Environment(
-    trim_blocks=True, lstrip_blocks=True, loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
+    trim_blocks=True, lstrip_blocks=True, auto_reload=False,
+    loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
 )
+
+TEMPLATE_CACHE = {}
+
+processing_stats = {}
+
+
+def init_processing():
+    global processing_stats
+    processing_stats = {}
+    return processing_stats
+
+
+def collect_processing(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        global processing_stats
+        start = time.time()
+        r = func(*args, **kwargs)
+        name = func.__name__
+        if name not in processing_stats:
+            processing_stats[name] = {'time': 0, 'calls': 0}
+        processing_stats[name]['calls'] += 1
+        processing_stats[name]['time'] += time.time() - start
+        return r
+    return wrapper
 
 
 class Vcl(object):
@@ -55,15 +82,15 @@ class Vcl(object):
 
 
 class VclVariableExpander(object):
-    def __init__(self, cluster, variables):
-        self.cluster = cluster
+    def __init__(self, cluster_id, variables):
+        self.cluster_id = cluster_id
         self.variables = variables
         self.logger = logging.getLogger('vaas')
 
     def expand_variables(self, content):
 
         for variable in self.variables:
-            if self.cluster.pk == variable.cluster.pk:
+            if self.cluster_id == variable.cluster_id:
                 vcl_variable_key = "#{{{}}}".format(variable.key)
                 content = content.replace(vcl_variable_key, variable.value)
 
@@ -80,14 +107,27 @@ class VclTagExpander(object):
         if parameters is None:
             self.parameters = {}
 
+    @collect_processing
     def expand(self, vcl_template):
         db_content = self.get_db_tag_content(vcl_template)
         if not db_content:
-            template = env.get_template('vcl_blocks/' + vcl_template.version + '/' + self.template + '.tvcl')
-            return template.render(self.parameters)
+            template = self._get_template(vcl_template)
+            return self._render(template)
 
         return db_content
 
+    @collect_processing
+    def _get_template(self, vcl_template):
+        path = 'vcl_blocks/' + vcl_template.version + '/' + self.template + '.tvcl'
+        if path not in TEMPLATE_CACHE:
+            TEMPLATE_CACHE[path] = env.get_template(path)
+        return TEMPLATE_CACHE[path]
+
+    @collect_processing
+    def _render(self, template):
+        return template.render(self.parameters)
+
+    @collect_processing
     def get_db_tag_content(self, vcl_template):
         if self.can_overwrite is True:
             vcl_template_blocks = list(filter(
@@ -119,51 +159,61 @@ class VclTagBuilder(object):
     def __init__(self, varnish, input_data):
         self.input = input_data
         self.varnish = varnish
-        vcl_directors = self.prepare_vcl_directors(varnish)
-        cluster_director = self.prepare_cluster_director()
+        cluster_directors = self.prepare_cluster_directors()
+        vcl_directors, active_directors = self.prepare_vcl_directors(varnish, cluster_directors)
         self.placeholders = {
             'dc': self.input.dcs,
             'vcl_director': vcl_directors,
             'probe': self.prepare_probe(vcl_directors),
-            'active_director': self.prepare_active_directors(self.input.directors, vcl_directors),
-            'routes': self.prepare_route(self.varnish, cluster_director),
-            'cluster_directors': cluster_director,
+            'active_director': active_directors,
+            'routes': self.prepare_route(self.varnish, cluster_directors),
+            'cluster_directors': cluster_directors,
         }
 
-    def prepare_active_directors(self, directors, vcl_directors):
-        result = []
-        for director in directors:
-            if len(list(filter(lambda vcl_director: vcl_director.director.id == director.id, vcl_directors))) > 0:
-                result.append(director)
-        return result
-
+    @collect_processing
     def prepare_route(self, varnish, cluster_directors):
         routes = []
         for route in self.input.routes:
             if route.director.enabled is True:
-                for cluster in route.clusters.all():
-                    if varnish.cluster.id == cluster.id:
+                for cluster in route.cluster_ids:
+                    if varnish.cluster_id == cluster.id:
                         for cluster_director in cluster_directors:
                             if cluster_director.id == route.director.id:
                                 routes.append(route)
                                 break
         return routes
 
-    def prepare_vcl_directors(self, varnish):
-        vcl_directors = []
+    @collect_processing
+    def prepare_cluster_directors(self):
+        result = []
         for director in self.input.directors:
-            if director.enabled is True and varnish.cluster in director.cluster.all():
-                director.suffix = ROUTE_SETTINGS[director.router]['suffix']
-                for dc in self.input.dcs:
-                    backends = self.input.distributed_backends
-                    if varnish.is_canary:
-                        backends = self.input.distributed_canary_backends
-                    if (dc.symbol == varnish.dc.symbol or director.active_active) \
-                            and len(backends[dc.id][director.id]) > 0:
-                            vcl_directors.append(VclDirector(director, dc, backends[dc.id][director.id], varnish.dc))
+            for cluster in director.cluster_ids:
+                if cluster.id == self.varnish.cluster_id and director.enabled is True:
+                    result.append(director)
 
-        return vcl_directors
+        return result
 
+    @collect_processing
+    def prepare_vcl_directors(self, varnish, cluster_directors):
+        vcl_directors = []
+        active_directors = []
+        for director in cluster_directors:
+            director.suffix = ROUTE_SETTINGS[director.router]['suffix']
+            append = False
+            for dc in self.input.dcs:
+                backends = self.input.distributed_backends
+                if varnish.is_canary:
+                    backends = self.input.distributed_canary_backends
+                if (dc.symbol == varnish.dc.symbol or director.active_active) \
+                        and len(backends[dc.id][director.id]) > 0:
+                        vcl_directors.append(VclDirector(director, dc, backends[dc.id][director.id], varnish.dc))
+                        append = True
+            if append:
+                active_directors.append(director)
+
+        return vcl_directors, active_directors
+
+    @collect_processing
     def prepare_probe(self, vcl_directors):
         result = []
         for vcl_director in vcl_directors:
@@ -172,6 +222,7 @@ class VclTagBuilder(object):
 
         return result
 
+    @collect_processing
     def get_expanded_tags(self, tag_name):
         result = []
         applied_rules = False
@@ -227,15 +278,6 @@ class VclTagBuilder(object):
 
         return result
 
-    def prepare_cluster_director(self):
-        result = []
-        for director in self.input.directors:
-            for cluster in director.cluster.all():
-                if cluster.id == self.varnish.cluster.id and director.enabled is True:
-                    result.append(director)
-
-        return result
-
     def get_tag_template_name(self, tag_name):
         return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '').replace('_{ROUTE}', '')
 
@@ -258,18 +300,33 @@ class VclTagBuilder(object):
 
 class VclRendererInput(object):
     def __init__(self):
+        self.fetch_render_data()
+
+    @collect_processing
+    def fetch_render_data(self):
         """Prefetch data needed by renderer."""
-        self.directors = list(Director.objects.all().prefetch_related('probe', 'cluster', 'time_profile'))
+        self.directors = list(Director.objects.all().prefetch_related(
+            'probe',
+            'time_profile',
+            Prefetch('cluster', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids')
+        ))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
-        self.routes = list(Route.objects.all().prefetch_related('director', 'clusters'))
+        self.routes = list(Route.objects.all().prefetch_related(
+            'director',
+            Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids')
+        ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
-        self.vcl_variables = list(VclVariable.objects.all().prefetch_related('cluster'))
-        backends = list(Backend.objects.all().prefetch_related('director', 'dc', 'tags'))
+        self.vcl_variables = list(VclVariable.objects.all())
+        backends = list(Backend.objects.filter(enabled=True).prefetch_related('director', 'dc'))
+        canary_backend_ids = list(
+            Backend.objects.values_list('id', flat=True).filter(tags__name='canary').prefetch_related('director', 'dc')
+        )
         self.distributed_backends = self.distribute_backends(backends)
-        self.distributed_canary_backends = self.prepare_canary_backends(backends)
+        self.distributed_canary_backends = self.prepare_canary_backends(canary_backend_ids, backends)
 
+    @collect_processing
     def distribute_backends(self, backends):
         """Distribute backend list to two dimensional dictionary."""
         distributed_backends = self.prepare_backend_dictionary()
@@ -280,7 +337,8 @@ class VclRendererInput(object):
 
         return distributed_backends
 
-    def prepare_canary_backends(self, backends):
+    @collect_processing
+    def prepare_canary_backends(self, canary_backend_ids, backends):
         distributed_canary_backends = self.prepare_backend_dictionary()
         director_backends = {}
 
@@ -292,7 +350,7 @@ class VclRendererInput(object):
 
         for director_id, backend_list in director_backends.items():
             canary_backends = [
-                b for b in backend_list if b.enabled and b.tags.all().filter(name__in=['canary'])
+                b for b in backend_list if b.enabled and b.id in canary_backend_ids
             ]
             for canary_backend in canary_backends:
                 backend = copy.copy(canary_backend)
@@ -305,6 +363,7 @@ class VclRendererInput(object):
                         distributed_canary_backends[backend.dc.id][backend.director.id].append(backend)
         return distributed_canary_backends
 
+    @collect_processing
     def prepare_backend_dictionary(self):
         backend_dictionary = {}
         for dc in self.dcs:
@@ -329,7 +388,7 @@ class VclRenderer(object):
                     for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
                         content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
 
-            content = VclVariableExpander(varnish.cluster, input.vcl_variables).expand_variables(content)
+            content = VclVariableExpander(varnish.cluster_id, input.vcl_variables).expand_variables(content)
 
             """
             Comment not expanded parameterized tags
