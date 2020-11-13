@@ -8,7 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 from celery.exceptions import SoftTimeLimitExceeded
 
 from vaas.settings.celery import app
-
 from django.conf import settings
 
 from vaas.api.client import VarnishApi
@@ -16,6 +15,8 @@ from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput
 from vaas.cluster.exceptions import VclLoadException
+from statsd.defaults.django import statsd
+from datetime import datetime
 
 
 def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
@@ -28,10 +29,28 @@ def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
+    emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                                           timezone=timezone.utc)
+    if settings.STATSD_ENABLE:
+        queue_time_from_order_to_execute_task = timezone.now() - emmit_time_aware
+        statsd.timing('queue_time_from_order_to_execute_task', queue_time_from_order_to_execute_task)
+
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(pk__in=cluster_ids, reload_timestamp__lte=emmit_time)
     if len(clusters) > 0:
-        return VarnishCluster().load_vcl(start_processing_time, clusters)
+        varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
+        if settings.STATSD_ENABLE:
+            statsd.gauge('events_with_change', 1)
+            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
+            statsd.timing('total_time_of_processing_vcl_task_with_change',
+                          total_time_of_processing_vcl_task_with_change)
+        return varnish_cluster_load_vcl
+
+    if settings.STATSD_ENABLE:
+        statsd.gauge('events_without_change', 1)
+        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
+        statsd.timing('total_time_of_processing_vcl_task_without_change',
+                      total_time_of_processing_vcl_task_without_change)
     return True
 
 

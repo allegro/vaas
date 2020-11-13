@@ -204,3 +204,9 @@ FETCHER_MAX_HTTP_WORKERS = env.int('FETCHER_MAX_HTTP_WORKERS', default=100)
 
 # ENABLE RUN TEST BUTTON
 ROUTE_TESTS_ENABLED = env.bool('ROUTE_TESTS_ENABLED', default=True)
+
+# STATSD ENV
+STATSD_ENABLE = env.bool('STATSD_ENABLE', default=False)
+STATSD_HOST = env.str('STATSD_HOST', default='localhost')
+STATSD_PORT = env.int('STATSD_PORT', default=8125)
+STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
