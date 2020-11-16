@@ -42,7 +42,7 @@ class OutdatedServerManager(object):
         return OutdatedServer(server.id, server.ip, server.port, server.dc.symbol, server.cluster.name, current_vcl)
 
     def _is_outdated(self, server, current_vcl):
-        return current_vcl not in server.cluster.current_vcls.names()
+        return current_vcl not in server.cluster.current_vcls
 
     def _fetch_current_vcl_version(self, server):
         url = 'http://{}:{}/vaas/'.format(server.ip, server.http_port)

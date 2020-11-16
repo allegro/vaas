@@ -77,18 +77,9 @@ class VarnishCluster(object):
 
         try:
             loaded_vcl_list = parallel_loader.load_vcl_list(vcl_list)
-            for cluster in clusters:
-                current_vcls = {vcl.version for server, vcl in vcl_list if server.cluster == cluster}
-                cluster.reload_timestamp = start_processing_time
-                cluster.current_vcls.set(*current_vcls, clear=True)
-                cluster.save()
+            self._update_vcl_versions(clusters, start_processing_time, vcl_list)
         except VclLoadException as e:
-            self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-            for cluster in clusters:
-                cluster.error_timestamp = start_processing_time
-                cluster.last_error_info = str(e)[:400]
-                cluster.save()
-            raise e
+            self._handle_load_error(e, clusters, start_processing_time)
         else:
             return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
         finally:
@@ -96,6 +87,23 @@ class VarnishCluster(object):
                 self.logger.info(
                     "vcl reload phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
                 )
+
+    @collect_processing
+    def _update_vcl_versions(self, clusters, start_processing_time, vcl_list):
+        for cluster in clusters:
+            current_vcls = {vcl.version for server, vcl in vcl_list if server.cluster_id == cluster.id}
+            cluster.reload_timestamp = start_processing_time
+            cluster.current_vcls = current_vcls
+            cluster.save()
+
+    @collect_processing
+    def _handle_load_error(self, e, clusters, start_processing_time):
+        self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
+        for cluster in clusters:
+            cluster.error_timestamp = start_processing_time
+            cluster.last_error_info = str(e)[:400]
+            cluster.save()
+        raise e
 
 
 class VarnishApiProvider(object):

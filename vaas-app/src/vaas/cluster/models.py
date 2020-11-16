@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
 
 from django.utils import timezone
 from taggit.managers import TaggableManager
 from tastypie import fields
 from django.db import models
-from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from simple_history.models import HistoricalRecords
 
@@ -19,7 +19,25 @@ class LogicalCluster(models.Model):
     reload_timestamp = models.DateTimeField(default=timezone.now)
     error_timestamp = models.DateTimeField(default=timezone.now)
     last_error_info = models.CharField(max_length=400, null=True, blank=True)
-    current_vcls = TaggableManager(blank=True)
+    current_vcl_versions = models.CharField(max_length=400, default='[]')
+    _current_vcls = None
+
+    @property
+    def current_vcls(self):
+        if self._current_vcls is None:
+            try:
+                self._current_vcls = set(json.loads(self.current_vcl_versions))
+            except:
+                self._current_vcls = set()
+        return self._current_vcls
+
+    @current_vcls.setter
+    def current_vcls(self, versions):
+        if isinstance(versions, set):
+            versions = list(versions)
+        if isinstance(versions, list):
+            self._current_vcls = set(versions)
+            self.current_vcl_versions = json.dumps(versions)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.varnish_count())
