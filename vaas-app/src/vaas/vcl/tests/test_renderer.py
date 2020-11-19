@@ -408,7 +408,7 @@ class VclRendererTest(TestCase):
         vcl_renderer = VclRenderer()
         vcl_template_with_unused_director = VclTemplate.objects.create(
             name='template-with-unused-director',
-            content='<DIRECTOR_first_service/>\n<DIRECTOR_disabled_service/>',
+            content='<DIRECTOR_first_service/>\n<DIRECTOR_disabled_service/>\n<CALL_USE_DIRECTOR_unknown_director/>',
             version='4.0'
         )
         expected_content = '''\
@@ -433,7 +433,8 @@ backend first_service_1_dc2_1_1_80 {
 }
 
 ## END director first_service ###
-#<DIRECTOR_disabled_service/>\
+#<DIRECTOR_disabled_service/>
+#<CALL_USE_DIRECTOR_unknown_director/>\
 '''
 
         self.varnish.template = vcl_template_with_unused_director
