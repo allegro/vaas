@@ -10,6 +10,9 @@ sub vcl_recv {
     if(req.http.x-action == "nobackend") {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
     }
+    else if(req.http.x-action == "pipe") {
+        return (pipe);
+    }
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {

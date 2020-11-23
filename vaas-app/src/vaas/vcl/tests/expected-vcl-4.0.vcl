@@ -353,7 +353,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "f2a50", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "63305", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -408,6 +408,7 @@ sub vcl_recv {
 # Flexible ROUTER
     if (req.url ~ "^\/flexible") {
         set req.http.X-Route = "1";
+        set req.http.x-action = "pass";
         call use_director_first_service;
     }
 
@@ -421,6 +422,9 @@ if (req.http.x-validation == "1") {
     # Handler for no backend in director
     if(req.http.x-action == "nobackend") {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
+    }
+    else if(req.http.x-action == "pipe") {
+        return (pipe);
     }
 
     # POST, PUT, DELETE are passed directly to backend
@@ -440,6 +444,11 @@ sub vcl_synth {
         set resp.status = 203;
         return (deliver);
     }
+}
+sub vcl_pipe {
+    # http://www.varnish-cache.org/ticket/451
+    # This forces every pipe request to be the first one.
+    set bereq.http.connection = "close";
 }
 ## other functions ##
 ## empty director synth ##

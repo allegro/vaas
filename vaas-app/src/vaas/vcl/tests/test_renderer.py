@@ -49,6 +49,7 @@ import directors;
 <DIRECTORS/>
 <VAAS_STATUS/>
 <RECV/>
+<VCL_PIPE/>
 <OTHER_FUNCTIONS/>
 <EMPTY_DIRECTOR_SYNTH/>'''
         assert_equals(expected_v4, tag_expander.expand(self.vcl_template4))
