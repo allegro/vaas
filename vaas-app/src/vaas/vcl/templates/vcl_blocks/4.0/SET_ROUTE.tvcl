@@ -1,2 +1,3 @@
 set req.http.X-Route = "{{ route.id }}";
+        set req.http.x-action = "{{ route.action }}";
         call use_director_{{route.director.name}};

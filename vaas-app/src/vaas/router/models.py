@@ -91,6 +91,7 @@ def provide_route_configuration():
         ],
         [
             Action(action='pass', name='pass route directly'),
+            Action(action='pipe', name='bypass the cache')
         ],
     )
 
