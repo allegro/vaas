@@ -63,7 +63,9 @@ class VarnishApi(varnish.VarnishHandler):
         """
         vcl.inline - overloaded due to use internal fetch() method with configurable timout
         """
-        return self.fetch('vcl.inline %s %s' % (configname, vclcontent), timeout=settings.VARNISH_VCL_INLINE_COMMAND_TIMEOUT)
+        return self.fetch(
+            'vcl.inline %s %s' % (configname, vclcontent), timeout=settings.VARNISH_VCL_INLINE_COMMAND_TIMEOUT
+        )
 
     def fetch(self, command, timeout=None):
         """
@@ -90,7 +92,6 @@ class VarnishApi(varnish.VarnishHandler):
         buffer = varnish.VarnishHandler.read_until(self, match, timeout)
         if len(buffer):
             return buffer
-        else:
-            raise VarnishApiReadException(
-                'Timeout during varnish.VarnishHandler.read_until(self, {}, {})'.format(match, timeout)
-            )
+        raise VarnishApiReadException(
+            'Timeout during varnish.VarnishHandler.read_until(self, {}, {})'.format(match, timeout)
+        )
