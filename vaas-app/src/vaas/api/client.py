@@ -59,20 +59,25 @@ class VarnishApi(varnish.VarnishHandler):
         """
         return self.fetch('vcl.show %s' % configname)
 
-    def fetch(self, command):
+    def vcl_inline(self, configname, vclcontent):
+        """
+        vcl.inline - overloaded due to use internal fetch() method with configurable timout
+        """
+        return self.fetch(
+            'vcl.inline %s %s' % (configname, vclcontent), timeout=settings.VARNISH_VCL_INLINE_COMMAND_TIMEOUT
+        )
+
+    def fetch(self, command, timeout=None):
         """
         Run a command on the Varnish backend and return the result
         return value is a tuple of ((status, length), content)
         """
         self.write(command.encode('utf-8') + b'\n')
-        while 1:
-            buffer = self.read_until(b'\n').strip()
-            if len(buffer):
-                break
+        buffer = self.read_until(b'\n', timeout).strip()
         status, length = map(int, buffer.split())
         content = b''
         while len(content) < length:
-            content += self.read_until(b'\n')
+            content += self.read_until(b'\n', timeout)
         assert status == 200, 'Bad response code: {status} {text} ({command})'.format(
             status=status,
             text=content,
@@ -84,4 +89,9 @@ class VarnishApi(varnish.VarnishHandler):
         # override timeout for case when socket is open but process not responding
         if timeout is None:
             timeout = settings.VARNISH_COMMAND_TIMEOUT
-        return varnish.VarnishHandler.read_until(self, match, timeout)
+        buffer = varnish.VarnishHandler.read_until(self, match, timeout)
+        if len(buffer):
+            return buffer
+        raise VarnishApiReadException(
+            'Timeout during varnish.VarnishHandler.read_until(self, {}, {})'.format(match, timeout)
+        )
