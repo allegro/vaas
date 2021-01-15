@@ -58,7 +58,6 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 class VarnishCluster(object):
 
     def __init__(self, timeout=1):
-        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template')
         self.logger = logging.getLogger('vaas')
         self.timeout = timeout
         self.renderer_max_workers = settings.VAAS_RENDERER_MAX_WORKERS
@@ -81,12 +80,23 @@ class VarnishCluster(object):
         except VclLoadException as e:
             self._handle_load_error(e, clusters, start_processing_time)
         else:
-            return parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
+            result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
+            if result is False:
+                if settings.STATSD_ENABLE:
+                    statsd.incr('successful_reload_vcl', 0)
+            else:
+                if settings.STATSD_ENABLE:
+                    statsd.incr('successful_reload_vcl', 1)
+            return result
         finally:
             for phase, processing in processing_stats.items():
                 self.logger.info(
                     "vcl reload phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
                 )
+                if settings.STATSD_ENABLE:
+                    if phase in ['render_vcl_for_servers', 'use_vcl_list', '_discard_unused_vcls', '_append_vcl',
+                                 'extract_servers_by_clusters', 'fetch_render_data']:
+                        statsd.timing(phase, processing['time'])
 
     @collect_processing
     def _update_vcl_versions(self, clusters, start_processing_time, vcl_list):
@@ -99,6 +109,9 @@ class VarnishCluster(object):
     @collect_processing
     def _handle_load_error(self, e, clusters, start_processing_time):
         self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
+        if settings.STATSD_ENABLE:
+            statsd.incr('successful_reload_vcl', 0)
+
         for cluster in clusters:
             cluster.error_timestamp = start_processing_time
             cluster.last_error_info = str(e)[:400]
