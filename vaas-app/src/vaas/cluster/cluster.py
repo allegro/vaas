@@ -83,10 +83,10 @@ class VarnishCluster(object):
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
             if result is False:
                 if settings.STATSD_ENABLE:
-                    statsd.incr('successful_reload_vcl', 0)
+                    statsd.gauge('successful_reload_vcl', 0)
             else:
                 if settings.STATSD_ENABLE:
-                    statsd.incr('successful_reload_vcl', 1)
+                    statsd.gauge('successful_reload_vcl', 1)
             return result
         finally:
             for phase, processing in processing_stats.items():
@@ -110,7 +110,7 @@ class VarnishCluster(object):
     def _handle_load_error(self, e, clusters, start_processing_time):
         self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
         if settings.STATSD_ENABLE:
-            statsd.incr('successful_reload_vcl', 0)
+            statsd.gauge('successful_reload_vcl', 0)
 
         for cluster in clusters:
             cluster.error_timestamp = start_processing_time
