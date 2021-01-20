@@ -50,7 +50,7 @@ urlpatterns = [
     url(r'^account/', include('vaas.account.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(v01_api.urls)),
-    url(r'^plugins/', include('vaas.external.urls', namespace='plugins')),
+    url(r'^plugins/', include(('vaas.external.urls', 'vaas'), namespace='plugins')),
     url('', include('social_django.urls', namespace='social')),
 ]
 

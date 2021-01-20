@@ -59,7 +59,7 @@ INSTALLED_APPS = (
 INSTALLED_PLUGINS = ()
 MIDDLEWARE_PLUGINS = ()
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'djangosecure.middleware.SecurityMiddleware',
     'log_request_id.middleware.RequestIDMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
