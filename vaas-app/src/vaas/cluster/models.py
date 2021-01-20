@@ -48,6 +48,9 @@ class LogicalCluster(models.Model):
         else:
             return False
 
+    def __hash__(self):
+        return hash(self.name)
+
     def varnish_count(self):
         return self.varnishserver_set.count()
 
