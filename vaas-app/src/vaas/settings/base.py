@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
     'tastypie',
     'simple_history',
     'vaas.manager',
@@ -52,7 +53,6 @@ INSTALLED_APPS = (
     'vaas.purger',
     'taggit',
     'django_ace',
-    'social_django',
 )
 
 # Plugins definition
