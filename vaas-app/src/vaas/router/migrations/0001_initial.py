@@ -20,7 +20,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('condition', models.CharField(max_length=512)),
-                ('priority', models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(500)])),
+                ('priority', models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1),
+                                                                     django.core.validators.MaxValueValidator(500)])),
                 ('action', models.CharField(max_length=20)),
                 ('clusters', models.ManyToManyField(to='cluster.LogicalCluster')),
                 ('director', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='manager.director')),
@@ -31,7 +32,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('url', models.URLField()),
-                ('route', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='positive_urls', related_query_name='positive_url', to='router.route')),
+                ('route', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='positive_urls',
+                                            related_query_name='positive_url', to='router.route')),
             ],
         ),
     ]
