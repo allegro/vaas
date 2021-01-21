@@ -1,27 +1,27 @@
-django
-django_nose
-enum34
+django==3.1.5
+django-nose==1.4.7
+enum34==1.1.10
 wheel
-PyYAML
-jinja2
-django-tastypie
-django-log-request-id
-MarkupSafe
-nose>=1.3.4
-django-simple-history
-django-secure
-django-environ
-lockfile
-django-taggit
-celery
-requests
-GitPython
-social-auth-app-django
-defusedxml
-lxml
-flower
+PyYAML==5.4
+Jinja2==2.11.2
+django-tastypie==0.14.3
+django-log-request-id==1.6.0
+MarkupSafe==1.1.1
+nose>=1.3.7
+django-simple-history==2.12.0
+django-secure==1.0.2
+django-environ==0.4.5
+lockfile==0.12.2
+django-taggit==1.3.0
+celery==5.0.5
+requests>=2.25.1
+GitPython==3.1.12
+social-auth-app-django>=4.0.0
+defusedxml==0.6.0
+lxml==4.6.2
+flower==0.9.5
 redis @ git+https://github.com/ziollek/redis-py@3.2.2#egg=redis
-django_admin_bootstrapped @ git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.8#egg=django_admin_bootstrapped
+django_admin_bootstrapped @ git+https://github.com/TheMickeyMike/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/TheMickeyMike/python-varnish@0.2.2#egg=python_varnish
-django_ace @ git+https://github.com/TheMickeyMike/django-ace@v1.2.5#egg=django_ace
-statsd
+django_ace @ git+https://github.com/TheMickeyMike/django-ace@v1.2.5.2#egg=django_ace
+statsd>=3.3.0

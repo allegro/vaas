@@ -60,6 +60,7 @@ INSTALLED_PLUGINS = ()
 MIDDLEWARE_PLUGINS = ()
 
 MIDDLEWARE = [
+    'log_request_id.middleware.RequestIDMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -67,7 +68,6 @@ MIDDLEWARE = [
 
 MIDDLEWARE_CLASSES = (
     'djangosecure.middleware.SecurityMiddleware',
-    'log_request_id.middleware.RequestIDMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'vaas.manager.middleware.VclRefreshMiddleware',

@@ -258,11 +258,9 @@ def get_clusters_to_refresh(instance):
 
 
 def mark_cluster_as_refreshed(director, clusters):
-    import pdb;
-    pdb.set_trace()
     try:
         director.refreshed_clusters |= set(clusters)
-    except AttributeError as e:
+    except AttributeError:
         director.refreshed_clusters = set(clusters)
 
 
