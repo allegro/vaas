@@ -44,7 +44,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'social_django',
     'tastypie',
-    'simple_history',
     'vaas.manager',
     'vaas.cluster',
     'vaas.router',
@@ -53,6 +52,7 @@ INSTALLED_APPS = (
     'vaas.purger',
     'taggit',
     'django_ace',
+    'simple_history',
 )
 
 # Plugins definition
@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -72,8 +73,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'vaas.manager.middleware.VclRefreshMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'simple_history.middleware.HistoryRequestMiddleware',
 )
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
