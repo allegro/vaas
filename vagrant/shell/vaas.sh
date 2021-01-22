@@ -7,7 +7,7 @@ if [ ! -f "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-xenial.list" ]; then
     sudo add-apt-repository ppa:deadsnakes/ppa
 fi
 sudo apt-get update -y
-sudo apt-get install -y redis-server python3.9 python3.9-dev python3.9-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
+sudo apt-get install -y redis-server python3.9 python3-pip python3.9-dev python3.9-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
 
 sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 
