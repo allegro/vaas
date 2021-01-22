@@ -71,9 +71,9 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = (
     'djangosecure.middleware.SecurityMiddleware',
-]
+)
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
 
