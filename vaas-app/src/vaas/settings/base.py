@@ -60,20 +60,20 @@ INSTALLED_PLUGINS = ()
 MIDDLEWARE_PLUGINS = ()
 
 MIDDLEWARE = [
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'log_request_id.middleware.RequestIDMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'vaas.manager.middleware.VclRefreshMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'djangosecure.middleware.SecurityMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'vaas.manager.middleware.VclRefreshMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
 
