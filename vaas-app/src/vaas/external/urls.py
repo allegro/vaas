@@ -19,7 +19,7 @@ def iterate_plugins():
         for app in next(os.walk(PLUGIN_DIR))[1]:
             yield app
     except StopIteration:
-        return 
+        return
 
 
 for app in iterate_plugins():
