@@ -26,6 +26,9 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
         if uri is None:
             return None
 
+        if isinstance(uri, int):
+            return uri
+
         if isinstance(uri, Bundle):
             uri = uri.data
 
