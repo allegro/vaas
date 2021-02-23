@@ -69,7 +69,6 @@ MIDDLEWARE = [
     'vaas.manager.middleware.VclRefreshMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
-    'djangosecure.middleware.SecurityMiddleware',
 ]
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
