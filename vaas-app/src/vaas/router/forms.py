@@ -35,7 +35,7 @@ class MultipleUrl(MultiValueField):
 
 
 class RouteModelForm(ModelForm):
-    positive_urls = MultipleUrl(widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
+    positive_urls = MultipleUrl(fields='', widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
 
     def __init__(self, *args, **kwargs):
         initial_urls = []

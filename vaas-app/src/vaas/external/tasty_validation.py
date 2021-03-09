@@ -26,6 +26,9 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
         if uri is None:
             return None
 
+        if isinstance(uri, int):
+            return uri
+
         if isinstance(uri, Bundle):
             uri = uri.data
 
@@ -54,6 +57,7 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
 
     def form_args(self, bundle):
         kwargs = super(ModelCleanedDataFormValidation, self).form_args(bundle)
+        kwargs['data'].update(bundle.data)
 
         # check if model is already in database, if true change internal state
         if hasattr(kwargs['instance'], 'pk') and kwargs['instance'].pk is not None:

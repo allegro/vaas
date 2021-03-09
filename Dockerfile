@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
-RUN apt-get update &&\
-    apt-get install -y git python3.5 libxml2-dev libxslt1-dev python3.5-dev python3-venv sqlite3 libssl-dev libtool libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev nginx redis-server &&\
+RUN add-apt-repository ppa:deadsnakes/ppa &&\
+    apt-get update &&\
+    apt-get install -y git python3.9 python3-pip libxml2-dev libxslt1-dev python3.9-dev python3-venv sqlite3 libssl-dev libtool libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev nginx redis-server &&\
     apt-get clean &&\
     rm -rf /var/lib/apt/lists/* &&\
     rm /etc/nginx/sites-enabled/default
@@ -19,7 +20,7 @@ RUN chown -R vagrant:vagrant /home/vagrant &&\
 USER vagrant
 
 RUN cd /home/vagrant &&\
-    python3.5 -m venv prod-env &&\
+    python3.9 -m venv prod-env &&\
     . prod-env/bin/activate &&\
     cd /home/vagrant/vaas-app &&\
     touch src/vaas/settings/__init__.py &&\

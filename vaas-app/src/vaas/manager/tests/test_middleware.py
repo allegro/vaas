@@ -28,7 +28,7 @@ class VclRefreshMiddlewareTest(TestCase):
 
         request = MagicMock(id='10')
 
-        middleware = VclRefreshMiddleware()
+        middleware = VclRefreshMiddleware(MagicMock())
 
         assert_equals(None, middleware.process_request(request))
         assert_equals({'10': []}, VclRefreshState.refresh)
@@ -37,7 +37,7 @@ class VclRefreshMiddlewareTest(TestCase):
     def test_should_clear_state_on_response(self):
         request = MagicMock(id='10')
 
-        middleware = VclRefreshMiddleware()
+        middleware = VclRefreshMiddleware(MagicMock())
         middleware.process_request(request)
         assert_equals("test", middleware.process_response(request, "test"))
         assert_equals({}, VclRefreshState.refresh)
@@ -45,7 +45,7 @@ class VclRefreshMiddlewareTest(TestCase):
     def test_should_not_refresh_vcl_on_response_if_empty_cluster_list(self):
         request = MagicMock(id='10')
 
-        middleware = VclRefreshMiddleware()
+        middleware = VclRefreshMiddleware(MagicMock())
         middleware.process_request(request)
         clusters = []
         VclRefreshState.set_refresh(request.id, clusters)
@@ -62,7 +62,7 @@ class VclRefreshMiddlewareTest(TestCase):
     def test_should_return_error_message_if_exception_while_loading_vcl(self):
         with patch('vaas.cluster.cluster.load_vcl_task.delay', side_effect=Exception('load vcl failed')):
             request = MagicMock(id='10', session={})
-            middleware = VclRefreshMiddleware()
+            middleware = VclRefreshMiddleware(MagicMock())
             VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             middleware.process_response(request, None)
             assert_true('error_message' in request.session)
@@ -71,7 +71,7 @@ class VclRefreshMiddlewareTest(TestCase):
     def test_should_return_error_message_in_tastypie_if_exception_while_loading_vcl(self):
         with patch('vaas.cluster.cluster.load_vcl_task.delay', side_effect=Exception('load vcl failed')):
             request = MagicMock(id='10', session={})
-            middleware = VclRefreshMiddleware()
+            middleware = VclRefreshMiddleware(MagicMock())
             VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             response = middleware.process_response(request, HttpCreated())
             assert_true(isinstance(response, HttpApplicationError))

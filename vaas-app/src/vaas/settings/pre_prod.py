@@ -12,6 +12,6 @@ for key, value in YamlConfigLoader().get_config_tree('pre_prod.yml').items():
     globals()[key] = value
 
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
-MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + tuple(MIDDLEWARE_PLUGINS)
+MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
 
 from .oauth import *

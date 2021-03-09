@@ -50,7 +50,19 @@ class VclRefreshState(object):
         return result
 
 
-class VclRefreshMiddleware(object):
+class VclRefreshMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if hasattr(self, 'process_request'):
+            self.process_request(request)
+        response = self.get_response(request)
+        if hasattr(self, 'process_response'):
+            response = self.process_response(request, response)
+        return response
+
     def process_request(self, request):
         """
         Method used with every HTTP request.

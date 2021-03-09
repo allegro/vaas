@@ -48,6 +48,9 @@ class LogicalCluster(models.Model):
         else:
             return False
 
+    def __hash__(self):
+        return hash(self.name)
+
     def varnish_count(self):
         return self.varnishserver_set.count()
 
@@ -140,7 +143,7 @@ class VclTemplateBlock(models.Model):
 class VclVariable(models.Model):
     key = models.CharField(max_length=100, validators=[vcl_variable_key_validator])
     value = models.CharField(max_length=254)
-    cluster = models.ForeignKey(LogicalCluster)
+    cluster = models.ForeignKey(LogicalCluster, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return "{}: {}".format(self.key, self.value)

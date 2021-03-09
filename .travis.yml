@@ -1,10 +1,10 @@
 language: python
 python:
-  - "3.5.2"
+  - "3.9"
 install:
   - pip install --upgrade pip setuptools
-  - pip install pep8==1.5.7
-  - pip install social-auth-core==3.3.3
+  - pip install pep8
+  - pip install social-auth-core
   - pip install coveralls
 before_script:
   - cd vaas-app
