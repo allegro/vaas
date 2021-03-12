@@ -2,7 +2,8 @@ sub vcl_recv {
     if (req.url == "/vaas_status") {
         return (synth(999, ""));
     }
-    if (req.url == "/vaas/") {
+
+    if (req.url == "/vaas/" && req.http.{{ allow_metrics_header }}) {
         return (synth(989, ""));
     }
 }
