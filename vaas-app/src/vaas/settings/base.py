@@ -212,3 +212,6 @@ STATSD_ENABLE = env.bool('STATSD_ENABLE', default=False)
 STATSD_HOST = env.str('STATSD_HOST', default='localhost')
 STATSD_PORT = env.int('STATSD_PORT', default=8125)
 STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
+
+# HEADER FOR PERMIT ACCESS TO /vaas/ ENDPOINT
+ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')

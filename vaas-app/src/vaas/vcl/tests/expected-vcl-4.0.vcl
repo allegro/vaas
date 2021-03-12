@@ -340,7 +340,8 @@ sub vcl_recv {
     if (req.url == "/vaas_status") {
         return (synth(999, ""));
     }
-    if (req.url == "/vaas/") {
+
+    if (req.url == "/vaas/" && req.http.x-allow-metric-header) {
         return (synth(989, ""));
     }
 }
@@ -353,7 +354,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "63305", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "35022", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
