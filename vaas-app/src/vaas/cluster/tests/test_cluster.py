@@ -7,7 +7,7 @@ from django.test import TestCase
 from vaas.cluster.forms import VclTemplateModelForm
 from vaas.cluster.models import VarnishServer, Dc, LogicalCluster
 from vaas.cluster.cluster import VarnishCluster, ServerExtractor, ParallelRenderer, ParallelLoader, \
-    VarnishApiProvider, VclLoadException, PartialParallelLoader
+    VarnishApiProvider, VclLoadException
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, Vcl
 from vaas.api.client import VarnishApi
@@ -54,21 +54,21 @@ class VarnishApiProviderTest(TestCase):
         sample_extractor = Mock(servers=servers)
 
         with patch('vaas.cluster.cluster.ServerExtractor', Mock(return_value=sample_extractor)):
-                with patch.object(VarnishApi, '__init__', return_value=None) as construct_mock:
-                    varnish_cluster = VarnishApiProvider()
-                    api_objects = []
-                    for api in varnish_cluster.get_varnish_api():
-                        """
-                        Workaround - we cannot mock __del__ method:
-                        https://docs.python.org/3/library/unittest.mock.html
+            with patch.object(VarnishApi, '__init__', return_value=None) as construct_mock:
+                varnish_cluster = VarnishApiProvider()
+                api_objects = []
+                for api in varnish_cluster.get_varnish_api():
+                    """
+                    Workaround - we cannot mock __del__ method:
+                    https://docs.python.org/3/library/unittest.mock.html
 
-                        We inject sock field to eliminate warning raised by cleaning actions in __del__ method
-                        """
-                        api.sock = None
-                        api_objects.append(api)
+                    We inject sock field to eliminate warning raised by cleaning actions in __del__ method
+                    """
+                    api.sock = None
+                    api_objects.append(api)
 
-                    assert_equals(3, len(api_objects))
-                    assert_list_equal(expected_construct_args, construct_mock.call_args_list)
+                assert_equals(3, len(api_objects))
+                assert_list_equal(expected_construct_args, construct_mock.call_args_list)
 
     def test_should_create_varnish_api_for_connected_servers(self):
         expected_construct_args = [
@@ -85,7 +85,7 @@ class VarnishApiProviderTest(TestCase):
 
         with patch('vaas.cluster.cluster.ServerExtractor', Mock(return_value=sample_extractor)):
             with patch.object(
-                VarnishApi, '__init__', side_effect=lambda host_port_timeout, secret: api_init_side_effect[secret]
+                    VarnishApi, '__init__', side_effect=lambda host_port_timeout, secret: api_init_side_effect[secret]
             ) as construct_mock:
                 with patch('telnetlib.Telnet.close', Mock()):
                     varnish_cluster = VarnishApiProvider()
@@ -200,19 +200,22 @@ class ParallelLoaderTest(TestCase):
 
         assert_true([call()], loader_mock._discard_unused_vcls.call_args_list)
 
-
-class PartialParallelLoaderTest(TestCase):
     def test_should_return_vcl_list_without_broken_server_items(self):
         first_vcl = Vcl('Test-1', name='test-1')
-        vcl_list = [(servers[1], first_vcl)]
+        second_vcl = Vcl('Test-2', name='test-2')
+        cluster_with_partial_reload = LogicalCluster(name='cluster1', id=1, partial_reload=True)
+        server = VarnishServer(ip='127.0.0.1', port='6082', hostname='localhost-1', secret='secret-1', dc=dc,
+                               cluster=cluster_with_partial_reload, status='active')
 
-        with patch.object(VarnishApiProvider, 'get_api', side_effect=VclLoadException):
-            # as opposed to test:
-            # PartialLoaderTest#test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server
-            # it DOES NOT raise any exception what is being tested implicitly there.
-            to_use = PartialParallelLoader().load_vcl_list(vcl_list)
+        vcl_list = [(server, first_vcl), (servers[1], second_vcl)]
 
-            self.assertListEqual([], to_use)
+        with patch.object(VarnishApiProvider, 'get_api', side_effect=[VclLoadException, None]):
+            with patch.object(VclLoader, 'load_new_vcl', return_value=VclStatus.OK):
+                # as opposed to test:
+                # test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server
+                # it DOES NOT raise any exception when cluster allow partial reloads what is being tested implicitly there.
+                to_use = ParallelLoader().load_vcl_list(vcl_list)
+                assert_equals(len(to_use), 1)
 
 
 class VarnishClusterTest(TestCase):

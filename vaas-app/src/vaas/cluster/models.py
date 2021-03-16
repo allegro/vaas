@@ -20,6 +20,7 @@ class LogicalCluster(models.Model):
     error_timestamp = models.DateTimeField(default=timezone.now)
     last_error_info = models.CharField(max_length=400, null=True, blank=True)
     current_vcl_versions = models.CharField(max_length=400, default='[]')
+    partial_reload = models.BooleanField(default=False)
     _current_vcls = None
 
     @property

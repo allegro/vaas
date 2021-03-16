@@ -18,14 +18,6 @@ from statsd.defaults.django import statsd
 from datetime import datetime
 
 
-def make_parallel_loader(max_workers=settings.VAAS_LOADER_MAX_WORKERS,
-                         partial=settings.VAAS_LOADER_PARTIAL_RELOAD):
-    if partial:
-        return PartialParallelLoader(max_workers)
-    else:
-        return ParallelLoader(max_workers)
-
-
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
     emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
@@ -72,7 +64,7 @@ class VarnishCluster(object):
         vcl_list = ParallelRenderer(self.renderer_max_workers).render_vcl_for_servers(
             start_processing_time.strftime("%Y%m%d_%H_%M_%S"), servers
         )
-        parallel_loader = make_parallel_loader(self.loader_max_workers)
+        parallel_loader = ParallelLoader(self.loader_max_workers)
 
         try:
             loaded_vcl_list = parallel_loader.load_vcl_list(vcl_list)
@@ -203,8 +195,13 @@ class ParallelLoader(ParallelExecutor):
     @collect_processing
     def _append_vcl(self, vcl, server, future_results, executor):
         """Suppress exceptions if cannot load vcl for server in maintenance state"""
-        loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
-        future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
+        try:
+            loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
+            future_results.append(tuple([vcl, loader, server, executor.submit(loader.load_new_vcl, vcl)]))
+        except VclLoadException as e:
+            if server.cluster.partial_reload:
+                return
+            raise e
 
     @collect_processing
     def _format_vcl_list(self, to_use, aggregated_result):
@@ -228,11 +225,10 @@ class ParallelLoader(ParallelExecutor):
             try:
                 for server, vcl in vcl_list:
                     self._append_vcl(vcl, server, future_results, executor)
-
                 for vcl, loader, server, future_result in future_results:
                     result = future_result.result()
                     """Suppress error if cannot load vcl for server in maintenance state"""
-                    if result == VclStatus.ERROR and server.status == 'active':
+                    if result == VclStatus.ERROR and server.status == 'active' and not server.cluster.partial_reload:
                         aggregated_result = False
                     if result == VclStatus.OK:
                         to_use.append(tuple([vcl, loader, server]))
@@ -276,14 +272,3 @@ class ParallelLoader(ParallelExecutor):
         self.logger.debug("vcl's used: %f" % (time.time() - start))
 
         return result
-
-
-class PartialParallelLoader(ParallelLoader):
-    def _format_vcl_list(self, to_use, aggregated_result):
-        return to_use
-
-    def _append_vcl(self, vcl, server, future_results, executor):
-        try:
-            super(PartialParallelLoader, self)._append_vcl(vcl, server, future_results, executor)
-        except VclLoadException:
-            pass
