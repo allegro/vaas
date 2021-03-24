@@ -1,4 +1,3 @@
-from mock import *
 from nose.tools import *
 from django.test import TestCase
 from django.conf import settings

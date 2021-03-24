@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from http.client import BadStatusLine
-from mock import patch, Mock, call
+from unittest.mock import patch, Mock, call
 from django.test import TestCase
 from vaas.cluster.models import VarnishServer
 from vaas.purger.purger import VarnishPurger

@@ -13,8 +13,11 @@ class Route(models.Model):
     clusters = models.ManyToManyField(LogicalCluster)
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
     action = models.CharField(max_length=20)
+    clusters_in_sync = models.BooleanField(default=False)
 
     def get_clusters(self):
+        if self.clusters_in_sync:
+            return self.director.cluster.all()
         return self.clusters.all()
 
     def __str__(self):

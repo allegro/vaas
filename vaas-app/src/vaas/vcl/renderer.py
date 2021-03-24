@@ -175,7 +175,11 @@ class VclTagBuilder(object):
         routes = []
         for route in self.input.routes:
             if route.director.enabled is True:
-                for cluster in route.cluster_ids:
+                if route.clusters_in_sync:
+                    route_clusters = route.director.cluster.all()
+                else:
+                    route_clusters = route.cluster_ids
+                for cluster in route_clusters:
                     if varnish.cluster_id == cluster.id:
                         for cluster_director in cluster_directors:
                             if cluster_director.id == route.director.id:

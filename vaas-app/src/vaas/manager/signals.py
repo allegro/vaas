@@ -159,13 +159,14 @@ def vcl_update(sender, **kwargs):
                 clusters_to_refresh.append(varnish_server.cluster)
     # Route
     elif sender is Route:
-        for route in Route.objects.all().prefetch_related('clusters'):
-            for cluster in route.clusters.all():
-                for instance_cluster in instance.clusters.all():
-                    if cluster == instance_cluster:
-                        logger.debug("vcl_update(): %s" % str(cluster))
-                        clusters_to_refresh.append(cluster)
-
+        if instance.clusters_in_sync:
+            instance_clusters = instance.director.cluster.all()
+        else:
+            instance_clusters = instance.clusters.all()
+        for instance_cluster in instance_clusters:
+            if instance_cluster not in clusters_to_refresh:
+                logger.debug("vcl_update(): %s" % str(instance_cluster))
+                clusters_to_refresh.append(instance_cluster)
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:
         reset_refreshed_clusters(instance)
@@ -218,8 +219,24 @@ def pre_save_vcl_update(sender, **kwargs):
         try:
             old_instance = Backend.objects.get(pk=instance.pk)
             for cluster in old_instance.director.cluster.all():
-                logger.debug("vcl_update(): %s" % str(cluster))
                 if cluster not in clusters_to_refresh:
+                    logger.debug("vcl_update(): %s" % str(cluster))
+                    clusters_to_refresh.append(cluster)
+        except ObjectDoesNotExist:
+            pass
+
+    # Route
+    elif sender is Route:
+        try:
+            clusters = []
+            old_instance = Route.objects.get(pk=instance.pk)
+            if not old_instance.clusters_in_sync and instance.clusters_in_sync:
+                clusters = old_instance.clusters.all()
+            elif old_instance.clusters_in_sync and not instance.clusters_in_sync:
+                clusters = old_instance.director.cluster.all()
+            for cluster in clusters:
+                if cluster not in clusters_to_refresh:
+                    logger.debug("vcl_update(): %s" % str(cluster))
                     clusters_to_refresh.append(cluster)
         except ObjectDoesNotExist:
             pass

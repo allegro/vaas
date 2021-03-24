@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
-from mock import patch, mock_open
+from unittest.mock import patch, mock_open
 from nose.tools import assert_equals
 from django.test import TestCase
 

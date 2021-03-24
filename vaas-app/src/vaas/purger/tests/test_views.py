@@ -1,4 +1,4 @@
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from vaas.cluster.models import LogicalCluster, VarnishServer, VclTemplateBlock, VclTemplate, Dc
 
 from vaas.manager.tests.test_views import BaseApiViewPermissionsTest

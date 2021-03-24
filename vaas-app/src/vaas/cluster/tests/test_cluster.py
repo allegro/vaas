@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.utils import timezone
-from mock import patch, call, Mock
+from unittest.mock import patch, call, Mock
 from nose.tools import assert_true, assert_false, assert_equals, assert_list_equal, raises
 from django.test import TestCase
 

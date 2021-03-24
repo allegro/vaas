@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.forms import ModelForm, ModelMultipleChoiceField, Select, MultiValueField
-
+from django.forms import ModelForm, ModelMultipleChoiceField, Select, MultiValueField, BooleanField
+from django.conf import settings
 from vaas.adminext.widgets import ComplexConditionWidget, MultiUrlWidget, PrioritySelect, SearchableSelect, \
     split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -32,10 +32,19 @@ class MultipleUrl(MultiValueField):
     def run_validators(self, value):
         for v in value:
             super().run_validators(v)
+import logging
+
+logger = logging.getLogger('vaas')
 
 
 class RouteModelForm(ModelForm):
     positive_urls = MultipleUrl(fields='', widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
+    clusters = ModelMultipleChoiceField(
+            queryset=LogicalCluster.objects.order_by('name'),
+            widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters')
+    )
+    clusters_in_sync = BooleanField(required=False, initial=settings.CLUSTER_IN_SYNC_ENABLED, label='Clusters in sync with director')
+
 
     def __init__(self, *args, **kwargs):
         initial_urls = []
@@ -49,13 +58,9 @@ class RouteModelForm(ModelForm):
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 250
         self.fields['director'].queryset = Director.objects.order_by('name')
-        self.fields['clusters'] = ModelMultipleChoiceField(
-            queryset=LogicalCluster.objects.order_by('name'),
-            widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters')
-        )
         self.fields['positive_urls'].widget.decompress(initial_urls)
         for related in ('clusters', 'director'):
-            if hasattr(self.fields[related].widget, 'widget'):
+            if hasattr(self.fields[related], 'widget') and hasattr(self.fields[related].widget, 'widget'):
                 self.fields[related].widget = self.fields[related].widget.widget
 
     class Meta:
@@ -97,13 +102,20 @@ class RouteModelForm(ModelForm):
         return self.cleaned_data['condition']
 
     def clean(self):
-        cleaner_data = super(RouteModelForm, self).clean()
+        if self.cleaned_data.get('clusters_in_sync'):
+            if not self.cleaned_data.get('clusters'):
+                self.cleaned_data['clusters'] = []
+                del self._errors['clusters']
+            if 'clusters' in self.changed_data:
+                self.cleaned_data['clusters'] = self.instance.clusters.all()
+        cleaned_data = super(RouteModelForm, self).clean()
         if self._errors:
-            return cleaner_data
+            return cleaned_data
+
         routes = Route.objects.filter(
-            director=cleaner_data.get('director'),
-            priority=cleaner_data.get('priority'),
-            clusters__id__in=cleaner_data.get('clusters'))
+            director=cleaned_data.get('director'),
+            priority=cleaned_data.get('priority'),
+            clusters__id__in=cleaned_data.get('clusters'))
         routes_count = routes.count()
         if routes_count == 0:
             return
