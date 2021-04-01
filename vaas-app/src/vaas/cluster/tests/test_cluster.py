@@ -213,7 +213,8 @@ class ParallelLoaderTest(TestCase):
             with patch.object(VclLoader, 'load_new_vcl', return_value=VclStatus.OK):
                 # as opposed to test:
                 # test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server
-                # it DOES NOT raise any exception when cluster allow partial reloads what is being tested implicitly there.
+                # it DOES NOT raise any exception when cluster allow partial reloads
+                # what is being tested implicitly there.
                 to_use = ParallelLoader().load_vcl_list(vcl_list)
                 assert_equals(len(to_use), 1)
 

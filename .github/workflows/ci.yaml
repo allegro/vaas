@@ -5,7 +5,6 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   build:
     runs-on: ubuntu-18.04
@@ -17,13 +16,13 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pep8 social-auth-core coveralls
+        python -m pip install --upgrade pip coverage
+        pip install -r ./vaas-app/requirements/test.txt
     - name: Lint with pep8
       working-directory: vaas-app
       run: |
         pep8 --first --show-source --show-pep8 src/
-    - name: Test with pytest
+    - name: Test with coverage
       working-directory: vaas-app
       run: |
         coverage run --rcfile=src/.coveragerc --source vaas ./setup.py test

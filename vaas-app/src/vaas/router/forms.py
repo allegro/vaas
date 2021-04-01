@@ -39,12 +39,10 @@ logger = logging.getLogger('vaas')
 
 class RouteModelForm(ModelForm):
     positive_urls = MultipleUrl(fields='', widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
-    clusters = ModelMultipleChoiceField(
-            queryset=LogicalCluster.objects.order_by('name'),
-            widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters')
-    )
-    clusters_in_sync = BooleanField(required=False, initial=settings.CLUSTER_IN_SYNC_ENABLED, label='Clusters in sync with director')
-
+    clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
+                                        widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
+    clusters_in_sync = BooleanField(required=False, initial=settings.CLUSTER_IN_SYNC_ENABLED,
+                                    label='Clusters in sync with director')
 
     def __init__(self, *args, **kwargs):
         initial_urls = []
