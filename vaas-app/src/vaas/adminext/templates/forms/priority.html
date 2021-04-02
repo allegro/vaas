@@ -2,20 +2,20 @@
 <script>
 
     function getChosenClusters() {
-            let cluster_query = "";
-            SelectBox.cache.id_clusters_to.forEach((e, idx) => {
-                cluster_query += `clusters=${e.value}`;
-                if (idx < (SelectBox.cache.id_clusters_to.length-1)) {
-                    cluster_query += "&";
-                }
-            });
-            return cluster_query;
-        }
+        let cluster_query = "";
+        SelectBox.cache.id_clusters_to.forEach((e, idx) => {
+            cluster_query += `clusters=${e.value}`;
+            if (idx < (SelectBox.cache.id_clusters_to.length - 1)) {
+                cluster_query += "&";
+            }
+        });
+        return cluster_query;
+    }
 
     function reloadPriorities() {
         var director_id = $("[name=director]").val() || 0,
             current = $("[name=priority]").val(),
-            route_id=0;
+            route_id = 0;
 
 
         if (window.location.href.includes('change')) {
@@ -23,36 +23,48 @@
             route_id = window.location.href.split('/')[6];
         }
 
+        let clusters_sync = document.getElementById("id_clusters_in_sync").checked
+
         $.ajax(
-                {
-                    url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getChosenClusters()}`,
-                    success: function(result){
-                        $('[name=priority]').find('option').remove();
-                        result['values'].forEach(
-                            function(value){
-                                var options = "<option value='" + value + "'>" + value + "</option>";
-                                $("[name=priority]").append(options);
-                            }
-                        );
-                        $("[name=priority]").val(result['choose']);
-                    }
+            {
+                url: `/router/route/priorities/${director_id}/${route_id}/${current}/?${getChosenClusters()}${clusters_sync ? `&clusters_sync=${clusters_sync}` : ''}`,
+                success: function (result) {
+                    $('[name=priority]').find('option').remove();
+                    result['values'].forEach(
+                        function (value) {
+                            var options = "<option value='" + value + "'>" + value + "</option>";
+                            $("[name=priority]").append(options);
+                        }
+                    );
+                    $("[name=priority]").val(result['choose']);
                 }
+            }
         );
     }
 
     (function ($) {
-    window.addEventListener('load', (event) => {
+        window.addEventListener('load', (event) => {
+            document.getElementById("id_clusters_in_sync").addEventListener("change", reloadPriorities);
+            document.getElementById("id_clusters_add_link").addEventListener("click", reloadPriorities);
+            document.getElementById("id_clusters_remove_link").addEventListener("click", reloadPriorities);
+            document.getElementById("id_clusters_add_all_link").addEventListener("click", reloadPriorities);
+            document.getElementById("id_clusters_remove_all_link").addEventListener("click", reloadPriorities);
 
-        document.getElementById("id_clusters_add_link").addEventListener("click", reloadPriorities);
-        document.getElementById("id_clusters_remove_link").addEventListener("click", reloadPriorities);
-        document.getElementById("id_clusters_add_all_link").addEventListener("click", reloadPriorities);
-        document.getElementById("id_clusters_remove_all_link").addEventListener("click", reloadPriorities);
+            $('[name=director]').change(function () {
+                if ($(this).find(':selected').text() === '---------') {
+                    let id_clusters_in_sync = $("#id_clusters_in_sync");
+                    id_clusters_in_sync.prop("disabled", true);
+                    id_clusters_in_sync.prop("checked", false);
+                    $(".field-clusters").show()
+                } else {
+                    $("#id_clusters_in_sync").prop("disabled", false);
+                }
+                reloadPriorities()
+            });
+            reloadPriorities();
+        });
 
-        $('[name=director]').change(reloadPriorities);
-        reloadPriorities();
-    });
 
-
-})(django.jQuery);
+    })(django.jQuery);
 
 </script>

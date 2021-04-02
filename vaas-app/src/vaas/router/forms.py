@@ -49,6 +49,8 @@ class RouteModelForm(ModelForm):
             initial_urls = [p.url for p in kwargs['instance'].positive_urls.all()]
             kwargs['initial']['positive_urls'] = initial_urls
         super().__init__(*args, **kwargs)
+        if self.instance.pk is None:
+            self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 250
@@ -102,15 +104,30 @@ class RouteModelForm(ModelForm):
                 self.cleaned_data['clusters'] = []
                 del self._errors['clusters']
             if 'clusters' in self.changed_data:
-                self.cleaned_data['clusters'] = self.instance.clusters.all()
+                if self.instance.pk is not None:
+                    self.cleaned_data['clusters'] = self.instance.clusters.all()
         cleaned_data = super(RouteModelForm, self).clean()
         if self._errors:
             return cleaned_data
 
-        routes = Route.objects.filter(
+        if cleaned_data.get('clusters_in_sync'):
+            clusters = cleaned_data.get('director').cluster.values_list('id', flat=True)
+        else:
+            clusters = cleaned_data.get('clusters')
+        routes_with_sync = Route.objects.filter(
+            clusters_in_sync=True,
             director=cleaned_data.get('director'),
             priority=cleaned_data.get('priority'),
-            clusters__id__in=cleaned_data.get('clusters'))
+            director__cluster__in=clusters)
+
+        routes_without_sync = Route.objects.filter(
+            clusters_in_sync=False,
+            director=cleaned_data.get('director'),
+            priority=cleaned_data.get('priority'),
+            clusters__id__in=clusters)
+
+        routes = routes_with_sync | routes_without_sync
+
         routes_count = routes.count()
         if routes_count == 0:
             return
