@@ -316,9 +316,9 @@ class VclRendererInput(object):
             Prefetch('cluster', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids')
         ))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
-        self.routes = list(Route.objects.all().prefetch_related(
-            'director',
-            Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids')
+        self.routes = list(Route.objects.all().select_related('director').prefetch_related(
+            'director__cluster',
+            Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
         self.dcs = list(Dc.objects.all())
