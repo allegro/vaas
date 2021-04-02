@@ -32,9 +32,6 @@ class MultipleUrl(MultiValueField):
     def run_validators(self, value):
         for v in value:
             super().run_validators(v)
-import logging
-
-logger = logging.getLogger('vaas')
 
 
 class RouteModelForm(ModelForm):
