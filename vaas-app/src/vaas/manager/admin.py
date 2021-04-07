@@ -96,7 +96,6 @@ class DirectorAdmin(admin.ModelAdmin):
     form = DirectorModelForm
     list_display = ('name', 'service', 'get_clusters', 'route_expression', 'probe', 'protocol', 'custom_enabled')
     list_filter = ['cluster__name', 'service']
-    filter_horizontal = ('cluster',)
     actions = [enable_director, disable_director]
 
     def get_clusters(self, obj):

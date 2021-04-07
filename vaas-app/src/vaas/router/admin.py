@@ -8,7 +8,6 @@ from django.conf import settings
 
 class RouteAdmin(admin.ModelAdmin):
     form = RouteModelForm
-    filter_horizontal = ('clusters',)
     search_fields = ['condition', 'clusters__name', 'director__name']
     list_display = ['condition', 'director', 'priority', 'action', 'get_clusters']
     fieldsets = (
