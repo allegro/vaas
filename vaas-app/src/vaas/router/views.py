@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from vaas.router.models import Route
 from vaas.manager.models import Director
 
+
 def priorities(request, director_id, route_id, current):
     clusters_sync = request.GET.get("clusters_sync")
     if clusters_sync:

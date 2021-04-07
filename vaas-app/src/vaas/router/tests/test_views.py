@@ -5,6 +5,7 @@ from vaas.manager.models import Director, Probe, TimeProfile
 from vaas.cluster.models import LogicalCluster
 from django.urls import reverse
 
+
 class TestPrioritiesView(TestCase):
 
     def setUp(self):
@@ -18,7 +19,6 @@ class TestPrioritiesView(TestCase):
             probe=self.probe,
             time_profile=TimeProfile.objects.create(name='beta')
         )
-
 
         self.director2 = Director.objects.create(
             name='second_gamma',

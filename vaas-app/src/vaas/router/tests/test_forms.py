@@ -197,7 +197,8 @@ class MyTests(TestCase):
         form_data['clusters_in_sync'] = False
         form = RouteModelForm(instance=obj, data=form_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'__all__': ['This combination of director, cluster and priority already exists']})
+        self.assertEqual(form.errors,
+                         {'__all__': ['This combination of director, cluster and priority already exists']})
 
     def test_should_validate_form_with_conflict_error_when_update_and_enable_cluster_sync(self):
         self.director1.cluster.add(self.cluster1)
@@ -227,7 +228,8 @@ class MyTests(TestCase):
         form_data['clusters_in_sync'] = True
         form = RouteModelForm(instance=obj, data=form_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'__all__': ['This combination of director, cluster and priority already exists']})
+        self.assertEqual(form.errors,
+                         {'__all__': ['This combination of director, cluster and priority already exists']})
 
     def test_should_check_if_route_clusters_untouched_when_enable_cluster_sync(self):
         self.director1.cluster.add(self.cluster1)
