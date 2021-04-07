@@ -2,7 +2,8 @@
 import re
 
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, CheckboxSelectMultiple, FileField, Select, TextInput
+from django.forms import ModelForm, FileField, TextInput
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.adminext.widgets import SearchableSelect
 from vaas.manager.models import Probe, Director, Backend, TimeProfile
 from vaas.cluster.helpers import BaseHelpers
@@ -26,7 +27,7 @@ class DirectorModelForm(ModelForm):
             'name': TextInput(attrs={'class': 'form-control'}),
             'service': TextInput(attrs={'class': 'form-control'}),
             'route_expression': TextInput(attrs={'class': 'form-control'}),
-            'cluster': CheckboxSelectMultiple(),
+            'cluster': FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'),
             'mode': SearchableSelect(),
             'protocol': SearchableSelect(),
             'hashing_policy': SearchableSelect(),
