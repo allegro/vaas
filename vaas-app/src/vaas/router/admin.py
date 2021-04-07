@@ -13,7 +13,7 @@ class RouteAdmin(admin.ModelAdmin):
     list_display = ['condition', 'director', 'priority', 'action', 'get_clusters']
     fieldsets = (
         (None, {
-            'fields': ('condition', 'positive_urls', 'priority', 'action', 'clusters', 'director')
+            'fields': ('condition', 'positive_urls', 'priority', 'action', 'director', 'clusters_in_sync', 'clusters',)
         }),
     )
 
@@ -23,6 +23,9 @@ class RouteAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         ctx = {'route_tests_enabled': settings.ROUTE_TESTS_ENABLED}
         return super().changelist_view(request, extra_context=ctx)
+
+    class Media:
+        js = ('js/clusters-sync.js',)
 
 
 admin.site.register(Route, RouteAdmin)

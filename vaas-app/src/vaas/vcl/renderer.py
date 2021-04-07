@@ -175,7 +175,11 @@ class VclTagBuilder(object):
         routes = []
         for route in self.input.routes:
             if route.director.enabled is True:
-                for cluster in route.cluster_ids:
+                if route.clusters_in_sync:
+                    route_clusters = route.director.cluster.all()
+                else:
+                    route_clusters = route.cluster_ids
+                for cluster in route_clusters:
                     if varnish.cluster_id == cluster.id:
                         for cluster_director in cluster_directors:
                             if cluster_director.id == route.director.id:
@@ -312,9 +316,9 @@ class VclRendererInput(object):
             Prefetch('cluster', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids')
         ))
         self.directors.sort(key=lambda director: ROUTE_SETTINGS[director.router]['priority'])
-        self.routes = list(Route.objects.all().prefetch_related(
-            'director',
-            Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids')
+        self.routes = list(Route.objects.all().select_related('director').prefetch_related(
+            'director__cluster',
+            Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
         self.dcs = list(Dc.objects.all())

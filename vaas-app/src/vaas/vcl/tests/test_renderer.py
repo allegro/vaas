@@ -3,7 +3,7 @@
 import os
 from factory.django import DjangoModelFactory
 from factory import Sequence, SubFactory
-from mock import *
+from unittest.mock import *
 from nose.tools import *
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput

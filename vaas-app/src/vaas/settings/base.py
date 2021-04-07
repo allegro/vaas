@@ -214,3 +214,5 @@ STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 
 # HEADER FOR PERMIT ACCESS TO /vaas/ ENDPOINT
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')
+
+CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)

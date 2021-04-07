@@ -1,10 +1,9 @@
-from mock import *
 from nose.tools import *
 from django.test import TestCase
 from django.conf import settings
 
 from vaas.validators import VclVariableValidatorError, vcl_variable_validator
-from vaas.cluster.models import VarnishServer, VclVariable, LogicalCluster, VclTemplate
+from vaas.cluster.models import VarnishServer, VclVariable, LogicalCluster, VclTemplate, Dc
 
 
 class VclVariableValidatorTest(TestCase):
@@ -26,6 +25,7 @@ class VclVariableValidatorTest(TestCase):
         self.vcl_template3 = VclTemplate.objects.create(
             pk=3, content="## #{var1} ##\n## #{var2} ##", name='template3'
         )
+        self.dc1 = Dc.objects.create(pk=1, name="Bilbao", symbol="dc1")
         self.varnish1 = VarnishServer.objects.create(
             port=6081, ip='1.2.3.4', dc_id=1, template_id=1, cluster_id=1, pk=1
         )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
-from mock import patch, MagicMock
+from unittest.mock import patch, MagicMock
 from nose.tools import assert_equals, assert_true, assert_false
 from tastypie.http import HttpCreated, HttpApplicationError
 

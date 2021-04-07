@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from mock import *
+from unittest.mock import *
 from nose.tools import *
 from django.test import TestCase
 from vaas.vcl.loader import VclLoader, VclStatus

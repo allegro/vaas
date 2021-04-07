@@ -4,7 +4,7 @@ import datetime
 
 from django.utils.timezone import utc
 from django.test import TestCase
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from nose.tools import assert_equals
 
 from vaas.monitor.models import BackendStatus
