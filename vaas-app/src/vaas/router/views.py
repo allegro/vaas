@@ -9,7 +9,7 @@ from vaas.manager.models import Director
 def priorities(request, director_id, route_id, current):
     clusters_sync = request.GET.get("clusters_sync")
     if clusters_sync:
-        clusters = Director.objects.get(pk=director_id).cluster.values_list('id', flat=True)
+        clusters = Director.objects.filter(pk=director_id).values_list('cluster__id', flat=True)
     else:
         clusters = request.GET.getlist("clusters")
     routes_with_sync = Route.objects.filter(clusters_in_sync=True, director__id=director_id,
