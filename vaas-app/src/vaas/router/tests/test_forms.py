@@ -143,3 +143,122 @@ class MyTests(TestCase):
         form_data['priority'] = '51'
         form = RouteModelForm(instance=obj, data=form_data)
         self.assertFalse(form.is_valid())
+
+    def test_should_validate_form_with_conflict_error_when_other_entry_with_cluster_sync(self):
+        self.director1.cluster.add(self.cluster2)
+        route1 = Route.objects.create(
+            condition='some condition',
+            priority=51,
+            director=self.director1,
+            action='pass',
+            clusters_in_sync=True,
+        )
+        route1.clusters.add(self.cluster1)
+
+        form_data = {
+            'action': 'pass',
+            'condition_0_0': 'req.url',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
+            'priority': '51',
+            'action': 'pass',
+            'clusters': [self.cluster2.pk],
+            'director': self.director1.pk,
+        }
+
+        form = RouteModelForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_should_validate_form_with_conflict_error_when_update_and_disable_cluster_sync(self):
+        self.director1.cluster.add(self.cluster2)
+        route1 = Route.objects.create(
+            condition='some condition"',
+            priority=51,
+            director=self.director1,
+            action='pass',
+        )
+        route1.clusters.add(self.cluster1)
+
+        form_data = {
+            'action': 'pass',
+            'condition_0_0': 'req.url',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
+            'priority': '51',
+            'action': 'pass',
+            'clusters': [self.cluster1.pk],
+            'director': self.director1.pk,
+            'clusters_in_sync': True,
+        }
+
+        form = RouteModelForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        obj = form.save()
+        form_data['clusters_in_sync'] = False
+        form = RouteModelForm(instance=obj, data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors,
+                         {'__all__': ['This combination of director, cluster and priority already exists']})
+
+    def test_should_validate_form_with_conflict_error_when_update_and_enable_cluster_sync(self):
+        self.director1.cluster.add(self.cluster1)
+        route1 = Route.objects.create(
+            condition='some condition"',
+            priority=51,
+            director=self.director1,
+            action='pass',
+        )
+        route1.clusters.add(self.cluster1)
+
+        form_data = {
+            'action': 'pass',
+            'condition_0_0': 'req.url',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
+            'priority': '51',
+            'action': 'pass',
+            'clusters': [self.cluster2.pk],
+            'director': self.director1.pk,
+            'clusters_in_sync': False,
+        }
+
+        form = RouteModelForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        obj = form.save()
+        form_data['clusters_in_sync'] = True
+        form = RouteModelForm(instance=obj, data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors,
+                         {'__all__': ['This combination of director, cluster and priority already exists']})
+
+    def test_should_check_if_route_clusters_untouched_when_enable_cluster_sync(self):
+        self.director1.cluster.add(self.cluster1)
+        route1 = Route.objects.create(
+            condition='some condition"',
+            priority=51,
+            director=self.director1,
+            action='pass',
+        )
+        route1.clusters.add(self.cluster1)
+
+        form_data = {
+            'action': 'pass',
+            'condition_0_0': 'req.url',
+            'condition_0_1': '~',
+            'condition_0_2': '/test',
+            'priority': '50',
+            'action': 'pass',
+            'clusters': [self.cluster2.pk],
+            'director': self.director1.pk,
+            'clusters_in_sync': False,
+        }
+
+        form = RouteModelForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        obj = form.save()
+        form_data['clusters'] = [self.cluster1.pk]
+        form_data['clusters_in_sync'] = True
+        form = RouteModelForm(instance=obj, data=form_data)
+        self.assertTrue(form.is_valid())
+        print(form.cleaned_data['clusters'])
+        self.assertEqual(list(form.cleaned_data['clusters']), [self.cluster2])
