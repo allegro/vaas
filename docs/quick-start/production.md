@@ -16,6 +16,7 @@ Build VaaS package
 ------------------
 Use the commands below to build VaaS from source:
 
+    cd ~/
     git clone https://github.com/allegro/vaas.git
     python3.9 -m venv dist-env
     . dist-env/bin/activate
@@ -31,13 +32,13 @@ Install VaaS package
 --------------------
 Use the commands below to install VaaS package built in the previous step on a web server:
 
+    cd ~/
     python3.9 -m venv prod-env
     . prod-env/bin/activate
     pip install --upgrade pip
     pip install python-ldap==3.3.1
     pip install django-auth-ldap==2.2.0
     pip install mysqlclient==2.0.3
-    pip install lck.django
     pip install uwsgi
     pip install vaas-{version-number}.zip
 

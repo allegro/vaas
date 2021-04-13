@@ -30,7 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "pluton", autostart: false do |pluton|
 
-    pluton.vm.box = "ubuntu/xenial64"
+    pluton.vm.box = "ubuntu/focal64"
     pluton.vm.synced_folder ".", "/home/vagrant/vaas"
     pluton.vm.provision :shell, :privileged => false, :path => "vagrant/shell/pluton.sh"
     pluton.vm.provision :shell, :privileged => false, :path => "vagrant/shell/prepare_git_repo.sh"
