@@ -111,6 +111,10 @@ class Director(models.Model):
     enabled = models.BooleanField(default=True)
     remove_path = models.BooleanField(default=False)
     time_profile = models.ForeignKey(TimeProfile, on_delete=models.PROTECT)
+    virtual = models.BooleanField(
+        default=False,
+        help_text='<i>Virtual director will not be available in routes</i>',
+    )
 
     def mode_constructor(self):
         if self.mode == 'round-robin':

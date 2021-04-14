@@ -54,11 +54,11 @@ class RouteModelForm(ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 250
-        self.fields['director'].queryset = Director.objects.order_by('name')
+        self.fields['director'].queryset = Director.objects.exclude(virtual=True).order_by('name')
         self.fields['positive_urls'].widget.decompress(initial_urls)
-        for related in ('clusters', 'director'):
-            if hasattr(self.fields[related], 'widget') and hasattr(self.fields[related].widget, 'widget'):
-                self.fields[related].widget = self.fields[related].widget.widget
+        if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
+            self.fields['director'].widget = self.fields['director'].widget.widget
+            self.fields['director'].queryset = Director.objects.exclude(virtual=True).order_by('name')
 
     class Meta:
         model = Route
