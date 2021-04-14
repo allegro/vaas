@@ -24,6 +24,12 @@ Go to the specified varnish server by clicking in gui:
 
 *Cluster -> Varnish servers -> select varnish server -> select "Is canary"*
 
+#### Setting director mode to support canary for his backends
+
+Go to the specified director by clicking in gui:
+
+*Manager -> Directors -> select director -> set Mode to Random*
+
 #### Setting backend as canary instance
 
 *Manager -> Backends -> select backends -> add "canary" (without quotes) to Tags field*
