@@ -54,7 +54,6 @@ class RouteModelForm(ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         self.fields['priority'].initial = 250
-        self.fields['director'].queryset = Director.objects.exclude(virtual=True).order_by('name')
         self.fields['positive_urls'].widget.decompress(initial_urls)
         if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
             self.fields['director'].widget = self.fields['director'].widget.widget
