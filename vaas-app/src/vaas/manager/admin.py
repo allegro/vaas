@@ -14,7 +14,6 @@ from vaas.manager.signals import switch_state_and_reload
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
-
 try:
     admin.site.unregister(Group)
     admin.site.unregister(User)
@@ -94,7 +93,8 @@ def disable_director(modeladmin, request, queryset):
 class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
-    list_display = ('name', 'service', 'get_clusters', 'route_expression', 'probe', 'protocol', 'custom_enabled')
+    list_display = (
+        'name', 'service', 'get_clusters', 'route_expression', 'probe', 'protocol', 'custom_enabled', 'virtual',)
     list_filter = ['cluster__name', 'service']
     actions = [enable_director, disable_director]
 
@@ -122,6 +122,7 @@ class DirectorAdmin(admin.ModelAdmin):
                 "<i class='glyphicon glyphicon-ban-circle'>" +
                 "</i></a></div>"
             )
+
     custom_enabled.short_description = 'Enabled'
 
 
@@ -167,6 +168,7 @@ class BackendAdmin(admin.ModelAdmin):
                 "<i class='glyphicon glyphicon-ban-circle'>" +
                 "</i></a></div>"
             )
+
     custom_enabled.short_description = 'Enabled'
 
     def is_healthy(self, obj):
