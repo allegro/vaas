@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='director',
             name='virtual',
-            field=models.BooleanField(default=False, help_text='<i>Virtual director will not be available in routes</i>'),
+            field=models.BooleanField(default=False,
+                                      help_text='<i>Virtual director will not be available in routes</i>'),
         ),
     ]
