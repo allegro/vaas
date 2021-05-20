@@ -84,6 +84,7 @@ class Director(models.Model):
     )
     name = models.CharField(max_length=54, unique=True, validators=[name_validator])
     service = models.CharField(max_length=128, default='')
+    envoy_service_name = models.CharField(max_length=128, default='')
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default='both')

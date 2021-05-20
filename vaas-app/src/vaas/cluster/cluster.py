@@ -140,7 +140,7 @@ class ServerExtractor(object):
 
     def __init__(self):
         self.logger = logging.getLogger('vaas')
-        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template')
+        self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
 
     @collect_processing
     def extract_servers_by_clusters(self, clusters):
