@@ -19,7 +19,8 @@ VCL_TAGS = {
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH', 'VCL_PIPE'],
         ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
-            'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH', 'USE_DIRECTOR_{DIRECTOR}'],
+            'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH', 'USE_DIRECTOR_{DIRECTOR}',
+         'USE_MESH_DIRECTOR_{DIRECTOR}'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
             'SET_ROUTE_{ROUTE}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}', 'CALL_USE_DIRECTOR_{DIRECTOR}']
@@ -88,7 +89,6 @@ class VclVariableExpander(object):
         self.logger = logging.getLogger('vaas')
 
     def expand_variables(self, content):
-
         for variable in self.variables:
             if self.cluster_id == variable.cluster_id:
                 vcl_variable_key = "#{{{}}}".format(variable.key)
@@ -168,6 +168,7 @@ class VclTagBuilder(object):
             'active_director': active_directors,
             'routes': self.prepare_route(self.varnish, cluster_directors),
             'cluster_directors': cluster_directors,
+            'mesh_routing': varnish.cluster.service_mesh_routing
         }
 
     @collect_processing
@@ -290,11 +291,12 @@ class VclTagBuilder(object):
         if tag_name == 'VAAS_STATUS':
             vcl_tag.parameters['server'] = self.varnish
             vcl_tag.parameters['allow_metrics_header'] = settings.ALLOW_METRICS_HEADER
-        elif tag_name in ('ROUTER', 'EXPLICITE_ROUTER', 'DIRECTORS'):
+        elif tag_name in ('ROUTER', 'EXPLICITE_ROUTER', 'DIRECTORS', 'RECV'):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
             vcl_tag.parameters['directors'] = self.placeholders['active_director']
             vcl_tag.parameters['probes'] = self.placeholders['probe']
             vcl_tag.parameters['cluster_directors'] = self.placeholders['cluster_directors']
+            vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
         elif tag_name == 'FLEXIBLE_ROUTER':
             vcl_tag.parameters['routes'] = self.placeholders['routes']
         elif tag_name == 'TEST_ROUTER':
@@ -383,9 +385,6 @@ class VclRenderer(object):
         try:
             start = time.time()
             vcl_tag_builder = VclTagBuilder(varnish, input)
-            logging.getLogger('vaas').debug(
-                "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
-            )
 
             content = varnish.template.content
             for vcl_tags_level in VCL_TAGS[varnish.template.version]:

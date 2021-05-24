@@ -5,7 +5,7 @@ sub vcl_recv {
 <TEST_ROUTER/>
     # Call protocol redirect sub
     call protocol_redirect;
-
+{% if not mesh_routing %}
     # Handler for no backend in director
     if(req.http.x-action == "nobackend") {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
@@ -13,6 +13,7 @@ sub vcl_recv {
     else if(req.http.x-action == "pipe") {
         return (pipe);
     }
+{% endif %}
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {
