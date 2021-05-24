@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='director',
             name='envoy_service_name',
-            field=models.CharField(default='', max_length=128),
+            field=models.CharField(max_length=128),
         ),
     ]
