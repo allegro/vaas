@@ -12,7 +12,7 @@ class MyTests(TestCase):
         self.cluster2 = LogicalCluster.objects.create(name="second cluster")
         self.director1 = Director.objects.create(
             name='first_gamma',
-            envoy_service_name='first_gamma',
+            service_mesh_label='first_gamma',
             route_expression='/first',
             mode='random',
             probe=self.probe,
@@ -20,7 +20,7 @@ class MyTests(TestCase):
         )
         self.director2 = Director.objects.create(
             name='second_gamma',
-            envoy_service_name='second_gamma',
+            service_mesh_label='second_gamma',
             route_expression='/second',
             mode='random',
             probe=self.probe,

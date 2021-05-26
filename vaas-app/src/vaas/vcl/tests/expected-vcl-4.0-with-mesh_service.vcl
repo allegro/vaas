@@ -11,13 +11,14 @@ backend default {
     .host = "127.0.0.1";
     .port = "30001";
 }
-sub use_director_director_with_envoy_support {
+sub use_director_director_with_mesh_service_support {
     set req.http.original-host = req.http.host;
-    set req.http.Host = "envoy_support";
+    set req.http.Host = "";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
-    set req.http.X-VaaS-Prefix = "/envoy/support";
+    set req.http.X-VaaS-Prefix = "/mesh_service/support";
+    set req.backend_hint = default;
 }
 
 sub vcl_recv {
@@ -38,7 +39,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "ebd42", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "d0ec3", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -64,8 +65,8 @@ sub protocol_redirect {
     }
 }
 sub vcl_recv {
-    if (req.url ~ "^\/envoy\/support([\/\?].*)?$") {
-        call use_director_director_with_envoy_support;
+    if (req.url ~ "^\/mesh_service\/support([\/\?].*)?$") {
+        call use_director_director_with_mesh_service_support;
     }
 
 # Flexible ROUTER

@@ -79,7 +79,7 @@ class DirectorFactory(DjangoModelFactory):
         model = Director
 
     name = 'first_service'
-    envoy_service_name = 'first_service'
+    service_mesh_label = 'first_service'
     router = 'req.url'
     route_expression = '/first'
     protocol = 'https'
@@ -111,7 +111,7 @@ class VclTagBuilderTest(TestCase):
         dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
         cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
         cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
-        cluster3_with_envoy = LogicalClusterFactory.create(id=3, name='cluster3_siteB_test_with_envoy',
+        cluster3_with_mesh_service = LogicalClusterFactory.create(id=3, name='cluster3_siteB_test_with_mesh_service',
                                                            service_mesh_routing=True)
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
@@ -172,10 +172,10 @@ class VclTagBuilderTest(TestCase):
             mode='hash',
             hashing_policy='req.url'
         )
-        self.active_active_with_envoy_support = DirectorFactory.create(
-            name='director_with_envoy_support',
-            envoy_service_name='envoy_support',
-            route_expression='/envoy/support',
+        self.active_active_with_mesh_service_support = DirectorFactory.create(
+            name='director_with_mesh_service_support',
+            service_mesh_label='mesh_service_support',
+            route_expression='/mesh_service/support',
             mode='hash',
             hashing_policy='req.url'
         )
@@ -189,7 +189,7 @@ class VclTagBuilderTest(TestCase):
         active_active_hashing_by_url.cluster.add(1, 2)
         active_active_with_start_as_healthy_probe.cluster.add(1, 2)
         active_active_without_backends.cluster.add(1, 2)
-        self.active_active_with_envoy_support.cluster.add(3)
+        self.active_active_with_mesh_service_support.cluster.add(3)
 
         BackendFactory.create(
             address='127.0.1.1', dc=dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
@@ -211,8 +211,8 @@ class VclTagBuilderTest(TestCase):
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
         vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
-        mesh_ip = VclVariable.objects.create(key='MESH_IP', value='127.0.0.1', cluster=cluster3_with_envoy)
-        mesh_port = VclVariable.objects.create(key='MESH_PORT', value='30001', cluster=cluster3_with_envoy)
+        mesh_ip = VclVariable.objects.create(key='MESH_IP', value='127.0.0.1', cluster=cluster3_with_mesh_service)
+        mesh_port = VclVariable.objects.create(key='MESH_PORT', value='30001', cluster=cluster3_with_mesh_service)
 
         route = Route.objects.create(
             condition='req.url ~ "^\/flexible"',
@@ -233,8 +233,8 @@ class VclTagBuilderTest(TestCase):
         self.varnish4_canary = VarnishServer.objects.create(
             ip='127.0.0.4', dc=dc2, template=template_v4, cluster=cluster2, is_canary=True
         )
-        self.varnish5_with_envoy = VarnishServer.objects.create(
-            ip='127.0.0.5', dc=dc2, template=template_v4, cluster=cluster3_with_envoy, is_canary=True
+        self.varnish5_with_mesh_service = VarnishServer.objects.create(
+            ip='127.0.0.5', dc=dc2, template=template_v4, cluster=cluster3_with_mesh_service, is_canary=True
         )
 
     @staticmethod
@@ -475,21 +475,23 @@ backend first_service_1_dc2_1_1_80 {
 
         assert_equals(expected_content, vcl.content)
 
-    def test_should_prepare_default_vcl_version5_with_envoy(self):
+    def test_should_prepare_default_vcl_version5_with_mesh_service(self):
         vcl_renderer = VclRenderer()
-        vcl = vcl_renderer.render(self.varnish5_with_envoy, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-4.0-with-envoy.vcl', 'r') as f:
+        vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
+        with open(os.path.join(os.path.dirname(__file__)) + os.sep +
+                  'expected-vcl-4.0-with-mesh_service.vcl', 'r') as f:
             expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
         assert_equals(expected_content, vcl.content)
 
-    def test_should_prepare_default_vcl_version5_with_envoy_with_attached_backend(self):
+    def test_should_prepare_default_vcl_version5_with_mesh_service_with_attached_backend(self):
         vcl_renderer = VclRenderer()
         dc3 = DcFactory.create(name="Iceland", symbol="dc3")
-        BackendFactory.create(address='127.11.2.10', dc=dc3, director=self.active_active_with_envoy_support)
-        vcl = vcl_renderer.render(self.varnish5_with_envoy, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-4.0-with-envoy.vcl', 'r') as f:
+        BackendFactory.create(address='127.11.2.10', dc=dc3, director=self.active_active_with_mesh_service_support)
+        vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
+        with open(os.path.join(os.path.dirname(__file__)) + os.sep +
+                  'expected-vcl-4.0-with-mesh_service.vcl', 'r') as f:
             expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
