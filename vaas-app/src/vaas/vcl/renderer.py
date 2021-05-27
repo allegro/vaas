@@ -293,7 +293,7 @@ class VclTagBuilder(object):
             vcl_tag.parameters['allow_metrics_header'] = settings.ALLOW_METRICS_HEADER
         elif tag_name in ('RECV'):
             vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
-        elif tag_name in ('ROUTER', 'EXPLICITE_ROUTER', 'DIRECTORS', 'RECV'):
+        elif tag_name in ('ROUTER', 'EXPLICITE_ROUTER', 'DIRECTORS'):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
             vcl_tag.parameters['directors'] = self.placeholders['active_director']
             vcl_tag.parameters['probes'] = self.placeholders['probe']
