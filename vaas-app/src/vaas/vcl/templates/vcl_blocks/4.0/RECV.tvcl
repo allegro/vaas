@@ -3,6 +3,9 @@ sub vcl_recv {
 <ROUTER/>
 <FLEXIBLE_ROUTER/>
 <TEST_ROUTER/>
+    # Setup default backend to use
+    set req.backend_hint = mesh_default_proxy;
+
     # Call protocol redirect sub
     call protocol_redirect;
 {% if not mesh_routing %}

@@ -328,7 +328,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "797a7", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "92169", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -391,6 +391,9 @@ sub vcl_recv {
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
 }
+    # Setup default backend to use
+    set req.backend_hint = mesh_default_proxy;
+
     # Call protocol redirect sub
     call protocol_redirect;
     # Handler for no backend in director

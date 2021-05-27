@@ -7,18 +7,17 @@ import directors;
 
 ## header vcl ###
 ## acl rules ##
-backend default {
+backend mesh_default_proxy {
     .host = "127.0.0.1";
     .port = "30001";
 }
 sub use_director_director_with_mesh_service_support {
     set req.http.original-host = req.http.host;
-    set req.http.Host = "";
+    set req.http.Host = "mesh_service_support";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service/support";
-    set req.backend_hint = default;
 }
 
 sub vcl_recv {
@@ -39,7 +38,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "d0ec3", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "aa10e", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -75,6 +74,9 @@ sub vcl_recv {
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
 }
+    # Setup default backend to use
+    set req.backend_hint = mesh_default_proxy;
+
     # Call protocol redirect sub
     call protocol_redirect;
 

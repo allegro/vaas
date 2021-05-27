@@ -1,5 +1,5 @@
 {% if mesh_routing %}
-backend default {
+backend mesh_default_proxy {
     .host = "#{MESH_IP}";
     .port = "#{MESH_PORT}";
 }
