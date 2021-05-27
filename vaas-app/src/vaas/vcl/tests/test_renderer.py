@@ -112,7 +112,7 @@ class VclTagBuilderTest(TestCase):
         cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
         cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
         cluster3_with_mesh_service = LogicalClusterFactory.create(id=3, name='cluster3_siteB_test_with_mesh_service',
-                                                           service_mesh_routing=True)
+                                                                  service_mesh_routing=True)
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
