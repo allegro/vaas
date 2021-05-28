@@ -7,7 +7,8 @@ from django_ace import AceWidget
 
 from vaas.cluster.coherency import OutdatedServerManager
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
-from vaas.cluster.forms import VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm
+from vaas.cluster.forms import VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
+    LogicalCLusterModelForm
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
 
@@ -176,6 +177,7 @@ class VclTemplateAdmin(SimpleHistoryAdmin):
 
 
 class LogicalClusterAdmin(admin.ModelAdmin):
+    form = LogicalCLusterModelForm
     list_display = [
         'name',
         'reload_timestamp',

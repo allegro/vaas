@@ -26,7 +26,7 @@ class DirectorModelForm(ModelForm):
         widgets = {
             'name': TextInput(attrs={'class': 'form-control'}),
             'service': TextInput(attrs={'class': 'form-control'}),
-            'envoy_service_name': TextInput(attrs={'class': 'form-control'}),
+            'service_mesh_label': TextInput(attrs={'class': 'form-control'}),
             'route_expression': TextInput(attrs={'class': 'form-control'}),
             'cluster': FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'),
             'mode': SearchableSelect(),

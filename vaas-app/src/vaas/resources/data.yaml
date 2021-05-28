@@ -135,3 +135,9 @@
     date_joined: '2019-11-13T07:46:40.829872+00:00'
     groups: []
     user_permissions: []
+- model: cluster.vclvariable
+  pk: 1
+  fields: {key: MESH_IP, value: 192.168.199.10, cluster: 1}
+- model: cluster.vclvariable
+  pk: 2
+  fields: {key: MESH_PORT, value: 80, cluster: 1}

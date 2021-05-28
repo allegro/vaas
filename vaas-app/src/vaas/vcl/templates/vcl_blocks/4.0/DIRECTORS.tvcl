@@ -1,3 +1,12 @@
+{% if mesh_routing %}
+backend mesh_default_proxy {
+    .host = "#{MESH_IP}";
+    .port = "#{MESH_PORT}";
+}
+{% for director in cluster_directors %}
+<USE_MESH_DIRECTOR_{{director.name}}/>
+{% endfor %}
+{% else %}
 {% for director in directors %}
 <DIRECTOR_{{director.name}}/>
 {% endfor %}
@@ -24,3 +33,4 @@ if (req.http.x-use-director) {
     }
 }
 }
+{% endif %}
