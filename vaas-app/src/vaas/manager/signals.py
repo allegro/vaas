@@ -7,11 +7,13 @@ from django.db.models.signals import pre_save, post_save, pre_delete, post_delet
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
+from vaas.external.audit import audit_bulk_update, audit_bulk_operations
 from vaas.external.request import get_current_request
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, VclVariable
 from vaas.router.models import Route
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
+
 
 
 def switch_state_and_reload(queryset, enabled):
@@ -41,7 +43,12 @@ def switch_state_and_reload(queryset, enabled):
                 clusters_to_refresh.append(cluster)
 
     logger.debug("clusters to refresh: %s" % (str(clusters_to_refresh)))
+
+    if audit_bulk_operations:
+        old_values = list(queryset.all())
     queryset.update(enabled=enabled)
+    if audit_bulk_operations:
+        audit_bulk_update.send(sender=queryset.model, old_values=old_values)
     regenerate_and_reload_vcl(clusters_to_refresh)
 
 
