@@ -1,5 +1,7 @@
 import importlib
 from django.conf import settings
+from django.contrib import admin
+
 
 audit_bulk_operations = getattr(settings, 'AUDIT_BULK_OPERATIONS', None)
 
@@ -9,7 +11,7 @@ if audit_bulk_operations:
     audit_bulk_update = getattr(audit_signals_module, audit_bulk_operations['update'])
 
 
-class AuditBulkDelete:
+class AuditableModelAdmin(admin.ModelAdmin):
     def delete_queryset(self, request, queryset):
         if audit_bulk_operations:
             old_values = list(queryset)

@@ -2,7 +2,6 @@ import csv
 
 from django.contrib import admin
 
-from vaas.external.audit import audit_bulk_delete, audit_bulk_operations, AuditBulkDelete
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
 from vaas.manager.forms import DirectorModelForm
 from django.contrib.auth.models import User
@@ -15,6 +14,7 @@ from vaas.monitor.models import BackendStatus
 from vaas.manager.signals import switch_state_and_reload
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from vaas.external.audit import AuditableModelAdmin
 
 try:
     admin.site.unregister(Group)
@@ -92,7 +92,7 @@ def disable_director(modeladmin, request, queryset):
     switch_state_and_reload(queryset, False)
 
 
-class DirectorAdmin(admin.ModelAdmin, AuditBulkDelete):
+class DirectorAdmin(AuditableModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
     list_display = (
@@ -128,7 +128,7 @@ class DirectorAdmin(admin.ModelAdmin, AuditBulkDelete):
     custom_enabled.short_description = 'Enabled'
 
 
-class BackendAdmin(admin.ModelAdmin, AuditBulkDelete):
+class BackendAdmin(AuditableModelAdmin):
     search_fields = ['address', 'director__name', 'tags__name']
     list_display = ('address', 'port', 'director', 'dc', 'is_healthy', 'custom_enabled', 'get_tags')
     list_filter = ['director__name', 'director__service', 'director__cluster__name', 'dc__symbol']

@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
-from vaas.external.audit import AuditBulkDelete
+from vaas.external.audit import AuditableModelAdmin
 from vaas.cluster.coherency import OutdatedServerManager
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
 from vaas.cluster.forms import VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
@@ -46,7 +46,7 @@ class OutdatedFilter(SimpleListFilter):
         return queryset
 
 
-class VarnishServerAdmin(admin.ModelAdmin, AuditBulkDelete):
+class VarnishServerAdmin(AuditableModelAdmin):
     form = VarnishServerModelForm
     search_fields = ['dc__symbol', 'ip', 'hostname', 'template__name']
     list_filter = ['cluster__name', OutdatedFilter]
@@ -168,7 +168,7 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ['tag', 'template']
 
 
-class VclTemplateAdmin(SimpleHistoryAdmin, AuditBulkDelete):
+class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
     form = VclTemplateModelForm
     formfield_overrides = {
         models.TextField: {'widget': ace_widget},
