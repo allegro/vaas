@@ -15,7 +15,6 @@ from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
 
 
-
 def switch_state_and_reload(queryset, enabled):
     logger = logging.getLogger('vaas')
     logger.debug("switch_state_and_reload(): %s" % str(queryset))
