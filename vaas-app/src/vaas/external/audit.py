@@ -11,11 +11,21 @@ if audit_bulk_operations:
     audit_bulk_update = getattr(audit_signals_module, audit_bulk_operations['update'])
 
 
+class Auditable:
+    @staticmethod
+    def bulk_update(**kwargs):
+        return audit_bulk_update.send(**kwargs)
+
+    @staticmethod
+    def bulk_delete(**kwargs):
+        return audit_bulk_delete.send(**kwargs)
+
+
 class AuditableModelAdmin(admin.ModelAdmin):
     def delete_queryset(self, request, queryset):
         if audit_bulk_operations:
             old_values = list(queryset)
         res = super().delete_queryset(request, queryset)
         if audit_bulk_operations:
-            audit_bulk_delete.send(sender=queryset.model, deleted_instances=old_values)
+            Auditable.bulk_delete(sender=queryset.model, deleted_instances=old_values)
         return res
