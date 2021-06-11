@@ -70,6 +70,12 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
 
         for field in relation_fields:
             if field in kwargs['data']:
-                kwargs['data'][field] = self.uri_to_pk(kwargs['data'][field])
+                if isinstance(kwargs['data'][field], list):
+                    uris = []
+                    for uri in kwargs['data'][field]:
+                        uris.append(self.uri_to_pk(uri))
+                    kwargs['data'][field] = uris
+                else:
+                    kwargs['data'][field] = self.uri_to_pk(kwargs['data'][field])
 
         return kwargs

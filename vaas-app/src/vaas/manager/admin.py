@@ -94,7 +94,7 @@ class DirectorAdmin(admin.ModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
     list_display = (
-        'name', 'service', 'get_clusters', 'route_expression', 'probe', 'protocol', 'custom_enabled', 'virtual',)
+        'name', 'service', 'service_mesh_label', 'get_clusters', 'route_expression', 'probe', 'protocol', 'custom_enabled', 'virtual',)
     list_filter = ['cluster__name', 'service']
     actions = [enable_director, disable_director]
 
