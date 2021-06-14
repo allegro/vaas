@@ -1,12 +1,14 @@
 import csv
 
 from django.contrib import admin
+
+from vaas.external.audit import AuditableModelAdmin
 from vaas.router.models import Route
 from vaas.router.forms import RouteModelForm
 from django.conf import settings
 
 
-class RouteAdmin(admin.ModelAdmin):
+class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
     search_fields = ['condition', 'clusters__name', 'director__name']
     list_display = ['condition', 'director', 'priority', 'action', 'get_clusters']
