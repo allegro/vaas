@@ -38,7 +38,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "aa10e", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "2921e", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -76,7 +76,6 @@ if (req.http.x-validation == "1") {
 }
     # Setup default backend to use
     set req.backend_hint = mesh_default_proxy;
-
     # Call protocol redirect sub
     call protocol_redirect;
 
