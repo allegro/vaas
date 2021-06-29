@@ -39,6 +39,7 @@ class MultiUrlWidget(forms.MultiWidget):
             self.widgets = [
                 forms.URLInput(attrs={'class': 'form-control', 'col': 'col-md-8'}) for _ in range(0, len(value))
             ]
+            self.widgets_names = ['_%s' % i for i in range(len(self.widgets))]
         return value
 
     def value_from_datadict(self, data, files, name):
@@ -82,7 +83,7 @@ class ComplexConditionWidget(forms.MultiWidget):
         self.operators = operators
         self.base_widget = ConditionWidget(self.variables, self.operators, *args, **kwargs)
         widgets = [
-            self.base_widget
+            self.base_widget,
         ]
         self.test = 0
         super(ComplexConditionWidget, self).__init__(widgets, *args, **kwargs)
@@ -92,6 +93,7 @@ class ComplexConditionWidget(forms.MultiWidget):
         result = split_complex_condition(value)
         if len(result) > 1:
             self.widgets = [ConditionWidget(self.variables, self.operators) for _ in range(0, len(result))]
+            self.widgets_names = ['_%s' % i for i in range(len(self.widgets))]
         return result
 
     def value_from_datadict(self, data, files, name):
