@@ -18,7 +18,7 @@ class VarnishPurger(object):
 
     def purge_url(self, url, servers, headers=None):
         parsed_url = urlparse(url)
-        if headers is not None and 'Host' not in headers.keys():
+        if headers is not None and ('Host' not in headers.keys() and 'host' not in headers.keys()):
             headers['Host'] = [parsed_url.hostname]
         if headers is None:
             headers = {'Host': [parsed_url.hostname]}
