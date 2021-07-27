@@ -12,7 +12,7 @@ backend mesh_default_proxy {
     .port = "30001";
 }
 sub use_director_director_with_mesh_service_support {
-    set req.http.original-host = req.http.host;
+    set req.http.x-original-host = req.http.host;
     set req.http.Host = "mesh_service_support";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
@@ -38,7 +38,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "2921e", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "b2157", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
