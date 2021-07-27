@@ -1,5 +1,5 @@
 sub use_director_{{director.name}} {
-    set req.http.original-host = req.http.host;
+    set req.http.{{ mesh_x_original_host }} = req.http.host;
     set req.http.Host = "{{ director.service_mesh_label }}";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "{{director.protocol}}";
