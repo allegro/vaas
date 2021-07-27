@@ -259,7 +259,8 @@ class VclTagBuilder(object):
                             'vcl_directors': sorted(
                                 filtered_vcl_directors, key=lambda vcl_director: not vcl_director.is_active()
                             ),
-                            'director': director
+                            'director': director,
+                            'mesh_x_original_host': settings.MESH_X_ORIGINAL_HOST
                         }
                     )
                 )
