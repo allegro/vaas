@@ -1,5 +1,5 @@
-VaaS - Varnish as a Service
----------------------------
+VaaS
+----
 
 [![Build Status](https://travis-ci.org/allegro/vaas.png?branch=master)](http://travis-ci.org/allegro/vaas)
 

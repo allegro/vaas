@@ -1,5 +1,5 @@
-VaaS - Varnish as a Service
-===========================
+VaaS
+====
 VaaS enables you to manage cluster(s) of Varnish servers from one place, via a web GUI or a REST API. Information about your Varnish servers and their backends, directors and probes is saved into a database. It is then used to automatically generate and distribute VCLs.
 
 How it works
