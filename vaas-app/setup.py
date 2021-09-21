@@ -88,7 +88,7 @@ setup(
     version=release,
     author='Grupa Allegro Sp. z o.o. and Contributors',
     author_email='pluton@allegro.pl',
-    description="Vaas, Varnish as a Service - management tool",
+    description="Vaas",
     long_description="VaaS is a infrastructure service built around Varnish ESI . \
     From now on all developers are able to manage ESI backends by themselves,",
     url='https://github.com/allegro/vaas',

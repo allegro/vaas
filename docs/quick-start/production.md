@@ -95,7 +95,7 @@ Configure Service
 For modern OS we use Systemd service for mange UWsgi. Create service file /lib/systemd/system/vaas.service with the following contents:
 
     [Unit]
-    Description=Varnish As A Service
+    Description=VaaS
     After=network.target
 
     [Service]
