@@ -97,5 +97,5 @@ class VarnishApi(varnish.VarnishHandler):
         if len(buffer):
             return buffer
         raise VarnishApiReadException(
-            'Timeout during varnish.VarnishHandler.read_until(self, {}, {})'.format(match, timeout)
+            'Timeout during varnish.VarnishHandler.read_until(self, {}, {}) on {}'.format(match, timeout, self.id)
         )
