@@ -19,6 +19,15 @@ sub use_director_director_with_mesh_service_support {
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service/support";
 }
+sub use_director_director_with_mesh_service_support_and_service_tag {
+    set req.http.x-service-tag = "service-tag-1";
+    set req.http.x-original-host = req.http.host;
+    set req.http.Host = "mesh_service_support_with_service_tag";
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/mesh_service_service_tag/support";
+}
 
 sub vcl_recv {
     if (req.url == "/vaas_status") {
@@ -38,7 +47,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "b2157", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "456f6", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -66,6 +75,9 @@ sub protocol_redirect {
 sub vcl_recv {
     if (req.url ~ "^\/mesh_service\/support([\/\?].*)?$") {
         call use_director_director_with_mesh_service_support;
+    }
+    else if (req.url ~ "^\/mesh_service_service_tag\/support([\/\?].*)?$") {
+        call use_director_director_with_mesh_service_support_and_service_tag;
     }
 
 # Flexible ROUTER
