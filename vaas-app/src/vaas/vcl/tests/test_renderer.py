@@ -205,7 +205,8 @@ class VclTagBuilderTest(TestCase):
         BackendFactory.create(address='127.0.2.1', dc=self.dc2, director=active_active_remove_path)
         BackendFactory.create(address='127.4.2.1', dc=self.dc1, director=active_active_remove_path)
         BackendFactory.create(address='127.8.2.1', dc=self.dc1, director=active_active_routed_by_domain)
-        BackendFactory.create(address='127.9.255.254', port=65535, dc=self.dc1, director=active_active_with_too_long_name)
+        BackendFactory.create(address='127.9.255.254', port=65535, dc=self.dc1,
+                              director=active_active_with_too_long_name)
         BackendFactory.create(address='127.9.2.1', dc=self.dc1, director=active_active_absent_in_second_cluster)
         BackendFactory.create(address='127.10.2.1', dc=self.dc1, director=active_active_hashing_by_cookie)
         BackendFactory.create(address='127.11.2.1', dc=self.dc1, director=active_active_hashing_by_url)
@@ -235,7 +236,8 @@ class VclTagBuilderTest(TestCase):
                                                     cluster=cluster1)
         self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=self.dc1, template=template_v4_with_tag,
                                                         cluster=cluster1)
-        self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=self.dc2, template=template_v4, cluster=cluster2)
+        self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=self.dc2, template=template_v4,
+                                                     cluster=cluster2)
         self.varnish4_canary = VarnishServer.objects.create(
             ip='127.0.0.3', dc=self.dc2, template=template_v4_with_tag, cluster=cluster1, is_canary=True
         )
