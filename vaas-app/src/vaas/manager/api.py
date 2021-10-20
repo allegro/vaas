@@ -79,6 +79,7 @@ class DirectorResource(ModelResource):
             'cluster': ALL_WITH_RELATIONS,
             'service': ['exact'],
             'virtual': ['exact'],
+            'service_tag': ['exact'],
         }
 
     def save_m2m(self, bundle):

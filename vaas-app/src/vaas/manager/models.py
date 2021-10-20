@@ -85,6 +85,7 @@ class Director(models.Model):
     name = models.CharField(max_length=54, unique=True, validators=[name_validator])
     service = models.CharField(max_length=128, default='')
     service_mesh_label = models.CharField(max_length=128, default='')
+    service_tag = models.CharField(max_length=128, default='', blank=True)
     cluster = models.ManyToManyField(LogicalCluster)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default='both')
