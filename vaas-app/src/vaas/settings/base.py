@@ -217,3 +217,4 @@ ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-
 
 CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
 MESH_X_ORIGINAL_HOST = env.bool('MESH_X_ORIGINAL_HOST', default='x-original-host')
+SERVICE_TAG_HEADER = env.bool('SERVICE_TAG_HEADER', default='x-service-tag')

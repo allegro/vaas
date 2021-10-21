@@ -107,8 +107,8 @@ class VclTagBuilderTest(TestCase):
     def setUp(self):
         tags = TaggableManager()
         settings.SIGNALS = 'off'
-        dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
-        dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
+        self.dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
+        self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
         cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
         cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
         cluster3_with_mesh_service = LogicalClusterFactory.create(id=3, name='cluster3_siteB_test_with_mesh_service',
@@ -179,6 +179,14 @@ class VclTagBuilderTest(TestCase):
             mode='hash',
             hashing_policy='req.url'
         )
+        self.active_active_with_mesh_service_support_and_service_tag = DirectorFactory.create(
+            name='director_with_mesh_service_support_and_service_tag',
+            service_mesh_label='mesh_service_support_with_service_tag',
+            route_expression='/mesh_service_service_tag/support',
+            mode='hash',
+            hashing_policy='req.url',
+            service_tag='service-tag-1'
+        )
         """ connect directors to clusters """
         non_active_active_routed_by_path.cluster.add(1, 2)
         active_active_remove_path.cluster.add(1, 2)
@@ -190,20 +198,22 @@ class VclTagBuilderTest(TestCase):
         active_active_with_start_as_healthy_probe.cluster.add(1, 2)
         active_active_without_backends.cluster.add(1, 2)
         self.active_active_with_mesh_service_support.cluster.add(3)
+        self.active_active_with_mesh_service_support_and_service_tag.cluster.add(3)
 
         BackendFactory.create(
-            address='127.0.1.1', dc=dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
-        BackendFactory.create(address='127.0.2.1', dc=dc2, director=active_active_remove_path)
-        BackendFactory.create(address='127.4.2.1', dc=dc1, director=active_active_remove_path)
-        BackendFactory.create(address='127.8.2.1', dc=dc1, director=active_active_routed_by_domain)
-        BackendFactory.create(address='127.9.255.254', port=65535, dc=dc1, director=active_active_with_too_long_name)
-        BackendFactory.create(address='127.9.2.1', dc=dc1, director=active_active_absent_in_second_cluster)
-        BackendFactory.create(address='127.10.2.1', dc=dc1, director=active_active_hashing_by_cookie)
-        BackendFactory.create(address='127.11.2.1', dc=dc1, director=active_active_hashing_by_url)
+            address='127.0.1.1', dc=self.dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
+        BackendFactory.create(address='127.0.2.1', dc=self.dc2, director=active_active_remove_path)
+        BackendFactory.create(address='127.4.2.1', dc=self.dc1, director=active_active_remove_path)
+        BackendFactory.create(address='127.8.2.1', dc=self.dc1, director=active_active_routed_by_domain)
+        BackendFactory.create(address='127.9.255.254', port=65535, dc=self.dc1,
+                              director=active_active_with_too_long_name)
+        BackendFactory.create(address='127.9.2.1', dc=self.dc1, director=active_active_absent_in_second_cluster)
+        BackendFactory.create(address='127.10.2.1', dc=self.dc1, director=active_active_hashing_by_cookie)
+        BackendFactory.create(address='127.11.2.1', dc=self.dc1, director=active_active_hashing_by_url)
         canary_backend = BackendFactory.create(
-            address='127.4.2.2', dc=dc1, director=active_active_remove_path, weight=0
+            address='127.4.2.2', dc=self.dc1, director=active_active_remove_path, weight=0
         )
-        BackendFactory.create(address='127.11.3.1', dc=dc1, director=active_active_with_start_as_healthy_probe)
+        BackendFactory.create(address='127.11.3.1', dc=self.dc1, director=active_active_with_start_as_healthy_probe)
         canary_backend.tags.add('canary')
 
         template_v4_with_tag = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##',
@@ -222,19 +232,20 @@ class VclTagBuilderTest(TestCase):
         )
         route.clusters.add(cluster2)
 
-        self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=dc2, template=template_v4_with_tag,
+        self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=self.dc2, template=template_v4_with_tag,
                                                     cluster=cluster1)
-        self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=dc1, template=template_v4_with_tag,
+        self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=self.dc1, template=template_v4_with_tag,
                                                         cluster=cluster1)
-        self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=dc2, template=template_v4, cluster=cluster2)
+        self.varnish4 = VarnishServer.objects.create(ip='127.0.0.2', dc=self.dc2, template=template_v4,
+                                                     cluster=cluster2)
         self.varnish4_canary = VarnishServer.objects.create(
-            ip='127.0.0.3', dc=dc2, template=template_v4_with_tag, cluster=cluster1, is_canary=True
+            ip='127.0.0.3', dc=self.dc2, template=template_v4_with_tag, cluster=cluster1, is_canary=True
         )
         self.varnish4_canary = VarnishServer.objects.create(
-            ip='127.0.0.4', dc=dc2, template=template_v4, cluster=cluster2, is_canary=True
+            ip='127.0.0.4', dc=self.dc2, template=template_v4, cluster=cluster2, is_canary=True
         )
         self.varnish5_with_mesh_service = VarnishServer.objects.create(
-            ip='127.0.0.5', dc=dc2, template=template_v4, cluster=cluster3_with_mesh_service, is_canary=True
+            ip='127.0.0.5', dc=self.dc2, template=template_v4, cluster=cluster3_with_mesh_service, is_canary=True
         )
 
     @staticmethod
@@ -487,8 +498,7 @@ backend first_service_1_dc2_1_1_80 {
 
     def test_should_prepare_default_vcl_version5_with_mesh_service_with_attached_backend(self):
         vcl_renderer = VclRenderer()
-        dc3 = DcFactory.create(name="Iceland", symbol="dc3")
-        BackendFactory.create(address='127.11.2.10', dc=dc3, director=self.active_active_with_mesh_service_support)
+        BackendFactory.create(address='127.11.2.10', dc=self.dc2, director=self.active_active_with_mesh_service_support)
         vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
         with open(os.path.join(os.path.dirname(__file__)) + os.sep +
                   'expected-vcl-4.0-with-mesh_service.vcl', 'r') as f:
