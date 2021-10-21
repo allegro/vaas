@@ -1,5 +1,6 @@
 sub use_director_{{director.name}} {
     {% if director.service_tag %}
+    unset req.http.{{ service_tag_header }};
     set req.http.{{ service_tag_header }} = "{{ director.service_tag }}";
     {% endif %}
     set req.http.{{ mesh_x_original_host }} = req.http.host;

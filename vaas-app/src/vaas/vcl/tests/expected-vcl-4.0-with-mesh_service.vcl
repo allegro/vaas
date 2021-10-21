@@ -20,6 +20,7 @@ sub use_director_director_with_mesh_service_support {
     set req.http.X-VaaS-Prefix = "/mesh_service/support";
 }
 sub use_director_director_with_mesh_service_support_and_service_tag {
+    unset req.http.x-service-tag;
     set req.http.x-service-tag = "service-tag-1";
     set req.http.x-original-host = req.http.host;
     set req.http.Host = "mesh_service_support_with_service_tag";
@@ -47,7 +48,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "456f6", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "eb74a", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
