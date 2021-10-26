@@ -80,6 +80,7 @@ class DirectorResource(ModelResource):
             'service': ['exact'],
             'virtual': ['exact'],
             'service_tag': ['exact'],
+            'reachable_via_service_mesh': ['exact'],
         }
 
     def save_m2m(self, bundle):
