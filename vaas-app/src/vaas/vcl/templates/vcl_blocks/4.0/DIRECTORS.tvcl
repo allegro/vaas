@@ -4,28 +4,20 @@ backend mesh_default_proxy {
     .port = "#{MESH_PORT}";
 }
 
-{% for director in cluster_directors %}
-{% if director.reachable_via_service_mesh %}
-<USE_MESH_DIRECTOR_{{director.name}}/>
-{% endif %}
-{% endfor %}
-
-{% for director in directors %}
-{% if not director.reachable_via_service_mesh %}
+{% for director in directors | rejectattr('reachable_via_service_mesh') %}
 <DIRECTOR_{{director.name}}/>
-{% endif %}
 {% endfor %}
 
 sub vcl_init {
-{% for director in directors %}
-{% if not director.reachable_via_service_mesh %}
+{% for director in directors | rejectattr('reachable_via_service_mesh') %}
     <DIRECTOR_INIT_{{director.name}}/>
-{% endif %}
 {% endfor %}
 }
 
 {% for director in cluster_directors %}
 {% if not director.reachable_via_service_mesh %}
+<USE_MESH_DIRECTOR_{{director.name}}/>
+{% else %}
 <USE_DIRECTOR_{{director.name}}/>
 {% endif %}
 {% endfor %}
