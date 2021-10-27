@@ -527,7 +527,6 @@ backend first_service_1_dc2_1_1_80 {
             expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        print(vcl.content)
         assert_equals(expected_content, vcl.content)
 
     def test_should_prepare_default_vcl_varnish_with_mesh_and_standard_service(self):
