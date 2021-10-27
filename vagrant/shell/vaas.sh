@@ -34,7 +34,7 @@ if [ ! -f $VAAS_SRC_HOME/vaas/resources/db_config.yml ] ; then
 cat <<EOF > $VAAS_SRC_HOME/vaas/resources/db_config.yml
 default:
   ENGINE: 'django.db.backends.sqlite3'
-  NAME: /tmp/db.sqlite3
+  NAME: /home/vagrant/vaas/vaas-app/db.sqlite3
 EOF
 fi
 
@@ -72,10 +72,10 @@ else
     sudo systemctl start celery.service
 fi
 
-if [ ! -f /tmp/db.sqlite3 ] ; then
-  $VAAS_SRC_HOME/manage.py migrate --run-syncdb --noinput
-  $VAAS_SRC_HOME/manage.py loaddata $VAAS_SRC_HOME/vaas/resources/data.yaml
-fi
+rm -rf /home/vagrant/vaas/vaas-app/db.sqlite3
+$VAAS_SRC_HOME/manage.py migrate --run-syncdb --noinput
+$VAAS_SRC_HOME/manage.py loaddata $VAAS_SRC_HOME/vaas/resources/data.yaml
+
 
 if [ $(grep -q PYTHONPATH ~/.bash_profile; echo $?) -ne 0 ] ; then
     echo export PYTHONPATH=/home/vagrant/vaas/plugins >> ~/.bash_profile

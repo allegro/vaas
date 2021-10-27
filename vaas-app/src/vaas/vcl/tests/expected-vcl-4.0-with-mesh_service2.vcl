@@ -12,6 +12,10 @@ backend mesh_default_proxy {
     .port = "30001";
 }
 
+
+sub vcl_init {
+}
+
 sub use_director_director_with_mesh_service_support {
     set req.http.x-original-host = req.http.host;
     set req.http.Host = "mesh_service_support";
@@ -20,47 +24,15 @@ sub use_director_director_with_mesh_service_support {
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service/support";
 }
-
-## START director ten_director_in_forth_hyrid_cluster ###
-probe ten_director_in_forth_hyrid_cluster_test_probe_1 {
-    .url = "/status";
-    .expected_response = 200;
-    .interval = 3s;
-    .timeout = 1.0s;
-    .window = 5;
-    .threshold = 3;
-}
-
-backend ten_director_in_forth_hyrid_cluster_11_dc1_4_1_80 {
-    .host = "127.11.4.1";
-    .port = "80";
-    .max_connections = 5;
-    .connect_timeout = 0.30s;
-    .first_byte_timeout = 5.00s;
-    .between_bytes_timeout = 1.00s;
-    .probe = ten_director_in_forth_hyrid_cluster_test_probe_1;
-}
-
-## END director ten_director_in_forth_hyrid_cluster ###
-
-sub vcl_init {
-    ## START director init ten_director_in_forth_hyrid_cluster ###
-
-    new ten_director_in_forth_hyrid_cluster_dc1 = directors.round_robin();
-    ten_director_in_forth_hyrid_cluster_dc1.add_backend(ten_director_in_forth_hyrid_cluster_11_dc1_4_1_80);
-
-    ## END director init ten_director_in_forth_hyrid_cluster ###
-
-}
-
-sub use_director_ten_director_in_forth_hyrid_cluster {
+sub use_director_director_with_mesh_service_support_and_service_tag {
+    unset req.http.x-service-tag;
+    set req.http.x-service-tag = "service-tag-1";
+    set req.http.x-original-host = req.http.host;
+    set req.http.Host = "mesh_service_support_with_service_tag";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
-    set req.http.X-VaaS-Prefix = "/ten";
-    set req.http.X-Forwarded-Prefix = "/ten";
-    set req.http.X-VaaS-Director = "dc1/ten_director_in_forth_hyrid_cluster";
-    set req.backend_hint = ten_director_in_forth_hyrid_cluster_dc1.backend();
+    set req.http.X-VaaS-Prefix = "/mesh_service_service_tag/support";
 }
 
 sub vcl_recv {
@@ -68,8 +40,8 @@ if (req.http.x-use-director) {
     if (req.http.x-use-director == "director_with_mesh_service_support") {
         call use_director_director_with_mesh_service_support;
     }
-    if (req.http.x-use-director == "ten_director_in_forth_hyrid_cluster") {
-        call use_director_ten_director_in_forth_hyrid_cluster;
+    if (req.http.x-use-director == "director_with_mesh_service_support_and_service_tag") {
+        call use_director_director_with_mesh_service_support_and_service_tag;
     }
     if (req.http.X-VaaS-Director) {
         return(pass);
@@ -96,7 +68,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "4567b", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "f749c", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -125,8 +97,8 @@ sub vcl_recv {
     if (req.url ~ "^\/mesh_service\/support([\/\?].*)?$") {
         call use_director_director_with_mesh_service_support;
     }
-    else if (req.url ~ "^\/ten([\/\?].*)?$") {
-        call use_director_ten_director_in_forth_hyrid_cluster;
+    else if (req.url ~ "^\/mesh_service_service_tag\/support([\/\?].*)?$") {
+        call use_director_director_with_mesh_service_support_and_service_tag;
     }
 
 # Flexible ROUTER

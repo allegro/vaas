@@ -530,15 +530,14 @@ backend first_service_1_dc2_1_1_80 {
         print(vcl.content)
         assert_equals(expected_content, vcl.content)
 
-    def test_should_prepare_default_vcl_varnish_with_mesh__and_standard_service(self):
+    def test_should_prepare_default_vcl_varnish_with_mesh_and_standard_service(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish6_with_mesh_and_standard_service, '1', VclRendererInput())
         with open(os.path.join(os.path.dirname(__file__)) + os.sep +
-                  'expected-vcl-4.0-with-mesh-and-stanard-service.vcl', 'r') as f:
+                  'expected-vcl-4.0-with-mesh-and-standard-service.vcl', 'r') as f:
             expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        print(vcl.content)
         assert_equals(expected_content, vcl.content)
 
 

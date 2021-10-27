@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='director',
             name='reachable_via_service_mesh',
-            field=models.BooleanField(blank=False, default=True),
+            field=models.BooleanField(blank=False, default=False),
         ),
     ]
