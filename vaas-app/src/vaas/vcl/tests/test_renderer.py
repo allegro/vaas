@@ -88,6 +88,7 @@ class DirectorFactory(DjangoModelFactory):
     probe = Probe.objects.create(name='test_probe', url='/status')
     active_active = True
     time_profile = TimeProfile.objects.create(name='whatever')
+    reachable_via_service_mesh = False
 
 
 class BackendFactory(DjangoModelFactory):
@@ -111,8 +112,12 @@ class VclTagBuilderTest(TestCase):
         self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
         cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
         cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
-        cluster3_with_mesh_service = LogicalClusterFactory.create(id=3, name='cluster3_siteB_test_with_mesh_service',
-                                                                  service_mesh_routing=True)
+        cluster3_with_mesh_service = LogicalClusterFactory.create(
+            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True
+        )
+        cluster4_with_mesh_and_standard_service = LogicalClusterFactory.create(
+            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True
+        )
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -177,7 +182,12 @@ class VclTagBuilderTest(TestCase):
             service_mesh_label='mesh_service_support',
             route_expression='/mesh_service/support',
             mode='hash',
-            hashing_policy='req.url'
+            hashing_policy='req.url',
+            reachable_via_service_mesh=True
+        )
+        self.active_active_in_forth_hybrid_cluster = DirectorFactory.create(
+            name='ten_director_in_forth_hyrid_cluster',
+            route_expression='/ten'
         )
         self.active_active_with_mesh_service_support_and_service_tag = DirectorFactory.create(
             name='director_with_mesh_service_support_and_service_tag',
@@ -185,7 +195,8 @@ class VclTagBuilderTest(TestCase):
             route_expression='/mesh_service_service_tag/support',
             mode='hash',
             hashing_policy='req.url',
-            service_tag='service-tag-1'
+            service_tag='service-tag-1',
+            reachable_via_service_mesh=True
         )
         """ connect directors to clusters """
         non_active_active_routed_by_path.cluster.add(1, 2)
@@ -197,8 +208,9 @@ class VclTagBuilderTest(TestCase):
         active_active_hashing_by_url.cluster.add(1, 2)
         active_active_with_start_as_healthy_probe.cluster.add(1, 2)
         active_active_without_backends.cluster.add(1, 2)
-        self.active_active_with_mesh_service_support.cluster.add(3)
+        self.active_active_with_mesh_service_support.cluster.add(3, 4)
         self.active_active_with_mesh_service_support_and_service_tag.cluster.add(3)
+        self.active_active_in_forth_hybrid_cluster.cluster.add(4)
 
         BackendFactory.create(
             address='127.0.1.1', dc=self.dc2, director=non_active_active_routed_by_path, inherit_time_profile=True)
@@ -215,14 +227,17 @@ class VclTagBuilderTest(TestCase):
         )
         BackendFactory.create(address='127.11.3.1', dc=self.dc1, director=active_active_with_start_as_healthy_probe)
         canary_backend.tags.add('canary')
+        BackendFactory.create(address='127.11.4.1', dc=self.dc1, director=self.active_active_in_forth_hybrid_cluster)
 
         template_v4_with_tag = VclTemplate.objects.create(name='new', content='<VCL/>\n## #{vcl_variable} ##',
                                                           version='4.0')
         template_v4 = VclTemplate.objects.create(name='new-v4', content='<VCL/>', version='4.0')
 
-        vcl_variable = VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
-        mesh_ip = VclVariable.objects.create(key='MESH_IP', value='127.0.0.1', cluster=cluster3_with_mesh_service)
-        mesh_port = VclVariable.objects.create(key='MESH_PORT', value='30001', cluster=cluster3_with_mesh_service)
+        VclVariable.objects.create(key='vcl_variable', value='vcl_variable_content', cluster=cluster1)
+        VclVariable.objects.create(key='MESH_IP', value='127.0.0.1', cluster=cluster3_with_mesh_service)
+        VclVariable.objects.create(key='MESH_PORT', value='30001', cluster=cluster3_with_mesh_service)
+        VclVariable.objects.create(key='MESH_IP', value='127.0.0.1', cluster=cluster4_with_mesh_and_standard_service)
+        VclVariable.objects.create(key='MESH_PORT', value='30001', cluster=cluster4_with_mesh_and_standard_service)
 
         route = Route.objects.create(
             condition='req.url ~ "^\/flexible"',
@@ -246,6 +261,13 @@ class VclTagBuilderTest(TestCase):
         )
         self.varnish5_with_mesh_service = VarnishServer.objects.create(
             ip='127.0.0.5', dc=self.dc2, template=template_v4, cluster=cluster3_with_mesh_service, is_canary=True
+        )
+        self.varnish6_with_mesh_and_standard_service = VarnishServer.objects.create(
+            ip='127.0.0.6',
+            dc=self.dc2,
+            template=template_v4,
+            cluster=cluster4_with_mesh_and_standard_service,
+            is_canary=True
         )
 
     @staticmethod
@@ -505,6 +527,18 @@ backend first_service_1_dc2_1_1_80 {
             expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
+        print(vcl.content)
+        assert_equals(expected_content, vcl.content)
+
+    def test_should_prepare_default_vcl_varnish_with_mesh__and_standard_service(self):
+        vcl_renderer = VclRenderer()
+        vcl = vcl_renderer.render(self.varnish6_with_mesh_and_standard_service, '1', VclRendererInput())
+        with open(os.path.join(os.path.dirname(__file__)) + os.sep +
+                  'expected-vcl-4.0-with-mesh-and-stanard-service.vcl', 'r') as f:
+            expected_content = f.read()
+
+        assert_equals('new-v4-1', vcl.name[:-10])
+        print(vcl.content)
         assert_equals(expected_content, vcl.content)
 
 

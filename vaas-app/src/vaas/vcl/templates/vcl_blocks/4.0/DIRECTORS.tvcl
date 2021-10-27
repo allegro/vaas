@@ -3,9 +3,46 @@ backend mesh_default_proxy {
     .host = "#{MESH_IP}";
     .port = "#{MESH_PORT}";
 }
+
 {% for director in cluster_directors %}
+{% if director.reachable_via_service_mesh %}
 <USE_MESH_DIRECTOR_{{director.name}}/>
+{% endif %}
 {% endfor %}
+
+{% for director in directors %}
+{% if not director.reachable_via_service_mesh %}
+<DIRECTOR_{{director.name}}/>
+{% endif %}
+{% endfor %}
+
+sub vcl_init {
+{% for director in directors %}
+{% if not director.reachable_via_service_mesh %}
+    <DIRECTOR_INIT_{{director.name}}/>
+{% endif %}
+{% endfor %}
+}
+
+{% for director in cluster_directors %}
+{% if not director.reachable_via_service_mesh %}
+<USE_DIRECTOR_{{director.name}}/>
+{% endif %}
+{% endfor %}
+
+sub vcl_recv {
+if (req.http.x-use-director) {
+{% for director in cluster_directors %}
+    if (req.http.x-use-director == "{{director.name}}") {
+        call use_director_{{director.name}};
+    }
+{% endfor %}
+    if (req.http.X-VaaS-Director) {
+        return(pass);
+    }
+}
+}
+
 {% else %}
 {% for director in directors %}
 <DIRECTOR_{{director.name}}/>

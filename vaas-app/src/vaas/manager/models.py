@@ -117,6 +117,10 @@ class Director(models.Model):
         default=False,
         help_text='<i>Virtual director will not be available in routes</i>',
     )
+    reachable_via_service_mesh = models.BooleanField(
+        default=False,
+        help_text='<i>Pass traffic to backends via service mesh if varnish cluster supports it</i>',
+    )
 
     def mode_constructor(self):
         if self.mode == 'round-robin':
