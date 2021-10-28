@@ -12,15 +12,6 @@ backend mesh_default_proxy {
     .port = "30001";
 }
 
-sub use_director_director_with_mesh_service_support {
-    set req.http.x-original-host = req.http.host;
-    set req.http.Host = "mesh_service_support";
-    unset req.http.X-Accept-Proto;
-    set req.http.X-Accept-Proto = "https";
-    unset req.http.X-VaaS-Prefix;
-    set req.http.X-VaaS-Prefix = "/mesh_service/support";
-}
-
 ## START director ten_director_in_forth_hyrid_cluster ###
 probe ten_director_in_forth_hyrid_cluster_test_probe_1 {
     .url = "/status";
@@ -53,6 +44,14 @@ sub vcl_init {
 
 }
 
+sub use_director_director_with_mesh_service_support {
+    set req.http.x-original-host = req.http.host;
+    set req.http.Host = "mesh_service_support";
+    unset req.http.X-Accept-Proto;
+    set req.http.X-Accept-Proto = "https";
+    unset req.http.X-VaaS-Prefix;
+    set req.http.X-VaaS-Prefix = "/mesh_service/support";
+}
 sub use_director_ten_director_in_forth_hyrid_cluster {
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
@@ -96,7 +95,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "4567b", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "3a88e", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }

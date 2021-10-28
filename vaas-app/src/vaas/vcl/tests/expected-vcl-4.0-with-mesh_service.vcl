@@ -12,6 +12,10 @@ backend mesh_default_proxy {
     .port = "30001";
 }
 
+
+sub vcl_init {
+}
+
 sub use_director_director_with_mesh_service_support {
     set req.http.x-original-host = req.http.host;
     set req.http.Host = "mesh_service_support";
@@ -30,11 +34,6 @@ sub use_director_director_with_mesh_service_support_and_service_tag {
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service_service_tag/support";
 }
-
-
-sub vcl_init {
-}
-
 
 sub vcl_recv {
 if (req.http.x-use-director) {
@@ -69,7 +68,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "0fd34", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "f749c", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
