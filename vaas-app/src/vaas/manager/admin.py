@@ -101,13 +101,6 @@ class DirectorAdmin(AuditableModelAdmin):
     list_filter = ['cluster__name', 'service']
     actions = [enable_director, disable_director]
 
-    def service_mesh(self, obj):
-        return format_html(
-            "Enabled: <a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +
-            "<br/>Label: " + obj.service_mesh_label +
-            "<br/>Tag: " + obj.service_tag
-        )
-
     def get_clusters(self, obj):
         """Return string with newline separated clusters for directory passed as argument"""
         return "\n".join([cluster.name for cluster in obj.cluster.all()])
