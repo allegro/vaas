@@ -96,10 +96,17 @@ class DirectorAdmin(AuditableModelAdmin):
     search_fields = ['name', 'route_expression']
     form = DirectorModelForm
     list_display = (
-        'name', 'service', 'service_mesh_label', 'get_clusters', 'route_expression', 'probe', 'protocol',
-        'custom_enabled', 'virtual',)
+        'name', 'service', 'reachable_via_service_mesh', 'service_mesh_label', 'service_tag', 'get_clusters',
+        'route_expression', 'probe', 'protocol', 'custom_enabled', 'virtual',)
     list_filter = ['cluster__name', 'service']
     actions = [enable_director, disable_director]
+
+    def service_mesh(self, obj):
+        return format_html(
+            "Enabled: <a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +
+            "<br/>Label: " + obj.service_mesh_label +
+            "<br/>Tag: " + obj.service_tag
+        )
 
     def get_clusters(self, obj):
         """Return string with newline separated clusters for directory passed as argument"""
@@ -113,7 +120,10 @@ class DirectorAdmin(AuditableModelAdmin):
         return form
 
     def custom_enabled(self, obj):
-        if obj.enabled:
+        return self._custom_flag(obj.enabled)
+
+    def _custom_flag(self, flag):
+        if flag:
             return format_html(
                 "<div class='span13 text-center'>" +
                 "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +

@@ -82,7 +82,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Create a new Director
 
     curl -X POST \
-    -d '{ "name": "director1", "service": "service1", "probe": "/api/v0.1/probe/1/", "route_expression": "/abc", "cluster": ["/api/v0.1/cluster/1/"], "mode": "round-robin", "time_profile": "/api/v0.1/time_profile/1/" }' \
+    -d '{ "name": "director1", "service": "service1", "reachable_via_service_mesh": true, "service_mesh_label": "service1", "service_tag": "www", "probe": "/api/v0.1/probe/1/", "route_expression": "/abc", "cluster": ["/api/v0.1/logical_cluster/1/"], "mode": "round-robin", "time_profile": "/api/v0.1/time_profile/1/" }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/director/?username=admin&api_key=vagrant_api_key"
 
@@ -237,7 +237,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Create new route
 
     curl -X POST \
-    -d '{"action":"pass", "cluster": ["/api/v0.1/cluster/1/"], "positive_urls": [{"url": "https://example.com/path"}], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
+    -d '{"action":"pass", "cluster": ["/api/v0.1/logical_cluster/1/"], "positive_urls": [{"url": "https://example.com/path"}], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/?username=admin&api_key=vagrant_api_key&format=json"
 
@@ -249,7 +249,7 @@ To list backends located in specified DC belonging to specified Director:
 ### Partially update route
 
     curl -X PATCH \
-    -d '{"action":"pass", "cluster": ["/api/v0.1/cluster/1/"], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
+    -d '{"action":"pass", "cluster": ["/api/v0.1/logical_cluster/1/"], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
 

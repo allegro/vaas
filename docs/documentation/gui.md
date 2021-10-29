@@ -76,6 +76,8 @@ To define a new director, click on *Manager -> Directors -> Add director* and fi
 
 * **Name:** specify a name of the new director
 * **Service:** specify a business service name
+* **Service mesh label:** specify a service name which will be passed to service mesh in host header
+* **Service tag:** specify a service tag which will be passed to service mesh through configurable header
 * **Cluster:** select cluster(s) in which the director should be used
 * **Mode:** specify balancing algorithm
 * **Hasing policy:** specify hashing policy
@@ -86,6 +88,8 @@ To define a new director, click on *Manager -> Directors -> Add director* and fi
 * **Enabled:** enable or disable the director
 * **Remove path:** remove the part of url defined in *Path or domain regex* before passing request to backend
 * **Time profile:** default advanced timeout setting for each backend in director
+* **Virtual:** Virtual director will not be available in routes
+* **Reachable via service mesh:** Pass traffic to backends via service mesh if varnish cluster supports it
 
 ## [Manager] Backends
 To define a new backend, click on *Manager -> Backends -> Add backend* and fill in the form:
