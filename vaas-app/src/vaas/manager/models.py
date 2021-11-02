@@ -187,6 +187,11 @@ class Backend(models.Model):
     def __str__(self):
         return make_backend_name(self)
 
+    def get_affected_clusters(self):
+        if self.director.reachable_via_service_mesh:
+            return self.director.cluster.filter(service_mesh_routing=False)
+        return self.director.cluster.all()
+
     class Meta:
         unique_together = (('address', 'port', 'director'),)
 
