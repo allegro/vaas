@@ -30,7 +30,7 @@ def switch_state_and_reload(queryset, enabled):
                     clusters_to_refresh.append(cluster)
         elif isinstance(query, Backend):
             logger.debug("query is Backend %s" % str(query))
-            for cluster in query.director.cluster.all():
+            for cluster in query.get_affected_clusters():
                 if cluster not in clusters_to_refresh:
                     clusters_to_refresh.append(cluster)
         elif isinstance(query, Probe):
@@ -121,7 +121,7 @@ def vcl_update(sender, **kwargs):
                         clusters_to_refresh.append(cluster)
     # Backend
     elif sender is Backend:
-        for cluster in instance.director.cluster.all():
+        for cluster in instance.get_affected_clusters():
             logger.debug("vcl_update(): %s" % str(cluster))
             if cluster not in clusters_to_refresh:
                 clusters_to_refresh.append(cluster)

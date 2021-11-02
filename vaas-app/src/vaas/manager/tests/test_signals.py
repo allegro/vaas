@@ -54,6 +54,47 @@ class TestSignals(TestCase):
                 regenerate_and_reload_vcl_mock.call_args_list
             )
 
+    def test_should_not_reload_clusters_if_service_mesh_is_enabled_and_director_is_reachable_via_sm(self):
+        cluster_with_sm = LogicalCluster.objects.create(name="cluster_with_sm", service_mesh_routing=True)
+        cluster_without_sm = LogicalCluster.objects.create(name="cluster_without_sm", service_mesh_routing=False)
+        dc1 = Dc.objects.create(symbol='dc3', name='First datacenter')
+        probe = Probe.objects.create(name='default_probe', url='/ts.1')
+        director_reachable_via_sm = Director.objects.create(
+            name='first_gamma',
+            route_expression='/first',
+            mode='random',
+            probe=probe,
+            time_profile=TimeProfile.objects.create(name='beta'),
+            reachable_via_service_mesh=True
+
+        )
+        backend1 = Backend.objects.create(
+            dc=dc1,
+            director=director_reachable_via_sm,
+            address='192.168.200.10',
+            port=8080,
+            weight=1
+        )
+        director_reachable_via_sm.cluster.add(cluster_with_sm)
+        director_reachable_via_sm.cluster.add(cluster_without_sm)
+
+        queryset = Backend.objects.all().filter(id=backend1.id)
+        queryset.update = Mock()
+
+        with patch(
+                'vaas.manager.signals.regenerate_and_reload_vcl',
+                return_value=None
+        ) as regenerate_and_reload_vcl_mock:
+            switch_state_and_reload(queryset, True)
+            assert_equals(
+                [call(enabled=True)],
+                queryset.update.call_args_list
+            )
+            assert_equals(
+                [call([cluster_without_sm])],
+                regenerate_and_reload_vcl_mock.call_args_list
+            )
+
     def test_switch_state_and_reload_with_empty_list(self):
         queryset = MagicMock()
         queryset.update = Mock()
@@ -211,6 +252,40 @@ class TestSignals(TestCase):
             kwargs = {'instance': template}
             vcl_update(VclTemplate, **kwargs)
             assert_equals([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
+
+        settings.SIGNALS = 'off'
+
+    def test_backend_change_should_trigger_vcl_change_for_clusters_where_service_mesh_is_disabled(self):
+        settings.SIGNALS = 'on'
+        cluster_with_sm = LogicalCluster.objects.create(name="cluster_with_sm", service_mesh_routing=True)
+        cluster_without_sm = LogicalCluster.objects.create(name="cluster_without_sm", service_mesh_routing=False)
+
+        dc1 = Dc.objects.create(symbol='dc3', name='First datacenter')
+        probe = Probe.objects.create(name='default_probe', url='/ts.1')
+        director_reachable_via_sm = Director.objects.create(
+            name='first_gamma',
+            route_expression='/first',
+            mode='random',
+            probe=probe,
+            time_profile=TimeProfile.objects.create(name='beta'),
+            reachable_via_service_mesh=True
+
+        )
+        backend1 = Backend.objects.create(
+            dc=dc1,
+            director=director_reachable_via_sm,
+            address='192.168.200.10',
+            port=8080,
+            weight=1
+        )
+        director_reachable_via_sm.cluster.add(cluster_with_sm)
+        director_reachable_via_sm.cluster.add(cluster_without_sm)
+
+        with patch('vaas.manager.signals.regenerate_and_reload_vcl',
+                   return_value=None) as regenerate_and_reload_vcl_mock:
+            kwargs = {'instance': backend1}
+            vcl_update(Backend, **kwargs)
+            assert_equals([call([cluster_without_sm])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
