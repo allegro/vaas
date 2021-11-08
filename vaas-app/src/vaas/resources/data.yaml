@@ -99,11 +99,6 @@
   fields: {name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n    <FLEXIBLE_ROUTER/>\r\
       \n}", version: '4.0', comment: wefwef}
 - model: cluster.varnishserver
-  pk: 2
-  fields: {ip: 192.168.199.3, hostname: varnish-4, cluster_weight: 1, http_port: 6081,
-    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
-    template: 2, cluster: 1, is_canary: false}
-- model: cluster.varnishserver
   pk: 3
   fields: {ip: 192.168.199.4, hostname: varnish-4.1, cluster_weight: 1, http_port: 6081,
     port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
@@ -111,6 +106,11 @@
 - model: cluster.varnishserver
   pk: 4
   fields: {ip: 192.168.199.6, hostname: varnish-6, cluster_weight: 1, http_port: 6081,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: cluster.varnishserver
+  pk: 2
+  fields: {ip: 192.168.199.7, hostname: varnish-7, cluster_weight: 1, http_port: 6081,
     port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
     template: 2, cluster: 1, is_canary: false}
 - model: router.route
