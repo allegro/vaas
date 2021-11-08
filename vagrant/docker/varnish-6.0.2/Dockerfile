@@ -1,9 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 RUN \
   apt-get -y update && \
   apt-get install -y curl && \
   curl -s https://packagecloud.io/install/repositories/varnishcache/varnish60lts/script.deb.sh | bash && \
-  apt-get install -y monit varnish && \
+  apt-get install -y monit varnish=6.0.* && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 ADD ./init.d/varnish /etc/init.d/varnish

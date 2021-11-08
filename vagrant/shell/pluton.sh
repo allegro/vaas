@@ -20,4 +20,6 @@ python3.9 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r vaas/vaas-app/requirements/dev.txt
+# newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
+pip install kombu==5.1.0
 echo ". venv/bin/activate" >> ~/.bash_profile
