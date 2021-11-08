@@ -236,6 +236,7 @@ sub use_director_third_service {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "third.service.org";
+    unset req.http.x-action
     set req.http.X-VaaS-Director = "dc1/third_service";
     set req.backend_hint = third_service_dc1.backend();
 }
@@ -244,6 +245,7 @@ sub use_director_fourth_director_which_has_a_ridiculously_long_name {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "unusual.name.org";
+    unset req.http.x-action
     set req.http.X-VaaS-Director = "dc1/fourth_director_which_has_a_ridiculously_long_name";
     set req.backend_hint = fourth_director_which_has_a_ridiculously_long_name_dc1.backend();
 }
@@ -252,6 +254,7 @@ sub use_director_first_service {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/first";
+    unset req.http.x-action
     set req.http.X-Forwarded-Prefix = "/first";
     set req.http.X-VaaS-Director = "dc2/first_service";
     set req.backend_hint = first_service_dc2.backend();
@@ -261,6 +264,7 @@ sub use_director_second_service {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/second";
+    unset req.http.x-action
     set req.http.X-Forwarded-Prefix = "/second";
     set req.http.X-VaaS-Director = "dc2/second_service";
     set req.backend_hint = second_service_dc2.backend();
@@ -274,6 +278,7 @@ sub use_director_sixth_director_hashing_by_cookie {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/sixth";
+    unset req.http.x-action
     set req.http.X-Forwarded-Prefix = "/sixth";
     set req.http.X-VaaS-Director = "dc1/sixth_director_hashing_by_cookie";
     set req.backend_hint = sixth_director_hashing_by_cookie_dc1.backend(req.http.cookie);
@@ -283,6 +288,7 @@ sub use_director_seventh_director_hashing_by_url {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/seventh";
+    unset req.http.x-action
     set req.http.X-Forwarded-Prefix = "/seventh";
     set req.http.X-VaaS-Director = "dc1/seventh_director_hashing_by_url";
     set req.backend_hint = seventh_director_hashing_by_url_dc1.backend(req.url);
@@ -292,6 +298,7 @@ sub use_director_eighth_service {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/eighth";
+    unset req.http.x-action
     set req.http.X-Forwarded-Prefix = "/eighth";
     set req.http.X-VaaS-Director = "dc1/eighth_service";
     set req.backend_hint = eighth_service_dc1.backend();
@@ -301,6 +308,7 @@ sub use_director_ningth_director_without_backends {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/ningth";
+    unset req.http.x-action
     set req.http.x-action = "nobackend";
     set req.http.x-director = "ningth_director_without_backends";
 }
@@ -355,7 +363,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "6bc56", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "dabfa", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -410,7 +418,7 @@ sub vcl_recv {
 # Flexible ROUTER
     if (req.url ~ "^\/flexible") {
         set req.http.X-Route = "1";
-        set req.http.x-action = "pass";
+        set req.http.x-route-action = "pass";
         call use_director_first_service;
     }
 
@@ -421,10 +429,12 @@ if (req.http.x-validation == "1") {
     # Call protocol redirect sub
     call protocol_redirect;
     # Handler for no backend in director
+    if(req.http.x-action != "nobackend" && ) {
+        set req.http.x-action = req.http.x-route-action;
+    }
     if(req.http.x-action == "nobackend") {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
-    }
-    else if(req.http.x-action == "pipe") {
+    } else if(req.http.x-action == "pipe") {
         return (pipe);
     }
 

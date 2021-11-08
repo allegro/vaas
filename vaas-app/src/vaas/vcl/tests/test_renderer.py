@@ -436,23 +436,25 @@ class VclRendererInputTest(TestCase):
 class VclRendererTest(TestCase):
     setUp = VclTagBuilderTest.__dict__['setUp']
 
+    def _assert_vcl_content(self, expected_file, actual_content):
+        with open(os.path.join(os.path.dirname(__file__), expected_file), 'r') as f:
+            expected_content = f.read()
+        self.maxDiff = None
+        assert_equals(expected_content, actual_content)
+
     def test_should_prepare_default_vcl_version4(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-4.0.vcl', 'r') as f:
-            expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
+        self._assert_vcl_content('expected-vcl-4.0.vcl', vcl.content)
 
     def test_should_prepare_default_vcl_version4_with_canary_backend(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4_canary, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep + 'expected-vcl-4.0-canary.vcl', 'r') as f:
-            expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
+        self._assert_vcl_content('expected-vcl-4.0-canary.vcl', vcl.content)
 
     def test_should_comment_unused_tags(self):
         vcl_renderer = VclRenderer()
@@ -511,33 +513,24 @@ backend first_service_1_dc2_1_1_80 {
     def test_should_prepare_default_vcl_version5_with_mesh_service(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep +
-                  'expected-vcl-4.0-with-mesh_service.vcl', 'r') as f:
-            expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
+        self._assert_vcl_content('expected-vcl-4.0-with-mesh_service.vcl', vcl.content)
 
     def test_should_prepare_default_vcl_version5_with_mesh_service_with_attached_backend(self):
         vcl_renderer = VclRenderer()
         BackendFactory.create(address='127.11.2.10', dc=self.dc2, director=self.active_active_with_mesh_service_support)
         vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep +
-                  'expected-vcl-4.0-with-mesh_service.vcl', 'r') as f:
-            expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
+        self._assert_vcl_content('expected-vcl-4.0-with-mesh_service.vcl', vcl.content)
 
     def test_should_prepare_default_vcl_varnish_with_mesh_and_standard_service(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish6_with_mesh_and_standard_service, '1', VclRendererInput())
-        with open(os.path.join(os.path.dirname(__file__)) + os.sep +
-                  'expected-vcl-4.0-with-mesh-and-standard-service.vcl', 'r') as f:
-            expected_content = f.read()
 
         assert_equals('new-v4-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
+        self._assert_vcl_content('expected-vcl-4.0-with-mesh-and-standard-service.vcl', vcl.content)
 
 
 class VclVariableExpanderTest(TestCase):

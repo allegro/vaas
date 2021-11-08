@@ -96,8 +96,7 @@
             current_vcl_versions: '[]'}
 - model: cluster.vcltemplate
   pk: 2
-  fields: {name: vagrant_template_4, content: "<VCL/>\r\nsub vcl_recv {\r\n    <FLEXIBLE_ROUTER/>\r\
-      \n}", version: '4.0', comment: wefwef}
+  fields: {name: vagrant_template_4, content: "<VCL/>", version: '4.0', comment: wefwef}
 - model: cluster.varnishserver
   pk: 3
   fields: {ip: 192.168.199.4, hostname: varnish-4.1, cluster_weight: 1, http_port: 6081,

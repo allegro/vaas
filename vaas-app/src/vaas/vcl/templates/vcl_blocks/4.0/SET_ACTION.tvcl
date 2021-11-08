@@ -1,0 +1,10 @@
+{% if mesh_routing %}
+    if(req.http.x-action == "service-mesh") {
+        set req.http.{{ mesh_x_original_host }} = req.http.host;
+        set req.http.host = req.http.x-mesh-host;
+        unset req.http.x-mesh-host;
+    }
+{% endif %}
+    if(req.http.x-action != "nobackend" && ) {
+        set req.http.x-action = req.http.x-route-action;
+    }

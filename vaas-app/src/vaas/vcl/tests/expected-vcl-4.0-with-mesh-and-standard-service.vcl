@@ -45,18 +45,22 @@ sub vcl_init {
 }
 
 sub use_director_director_with_mesh_service_support {
-    set req.http.x-original-host = req.http.host;
-    set req.http.Host = "mesh_service_support";
+    set req.http.x-mesh-host = "mesh_service_support";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service/support";
+    unset req.http.X-VaaS-Director;
+    set req.http.X-VaaS-Director = "service-mesh/director_with_mesh_service_support";
+    unset req.http.x-action;
+    set req.http.x-action = "service-mesh";
 }
 sub use_director_ten_director_in_forth_hyrid_cluster {
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/ten";
+    unset req.http.x-action
     set req.http.X-Forwarded-Prefix = "/ten";
     set req.http.X-VaaS-Director = "dc1/ten_director_in_forth_hyrid_cluster";
     set req.backend_hint = ten_director_in_forth_hyrid_cluster_dc1.backend();
@@ -95,7 +99,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "3a88e", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "092d7", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -138,6 +142,20 @@ if (req.http.x-validation == "1") {
     set req.backend_hint = mesh_default_proxy;
     # Call protocol redirect sub
     call protocol_redirect;
+    # Handler for no backend in director
+    if(req.http.x-action == "service-mesh") {
+        set req.http.x-original-host = req.http.host;
+        set req.http.host = req.http.x-mesh-host;
+        unset req.http.x-mesh-host;
+    }
+    if(req.http.x-action != "nobackend" && ) {
+        set req.http.x-action = req.http.x-route-action;
+    }
+    if(req.http.x-action == "nobackend") {
+        return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
+    } else if(req.http.x-action == "pipe") {
+        return (pipe);
+    }
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {

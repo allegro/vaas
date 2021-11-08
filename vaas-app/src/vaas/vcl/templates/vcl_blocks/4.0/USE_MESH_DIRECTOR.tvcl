@@ -3,10 +3,13 @@ sub use_director_{{director.name}} {
     unset req.http.{{ service_tag_header }};
     set req.http.{{ service_tag_header }} = "{{ director.service_tag }}";
     {% endif %}
-    set req.http.{{ mesh_x_original_host }} = req.http.host;
-    set req.http.Host = "{{ director.service_mesh_label }}";
+    set req.http.x-mesh-host = "{{ director.service_mesh_label }}";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "{{director.protocol}}";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "{{ director.route_expression }}";
+    unset req.http.X-VaaS-Director;
+    set req.http.X-VaaS-Director = "service-mesh/{{ director.name }}";
+    unset req.http.x-action;
+    set req.http.x-action = "service-mesh";
 }

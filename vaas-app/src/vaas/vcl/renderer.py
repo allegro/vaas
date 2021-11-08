@@ -20,7 +20,7 @@ VCL_TAGS = {
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH', 'VCL_PIPE'],
         ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
             'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH', 'USE_DIRECTOR_{DIRECTOR}',
-         'USE_MESH_DIRECTOR_{DIRECTOR}'],
+         'USE_MESH_DIRECTOR_{DIRECTOR}', 'SET_ACTION'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
             'SET_ROUTE_{ROUTE}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}', 'CALL_USE_DIRECTOR_{DIRECTOR}']
@@ -260,7 +260,6 @@ class VclTagBuilder(object):
                                 filtered_vcl_directors, key=lambda vcl_director: not vcl_director.is_active()
                             ),
                             'director': director,
-                            'mesh_x_original_host': settings.MESH_X_ORIGINAL_HOST,
                             'service_tag_header': settings.SERVICE_TAG_HEADER,
                         }
                     )
@@ -294,6 +293,9 @@ class VclTagBuilder(object):
             vcl_tag.parameters['server'] = self.varnish
             vcl_tag.parameters['allow_metrics_header'] = settings.ALLOW_METRICS_HEADER
         elif tag_name in ('RECV'):
+            vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
+        elif tag_name == 'SET_ACTION':
+            vcl_tag.parameters['mesh_x_original_host'] = settings.MESH_X_ORIGINAL_HOST
             vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
         elif tag_name in ('ROUTER', 'EXPLICITE_ROUTER', 'DIRECTORS'):
             vcl_tag.parameters['vcl_directors'] = self.placeholders['vcl_director']
