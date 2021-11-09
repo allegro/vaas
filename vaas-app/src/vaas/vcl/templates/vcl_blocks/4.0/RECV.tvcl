@@ -3,21 +3,14 @@ sub vcl_recv {
 <ROUTER/>
 <FLEXIBLE_ROUTER/>
 <TEST_ROUTER/>
-{% if mesh_routing %}
-    # Setup default backend to use
-    set req.backend_hint = mesh_default_proxy;
-{% endif %}
     # Call protocol redirect sub
     call protocol_redirect;
-{% if not mesh_routing %}
-    # Handler for no backend in director
+<SET_ACTION/>
     if(req.http.x-action == "nobackend") {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
-    }
-    else if(req.http.x-action == "pipe") {
+    } else if(req.http.x-action == "pipe") {
         return (pipe);
     }
-{% endif %}
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {

@@ -108,7 +108,12 @@ class VclRefreshMiddleware:
                 logging.info("Error while reloading cluster: %s (%s)" % (e, type(response)))
                 if 'tastypie' in str(type(response)):
                     return HttpApplicationError("%s: %s" % (e.__class__.__name__, str(e)[:400]))
-                request.session['error_message'] = "%s: %s" % (e.__class__.__name__, str(e))
+                request.session['error_message'] = "%s: %s" % (e.__class__.__name__, unescape_exception(e))
 
             logging.info("cluster reload time: %f" % (time.time() - start))
         return response
+
+
+def unescape_exception(e):
+    error_string = str(e)
+    return error_string.encode('latin-1', 'backslashreplace').decode('unicode-escape')

@@ -181,6 +181,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
     form = LogicalCLusterModelForm
     list_display = [
         'name',
+        'service_mesh_routing',
         'reload_timestamp',
         'error_timestamp',
         'last_error_info',

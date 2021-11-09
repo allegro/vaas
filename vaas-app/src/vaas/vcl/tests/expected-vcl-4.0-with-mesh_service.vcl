@@ -17,22 +17,28 @@ sub vcl_init {
 }
 
 sub use_director_director_with_mesh_service_support {
-    set req.http.x-original-host = req.http.host;
-    set req.http.Host = "mesh_service_support";
+    set req.http.x-mesh-host = "mesh_service_support";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service/support";
+    unset req.http.X-VaaS-Director;
+    set req.http.X-VaaS-Director = "service-mesh/director_with_mesh_service_support";
+    unset req.http.x-action;
+    set req.http.x-action = "service-mesh";
 }
 sub use_director_director_with_mesh_service_support_and_service_tag {
     unset req.http.x-service-tag;
     set req.http.x-service-tag = "service-tag-1";
-    set req.http.x-original-host = req.http.host;
-    set req.http.Host = "mesh_service_support_with_service_tag";
+    set req.http.x-mesh-host = "mesh_service_support_with_service_tag";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/mesh_service_service_tag/support";
+    unset req.http.X-VaaS-Director;
+    set req.http.X-VaaS-Director = "service-mesh/director_with_mesh_service_support_and_service_tag";
+    unset req.http.x-action;
+    set req.http.x-action = "service-mesh";
 }
 
 sub vcl_recv {
@@ -68,7 +74,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "f749c", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "63ad3", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -107,10 +113,26 @@ sub vcl_recv {
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
 }
-    # Setup default backend to use
-    set req.backend_hint = mesh_default_proxy;
     # Call protocol redirect sub
     call protocol_redirect;
+    # SET ACTION based on x-action
+    # if last used director is reachable via sm - its proper time to overwrite host header
+    if(req.http.x-action == "service-mesh") {
+        set req.http.x-original-host = req.http.host;
+        set req.http.host = req.http.x-mesh-host;
+        unset req.http.x-mesh-host;
+        # Setup default backend to use
+        set req.backend_hint = mesh_default_proxy;
+    }
+    # Handler for no backend in director
+    if(req.http.x-action != "nobackend") {
+        set req.http.x-action = req.http.x-route-action;
+    }
+    if(req.http.x-action == "nobackend") {
+        return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
+    } else if(req.http.x-action == "pipe") {
+        return (pipe);
+    }
 
     # POST, PUT, DELETE are passed directly to backend
     if (req.method != "GET" && req.method !="HEAD") {

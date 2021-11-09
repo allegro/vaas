@@ -82,9 +82,9 @@ class VarnishApi(varnish.VarnishHandler):
         content = b''
         while len(content) < length:
             content += self.read_until(b'\n', timeout)
-        assert status == 200, 'Bad response code: {status} {text} ({command})'.format(
+        assert status == 200, 'Bad response code: {status}\nResponse:\n{text}\n\nCommand: {command}'.format(
             status=status,
-            text=content,
+            text=content.decode(),
             command=command)
         self.read_eager()
         return (status, length), str(content, 'utf-8')

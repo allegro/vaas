@@ -1,0 +1,15 @@
+    # SET ACTION based on x-action
+{% if mesh_routing %}
+    # if last used director is reachable via sm - its proper time to overwrite host header
+    if(req.http.x-action == "service-mesh") {
+        set req.http.{{ mesh_x_original_host }} = req.http.host;
+        set req.http.host = req.http.x-mesh-host;
+        unset req.http.x-mesh-host;
+        # Setup default backend to use
+        set req.backend_hint = mesh_default_proxy;
+    }
+{% endif %}
+    # Handler for no backend in director
+    if(req.http.x-action != "nobackend") {
+        set req.http.x-action = req.http.x-route-action;
+    }
