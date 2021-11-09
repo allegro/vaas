@@ -78,7 +78,9 @@ class VarnishApi(varnish.VarnishHandler):
         """
         self.write(command.encode('utf-8') + b'\n')
         buffer = self.read_until(b'\n', timeout).strip()
-        status, length = map(int, buffer.split())
+        elements = buffer.split()
+        assert len(elements) == 2, f"cannot split response into two elements {elements}"
+        status, length = map(int, elements)
         content = b''
         while len(content) < length:
             content += self.read_until(b'\n', timeout)

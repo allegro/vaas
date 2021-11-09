@@ -60,7 +60,7 @@ sub use_director_ten_director_in_forth_hyrid_cluster {
     set req.http.X-Accept-Proto = "https";
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "/ten";
-    unset req.http.x-action
+    unset req.http.x-action;
     set req.http.X-Forwarded-Prefix = "/ten";
     set req.http.X-VaaS-Director = "dc1/ten_director_in_forth_hyrid_cluster";
     set req.backend_hint = ten_director_in_forth_hyrid_cluster_dc1.backend();
@@ -99,7 +99,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "3a179", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "049ed", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
