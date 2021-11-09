@@ -20,7 +20,6 @@ social-auth-app-django>=4.0.0
 defusedxml==0.6.0
 lxml==4.6.3
 flower==0.9.5
-click>=7.0,<8.0
 redis @ git+https://github.com/allegro/redis-py@3.2.2#egg=redis
 django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/allegro/python-varnish@0.2.2#egg=python_varnish
