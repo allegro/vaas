@@ -9,13 +9,13 @@ fi
 sudo apt-get update -y
 sudo apt-get install -y redis-server python3.9 python3-pip python3.9-dev python3.9-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
 
-sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
-
 # update venv
 cd ~/
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r vaas/vaas-app/requirements/dev.txt
+
+sudo ~/venv/bin/docker-compose -f ~/vaas/docker-compose.yml up -d --force-recreate
 
 # Kill the server if it is already running:
 server_pids=$(ps -ef|awk '/manage.py[ ]runserver/ {print $2}'|xargs)
