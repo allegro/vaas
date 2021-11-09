@@ -363,7 +363,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "dabfa", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "3f790", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -428,8 +428,9 @@ if (req.http.x-validation == "1") {
 }
     # Call protocol redirect sub
     call protocol_redirect;
+    # SET ACTION based on x-action
     # Handler for no backend in director
-    if(req.http.x-action != "nobackend" && ) {
+    if(req.http.x-action != "nobackend") {
         set req.http.x-action = req.http.x-route-action;
     }
     if(req.http.x-action == "nobackend") {

@@ -99,7 +99,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "092d7", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "3a179", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -138,17 +138,19 @@ sub vcl_recv {
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
 }
-    # Setup default backend to use
-    set req.backend_hint = mesh_default_proxy;
     # Call protocol redirect sub
     call protocol_redirect;
-    # Handler for no backend in director
+    # SET ACTION based on x-action
+    # if last used director is reachable via sm - its proper time to overwrite host header
     if(req.http.x-action == "service-mesh") {
         set req.http.x-original-host = req.http.host;
         set req.http.host = req.http.x-mesh-host;
         unset req.http.x-mesh-host;
+        # Setup default backend to use
+        set req.backend_hint = mesh_default_proxy;
     }
-    if(req.http.x-action != "nobackend" && ) {
+    # Handler for no backend in director
+    if(req.http.x-action != "nobackend") {
         set req.http.x-action = req.http.x-route-action;
     }
     if(req.http.x-action == "nobackend") {
