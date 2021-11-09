@@ -16,8 +16,6 @@ cd ~/
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r vaas/vaas-app/requirements/dev.txt
-# newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
-pip install kombu==5.1.0
 
 # Kill the server if it is already running:
 server_pids=$(ps -ef|awk '/manage.py[ ]runserver/ {print $2}'|xargs)
