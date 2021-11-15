@@ -83,16 +83,16 @@ class Vcl(object):
 
 
 class VclVariableExpander(object):
-    def __init__(self, cluster_id, variables):
-        self.cluster_id = cluster_id
-        self.variables = variables
-        self.logger = logging.getLogger('vaas')
+    def __init__(self, cluster_id, db_variables, default_variables):
+        self.variables = {}
+        for var_key, var_value in default_variables.items():
+            self.variables["#{{{}}}".format(var_key)] = var_value
+        for variable in filter(lambda v: cluster_id == v.cluster_id, db_variables):
+            self.variables["#{{{}}}".format(variable.key)] = variable.value
 
     def expand_variables(self, content):
-        for variable in self.variables:
-            if self.cluster_id == variable.cluster_id:
-                vcl_variable_key = "#{{{}}}".format(variable.key)
-                content = content.replace(vcl_variable_key, variable.value)
+        for var_key, var_value in self.variables.items():
+            content = content.replace(var_key, var_value)
 
         return content
 
@@ -401,7 +401,9 @@ class VclRenderer(object):
                     for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):
                         content = content.replace(str(vcl_tag), vcl_tag.expand(varnish.template))
 
-            content = VclVariableExpander(varnish.cluster_id, input.vcl_variables).expand_variables(content)
+            content = VclVariableExpander(
+                varnish.cluster_id, input.vcl_variables, settings.DEFAULT_VCL_VARIABLES
+            ).expand_variables(content)
 
             """
             Comment not expanded parameterized tags

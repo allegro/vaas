@@ -554,7 +554,7 @@ class VclVariableExpanderTest(TestCase):
         self.variables = [self.variable, self.variable_2]
 
     def test_should_expand_variable_in_appropriate_cluster(self):
-        content = VclVariableExpander(self.cluster.id, self.variables).expand_variables(
+        content = VclVariableExpander(self.cluster.id, self.variables, {}).expand_variables(
             '''\
 <VCL/>
 ## #{vcl_variable} ##
@@ -563,6 +563,27 @@ class VclVariableExpanderTest(TestCase):
         )
         expected_content = '''\
 <VCL/>
+## vcl_variable_value ##
+## #{vcl_variable_2} ##
+'''
+
+        assert_equals(content, expected_content)
+
+    def test_should_expand_variable_with_default_value_only_as_fallback(self):
+        default_values = {'vcl_not_defined_variable': 'vcl_fallback_value'}
+        content = VclVariableExpander(
+            self.cluster.id, self.variables, default_values
+        ).expand_variables(
+            '''\
+<VCL/>
+## #{vcl_not_defined_variable} ##
+## #{vcl_variable} ##
+## #{vcl_variable_2} ##
+'''
+        )
+        expected_content = '''\
+<VCL/>
+## vcl_fallback_value ##
 ## vcl_variable_value ##
 ## #{vcl_variable_2} ##
 '''

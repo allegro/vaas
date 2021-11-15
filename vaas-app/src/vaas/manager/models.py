@@ -118,7 +118,7 @@ class Director(models.Model):
         help_text='<i>Virtual director will not be available in routes</i>',
     )
     reachable_via_service_mesh = models.BooleanField(
-        default=True,
+        default=False,
         help_text='<i>Pass traffic to backends via service mesh if varnish cluster supports it</i>',
     )
 

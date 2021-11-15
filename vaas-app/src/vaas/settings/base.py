@@ -194,6 +194,11 @@ ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
     'req.http.X-Example': 'X-Example',
 })
 
+DEFAULT_VCL_VARIABLES = env.dict('DEFAULT_VCL_VARIABLES', default={
+    'MESH_IP': '127.0.0.1',
+    'MESH_PORT': '31001',
+})
+
 PURGER_HTTP_CLIENT_TIMEOUT = env.int('PURGER_HTTP_CLIENT_TIMEOUT', default=10)
 PURGER_MAX_HTTP_WORKERS = env.int('PURGER_MAX_HTTP_WORKERS', default=100)
 
