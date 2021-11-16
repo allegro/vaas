@@ -77,7 +77,7 @@ class VclRefreshMiddleware:
             del request.session['error_message']
 
         if len(clusters) > 0:
-            start = time.time()
+            start = time.perf_counter()
             try:
                 result = load_vcl_task.delay(
                     timezone.now(),
@@ -110,7 +110,7 @@ class VclRefreshMiddleware:
                     return HttpApplicationError("%s: %s" % (e.__class__.__name__, str(e)[:400]))
                 request.session['error_message'] = "%s: %s" % (e.__class__.__name__, unescape_exception(e))
 
-            logging.info("cluster reload time: %f" % (time.time() - start))
+            logging.info("cluster reload time: %f" % (time.perf_counter() - start))
         return response
 
 

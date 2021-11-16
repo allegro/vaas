@@ -169,10 +169,10 @@ class ParallelRenderer(ParallelExecutor):
     def render_vcl_for_servers(self, vcl_name, servers):
         vcl_list = []
 
-        start = time.time()
+        start = time.perf_counter()
         render_input = VclRendererInput()
-        self.logger.debug("vcl's prepare input data: %f" % (time.time() - start))
-        start = time.time()
+        self.logger.debug("vcl's prepare input data: %f" % (time.perf_counter() - start))
+        start = time.perf_counter()
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
             for server in servers:
@@ -182,7 +182,7 @@ class ParallelRenderer(ParallelExecutor):
             for server, future_result in future_results:
                 vcl_list.append(tuple([server, future_result.result()]))
 
-        self.logger.debug("vcl's render time: %f" % (time.time() - start))
+        self.logger.debug("vcl's render time: %f" % (time.perf_counter() - start))
         return vcl_list
 
 
@@ -218,7 +218,7 @@ class ParallelLoader(ParallelExecutor):
     @collect_processing
     def load_vcl_list(self, vcl_list):
         to_use = []
-        start = time.time()
+        start = time.perf_counter()
         aggregated_result = True
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
@@ -242,7 +242,7 @@ class ParallelLoader(ParallelExecutor):
 
                 raise e
 
-        self.logger.debug("vcl's loaded: %f" % (time.time() - start))
+        self.logger.debug("vcl's loaded: %f" % (time.perf_counter() - start))
 
         return self._format_vcl_list(to_use, aggregated_result)
 
@@ -250,7 +250,7 @@ class ParallelLoader(ParallelExecutor):
     def use_vcl_list(self, vcl_name, vcl_loaded_list):
         self.logger.info("Call use vcl for %d servers" % len(vcl_loaded_list))
         result = True
-        start = time.time()
+        start = time.perf_counter()
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_results = []
@@ -269,6 +269,6 @@ class ParallelLoader(ParallelExecutor):
                 if status.result() is VclStatus.ERROR:
                     self.logger.debug("ERROR while discard vcl's on %s" % (server))
 
-        self.logger.debug("vcl's used: %f" % (time.time() - start))
+        self.logger.debug("vcl's used: %f" % (time.perf_counter() - start))
 
         return result
