@@ -27,22 +27,22 @@ class VclLoader(object):
 
     def load_new_vcl(self, vcl):
         try:
-            start = time.time()
+            start = time.perf_counter()
             """Load and use newest vcl"""
             if self.vcl_has_changed(vcl) is True:
                 self.logger.debug(
-                    "[%s] vcl '%s' has changed: %f" % (self.varnish_api.id, vcl.name, time.time() - start)
+                    "[%s] vcl '%s' has changed: %f" % (self.varnish_api.id, vcl.name, time.perf_counter() - start)
                 )
-                start = time.time()
+                start = time.perf_counter()
                 if self.varnish_api.vcl_inline(vcl.name, '<< EOF\n' + str(vcl) + 'EOF')[0][0] == 200:
                     self.logger.debug(
-                        "[%s] vcl '%s' has loaded: %f" % (self.varnish_api.id, vcl.name, time.time() - start)
+                        "[%s] vcl '%s' has loaded: %f" % (self.varnish_api.id, vcl.name, time.perf_counter() - start)
                     )
                     return VclStatus.OK
                 return VclStatus.ERROR
             else:
                 self.logger.debug(
-                    "[%s] vcl '%s' has no changes: %f" % (self.varnish_api.id, vcl.name, time.time() - start)
+                    "[%s] vcl '%s' has no changes: %f" % (self.varnish_api.id, vcl.name, time.perf_counter() - start)
                 )
                 return VclStatus.NO_CHANGES
         except Exception as e:
@@ -51,17 +51,17 @@ class VclLoader(object):
             raise VclLoadException(e)
 
     def use_vcl(self, vcl):
-        start = time.time()
+        start = time.perf_counter()
         if self.varnish_api.vcl_use(vcl.name)[0][0] == 200:
             self.logger.debug(
-                "[%s] vcl '%s' used: %f" % (self.varnish_api.id, vcl.name, time.time() - start)
+                "[%s] vcl '%s' used: %f" % (self.varnish_api.id, vcl.name, time.perf_counter() - start)
             )
             return VclStatus.OK
         return VclStatus.ERROR
 
     def discard_unused_vcls(self):
         """Discard unused vcls"""
-        start = time.time()
+        start = time.perf_counter()
         vcls = self.varnish_api.vcls()['available']
         return_value = VclStatus.NO_CHANGES.value
         for vcl in vcls:
@@ -77,6 +77,6 @@ class VclLoader(object):
                 return_value = max(return_value, VclStatus.ERROR.value)
 
         self.logger.debug(
-            "[%s] old vcl discarded: %f" % (self.varnish_api.id, time.time() - start)
+            "[%s] old vcl discarded: %f" % (self.varnish_api.id, time.perf_counter() - start)
         )
         return VclStatus(return_value)

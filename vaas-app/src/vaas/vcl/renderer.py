@@ -52,13 +52,13 @@ def collect_processing(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         global processing_stats
-        start = time.time()
+        start = time.perf_counter()
         r = func(*args, **kwargs)
         name = func.__name__
         if name not in processing_stats:
             processing_stats[name] = {'time': 0, 'calls': 0}
         processing_stats[name]['calls'] += 1
-        processing_stats[name]['time'] += time.time() - start
+        processing_stats[name]['time'] += time.perf_counter() - start
         return r
     return wrapper
 
@@ -389,10 +389,10 @@ class VclRendererInput(object):
 class VclRenderer(object):
     def render(self, varnish, version, input):
         try:
-            start = time.time()
+            start = time.perf_counter()
             vcl_tag_builder = VclTagBuilder(varnish, input)
             logging.getLogger('vaas').debug(
-                "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.time() - start)
+                "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.perf_counter() - start)
             )
 
             content = varnish.template.content
@@ -417,7 +417,7 @@ class VclRenderer(object):
             content = content.replace("\r", '')
             vcl = Vcl(content, name=str(varnish.template.name + '-' + version))
             logging.getLogger('vaas').debug(
-                "[%s] vcl '%s' rendering time: %f" % (varnish.ip, vcl.name, time.time() - start)
+                "[%s] vcl '%s' rendering time: %f" % (varnish.ip, vcl.name, time.perf_counter() - start)
             )
             return vcl
         except:
