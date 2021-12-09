@@ -17,6 +17,7 @@ sub vcl_init {
 }
 
 sub use_director_director_with_mesh_service_support {
+    unset req.http.x-service-tag;
     set req.http.x-mesh-host = "mesh_service_support";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "https";
@@ -28,7 +29,6 @@ sub use_director_director_with_mesh_service_support {
     set req.http.x-action = "service-mesh";
 }
 sub use_director_director_with_mesh_service_support_and_service_tag {
-    unset req.http.x-service-tag;
     set req.http.x-service-tag = "service-tag-1";
     set req.http.x-mesh-host = "mesh_service_support_with_service_tag";
     unset req.http.X-Accept-Proto;
@@ -74,7 +74,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "63ad3", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "b6187", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
