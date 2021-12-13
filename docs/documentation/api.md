@@ -13,7 +13,7 @@ The following resources are available:
 |*Backend*           |Represents a single node in a service (director)                          |preview, **add, edit, delete**|
 |*Director*          |A Varnish director; may represent a SOA service                           |preview, **add, edit, delete**|
 |*Probe*             |A health check used to determine backend status                           |preview, **add, edit, delete**|
-|*Dc*                |Datacentre                                                                |preview, **add, edit, delete**|
+|*Dc*                |Datacenter                                                                |preview, **add, edit, delete**|
 |*Logical Cluster*   |Cluster of Varnish servers                                                |preview, **add, edit, delete**|
 |*Varnish Servers*   |A Varnish server                                                          |preview, **add, edit, delete**|
 |*VCL Template Block*|A VCL template block                                                      |preview, **add, edit, delete**|

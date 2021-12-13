@@ -12,6 +12,6 @@ probe {{director.name}}_{{ director.probe.name }}_{{ director.probe.id }} {
 }
 
 {% for vcl_director in vcl_directors %}
-<BACKEND_DEFINITION_LIST_{{vcl_director.director.name}}_{{vcl_director.dc.symbol}}/>
+<BACKEND_DEFINITION_LIST_{{vcl_director.director.name}}_{{vcl_director.dc.normalized_symbol}}/>
 {% endfor %}
 ## END director {{director.name}} ###

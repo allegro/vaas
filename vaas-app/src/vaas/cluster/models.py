@@ -5,11 +5,13 @@ from django.utils import timezone
 from taggit.managers import TaggableManager
 from tastypie import fields
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from vaas.validators import vcl_variable_validator, vcl_variable_key_validator,\
-    vcl_template_comment_validator, name_validator
+    vcl_template_comment_validator, name_validator, dc_symbol_validator
 
 
 class LogicalCluster(models.Model):
@@ -59,10 +61,32 @@ class LogicalCluster(models.Model):
 
 class Dc(models.Model):
     name = models.CharField(max_length=50)
-    symbol = models.CharField(max_length=9, unique=True, validators=[name_validator])
+    symbol = models.CharField(
+        max_length=9, unique=True, validators=[dc_symbol_validator, ]
+    )
+
+    @property
+    def normalized_symbol(self):
+        return self.symbol.replace("-", "_")
 
     def __str__(self):
         return self.symbol
+
+    def validate_unique(self, exclude=None):
+        super().validate_unique(exclude)
+        if exclude is None:
+            exclude = []
+        if 'symbol' not in exclude:
+            for dc in Dc.objects.exclude(id=self.id):
+                if dc.normalized_symbol == self.normalized_symbol:
+                    raise ValidationError(
+                        message=_("%(model_name)s with this %(field_labels)s already exists."),
+                        code='unique_together',
+                        params={
+                            'model_name': 'Dc',
+                            'field_labels': 'symbol'
+                        },
+                    )
 
 
 class VclTemplate(models.Model):

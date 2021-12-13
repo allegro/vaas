@@ -18,7 +18,7 @@ def generate_choices(min, max, step, decimal_places=2):
 def make_backend_name(backend):
 
     ip_octets = backend.address.split('.')
-    name = "_%s_%s_%s_%s_%s" % (backend.id, backend.dc, ip_octets[2], ip_octets[3], backend.port)
+    name = "_%s_%s_%s_%s_%s" % (backend.id, backend.dc.normalized_symbol, ip_octets[2], ip_octets[3], backend.port)
     director = str(backend.director)
 
     if len(name) > 64:

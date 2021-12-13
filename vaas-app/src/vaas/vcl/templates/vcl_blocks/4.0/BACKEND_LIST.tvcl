@@ -1,3 +1,3 @@
 {% for backend in vcl_director.backends %}
-    {{ vcl_director.director.name }}_{{vcl_director.dc.symbol}}.add_backend({{ backend }}{% if vcl_director.director.mode in ('hash', 'random') %}, {{ backend.weight }}{% endif %});
+    {{ vcl_director.director.name }}_{{vcl_director.dc.normalized_symbol}}.add_backend({{ backend }}{% if vcl_director.director.mode in ('hash', 'random') %}, {{ backend.weight }}{% endif %});
 {% endfor %}
