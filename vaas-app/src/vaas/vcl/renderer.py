@@ -237,7 +237,7 @@ class VclTagBuilder(object):
                 result.append(
                     VclTagExpander(
                         tag_name.replace('{DIRECTOR}', str(vcl_director.director))
-                        .replace('{DC}', str(vcl_director.dc)),
+                        .replace('{DC}', vcl_director.dc.normalized_symbol),
                         self.get_tag_template_name(tag_name),
                         self.input,
                         parameters={'vcl_director': vcl_director}

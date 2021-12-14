@@ -1,2 +1,2 @@
-    new {{ vcl_director.director.name }}_{{vcl_director.dc.symbol}} = directors.{{vcl_director.director.mode_constructor() }};
-<BACKEND_LIST_{{vcl_director.director.name}}_{{vcl_director.dc.symbol}}/>
+    new {{ vcl_director.director.name }}_{{vcl_director.dc.normalized_symbol}} = directors.{{vcl_director.director.mode_constructor() }};
+<BACKEND_LIST_{{vcl_director.director.name}}_{{vcl_director.dc.normalized_symbol}}/>

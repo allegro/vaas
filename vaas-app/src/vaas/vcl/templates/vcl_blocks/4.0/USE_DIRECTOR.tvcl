@@ -9,19 +9,19 @@ sub use_director_{{director.name}} {
     {% if vcl_director.director.router == 'req.url' %}
     set req.http.X-Forwarded-Prefix = "{{ vcl_director.director.route_expression }}";
     {% endif %}
-    set req.http.X-VaaS-Director = "{{ vcl_director.dc.symbol }}/{{ vcl_director.director.name }}";
+    set req.http.X-VaaS-Director = "{{ vcl_director.dc.normalized_symbol }}/{{ vcl_director.director.name }}";
     {% if vcl_director.director.mode == 'hash' %}
-    set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend({{ vcl_director.director.hashing_policy }});
+    set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.normalized_symbol }}.backend({{ vcl_director.director.hashing_policy }});
     {% else %}
-    set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend();
+    set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.normalized_symbol }}.backend();
     {% endif %}
 {% else %}
     if (!std.healthy(req.backend_hint)) {
-        set req.http.X-VaaS-Director = "{{ vcl_director.dc.symbol }}/{{ vcl_director.director.name }}";
+        set req.http.X-VaaS-Director = "{{ vcl_director.dc.normalized_symbol }}/{{ vcl_director.director.name }}";
         {% if vcl_director.director.mode == 'hash' %}
-        set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend({{ vcl_director.director.hashing_policy }});
+        set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.normalized_symbol }}.backend({{ vcl_director.director.hashing_policy }});
         {% else %}
-        set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.symbol }}.backend();
+        set req.backend_hint = {{ vcl_director.director.name }}_{{ vcl_director.dc.normalized_symbol }}.backend();
         {% endif %}
     }
 {% endif %}
