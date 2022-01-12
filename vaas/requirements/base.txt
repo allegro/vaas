@@ -19,7 +19,7 @@ requests>=2.25.1
 GitPython==3.1.12
 social-auth-app-django>=4.0.0
 defusedxml==0.6.0
-lxml==4.6.3
+lxml==4.6.5
 flower==0.9.5
 
 # newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
