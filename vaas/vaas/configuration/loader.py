@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, absolute_import
+
 import os
 import yaml
 
 
 class YamlConfigLoader(object):
 
-    def __init__(self, config_directories):
-        self.config_directories = config_directories
+    def __init__(self):
+        self.config_directories = []
+        if os.path.exists(os.path.expanduser('~/.vaas/')):
+            self.config_directories.append(os.path.expanduser('~/.vaas/'))
+        self.config_directories.append(os.path.abspath(os.path.dirname(__file__) + '/../resources/'))
 
     def determine_config_file(self, config_file):
         for config_dir in self.config_directories:
@@ -20,6 +25,6 @@ class YamlConfigLoader(object):
         config_full_path = self.determine_config_file(config_file)
         if config_full_path:
             with open(config_full_path) as file_stream:
-                return yaml.load(file_stream.read(), Loader=yaml.FullLoader)
+                return yaml.safe_load(file_stream.read())
 
         return {}
