@@ -26,3 +26,5 @@ jobs:
       working-directory: vaas
       run: |
         coverage run --rcfile=.coveragerc ./manage.py test
+      env:
+          DJANGO_SETTINGS_MODULE: vaas.settings.test
