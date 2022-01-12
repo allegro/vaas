@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 urlpatterns = []
 
-PLUGIN_DIR = os.path.abspath('{}/../../../../plugins/'.format(os.path.dirname(__file__)))
+PLUGIN_DIR = os.path.abspath('{}/../../../plugins/'.format(os.path.dirname(__file__)))
 
 
 def iterate_plugins():

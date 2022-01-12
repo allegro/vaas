@@ -10,7 +10,7 @@ db.sqlite3
 coverage.xml
 nosetests.xml
 nohup.out
-vaas-app/src/vaas/static/
+vaas/vaas/static/
 vagrant/puppet/manifests/build/
 site/
 venv/

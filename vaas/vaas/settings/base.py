@@ -13,12 +13,6 @@ env = environ.Env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
-config_loader = YamlConfigLoader()
-
-if not config_loader.determine_config_file('db_config.yml'):
-    raise EnvironmentError('Cannot find db_config file')
-
-DATABASES = config_loader.get_config_tree('db_config.yml')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'pwm_&@a%yd8+7mqf9=*l56+y!@sb7ab==g942j7++gnr9l2%*d'
