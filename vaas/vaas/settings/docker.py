@@ -12,6 +12,9 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
 MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
 
+for key, value in YamlConfigLoader(['/configuration']).get_config_tree('docker.yaml').items():
+    globals()[key.upper()] = value
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

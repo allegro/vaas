@@ -3,10 +3,10 @@ from __future__ import unicode_literals, absolute_import
 
 from vaas.configuration.loader import YamlConfigLoader
 
-ldap_config = YamlConfigLoader().get_config_tree('ldap.yml')
+ldap_config = YamlConfigLoader(['/configuration']).get_config_tree('ldap.yaml')
 if ldap_config:
     for key, value in ldap_config.items():
-        globals()[key] = value
+        globals()[key.upper()] = value
 
     import ldap
     from django_auth_ldap.config import LDAPSearch

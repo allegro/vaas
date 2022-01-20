@@ -9,8 +9,8 @@ TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = ["*"]
 
 # override some configurations
-for key, value in YamlConfigLoader().get_config_tree('production.yml').items():
-    globals()[key] = value
+for key, value in YamlConfigLoader(['/configuration']).get_config_tree('production.yaml').items():
+    globals()[key.upper()] = value
 
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
 MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
