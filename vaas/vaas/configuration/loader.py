@@ -9,7 +9,7 @@ class YamlConfigLoader(object):
 
     def __init__(self, config_directories):
         self.config_directories = config_directories
-        
+
     def determine_config_file(self, config_file):
         for config_dir in self.config_directories:
             config_absolute_path = "{}/{}".format(config_dir, config_file)
