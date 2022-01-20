@@ -39,7 +39,7 @@ class YamlConfigLoaderTest(TestCase):
         self.file_existence = {
             USER_HOME_PATH: True
         }
-        directories = YamlConfigLoader().config_directories
+        directories = YamlConfigLoader(VAAS_APP_RESOURCES_PATH).config_directories
         assert_equals(2, len(directories))
         assert_equals([USER_HOME_PATH, VAAS_APP_RESOURCES_PATH], directories)
 
@@ -49,7 +49,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: True,
             expected_path: True
         }
-        assert_equals(expected_path, YamlConfigLoader().determine_config_file('test.yaml'))
+        assert_equals(expected_path, YamlConfigLoader(USER_HOME_PATH).determine_config_file('test.yaml'))
 
     def test_should_determine_file_from_resource_location_if_exists(self):
         expected_path = "{}/{}".format(VAAS_APP_RESOURCES_PATH, 'test.yaml')
@@ -57,7 +57,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: False,
             expected_path: True
         }
-        assert_equals(expected_path, YamlConfigLoader().determine_config_file('test.yaml'))
+        assert_equals(expected_path, YamlConfigLoader(VAAS_APP_RESOURCES_PATH).determine_config_file('test.yaml'))
 
     def test_should_not_determine_file_if_not_exists_in_any_location(self):
         resource_path = "{}/{}".format(VAAS_APP_RESOURCES_PATH, 'test.yaml')
@@ -65,7 +65,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: False,
             resource_path: False
         }
-        assert_equals(None, YamlConfigLoader().determine_config_file('test.yaml'))
+        assert_equals(None, YamlConfigLoader(VAAS_APP_RESOURCES_PATH).determine_config_file('test.yaml'))
 
     @patch('builtins.open', mock_open(read_data="key1: value1\nkey2: value2"))
     def test_should_return_config_tree(self):
@@ -75,4 +75,4 @@ class YamlConfigLoaderTest(TestCase):
             "{}/{}".format(VAAS_APP_RESOURCES_PATH, 'test.yaml'): True
         }
 
-        assert_equals(expected_tree, YamlConfigLoader().get_config_tree('test.yaml'))
+        assert_equals(expected_tree, YamlConfigLoader(VAAS_APP_RESOURCES_PATH).get_config_tree('test.yaml'))
