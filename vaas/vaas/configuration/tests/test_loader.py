@@ -39,7 +39,7 @@ class YamlConfigLoaderTest(TestCase):
         self.file_existence = {
             USER_HOME_PATH: True
         }
-        directories = YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).config_directories
+        directories = YamlConfigLoader([USER_HOME_PATH, VAAS_APP_RESOURCES_PATH]).config_directories
         assert_equals(2, len(directories))
         assert_equals([USER_HOME_PATH, VAAS_APP_RESOURCES_PATH], directories)
 
