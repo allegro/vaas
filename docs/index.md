@@ -18,7 +18,7 @@ There are many benefits from using VaaS, including:
 
 Try it
 ------
-You can easily set up a sample VaaS instance with two test Varnish servers and several test backends using [VaaS in Vagrant](quick-start/vagrant.md). You might also like to check out [VaaS in Docker](quick-start/docker.md).
+You can easily set up a sample VaaS instance with two test Varnish servers and several test backends using [VaaS in Docker Compose](quick-start/development.md). You might also like to check out [VaaS in Docker](quick-start/docker.md).
 
 Release notes
 -------------

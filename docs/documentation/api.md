@@ -40,7 +40,7 @@ To access VaaS API, first generate API key. Click on *Welcome, <username> -> Api
 Sample API requests
 ===================
 
-All examples below can be tested using [VaaS in Vagrant](../quick-start/vagrant.md).
+All examples below can be tested using [VaaS in Docker Compose](../quick-start/development.md).
 
 ###List directors
 
