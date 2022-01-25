@@ -17,7 +17,7 @@ change. It is applied instantly on all Varnish® servers.
 See [VaaS documentation](http://vaas.readthedocs.org/en/latest/) for examples how to use 
 [GUI](http://vaas.readthedocs.org/en/latest/documentation/gui/), 
 [API](http://vaas.readthedocs.org/en/latest/documentation/api/) and how to familiarize yourself with VaaS in 
-a few simple steps using [VaaS in Vagrant](http://vaas.readthedocs.org/en/latest/quick-start/vagrant/). 
+a few simple steps using [VaaS in Docker Compose](http://vaas.readthedocs.org/en/latest/quick-start/development/). 
 
 ### Licensing
 VaaS is an application written in Python based on Django and several other libraries. These libraries are Open Source 
