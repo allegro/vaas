@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
-
 from .base import *
 
 from vaas.configuration.loader import YamlConfigLoader
@@ -21,5 +20,3 @@ DATABASES = {
         'NAME': '/tmp/db/db.sqlite3',
     }
 }
-
-from .oauth import *
