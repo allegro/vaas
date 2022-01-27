@@ -39,7 +39,7 @@ COPY \
   docker/entrypoint-uwsgi-dev.sh \
   docker/entrypoint-celery-worker.sh \
   docker/entrypoint-celery-routes-test.sh \
-  docker/entrypoint-backend-statuses.sh \
+  docker/entrypoint-celery-scheduler.sh \
   docker/wait-for-it.sh \
   /
 

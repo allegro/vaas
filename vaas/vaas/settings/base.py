@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'taggit',
     'django_ace',
     'simple_history',
+    'django_celery_beat',
 )
 
 # Plugins definition
@@ -171,6 +172,8 @@ CELERY_ROUTES = {
     'vaas.router.report.fetch_urls_async': {'queue': 'routes_test_queue'},
     'vaas.*': {'queue': 'worker_queue'},
 }
+
+BACKEND_STATUSES_UPDATE_INTERVAL_SECONDS = 120
 
 VARNISH_COMMAND_TIMEOUT = 5
 VARNISH_VCL_INLINE_COMMAND_TIMEOUT = 60
