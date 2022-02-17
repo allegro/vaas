@@ -121,6 +121,10 @@ LOGGING = {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'fmt': '%(levelname)s %(asctime)s %(name)s %(module)s %(message)s',
+        },
     },
     'handlers': {
         'console': {
