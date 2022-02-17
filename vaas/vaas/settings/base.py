@@ -123,26 +123,24 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/tmp/debug.log',
-            'formatter': 'verbose'
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['console'],
             'propagate': False,
             'level': 'ERROR',
         },
         'vaas': {
-            'handlers': ['file'],
+            'handlers': ['console'],
             'propagate': False,
             'level': 'DEBUG',
         },
         '': {
-            'handlers': ['file'],
+            'handlers': ['console'],
             'level': 'INFO',
         }
     }
