@@ -124,7 +124,7 @@ LOGGING = {
         'json': {
                 '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
                 'fmt': '%(levelname)s %(asctime)s %(name)s %(module)s %(message)s',
-            },
+        },
     },
     'handlers': {
         'console': {
