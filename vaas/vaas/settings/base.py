@@ -164,8 +164,8 @@ REFRESH_TRIGGERS_CLASS = (
 )
 
 # CELERY
-BROKER_URL = env.str('BROKER_URL', default='redis://localhost:6379/1')
-CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', default='redis://localhost:6379/2')
+BROKER_URL = env.str('BROKER_URL', default='redis://:o6dFJchrp37Z@10.82.118.10:6379/6')
+CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND', default='redis://:o6dFJchrp37Z@10.82.118.10:6379/7')
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
