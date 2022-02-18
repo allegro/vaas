@@ -163,6 +163,9 @@ REFRESH_TRIGGERS_CLASS = (
     'Route'
 )
 
+for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
+    globals()[key.upper()] = value
+
 if BROKER_URL_BASE:
     BROKER_URL = BROKER_URL_BASE
     CELERY_RESULT_BACKEND = CELERY_RESULT_BACKEND_BASE
