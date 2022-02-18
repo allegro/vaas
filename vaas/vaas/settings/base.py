@@ -163,6 +163,9 @@ REFRESH_TRIGGERS_CLASS = (
     'Route'
 )
 
+for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
+    globals()[key.upper()] = value
+
 # CELERY
 BROKER_URL = env.str(BROKER_URL_BASE, default='redis://localhost:6379/1')
 CELERY_RESULT_BACKEND = env.str(CELERY_RESULT_BACKEND_BASE, default='redis://localhost:6379/2')
