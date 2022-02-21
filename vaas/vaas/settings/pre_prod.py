@@ -13,6 +13,5 @@ for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.y
 
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
 MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
-LOGGING['handlers']['console']['formatter'] = os.environ.get('CONSOLE_LOG_FORMATTER', 'verbose')
 
 from .oauth import *

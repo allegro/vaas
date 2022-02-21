@@ -166,12 +166,15 @@ REFRESH_TRIGGERS_CLASS = (
 for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
     globals()[key.upper()] = value
 
-if BROKER_URL_BASE:
+if 'BROKER_URL_BASE' in globals():
     BROKER_URL = BROKER_URL_BASE
     CELERY_RESULT_BACKEND = CELERY_RESULT_BACKEND_BASE
 else:
     BROKER_URL = 'redis://localhost:6379/1'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
+    
+if 'CONSOLE_LOG_FORMATTER' in globals():
+    LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
 
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
 CELERY_TASK_SERIALIZER = 'json'
