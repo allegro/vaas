@@ -163,7 +163,7 @@ REFRESH_TRIGGERS_CLASS = (
     'Route'
 )
 
-for key, value in YamlConfigLoader(['/']).get_config_tree('config.yaml').items():
+for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
     globals()[key.upper()] = value
 
 if 'BROKER_URL_BASE' in globals():
