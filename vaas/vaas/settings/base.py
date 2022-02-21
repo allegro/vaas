@@ -176,9 +176,6 @@ else:
 if 'CONSOLE_LOG_FORMATTER' in globals():
     LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
 
-if 'CONSOLE_LOG_FORMATTER' in globals():
-    LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
-
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
