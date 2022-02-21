@@ -163,7 +163,7 @@ REFRESH_TRIGGERS_CLASS = (
     'Route'
 )
 
-for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
+for key, value in YamlConfigLoader(['/']).get_config_tree('config.yaml').items():
     globals()[key.upper()] = value
 
 if 'BROKER_URL_BASE' in globals():
@@ -173,6 +173,9 @@ else:
     BROKER_URL = 'redis://localhost:6379/1'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
     
+if 'CONSOLE_LOG_FORMATTER' in globals():
+    LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
+
 if 'CONSOLE_LOG_FORMATTER' in globals():
     LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
 
