@@ -204,7 +204,7 @@ VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATI
 ROUTES_LEFT_CONDITIONS = {}
 if 'ROUTES_LEFT_CONDITIONS_BASE' in globals():
     for i in ROUTES_LEFT_CONDITIONS_BASE:
-      ROUTES_LEFT_CONDITIONS[list(i.values())[0]] = list(i.values())[1]
+      ROUTES_LEFT_CONDITIONS[i['name']] = i['value']
 else:   
     ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
         'req_url': 'URL_default',
