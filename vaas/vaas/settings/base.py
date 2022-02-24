@@ -201,12 +201,16 @@ ENABLE_UWSGI_SWITCH_CONTEXT = env.bool('ENABLE_UWSGI_SWITCH_CONTEXT', False)
 VCL_TEMPLATE_COMMENT_REGEX = env.str('VCL_TEMPLATE_COMMENT_REGEX', default=None)
 VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE', default=None)
 
-
-ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
-    'req.url': 'URL',
-    'req.http.Host': 'Domain',
-    'req.http.X-Example': 'X-Example',
-})
+ROUTES_LEFT_CONDITIONS = {}
+if 'ROUTES_LEFT_CONDITIONS_BASE' in globals():
+    for condition in ROUTES_LEFT_CONDITIONS_BASE:
+        ROUTES_LEFT_CONDITIONS[condition['name']] = condition['value']
+else:
+    ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
+        'req_url': 'URL_default',
+        'req_http_Host': 'Domain_default',
+        'req_http_X-Example': 'X-Example_default',
+    })
 
 DEFAULT_VCL_VARIABLES = env.dict('DEFAULT_VCL_VARIABLES', default={
     'MESH_IP': '127.0.0.1',
