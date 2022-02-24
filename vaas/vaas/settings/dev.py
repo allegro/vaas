@@ -15,3 +15,4 @@ INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
 MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
 
 from .oauth import *
+from .tracking import *
