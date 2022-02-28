@@ -18,3 +18,4 @@ MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
 from .oauth import *
+from .tracking import *
