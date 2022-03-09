@@ -163,6 +163,12 @@ REFRESH_TRIGGERS_CLASS = (
     'Route'
 )
 
+CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', False)
+CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
+
 for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
     globals()[key.upper()] = value
 
@@ -175,12 +181,6 @@ else:
 
 if 'CONSOLE_LOG_FORMATTER' in globals():
     LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
-
-CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', False)
-CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
 
 # 5min we will wait for kill task
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = 300
