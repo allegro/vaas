@@ -163,19 +163,6 @@ REFRESH_TRIGGERS_CLASS = (
     'Route'
 )
 
-for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
-    globals()[key.upper()] = value
-
-if 'BROKER_URL_BASE' in globals():
-    BROKER_URL = BROKER_URL_BASE
-    CELERY_RESULT_BACKEND = CELERY_RESULT_BACKEND_BASE
-else:
-    BROKER_URL = 'redis://localhost:6379/1'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
-
-if 'CONSOLE_LOG_FORMATTER' in globals():
-    LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
-
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -200,17 +187,6 @@ ENABLE_UWSGI_SWITCH_CONTEXT = env.bool('ENABLE_UWSGI_SWITCH_CONTEXT', False)
 
 VCL_TEMPLATE_COMMENT_REGEX = env.str('VCL_TEMPLATE_COMMENT_REGEX', default=None)
 VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE', default=None)
-
-ROUTES_LEFT_CONDITIONS = {}
-if 'ROUTES_LEFT_CONDITIONS_BASE' in globals():
-    for condition in ROUTES_LEFT_CONDITIONS_BASE:
-        ROUTES_LEFT_CONDITIONS[condition['name']] = condition['value']
-else:
-    ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
-        'req_url': 'URL_default',
-        'req_http_Host': 'Domain_default',
-        'req_http_X-Example': 'X-Example_default',
-    })
 
 DEFAULT_VCL_VARIABLES = env.dict('DEFAULT_VCL_VARIABLES', default={
     'MESH_IP': '127.0.0.1',
@@ -241,3 +217,27 @@ ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-
 CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
 MESH_X_ORIGINAL_HOST = env.bool('MESH_X_ORIGINAL_HOST', default='x-original-host')
 SERVICE_TAG_HEADER = env.bool('SERVICE_TAG_HEADER', default='x-service-tag')
+
+for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
+    globals()[key.upper()] = value
+
+if 'BROKER_URL_BASE' in globals():
+    BROKER_URL = BROKER_URL_BASE
+    CELERY_RESULT_BACKEND = CELERY_RESULT_BACKEND_BASE
+else:
+    BROKER_URL = 'redis://localhost:6379/1'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
+
+if 'CONSOLE_LOG_FORMATTER' in globals():
+    LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
+
+ROUTES_LEFT_CONDITIONS = {}
+if 'ROUTES_LEFT_CONDITIONS_BASE' in globals():
+    for condition in ROUTES_LEFT_CONDITIONS_BASE:
+        ROUTES_LEFT_CONDITIONS[condition['name']] = condition['value']
+else:
+    ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
+        'req_url': 'URL_default',
+        'req_http_Host': 'Domain_default',
+        'req_http_X-Example': 'X-Example_default',
+    })
