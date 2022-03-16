@@ -145,7 +145,6 @@ LOGGING = {
         },
         'celery': {
             'handlers': ['console'],
-            'propagate': False,
             'level': 'DEBUG',
         },
         '': {

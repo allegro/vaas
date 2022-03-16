@@ -41,9 +41,7 @@ class BackendStatusManager(object):
                                     self.logger.error(
                                         'Mapping backend id failed. Expected parsable string to int, got {}'.format(
                                             regex_result[0][0]))
-                            else:
-                                self.logger.error('Regex patterns matches for possible backend id: {} '
-                                                  .format(regex_result))
+
                             # for varnish v6.0 LTS
                             if len(backend_status) == 10:
                                 status = backend_status[-8]
