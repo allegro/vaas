@@ -224,8 +224,8 @@ if 'BROKER_URL_BASE' in globals():
     BROKER_URL = BROKER_URL_BASE
     CELERY_RESULT_BACKEND = CELERY_RESULT_BACKEND_BASE
 else:
-    BROKER_URL = 'redis://redis:6379/1'
-    CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
+    BROKER_URL = 'redis://localhost:6379/1'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
 
 if 'CONSOLE_LOG_FORMATTER' in globals():
     LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
