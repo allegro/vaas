@@ -16,7 +16,7 @@ from vaas.manager.models import Director, Backend, Probe, TimeProfile
 
 
 def switch_state_and_reload(queryset, enabled):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
     logger.debug("switch_state_and_reload(): %s" % str(queryset))
     # A list with 'LogicalCluster' objects to refresh.
     clusters_to_refresh = []
@@ -52,7 +52,7 @@ def switch_state_and_reload(queryset, enabled):
 
 
 def switch_status_and_reload(queryset, status):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
     logger.debug("switch_state_and_reload(): %s" % str(queryset))
     # A list with 'LogicalCluster' objects to refresh.
     clusters_to_refresh = []
@@ -68,7 +68,7 @@ def switch_status_and_reload(queryset, status):
 
 
 def regenerate_and_reload_vcl(clusters):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
     logger.debug("regenerate_and_reload_vcl(): %s" % str(clusters))
     request = get_current_request()
     if request is not None:
@@ -82,7 +82,7 @@ def regenerate_and_reload_vcl(clusters):
 
 
 def delete_unused_tags(backend):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
     for tag in backend.tags.all():
         if tag.taggit_taggeditem_items.count() < 2:
             tag_name = str(tag.name)
@@ -93,7 +93,7 @@ def delete_unused_tags(backend):
 @receiver(post_save)
 @receiver(post_delete)
 def vcl_update(sender, **kwargs):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
 
     if sender is None:
         return
@@ -191,7 +191,7 @@ def clean_up_tags(sender, **kwargs):
 
 @receiver(pre_save)
 def pre_save_vcl_update(sender, **kwargs):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
 
     if sender is None:
         return
@@ -251,7 +251,7 @@ def pre_save_vcl_update(sender, **kwargs):
 
 
 def model_update(**kwargs):
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
     instance = kwargs['instance']
     action = kwargs['action']
 

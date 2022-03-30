@@ -50,7 +50,7 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 class VarnishCluster(object):
 
     def __init__(self, timeout=1):
-        self.logger = logging.getLogger('vaas')
+        self.logger = logging.getLogger(__name__)
         self.timeout = timeout
         self.renderer_max_workers = settings.VAAS_RENDERER_MAX_WORKERS
         self.loader_max_workers = settings.VAAS_LOADER_MAX_WORKERS
@@ -139,7 +139,7 @@ class VarnishApiProvider(object):
 class ServerExtractor(object):
 
     def __init__(self):
-        self.logger = logging.getLogger('vaas')
+        self.logger = logging.getLogger(__name__)
         self.servers = VarnishServer.objects.exclude(status='disabled').prefetch_related('dc', 'template', 'cluster')
 
     @collect_processing
@@ -155,7 +155,7 @@ class ServerExtractor(object):
 class ParallelExecutor(object):
 
     def __init__(self, max_workers):
-        self.logger = logging.getLogger('vaas')
+        self.logger = logging.getLogger(__name__)
         self.max_workers = max_workers
 
 

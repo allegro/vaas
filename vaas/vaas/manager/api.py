@@ -18,7 +18,7 @@ from vaas.monitor.models import BackendStatus
 from vaas.external.oauth import VaasMultiAuthentication
 
 
-logger = logging.getLogger('vaas')
+logger = logging.getLogger(__name__)
 
 
 class TimeProfileResource(ModelResource):

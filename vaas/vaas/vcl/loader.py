@@ -19,7 +19,7 @@ class VclLoader(object):
         self.varnish_api = varnish_api
         self.vcl_renderer = VclRenderer()
         self.suppress_load_errors = suppress_load_errors
-        self.logger = logging.getLogger('vaas')
+        self.logger = logging.getLogger(__name__)
 
     def vcl_has_changed(self, vcl):
         """Compare version embedded in names"""

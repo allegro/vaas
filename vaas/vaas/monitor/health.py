@@ -15,7 +15,7 @@ from vaas.cluster.helpers import BaseHelpers
 class BackendStatusManager(object):
     def __init__(self):
         self.varnish_api_provider = VarnishApiProvider()
-        self.logger = logging.getLogger('vaas')
+        self.logger = logging.getLogger(__name__)
         self.timestamp = datetime.datetime.utcnow().replace(tzinfo=utc, microsecond=0)
 
     def load_from_varnish(self):

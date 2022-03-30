@@ -13,7 +13,7 @@ from vaas.cluster.cluster import load_vcl_task
 class VclRefreshState(object):
     # dictionary with requests id to refresh
     refresh = {}
-    logger = logging.getLogger('vaas')
+    logger = logging.getLogger(__name__)
 
     @classmethod
     def set_refresh(cls, req_id, clusters):
