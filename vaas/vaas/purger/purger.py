@@ -10,7 +10,7 @@ from django.conf import settings
 class VarnishPurger(object):
 
     def __init__(self):
-        self.logger = logging.getLogger('vaas')
+        self.logger = logging.getLogger(__name__)
 
     def log_and_return_data(self, responses_summary):
         self.logger.debug(responses_summary)

@@ -391,7 +391,7 @@ class VclRenderer(object):
         try:
             start = time.perf_counter()
             vcl_tag_builder = VclTagBuilder(varnish, input)
-            logging.getLogger('vaas').debug(
+            logging.getLogger(__name__).debug(
                 "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.perf_counter() - start)
             )
 
@@ -416,10 +416,10 @@ class VclRenderer(object):
 
             content = content.replace("\r", '')
             vcl = Vcl(content, name=str(varnish.template.name + '-' + version))
-            logging.getLogger('vaas').debug(
+            logging.getLogger(__name__).debug(
                 "[%s] vcl '%s' rendering time: %f" % (varnish.ip, vcl.name, time.perf_counter() - start)
             )
             return vcl
         except:
-            logging.getLogger('vaas').exception('Cannot render template')
+            logging.getLogger(__name__).exception('Cannot render template')
             raise
