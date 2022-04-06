@@ -20,6 +20,12 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+  celery-cron-worker:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
   celery-routes-test:
     build:
       context: ./

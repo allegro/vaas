@@ -29,6 +29,7 @@ To check that the build is working, run `docker-compose ps`. This should give yo
 vaas_backend-statuses_1     /wait-for-it.sh uwsgi:3030 ...   Up
 vaas_celery-routes-test_1   /entrypoint-celery-routes- ...   Up
 vaas_celery-worker_1        /entrypoint-celery-worker.sh     Up
+vaas_celery-cron-queue_1    /entrypoint-celery-queue-worek.sh Up
 vaas_nginx-0_1              nginx                            Up             80/tcp
 vaas_nginx-1_1              nginx                            Up             80/tcp
 vaas_nginx-2_1              nginx                            Up             80/tcp
@@ -66,7 +67,7 @@ Codebase is also mounted into containers with Celery workers. Celery doesn't pro
  you need to do it manually by reloading containers:
 
  ```bash
- docker-compose restart celery-worker celery-routes-test
+ docker-compose restart celery-worker celery-cron-worker celery-routes-test
  ```
 
 Entering container

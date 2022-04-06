@@ -173,6 +173,7 @@ CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = 300
 
 CELERY_ROUTES = {
     'vaas.router.report.fetch_urls_async': {'queue': 'routes_test_queue'},
+    'vaas.monitor.tasks.refresh_backend_statuses': {'queue': 'cron_queue'},
     'vaas.*': {'queue': 'worker_queue'},
 }
 
