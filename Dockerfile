@@ -40,6 +40,7 @@ COPY \
   docker/entrypoint-celery-worker.sh \
   docker/entrypoint-celery-routes-test.sh \
   docker/entrypoint-celery-scheduler.sh \
+  docker/entrypoint-celery-cron-worker.sh \
   docker/wait-for-it.sh \
   /
 

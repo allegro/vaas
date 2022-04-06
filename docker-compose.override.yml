@@ -11,6 +11,16 @@ services:
     networks:
       - vaas
       - default
+  celery-cron-worker:
+    entrypoint: [ '/entrypoint-celery-cron-worker.sh' ]
+    env_file: ./envs/dev.env
+    volumes:
+      - ./vaas:/home/app/vaas
+      - ./plugins:/home/app/plugins
+      - vaas_db:/tmp/db
+    networks:
+      - vaas
+      - default
   celery-routes-test:
     entrypoint: [ '/entrypoint-celery-routes-test.sh' ]
     env_file: ./envs/dev.env
