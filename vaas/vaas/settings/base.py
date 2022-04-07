@@ -98,7 +98,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-DATABASES = literal_eval(env('DATABASES', default="{'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': '/tmp/db/db.sqlite3'}}"))
+DATABASES = literal_eval(env('DATABASES', default="{'default': {'ENGINE': 'django.db.backends.sqlite3', \
+    'NAME': '/tmp/db/db.sqlite3'}}"))
 
 TEMPLATES = [
     {
