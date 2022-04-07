@@ -2,6 +2,7 @@
 import os
 from __future__ import unicode_literals, absolute_import
 
+from ast import literal_eval
 from vaas.configuration.loader import YamlConfigLoader
 
 ldap_config = YamlConfigLoader(['/configuration']).get_config_tree('ldap.yaml')
@@ -19,7 +20,7 @@ if ldap_config:
         "email": "mail"
     }
 
-    AUTH_LDAP_GROUP_SEARCH = os.getenv('AUTH_LDAP_GROUP_SEARCH', default=['', ''])
+    AUTH_LDAP_GROUP_SEARCH = literal_eval(os.getenv('AUTH_LDAP_GROUP_SEARCH', default="['', '']"))
 
     AUTH_LDAP_GROUP_TYPE = MappedGroupOfNamesType(name_attr=os.getenv('AUTH_LDAP_GROUP_TYPE', default=''))
     AUTH_LDAP_USER_SEARCH_FILTER = os.getenv('AUTH_LDAP_USER_SEARCH_FILTER', default='{}').format(os.getenv('AUTH_LDAP_USER_USERNAME_ATTR', default='user_attr'))
