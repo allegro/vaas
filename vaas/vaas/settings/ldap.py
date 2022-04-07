@@ -23,7 +23,8 @@ if ldap_config:
     AUTH_LDAP_GROUP_SEARCH = literal_eval(os.getenv('AUTH_LDAP_GROUP_SEARCH', default="['', '']"))
 
     AUTH_LDAP_GROUP_TYPE = MappedGroupOfNamesType(name_attr=os.getenv('AUTH_LDAP_GROUP_TYPE', default=''))
-    AUTH_LDAP_USER_SEARCH_FILTER = os.getenv('AUTH_LDAP_USER_SEARCH_FILTER', default='{}').format(os.getenv('AUTH_LDAP_USER_USERNAME_ATTR', default='user_attr'))
+    AUTH_LDAP_USER_SEARCH_FILTER = os.getenv('AUTH_LDAP_USER_SEARCH_FILTER', default='{}').format(
+        os.getenv('AUTH_LDAP_USER_USERNAME_ATTR', default='user_attr'))
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
         os.getenv('AUTH_LDAP_USER_SEARCH_BASE'), ldap.SCOPE_SUBTREE, AUTH_LDAP_USER_SEARCH_FILTER
     )
