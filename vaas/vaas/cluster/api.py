@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.db.models import Count
+
 from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
 from tastypie.authentication import ApiKeyAuthentication
@@ -43,7 +45,7 @@ class OutdatedServerResource(Resource):
 
 class LogicalClusterResource(ModelResource):
     class Meta:
-        queryset = LogicalCluster.objects.all()
+        queryset = LogicalCluster.objects.annotate(Count('varnishserver')).all()
         resource_name = 'logical_cluster'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
@@ -56,7 +58,8 @@ class LogicalClusterResource(ModelResource):
         }
 
     def dehydrate(self, bundle):
-        bundle.data['varnish_count'] = bundle.obj.varnish_count()
+        if hasattr(bundle.obj, 'varnishserver__count'):
+            bundle.data['varnish_count'] = bundle.obj.varnishserver__count
         return bundle
 
 
@@ -105,7 +108,7 @@ class VarnishServerResource(ModelResource):
     dc = fields.ForeignKey(DcResource, 'dc')
 
     class Meta:
-        queryset = VarnishServer.objects.all()
+        queryset = VarnishServer.objects.select_related('dc').prefetch_related('template', 'cluster').all()
         resource_name = 'varnish_server'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()

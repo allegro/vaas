@@ -23,14 +23,11 @@ class VclRefreshState(object):
         req_id - request id - string
         clusters - list with clusters to update
         """
-        cls.logger.debug("set_refresh() - request id: " + req_id)
         if req_id in cls.refresh.keys():
             # merge clusters if we have got multiple signals per request id
             cls.refresh[req_id] = list(set(cls.refresh[req_id] + clusters))
         else:
             cls.refresh[req_id] = clusters
-
-        cls.logger.debug("cls.refresh[req_id]: " + str(cls.refresh[req_id]))
 
     @classmethod
     def get_refresh(cls, req_id):
@@ -40,13 +37,10 @@ class VclRefreshState(object):
         """
         # return empty list if no clusters to update
         result = []
-        cls.logger.debug("get_refresh() - request id: " + req_id)
-
         if req_id in cls.refresh:
             result = cls.refresh[req_id]
             del cls.refresh[req_id]
 
-        cls.logger.debug("get_refresh() - result: " + str(result))
         return result
 
 
