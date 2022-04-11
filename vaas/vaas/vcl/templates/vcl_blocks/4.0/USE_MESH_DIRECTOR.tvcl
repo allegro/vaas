@@ -4,6 +4,7 @@ sub use_director_{{director.name}} {
     {% else %}
     unset req.http.{{ service_tag_header }};
     {% endif %}
+    set req.http.#{MESH_TIMEOUT_CONTROL_HEADER} = "{{ director.time_profile.service_mesh_timeout_ms }}";
     set req.http.x-mesh-host = "{{ director.service_mesh_label }}";
     unset req.http.X-Accept-Proto;
     set req.http.X-Accept-Proto = "{{director.protocol}}";

@@ -70,6 +70,15 @@ Codebase is also mounted into containers with Celery workers. Celery doesn't pro
  docker-compose restart celery-worker celery-cron-worker celery-routes-test
  ```
 
+Running unit tests
+------------------
+
+```bash
+your-host> docker-compose exec uwsgi bash
+container> python manage.py test --settings vaas.settings.test
+```
+
+
 Entering container
 ---------------------
 When you need run command manually in container context, you can enter into already running container
