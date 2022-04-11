@@ -153,14 +153,20 @@ class BackendAdmin(AuditableModelAdmin):
         form.base_fields['dc'].widget.can_add_related = False
         return form
 
-    def get_list_display(self, request):
-        self.backend_status_list = BackendStatus.objects.all()
-        return super(BackendAdmin, self).get_list_display(request)
-
     def get_tags(self, obj):
         return ", ".join([tag.name for tag in obj.tags.all()])
 
     get_tags.short_description = 'Tags'
+
+    def get_queryset(self, request):
+        return super(BackendAdmin, self).get_queryset(request).prefetch_related('tags', 'director')\
+            .extra(select={
+                'status':
+                    "SELECT status from monitor_backendstatus"
+                    " WHERE monitor_backendstatus.address=manager_backend.address"
+                    " AND monitor_backendstatus.port=manager_backend.port"
+                    " LIMIT 1"
+            })
 
     def custom_enabled(self, obj):
         if obj.enabled:
@@ -179,12 +185,8 @@ class BackendAdmin(AuditableModelAdmin):
     custom_enabled.short_description = 'Enabled'
 
     def is_healthy(self, obj):
-        status_list = list(filter(
-            lambda backend_status: backend_status.address == obj.address and backend_status.port == obj.port,
-            self.backend_status_list
-        ))
-        if len(status_list) == 1:
-            if status_list[0].status == 'Healthy':
+        if obj.status:
+            if obj.status == 'Healthy':
                 return format_html(
                     "<div class='span13 text-center'><a class='btn btn-xs btn-success' href='#'>" +
                     "<i class='glyphicon glyphicon-ok'> </i></a></div>"
