@@ -54,13 +54,10 @@ for key, value in YamlConfigLoader(['/configuration']).get_config_tree('docker.y
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'vaas.db',
         'NAME': 'vaas',
         'USER': 'root',
         'PASSWORD': 'password',
         'HOST': 'mysql',
-        'OPTIONS': {
-            'init_command': "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
-        }
     }
 }
