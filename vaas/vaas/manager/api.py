@@ -71,7 +71,7 @@ class DirectorResource(ModelResource):
             .select_related('time_profile', 'probe')\
             .prefetch_related(
                 Prefetch('cluster', queryset=LogicalCluster.objects.annotate(Count('varnishserver')).all()),
-                'backends'
+                Prefetch('backends', queryset=Backend.objects.all().only('id', 'director_id'))
             )\
             .all()
         resource_name = 'director'

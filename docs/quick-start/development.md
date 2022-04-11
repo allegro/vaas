@@ -30,6 +30,7 @@ vaas_backend-statuses_1     /wait-for-it.sh uwsgi:3030 ...   Up
 vaas_celery-routes-test_1   /entrypoint-celery-routes- ...   Up
 vaas_celery-worker_1        /entrypoint-celery-worker.sh     Up
 vaas_celery-cron-queue_1    /entrypoint-celery-queue-worek.sh Up
+vaas-mysql-1                docker-entrypoint.s ...          Up             33060/tcp
 vaas_nginx-0_1              nginx                            Up             80/tcp
 vaas_nginx-1_1              nginx                            Up             80/tcp
 vaas_nginx-2_1              nginx                            Up             80/tcp
@@ -37,7 +38,7 @@ vaas_nginx-3_1              nginx                            Up             80/t
 vaas_nginx-4_1              nginx                            Up             80/tcp
 vaas_nginx-5_1              nginx                            Up             80/tcp
 vaas_redis_1                docker-entrypoint.sh redis ...   Up (healthy)   6379/tcp
-vaas_uwsgi_1                /entrypoint-uwsgi-dev.sh         Up             0.0.0.0:3030->3030/tcp,:::3030->3030/tcp
+vaas-uwsgi-1                /wait-for-it.sh mys ...          Up             0.0.0.0:3030->3030/tcp,:::3030->3030/tcp
 vaas_varnish-4.1_1          /start                           Up             6081/tcp, 6082/tcp
 vaas_varnish-6.0.2_1        /start                           Up             6081/tcp, 6082/tcp
 vaas_varnish-7.0_1          /start                           Up             6081/tcp, 6082/tcp

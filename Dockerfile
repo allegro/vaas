@@ -22,7 +22,7 @@ ENV PYTHONPATH=/home/app/plugins
 VOLUME ["/home/app/plugins"]
 
 RUN apt update \
-    && apt install -y --no-install-recommends curl git
+    && apt install -y --no-install-recommends curl git default-libmysqlclient-dev build-essential default-mysql-client
 
 # install dependencies
 RUN pip install --upgrade pip
