@@ -1,11 +1,17 @@
 version: "3.9"
 services:
-  uwsgi:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    ports:
-      - 3030:3030
+  mysql:
+    image: mysql:5.7
+    command: ['mysqld', '--character-set-server=utf8', '--collation-server=utf8_general_ci']
+    environment:
+      MYSQL_DATABASE: vaas
+      MYSQL_ROOT_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-uroot", "-ppassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
   redis:
     image: redis:alpine
     healthcheck:
@@ -14,27 +20,40 @@ services:
       timeout: 3s
       retries: 30
       start_period: 3s
+  uwsgi:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 3030:3030
+    depends_on:
+      - redis
+      - mysql
   celery-worker:
     build:
       context: ./
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - mysql
   celery-cron-worker:
     build:
       context: ./
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - mysql
   celery-routes-test:
     build:
       context: ./
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - mysql
   celery-scheduler:
     build:
       context: ./
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - mysql

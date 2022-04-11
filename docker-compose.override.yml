@@ -7,7 +7,6 @@ services:
     volumes:
       - ./vaas:/home/app/vaas
       - ./plugins:/home/app/plugins
-      - vaas_db:/tmp/db
     networks:
       - vaas
       - default
@@ -17,7 +16,6 @@ services:
     volumes:
       - ./vaas:/home/app/vaas
       - ./plugins:/home/app/plugins
-      - vaas_db:/tmp/db
     networks:
       - vaas
       - default
@@ -27,17 +25,15 @@ services:
     volumes:
       - ./vaas:/home/app/vaas
       - ./plugins:/home/app/plugins
-      - vaas_db:/tmp/db
     networks:
       - vaas
       - default
   uwsgi:
-    entrypoint: [ '/entrypoint-uwsgi-dev.sh' ]
+    entrypoint: ['/wait-for-it.sh', 'mysql:3306', '-t', '30', '--', '/entrypoint-uwsgi-dev.sh' ]
     env_file: ./envs/dev.env
     volumes:
       - ./vaas:/home/app/vaas
       - ./plugins:/home/app/plugins
-      - vaas_db:/tmp/db
     networks:
       - vaas
       - default
@@ -47,7 +43,6 @@ services:
     volumes:
       - ./vaas:/home/app/vaas
       - ./plugins:/home/app/plugins
-      - vaas_db:/tmp/db
     networks:
       - vaas
       - default
@@ -122,8 +117,6 @@ services:
     networks:
       vaas:
         ipv4_address: 192.168.199.7
-volumes:
-  vaas_db: 
 networks:
   vaas:
     driver: bridge
