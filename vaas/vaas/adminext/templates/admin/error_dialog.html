@@ -1,5 +1,5 @@
 <!-- Modal -->
-{% if request.session.error_message %}
+{% if 'error_message' in request.session %}
 <script>
     $(document).ready(function(){
         $('#errModal').modal('show');

@@ -4,6 +4,8 @@ import re
 import datetime
 import logging
 
+from concurrent.futures import ThreadPoolExecutor
+from django.conf import settings
 from django.utils.timezone import utc
 
 from vaas.monitor.models import BackendStatus
@@ -12,65 +14,99 @@ from vaas.cluster.cluster import VarnishApiProvider, VclLoadException, ServerExt
 from vaas.cluster.helpers import BaseHelpers
 
 
+BACKEND_PATTERN = re.compile("^((?:.*_){5}[^(\s]*)")
+
+
+def provide_backend_status_manager():
+    return BackendStatusManager(
+        VarnishApiProvider(),
+        ServerExtractor().servers,
+        settings.VAAS_GATHER_STATUSES_CONNECT_TIMEOUT,
+        settings.VAAS_GATHER_STATUSES_MAX_WORKERS
+    )
+
+
 class BackendStatusManager(object):
-    def __init__(self):
-        self.varnish_api_provider = VarnishApiProvider()
+
+    def __init__(self, varnish_api_provider, servers, connect_timeout=0.1, workers=30):
         self.logger = logging.getLogger(__name__)
+        self.varnish_api_provider = varnish_api_provider
+        self.servers = servers
+        self.backends = {x.pk: f"{x.address}:{x.port}" for x in Backend.objects.all()}
         self.timestamp = datetime.datetime.utcnow().replace(tzinfo=utc, microsecond=0)
+        self.CONNECT_TIMEOUT = connect_timeout
+        self.WORKERS = workers
 
     def load_from_varnish(self):
-        pattern = re.compile("^((?:.*_){5}[^(\s]*)")
+        dc_pattern = BaseHelpers.dynamic_regex_with_datacenters()
         backend_to_status_map = {}
-        backends = {x.pk: "{}:{}".format(x.address, x.port) for x in Backend.objects.all()}
-
-        try:
-            for varnish_api in self.varnish_api_provider.get_connected_varnish_api():
-                backend_statuses = map(lambda x: x.split(), varnish_api.fetch('backend.list')[1][0:].split('\n'))
-
-                for backend_status in backend_statuses:
-                    if len(backend_status):
-                        backend = re.search(pattern, backend_status[0])
-                        if backend is not None:
-                            backend_id = None
-                            regex_result = re.findall(BaseHelpers.dynamic_regex_with_datacenters(), backend.group(1))
-
-                            if len(regex_result) == 1:
-                                try:
-                                    backend_id = int(regex_result[0][0])
-                                except ValueError:
-                                    self.logger.error(
-                                        'Mapping backend id failed. Expected parsable string to int, got {}'.format(
-                                            regex_result[0][0]))
-
-                            # for varnish v6.0 LTS
-                            if len(backend_status) == 10:
-                                status = backend_status[-8]
-                            else:
-                                # for varnish v4
-                                status = backend_status[-2]
-                            if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
-                                backend_address = backends.get(backend_id)
-                                if backend_address is not None:
-                                    backend_to_status_map[backend_address] = status
-
-        except VclLoadException as e:
-            self.logger.warning("Some backends' status could not be refreshed: %s" % e)
-
+        with ThreadPoolExecutor(max_workers=self.WORKERS) as executor:
+            future_results = []
+            for server in self.servers:
+                future_results.append(
+                    executor.submit(self._load_from_single_varnish, dc_pattern, server)
+                )
+            for future_result in future_results:
+                for address, status in future_result.result().items():
+                    if backend_to_status_map.get(address) != 'Sick':
+                        backend_to_status_map[address] = status
         return backend_to_status_map
 
+    def _load_from_single_varnish(self, dc_pattern, server):
+        backend_to_status_map = {}
+        try:
+            varnish_api = self.varnish_api_provider.get_api(server, self.CONNECT_TIMEOUT)
+            backend_statuses = map(lambda x: x.split(), varnish_api.fetch('backend.list')[1].split('\n'))
+            for backend_status in backend_statuses:
+                if len(backend_status):
+                    backend = re.search(BACKEND_PATTERN, backend_status[0])
+                    if backend is not None:
+                        backend_id = None
+                        regex_result = re.findall(dc_pattern, backend.group(1))
+                        if len(regex_result) == 1:
+                            try:
+                                backend_id = int(regex_result[0][0])
+                            except ValueError:
+                                self.logger.error(
+                                    'Mapping backend id failed. Expected parsable string to int, got {}'.format(
+                                        regex_result[0][0]))
+                        # for varnish v6.0 LTS
+                        if len(backend_status) == 10:
+                            status = backend_status[-8]
+                        else:
+                            # for varnish v4
+                            status = backend_status[-2]
+
+                        if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
+                            backend_address = self.backends.get(backend_id)
+                            if backend_address is not None:
+                                backend_to_status_map[backend_address] = status
+        finally:
+            return backend_to_status_map
+
     def store_backend_statuses(self, backend_to_status_map):
+        existing_statuses = {f"{s.address}:{s.port}": s for s in BackendStatus.objects.all()}
+        to_update = []
+        to_add = []
+
         for key, status in backend_to_status_map.items():
-            address, port = key.split(":")
-            try:
-                backend_status = BackendStatus.objects.get(address=address, port=port)
+            backend_status = existing_statuses.get(key)
+            if backend_status:
                 if backend_status.timestamp < self.timestamp:
                     backend_status.status = status
                     backend_status.timestamp = self.timestamp
-                    backend_status.save()
-            except BackendStatus.DoesNotExist:
-                BackendStatus.objects.create(address=address, port=port, status=status, timestamp=self.timestamp)
+                    to_update.append(backend_status)
+            else:
+                address, port = key.split(":")
+                to_add.append(BackendStatus(address=address, port=port, status=status, timestamp=self.timestamp))
+        create_cnt = len(BackendStatus.objects.bulk_create(to_add))
 
-        BackendStatus.objects.filter(timestamp__lt=self.timestamp).delete()
+        # TODO: report number of updated records after updating django to 4.0 or higher
+        BackendStatus.objects.bulk_update(to_update, ['status', 'timestamp'])
+        delete_cnt, _ = BackendStatus.objects.filter(timestamp__lt=self.timestamp).delete()
+        self.logger.info(
+            f"Backend statuses, created: {create_cnt} entries, deleted: {delete_cnt} entries"
+        )
 
     def refresh_statuses(self):
         self.store_backend_statuses(self.load_from_varnish())

@@ -156,6 +156,8 @@ LOGGING = {
 
 VAAS_LOADER_MAX_WORKERS = 30
 VAAS_RENDERER_MAX_WORKERS = 30
+VAAS_GATHER_STATUSES_MAX_WORKERS = 50
+VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = 0.1
 
 REFRESH_TRIGGERS_CLASS = (
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable',
