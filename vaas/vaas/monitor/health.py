@@ -54,7 +54,7 @@ class BackendStatusManager(object):
         backend_to_status_map = {}
         try:
             varnish_api = self.varnish_api_provider.get_api(server, self.CONNECT_TIMEOUT)
-            backend_statuses = map(lambda x: x.split(), varnish_api.fetch('backend.list')[1][0:].split('\n'))
+            backend_statuses = map(lambda x: x.split(), varnish_api.fetch('backend.list')[1].split('\n'))
             for backend_status in backend_statuses:
                 if len(backend_status):
                     backend = re.search(pattern, backend_status[0])
