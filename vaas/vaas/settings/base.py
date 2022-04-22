@@ -1,15 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
+import json
 
 import os
 import environ
-from django.conf import global_settings
-from django.contrib import messages
 
 from vaas.configuration.loader import YamlConfigLoader
 
 
 env = environ.Env()
+
+
+def serialize(value: any) -> str:
+    if type(value) in (dict, list, tuple):
+        return json.dumps(value)
+    return value
+
+
+config_loader = YamlConfigLoader(['/configuration'])
+if config_loader.determine_config_file('config.yaml'):
+    # Here we create environments variables from configuration repository and ensure that we have uppercase naming
+    os.environ.update({k.upper(): serialize(v) for k, v in config_loader.get_config_tree('config.yaml').items()})
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -92,6 +103,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
+DATABASES = env.json('DATABASES', default={
+    'default': {
+        'ENGINE': 'vaas.db',
+        'NAME': 'vaas',
+        'USER': 'root',
+        'PASSWORD': 'password',
+        'HOST': 'mysql'
+    }})
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -129,7 +149,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': env.str('CONSOLE_LOG_FORMATTER', default='verbose'),
         },
     },
     'loggers': {
@@ -154,8 +174,8 @@ LOGGING = {
     }
 }
 
-VAAS_LOADER_MAX_WORKERS = 30
-VAAS_RENDERER_MAX_WORKERS = 30
+VAAS_LOADER_MAX_WORKERS = env.int('VAAS_LOADER_MAX_WORKERS', default=30)
+VAAS_RENDERER_MAX_WORKERS = env.int('VAAS_RENDERER_MAX_WORKERS', default=30)
 VAAS_GATHER_STATUSES_MAX_WORKERS = 50
 VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = 0.1
 
@@ -165,13 +185,13 @@ REFRESH_TRIGGERS_CLASS = (
 )
 
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = env.str('CELERY_TASK_SERIALIZER', default='json')
+CELERY_RESULT_SERIALIZER = env.str('CELERY_RESULT_SERIALIZER', default='json')
 CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', False)
 CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
 
 # 5min we will wait for kill task
-CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = 300
+CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SECONDS', default=300)
 
 CELERY_ROUTES = {
     'vaas.router.report.fetch_urls_async': {'queue': 'routes_test_queue'},
@@ -179,10 +199,10 @@ CELERY_ROUTES = {
     'vaas.*': {'queue': 'worker_queue'},
 }
 
-BACKEND_STATUSES_UPDATE_INTERVAL_SECONDS = 120
+BACKEND_STATUSES_UPDATE_INTERVAL_SECONDS = env.int('BACKEND_STATUSES_UPDATE_INTERVAL_SECONDS', default=120)
 
-VARNISH_COMMAND_TIMEOUT = 5
-VARNISH_VCL_INLINE_COMMAND_TIMEOUT = 60
+VARNISH_COMMAND_TIMEOUT = env.int('VARNISH_COMMAND_TIMEOUT', default=5)
+VARNISH_VCL_INLINE_COMMAND_TIMEOUT = env.int('VARNISH_VCL_INLINE_COMMAND_TIMEOUT', default=60)
 
 # UWSGI CONTEXT SWITCH (UGREEN)
 ENABLE_UWSGI_SWITCH_CONTEXT = env.bool('ENABLE_UWSGI_SWITCH_CONTEXT', False)
@@ -221,26 +241,16 @@ CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
 MESH_X_ORIGINAL_HOST = env.bool('MESH_X_ORIGINAL_HOST', default='x-original-host')
 SERVICE_TAG_HEADER = env.bool('SERVICE_TAG_HEADER', default='x-service-tag')
 
-for key, value in YamlConfigLoader(['/configuration']).get_config_tree('config.yaml').items():
-    globals()[key.upper()] = value
-
-if 'BROKER_URL_BASE' in globals():
-    BROKER_URL = BROKER_URL_BASE
-    CELERY_RESULT_BACKEND = CELERY_RESULT_BACKEND_BASE
+if env.str('BROKER_URL_BASE', default='') and env.str('CELERY_RESULT_BACKEND_BASE', default=''):
+    BROKER_URL = env.str('BROKER_URL_BASE', default='redis://redis:6379/1')
+    CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND_BASE', default='redis://redis:6379/2')
 else:
     BROKER_URL = 'redis://redis:6379/1'
     CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
 
-if 'CONSOLE_LOG_FORMATTER' in globals():
-    LOGGING['handlers']['console']['formatter'] = CONSOLE_LOG_FORMATTER
 
-ROUTES_LEFT_CONDITIONS = {}
-if 'ROUTES_LEFT_CONDITIONS_BASE' in globals():
-    for condition in ROUTES_LEFT_CONDITIONS_BASE:
-        ROUTES_LEFT_CONDITIONS[condition['name']] = condition['value']
-else:
-    ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
-        'req_url': 'URL_default',
-        'req_http_Host': 'Domain_default',
-        'req_http_X-Example': 'X-Example_default',
-    })
+ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
+    'req_url': 'URL_default',
+    'req_http_Host': 'Domain_default',
+    'req_http_X-Example': 'X-Example_default',
+})

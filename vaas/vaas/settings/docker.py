@@ -2,8 +2,6 @@
 from __future__ import unicode_literals, absolute_import
 from .base import *
 
-from vaas.configuration.loader import YamlConfigLoader
-
 DEBUG = True
 TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = ["*"]
@@ -24,11 +22,11 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': '/tmp/debug.log',
-            'formatter': 'verbose'
+            'formatter': env.str('CONSOLE_LOG_FORMATTER', default='verbose')
         },
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': env.str('CONSOLE_LOG_FORMATTER', default='verbose'),
         },
     },
     'loggers': {
@@ -46,18 +44,5 @@ LOGGING = {
             'handlers': ['file', 'console'],
             'level': 'INFO',
         }
-    }
-}
-
-for key, value in YamlConfigLoader(['/configuration']).get_config_tree('docker.yaml').items():
-    globals()[key.upper()] = value
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'vaas.db',
-        'NAME': 'vaas',
-        'USER': 'root',
-        'PASSWORD': 'password',
-        'HOST': 'mysql',
     }
 }
