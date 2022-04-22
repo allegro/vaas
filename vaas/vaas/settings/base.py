@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
+import json
 
 import os
 import environ
-from ast import literal_eval
-from django.conf import global_settings
-from django.contrib import messages
 
 from vaas.configuration.loader import YamlConfigLoader
 
 
 env = environ.Env()
 
+def serialize(value: any) -> str:
+    if type(value) in (dict, list, tuple):
+        return json.dumps(value)
+    return value
+
+
 config_loader = YamlConfigLoader(['/configuration'])
 if config_loader.determine_config_file('config.yaml'):
     # Here we create environments variables from configuration repository and ensure that we have uppercase naming
-    os.environ.update({k.upper(): str(v) for k, v in config_loader.get_config_tree('config.yaml').items()})
+    os.environ.update({k.upper(): serialize(v) for k, v in config_loader.get_config_tree('config.yaml').items()})
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -98,7 +102,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-DATABASES = literal_eval(env('DATABASES', default="{'default': {'ENGINE': 'vaas.db', 'NAME': 'vaas', 'USER': 'root','PASSWORD': 'password','HOST': 'mysql',}}"))
+DATABASES = env.json('DATABASES', default={'default': {'ENGINE': 'vaas.db', 'NAME': 'vaas', 'USER': 'root','PASSWORD': 'password','HOST': 'mysql',}})
 
 TEMPLATES = [
     {
@@ -237,13 +241,8 @@ else:
     CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
 
 
-ROUTES_LEFT_CONDITIONS = {}
-if env('ROUTES_LEFT_CONDITIONS_BASE', default=[]):
-    for condition in literal_eval(env('ROUTES_LEFT_CONDITIONS_BASE')):
-        ROUTES_LEFT_CONDITIONS[condition['name']] = condition['value']
-else:
-    ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
-        'req_url': 'URL_default',
-        'req_http_Host': 'Domain_default',
-        'req_http_X-Example': 'X-Example_default',
-    })
+ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
+    'req_url': 'URL_default',
+    'req_http_Host': 'Domain_default',
+    'req_http_X-Example': 'X-Example_default',
+})
