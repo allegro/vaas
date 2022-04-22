@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from django.core.management.base import BaseCommand
-from vaas.monitor.health import BackendStatusManager
+from vaas.monitor.health import provide_backend_status_manager
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        BackendStatusManager().refresh_statuses()
+        provide_backend_status_manager().refresh_statuses()

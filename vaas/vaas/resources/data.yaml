@@ -1,7 +1,7 @@
 - model: manager.timeprofile
   pk: 1
   fields: {name: generic profile, description: '', max_connections: 5, connect_timeout: '0.30',
-    first_byte_timeout: '5.00', between_bytes_timeout: '1.00'}
+    first_byte_timeout: '5.00', between_bytes_timeout: '1.00', service_mesh_timeout: '300.00'}
 - model: manager.probe
   pk: 1
   fields: {name: default_probe, url: /ts.1, expected_response: 200, interval: 3, timeout: '1.0',

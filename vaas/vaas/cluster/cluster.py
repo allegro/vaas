@@ -127,14 +127,6 @@ class VarnishApiProvider(object):
         for server in ServerExtractor().servers:
             yield self.get_api(server, timeout)
 
-    def get_connected_varnish_api(self, timeout=1):
-        for server in ServerExtractor().servers:
-            try:
-                varnish_api = self.get_api(server, timeout)
-                yield varnish_api
-            except VclLoadException:
-                continue
-
 
 class ServerExtractor(object):
 

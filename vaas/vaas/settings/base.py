@@ -98,8 +98,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-DATABASES = literal_eval(env('DATABASES', default="{'default': {'ENGINE': 'django.db.backends.sqlite3', \
-    'NAME': '/tmp/db/db.sqlite3'}}"))
+DATABASES = literal_eval(env('DATABASES', default="{'default': {'ENGINE': 'vaas.db', 'NAME': 'vaas', 'USER': 'root','PASSWORD': 'password','HOST': 'mysql',}}"))
 
 TEMPLATES = [
     {
@@ -165,6 +164,8 @@ LOGGING = {
 
 VAAS_LOADER_MAX_WORKERS = env.int('VAAS_LOADER_MAX_WORKERS', default=30)
 VAAS_RENDERER_MAX_WORKERS = env.int('VAAS_RENDERER_MAX_WORKERS', default=30)
+VAAS_GATHER_STATUSES_MAX_WORKERS = 50
+VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = 0.1
 
 REFRESH_TRIGGERS_CLASS = (
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable',
@@ -200,6 +201,7 @@ VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATI
 DEFAULT_VCL_VARIABLES = env.dict('DEFAULT_VCL_VARIABLES', default={
     'MESH_IP': '127.0.0.1',
     'MESH_PORT': '31001',
+    'MESH_TIMEOUT_CONTROL_HEADER': 'x-service-mesh-timeout',
 })
 
 PURGER_HTTP_CLIENT_TIMEOUT = env.int('PURGER_HTTP_CLIENT_TIMEOUT', default=10)

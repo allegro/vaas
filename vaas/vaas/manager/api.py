@@ -2,6 +2,7 @@
 import logging
 
 from celery.result import AsyncResult
+from django.db.models import Count, Prefetch
 
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
@@ -12,6 +13,7 @@ from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.cluster.api import DcResource
+from vaas.cluster.models import LogicalCluster
 from vaas.manager.forms import ProbeModelForm, DirectorModelForm, BackendModelForm, TimeProfileModelForm
 from vaas.manager.models import Backend, Probe, Director, TimeProfile, ReloadTask
 from vaas.monitor.models import BackendStatus
@@ -65,7 +67,13 @@ class DirectorResource(ModelResource):
     )
 
     class Meta:
-        queryset = Director.objects.all()
+        queryset = Director.objects\
+            .select_related('time_profile', 'probe')\
+            .prefetch_related(
+                Prefetch('cluster', queryset=LogicalCluster.objects.annotate(Count('varnishserver')).all()),
+                Prefetch('backends', queryset=Backend.objects.all().only('id', 'director_id'))
+            )\
+            .all()
         resource_name = 'director'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
@@ -115,7 +123,17 @@ class BackendResource(ModelResource):
     tags = ListField()
 
     class Meta:
-        queryset = Backend.objects.all()
+        queryset = Backend.objects\
+            .select_related('director__time_profile', 'dc')\
+            .prefetch_related('tags')\
+            .extra(select={
+                'status':
+                    "SELECT status from monitor_backendstatus"
+                    " WHERE monitor_backendstatus.address=manager_backend.address"
+                    " AND monitor_backendstatus.port=manager_backend.port"
+                    " LIMIT 1"
+            })\
+            .all()
         resource_name = 'backend'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
@@ -130,12 +148,9 @@ class BackendResource(ModelResource):
         }
 
     def dehydrate(self, bundle):
-        status = BackendStatus.objects.filter(address=bundle.data['address'],
-                                              port=bundle.data['port'])
-        if len(status) > 0:
-            bundle.data['status'] = status[0].status
-        else:
-            bundle.data['status'] = "Unknown"
+        bundle.data['status'] = "Unknown"
+        if hasattr(bundle.obj, "status") and bundle.obj.status:
+            bundle.data['status'] = bundle.obj.status
 
         bundle.data['time_profile'] = {
             'max_connections': bundle.obj.director.time_profile.max_connections,

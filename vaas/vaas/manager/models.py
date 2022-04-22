@@ -57,6 +57,13 @@ class TimeProfile(models.Model):
     between_bytes_timeout = NormalizedDecimalField(
         default='1', decimal_places=2, max_digits=5, verbose_name='Between bytes timeout (s)'
     )
+    service_mesh_timeout = NormalizedDecimalField(
+        default='300', decimal_places=2, max_digits=5, verbose_name='Service mesh timeout (s)'
+    )
+
+    @property
+    def service_mesh_timeout_ms(self):
+        return int(1000 * self.service_mesh_timeout)
 
     def __str__(self):
         return self.name
