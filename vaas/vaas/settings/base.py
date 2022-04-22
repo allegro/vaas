@@ -102,7 +102,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-DATABASES = env.json('DATABASES', default={'default': {'ENGINE': 'vaas.db', 'NAME': 'vaas', 'USER': 'root','PASSWORD': 'password','HOST': 'mysql',}})
+DATABASES = env.json('DATABASES', default={
+    'default': {
+        'ENGINE': 'vaas.db',
+        'NAME': 'vaas',
+        'USER': 'root',
+        'PASSWORD': 'password',
+        'HOST': 'mysql'
+    }})
 
 TEMPLATES = [
     {
