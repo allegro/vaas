@@ -10,6 +10,7 @@ from vaas.configuration.loader import YamlConfigLoader
 
 env = environ.Env()
 
+
 def serialize(value: any) -> str:
     if type(value) in (dict, list, tuple):
         return json.dumps(value)
