@@ -29,8 +29,8 @@ current_dir = os.path.abspath(os.path.dirname(__file__))
 SECRET_KEY = env.str('SECRET_KEY', default='notproductionsecret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', default=True)
-TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', default=True)
+DEBUG = env.bool('DEBUG', default=False)
+TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', default=False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ALLOWED_HOSTS = env.json('ALLOWED_HOSTS', default=[])
