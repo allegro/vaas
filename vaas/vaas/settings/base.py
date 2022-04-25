@@ -244,3 +244,5 @@ else:
         'req_http_Host': 'Domain_default',
         'req_http_X-Example': 'X-Example_default',
     })
+
+SENTRY_DSN = env.str('SENTRY_DSN', default='')
