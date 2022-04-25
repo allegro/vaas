@@ -2,8 +2,6 @@
 from __future__ import unicode_literals, absolute_import
 from .base import *
 
-DEBUG = True
-TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
