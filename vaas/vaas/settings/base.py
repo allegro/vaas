@@ -210,7 +210,7 @@ ENABLE_UWSGI_SWITCH_CONTEXT = env.bool('ENABLE_UWSGI_SWITCH_CONTEXT', False)
 VCL_TEMPLATE_COMMENT_REGEX = env.str('VCL_TEMPLATE_COMMENT_REGEX', default=None)
 VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE', default=None)
 
-DEFAULT_VCL_VARIABLES = env.dict('DEFAULT_VCL_VARIABLES', default={
+DEFAULT_VCL_VARIABLES = env.json('DEFAULT_VCL_VARIABLES', default={
     'MESH_IP': '127.0.0.1',
     'MESH_PORT': '31001',
     'MESH_TIMEOUT_CONTROL_HEADER': 'x-service-mesh-timeout',
@@ -249,7 +249,7 @@ else:
     CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
 
 
-ROUTES_LEFT_CONDITIONS = env.dict('ROUTES_LEFT_CONDITIONS', default={
+ROUTES_LEFT_CONDITIONS = env.json('ROUTES_LEFT_CONDITIONS', default={
     'req_url': 'URL_default',
     'req_http_Host': 'Domain_default',
     'req_http_X-Example': 'X-Example_default',
