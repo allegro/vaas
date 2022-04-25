@@ -14,7 +14,7 @@ env = environ.Env()
 def serialize(value: any) -> str:
     if type(value) in (dict, list, tuple):
         return json.dumps(value)
-    return value
+    return str(value)
 
 
 config_loader = YamlConfigLoader(['/configuration'])
