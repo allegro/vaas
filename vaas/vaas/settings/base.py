@@ -238,8 +238,8 @@ STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')
 
 CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
-MESH_X_ORIGINAL_HOST = env.bool('MESH_X_ORIGINAL_HOST', default='x-original-host')
-SERVICE_TAG_HEADER = env.bool('SERVICE_TAG_HEADER', default='x-service-tag')
+MESH_X_ORIGINAL_HOST = env.str('MESH_X_ORIGINAL_HOST', default='x-original-host')
+SERVICE_TAG_HEADER = env.str('SERVICE_TAG_HEADER', default='x-service-tag')
 
 if env.str('BROKER_URL_BASE', default='') and env.str('CELERY_RESULT_BACKEND_BASE', default=''):
     BROKER_URL = env.str('BROKER_URL_BASE', default='redis://redis:6379/1')
