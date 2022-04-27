@@ -5,9 +5,6 @@ from .base import *
 
 from vaas.configuration.loader import YamlConfigLoader
 
-DEBUG = True
-TEMPLATE_DEBUG = True
-
 INSTALLED_APPS = tuple(INSTALLED_PLUGINS) + INSTALLED_APPS
 MIDDLEWARE = MIDDLEWARE + list(MIDDLEWARE_PLUGINS)
 

@@ -26,15 +26,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'notproductionsecret'
+SECRET_KEY = env.str('SECRET_KEY', default='notproductionsecret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
+TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', default=False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.json('ALLOWED_HOSTS', default=[])
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+MESSAGE_STORAGE = env.str('MESSAGE_STORAGE', default='django.contrib.messages.storage.session.SessionStorage')
 
 # Application definition
 INSTALLED_APPS = (
@@ -77,15 +78,15 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = env.str('SOCIAL_AUTH_LOGIN_REDIRECT_URL', default='/admin/')
 
-SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_CONTENT_TYPE_NOSNIFF = env.bool('SECURE_CONTENT_TYPE_NOSNIFF', default=True)
 
-ROOT_URLCONF = 'vaas.urls'
+ROOT_URLCONF = env.str('ROOT_URLCONF', default='vaas.urls')
 
-WSGI_APPLICATION = 'vaas.external.wsgi.application'
+WSGI_APPLICATION = env.str('WSGI_APPLICATION', default='vaas.external.wsgi.application')
 
-SIGNALS = 'on'
+SIGNALS = env.str('SIGNALS', default='on')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -100,7 +101,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = env.str('STATIC_URL', default='/static/')
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 DATABASES = env.json('DATABASES', default={
@@ -174,21 +175,22 @@ LOGGING = {
     }
 }
 
+VAAS_LOADER_PARTIAL_RELOAD = env.bool('VAAS_LOADER_PARTIAL_RELOAD', default=False)
 VAAS_LOADER_MAX_WORKERS = env.int('VAAS_LOADER_MAX_WORKERS', default=30)
 VAAS_RENDERER_MAX_WORKERS = env.int('VAAS_RENDERER_MAX_WORKERS', default=30)
-VAAS_GATHER_STATUSES_MAX_WORKERS = 50
-VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = 0.1
+VAAS_GATHER_STATUSES_MAX_WORKERS = env.int('VAAS_GATHER_STATUSES_MAX_WORKERS', default=50)
+VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = env.float('VAAS_GATHER_STATUSES_CONNECT_TIMEOUT', default=0.1)
 
-REFRESH_TRIGGERS_CLASS = (
+REFRESH_TRIGGERS_CLASS = tuple(env.json('REFRESH_TRIGGERS_CLASS', default=(
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable',
     'Route'
-)
+)))
 
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
 CELERY_TASK_SERIALIZER = env.str('CELERY_TASK_SERIALIZER', default='json')
 CELERY_RESULT_SERIALIZER = env.str('CELERY_RESULT_SERIALIZER', default='json')
-CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', False)
-CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', True)
+CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', default=False)
+CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', default=True)
 
 # 5min we will wait for kill task
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SECONDS', default=300)
@@ -205,7 +207,7 @@ VARNISH_COMMAND_TIMEOUT = env.int('VARNISH_COMMAND_TIMEOUT', default=5)
 VARNISH_VCL_INLINE_COMMAND_TIMEOUT = env.int('VARNISH_VCL_INLINE_COMMAND_TIMEOUT', default=60)
 
 # UWSGI CONTEXT SWITCH (UGREEN)
-ENABLE_UWSGI_SWITCH_CONTEXT = env.bool('ENABLE_UWSGI_SWITCH_CONTEXT', False)
+ENABLE_UWSGI_SWITCH_CONTEXT = env.bool('ENABLE_UWSGI_SWITCH_CONTEXT', default=False)
 
 VCL_TEMPLATE_COMMENT_REGEX = env.str('VCL_TEMPLATE_COMMENT_REGEX', default=None)
 VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE = env.str('VCL_TEMPLATE_COMMENT_VALIDATION_MESSAGE', default=None)
