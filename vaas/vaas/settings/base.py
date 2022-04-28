@@ -75,8 +75,8 @@ MIDDLEWARE = [
 ]
 
 # Plugins definition
-INSTALLED_APPS += tuple(env.json('INSTALLED_PLUGINS', default=[]))
-MIDDLEWARE += env.json('MIDDLEWARE_PLUGINS', default=[])
+INSTALLED_APPS = tuple(env.json('INSTALLED_PLUGINS', default=[])) + INSTALLED_APPS
+MIDDLEWARE = env.json('MIDDLEWARE_PLUGINS', default=[]) + MIDDLEWARE
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = env.str('SOCIAL_AUTH_LOGIN_REDIRECT_URL', default='/admin/')
 
