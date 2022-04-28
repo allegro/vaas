@@ -63,8 +63,8 @@ INSTALLED_APPS = (
 )
 
 # Plugins definition
-INSTALLED_PLUGINS = ()
-MIDDLEWARE_PLUGINS = ()
+INSTALLED_PLUGINS = tuple(env.json('INSTALLED_PLUGINS', default=[]))
+MIDDLEWARE_PLUGINS = tuple(env.json('MIDDLEWARE_PLUGINS', default=[]))
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
