@@ -62,10 +62,6 @@ INSTALLED_APPS = (
     'django_celery_beat',
 )
 
-# Plugins definition
-INSTALLED_PLUGINS = ()
-MIDDLEWARE_PLUGINS = ()
-
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,6 +73,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
+
+# Plugins definition
+INSTALLED_APPS = tuple(env.json('INSTALLED_PLUGINS', default=[])) + INSTALLED_APPS
+MIDDLEWARE = env.json('MIDDLEWARE_PLUGINS', default=[]) + MIDDLEWARE
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = env.str('SOCIAL_AUTH_LOGIN_REDIRECT_URL', default='/admin/')
 
