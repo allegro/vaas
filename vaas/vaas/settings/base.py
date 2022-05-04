@@ -5,6 +5,7 @@ import json
 import os
 import environ
 
+from typing import Optional
 from vaas.configuration.loader import YamlConfigLoader
 
 
@@ -244,12 +245,24 @@ CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
 MESH_X_ORIGINAL_HOST = env.str('MESH_X_ORIGINAL_HOST', default='x-original-host')
 SERVICE_TAG_HEADER = env.str('SERVICE_TAG_HEADER', default='x-service-tag')
 
-if env.str('BROKER_URL_BASE', default='') and env.str('CELERY_RESULT_BACKEND_BASE', default=''):
-    BROKER_URL = env.str('BROKER_URL_BASE', default='redis://redis:6379/1')
-    CELERY_RESULT_BACKEND = env.str('CELERY_RESULT_BACKEND_BASE', default='redis://redis:6379/2')
-else:
-    BROKER_URL = 'redis://redis:6379/1'
-    CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
+
+# CELERY
+def generate_redis_url(hostname: str, port: int, db_number: int, password: Optional[str] = None) -> str:
+    if password:
+        return f'redis://:{password}@{hostname}:{port}/{db_number}'
+    return f'redis://{hostname}:{port}/{db_number}'
+
+
+REDIS_HOSTNAME = env.str('REDIS_HOSTNAME', default='redis')
+REDIS_PORT = env.int('REDIS_PORT', default=6379)
+BROKER_DB_NUMBER = env.int('BROKER_DB_NUMBER', default=0)
+CELERY_RESULT_DB_NUMBER = env.int('CELERY_RESULT_DB_NUMBER', default=1)
+REDIS_PASSWORD = env.str('REDIS_PASSWORD', default=None)
+
+BROKER_URL = generate_redis_url(
+    hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=BROKER_DB_NUMBER, password=REDIS_PASSWORD)
+CELERY_RESULT_BACKEND = generate_redis_url(
+    hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=CELERY_RESULT_DB_NUMBER, password=REDIS_PASSWORD)
 
 
 ROUTES_LEFT_CONDITIONS = env.json('ROUTES_LEFT_CONDITIONS', default={
