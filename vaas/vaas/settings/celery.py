@@ -17,6 +17,8 @@ def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
 
+app.conf.beatx_store = settings.BROKER_URL
+app.conf.beat_max_loop_interval = settings.CELERY_BEAT_MAX_LOOP_INTERVAL
 app.conf.beat_schedule = {
     'refresh_backend_statuses': {
         'task': 'vaas.monitor.tasks.refresh_backend_statuses',

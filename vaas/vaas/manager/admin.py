@@ -9,7 +9,6 @@ from django.contrib.auth.models import Group
 from taggit.models import Tag
 from taggit.admin import TagAdmin
 from tastypie.models import ApiKey
-from django_celery_beat.admin import IntervalSchedule, CrontabSchedule, SolarSchedule, ClockedSchedule
 from django.utils.html import format_html
 from vaas.monitor.models import BackendStatus
 from vaas.manager.signals import switch_state_and_reload
@@ -222,12 +221,6 @@ class TimeProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'max_connections', 'connect_timeout', 'first_byte_timeout', 'between_bytes_timeout')
 
 
-admin.site.unregister([
-    IntervalSchedule,
-    CrontabSchedule,
-    SolarSchedule,
-    ClockedSchedule,
-])
 admin.site.register(Director, DirectorAdmin)
 admin.site.register(Backend, BackendAdmin)
 admin.site.register(Probe, ProbeAdmin)
