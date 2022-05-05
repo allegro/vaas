@@ -11,7 +11,7 @@ sub use_director_{{director.name}} {
     unset req.http.X-VaaS-Prefix;
     set req.http.X-VaaS-Prefix = "{{ director.route_expression }}";
     unset req.http.X-VaaS-Director;
-    set req.http.X-VaaS-Director = "service-mesh/{{ director.name }}";
+    set req.http.X-VaaS-Director = "sm/{{ director.name }}";
     unset req.http.x-action;
     set req.http.x-action = "service-mesh";
 }
