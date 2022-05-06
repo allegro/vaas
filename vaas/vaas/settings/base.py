@@ -60,7 +60,6 @@ INSTALLED_APPS = (
     'taggit',
     'django_ace',
     'simple_history',
-    'django_celery_beat',
 )
 
 MIDDLEWARE = [
@@ -193,6 +192,7 @@ CELERY_TASK_SERIALIZER = env.str('CELERY_TASK_SERIALIZER', default='json')
 CELERY_RESULT_SERIALIZER = env.str('CELERY_RESULT_SERIALIZER', default='json')
 CELERY_IGNORE_RESULT = env.bool('CELERY_IGNORE_RESULT', default=False)
 CELERY_TASK_PUBLISH_RETRY = env.bool('CELERY_TASK_PUBLISH_RETRY', default=True)
+CELERY_BEAT_MAX_LOOP_INTERVAL = env.int('CELERY_BEAT_MAX_LOOP_INTERVAL', default=300)
 
 # 5min we will wait for kill task
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SECONDS', default=300)
