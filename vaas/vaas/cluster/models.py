@@ -62,7 +62,7 @@ class LogicalCluster(models.Model):
 class Dc(models.Model):
     name = models.CharField(max_length=50)
     symbol = models.CharField(
-        max_length=9, unique=True, validators=[dc_symbol_validator, ]
+        max_length=25, unique=True, validators=[dc_symbol_validator, ]
     )
 
     @property
