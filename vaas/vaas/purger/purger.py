@@ -6,6 +6,8 @@ from http.client import HTTPConnection, BadStatusLine
 from concurrent import futures
 from django.conf import settings
 
+from vaas.vcl.renderer import collect_processing
+
 
 class VarnishPurger(object):
 
@@ -16,6 +18,7 @@ class VarnishPurger(object):
         self.logger.debug(responses_summary)
         return responses_summary
 
+    @collect_processing
     def purge_url(self, url, servers, headers=None):
         parsed_url = urlparse(url)
         if headers is not None and ('Host' not in headers.keys() and 'host' not in headers.keys()):

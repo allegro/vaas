@@ -1,3 +1,4 @@
+import logging
 from json import dumps
 from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
@@ -12,7 +13,9 @@ from vaas.purger.purger import VarnishPurger
 from vaas.external.oauth import VaasMultiAuthentication
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
-
+from statsd.defaults.django import statsd
+from vaas.vcl.renderer import init_processing
+from django.conf import settings
 
 validate_url = URLValidator()
 
@@ -57,6 +60,7 @@ class PurgeUrl(Resource):
         return http_response_class(content=dumps(data), content_type="application/json; charset=utf-8")
 
     def obj_create(self, bundle, **kwargs):
+        logger = logging.getLogger(__name__)
         try:
             if not bundle.request.user.is_staff:
                 raise Unauthorized()
@@ -66,6 +70,8 @@ class PurgeUrl(Resource):
         if bundle.errors:
             raise ImmediateHttpResponse(response=self.error_response(bundle.request, bundle.errors))
         url, clusters, headers = bundle.data['url'], bundle.data['clusters'], bundle.data.get('headers')
+
+        processing_stats = init_processing()
         purger = VarnishPurger()
 
         if not isinstance(clusters, list):
@@ -73,6 +79,14 @@ class PurgeUrl(Resource):
 
         servers = ServerExtractor().extract_servers_by_clusters(LogicalCluster.objects.filter(name__in=clusters))
         purger_result = purger.purge_url(url, servers, headers)
+
+        for phase, processing in processing_stats.items():
+            logger.info(
+                "purge phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
+            )
+            if settings.STATSD_ENABLE:
+                statsd.timing(phase, processing['time'])
+
         if len(purger_result.get("error")) > 0:
             raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpApplicationError))
         raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpResponse))
