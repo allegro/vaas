@@ -34,7 +34,8 @@ class Fetcher(object):
 
     def fetch(self, url, route_id):
         try:
-            response = requests.get(url, headers={settings.VALIDATION_HEADER: '1'})
+            response = requests.get(url, headers={settings.VALIDATION_HEADER: '1'},
+                                    verify=settings.FETCHER_SSL_CERTIFICATE_VERIFY)
             data = {}
             try:
                 data = response.json()
