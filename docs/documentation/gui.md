@@ -47,6 +47,7 @@ To define a new Varnish VCL, click on *Cluster -> Vcl templates -> Add vcl templ
 * **Name:** name of the new VCL
 * **Content:** VCL content (see [VCL template documentation](../documentation/vcl.md))
 * **Version:** VCL version
+* **Comment** Brief comment about what this tamplate is responsible for
 
 ## [Cluster] Vcl template blocks
 To define a new Vcl template block, click on *Cluster -> Vcl template blocks -> Add template block* and fill in the form:
@@ -101,6 +102,8 @@ To define a new backend, click on *Manager -> Backends -> Add backend* and fill 
 * **Director:** name of the director in which the backend should appear
 * **Dc:** name of the DC in which the backend is located
 * **Weight:** value required by some directors
+* **Tags:** comma-separated list of tags
+* **Inherit time profile:** if enabled will add profile defined in director
 
 ## [Manager] Probes
 To define a new probe, click on *Manager -> Probes -> Add probe* and fill in the form:
@@ -135,6 +138,7 @@ To purge object from varnishes from a given cluster, click on *Manager -> Purger
 ![Manager - Routes](img/manager_add_route.png)
 
 * **Condition:** condition to be met
+* **Positive url:** example of url which could match for defined route condition
 * **Priority:** priority of the route
 * **Action:** action for the route
 * **Cluster:** related cluster
