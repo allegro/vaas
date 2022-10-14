@@ -20,7 +20,7 @@ requests>=2.25.1
 GitPython==3.1.17
 social-auth-app-django>=4.0.0
 defusedxml==0.6.0
-lxml==4.9.1
+lxml==4.6.5
 flower==1.2.0
 
 # JSON logging
