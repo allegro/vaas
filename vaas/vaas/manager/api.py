@@ -129,8 +129,7 @@ class BackendResource(ModelResource):
             .extra(select={
                 'status':
                     "SELECT status from monitor_backendstatus"
-                    " WHERE monitor_backendstatus.address=manager_backend.address"
-                    " AND monitor_backendstatus.port=manager_backend.port"
+                    " WHERE monitor_backendstatus.backend_id=manager_backend.id"
                     " LIMIT 1"
             })\
             .all()

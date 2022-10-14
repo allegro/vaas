@@ -4,11 +4,6 @@ from django.db import models
 
 
 class BackendStatus(models.Model):
-    backend_id = models.PositiveIntegerField()
-    address = models.GenericIPAddressField(protocol='IPv4')
-    port = models.PositiveIntegerField()
+    backend_id = models.PositiveIntegerField(blank=True, null=True)
     timestamp = models.DateTimeField()
     status = models.CharField(max_length=30)
-
-    class Meta:
-        unique_together = (('address', 'port'),)

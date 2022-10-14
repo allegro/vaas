@@ -31,22 +31,22 @@ template_4-ts-vol_1021a.del_backend_666_dc1_199_99_80 probe      Healthy        
 
 
 EXPECTED_BACKEND_TO_STATUS_MAP_V4 = {
-    '192.168.199.10:80': 'Healthy',
-    '192.168.199.11:80': 'Sick',
-    '192.168.199.12:80': 'Healthy'
+    1: 'Healthy',
+    2: 'Sick',
+    3: 'Healthy'
 }
 
 EXPECTED_BACKEND_TO_STATUS_MAP_V6 = {
-    '192.168.199.11:80': 'Healthy',
-    '192.168.199.12:80': 'Sick',
-    '192.168.199.13:80': 'Healthy'
+    2: 'Healthy',
+    3: 'Sick',
+    4: 'Healthy'
 }
 
 EXPECTED_MERGED_STATUS_MAP = {
-    '192.168.199.10:80': 'Healthy',
-    '192.168.199.11:80': 'Sick',
-    '192.168.199.12:80': 'Sick',
-    '192.168.199.13:80': 'Healthy'
+    1: 'Healthy',
+    2: 'Sick',
+    3: 'Sick',
+    4: 'Healthy'
 }
 
 
@@ -65,25 +65,24 @@ class BackendStatusManagerTest(TestCase):
         Backend.objects.create(address='192.168.199.11', port=80, director=director, dc=dc, id=2)
         Backend.objects.create(address='192.168.199.12', port=80, director=director, dc=dc, id=3)
         Backend.objects.create(address='192.168.199.13', port=80, director=director, dc=dc, id=4)
-        BackendStatus.objects.create(address='192.168.199.10', port=80, status='Healthy', timestamp=timestamp)
-        BackendStatus.objects.create(address='192.168.199.11', port=80, status='Sick', timestamp=timestamp)
-        BackendStatus.objects.create(address='192.168.199.12', port=80, status='Healthy', timestamp=timestamp)
+        BackendStatus.objects.create(backend_id=1, status='Healthy', timestamp=timestamp)
+        BackendStatus.objects.create(backend_id=2, status='Sick', timestamp=timestamp)
+        BackendStatus.objects.create(backend_id=3, status='Healthy', timestamp=timestamp)
 
-    def assert_status(self, expected_address, expected_port, expected_status, given_backend_status):
-        assert_equals(expected_address, given_backend_status.address)
-        assert_equals(expected_port, given_backend_status.port)
+    def assert_status(self, expected_backend_id, expected_status, given_backend_status):
+        assert_equals(expected_backend_id, given_backend_status.backend_id)
         assert_equals(expected_status, given_backend_status.status)
 
     def test_should_store_backend_statuses(self):
         backend_to_status_map = {
-            '192.168.199.11:80': 'Sick',
-            '192.168.199.12:80': 'Healthy'
+            2: 'Sick',
+            3: 'Healthy'
         }
         BackendStatusManager(Mock(), []).store_backend_statuses(backend_to_status_map)
         statuses = BackendStatus.objects.all()
         assert_equals(2, len(statuses))
-        self.assert_status('192.168.199.11', 80, 'Sick', statuses[0])
-        self.assert_status('192.168.199.12', 80, 'Healthy', statuses[1])
+        self.assert_status(2, 'Sick', statuses[0])
+        self.assert_status(3, 'Healthy', statuses[1])
 
     def test_should_load_backend_statuses_from_varnish_4(self):
         self._generic_load_backend_statuses_from_varnish(
@@ -127,12 +126,12 @@ class BackendStatusManagerTest(TestCase):
 
     def test_should_refresh_backend_statuses(self):
         backend_to_status_map = {
-            '192.168.199.11:80': 'Sick',
-            '192.168.199.12:80': 'Healthy'
+            2: 'Sick',
+            3: 'Healthy'
         }
         with patch('vaas.monitor.health.BackendStatusManager.load_from_varnish', return_value=backend_to_status_map):
             BackendStatusManager(Mock(), []).refresh_statuses()
             statuses = BackendStatus.objects.all()
             assert_equals(2, len(statuses))
-            self.assert_status('192.168.199.11', 80, 'Sick', statuses[0])
-            self.assert_status('192.168.199.12', 80, 'Healthy', statuses[1])
+            self.assert_status(2, 'Sick', statuses[0])
+            self.assert_status(3, 'Healthy', statuses[1])
