@@ -266,7 +266,7 @@ CELERY_RESULT_BACKEND = generate_redis_url(
 
 
 ROUTES_LEFT_CONDITIONS = env.json('ROUTES_LEFT_CONDITIONS', default={
-    'req_url': 'URL_default',
-    'req_http_Host': 'Domain_default',
-    'req_http_X-Example': 'X-Example_default',
+    'req.url': 'URL_default',
+    'req.http.Host': 'Domain_default',
+    'req.http.X-Example': 'X-Example_default',
 })
