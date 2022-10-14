@@ -4,6 +4,7 @@ from django.db import models
 
 
 class BackendStatus(models.Model):
+    backend_id = models.PositiveIntegerField()
     address = models.GenericIPAddressField(protocol='IPv4')
     port = models.PositiveIntegerField()
     timestamp = models.DateTimeField()

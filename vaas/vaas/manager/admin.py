@@ -164,6 +164,7 @@ class BackendAdmin(AuditableModelAdmin):
                     "SELECT status from monitor_backendstatus"
                     " WHERE monitor_backendstatus.address=manager_backend.address"
                     " AND monitor_backendstatus.port=manager_backend.port"
+                    " AND monitor_backendstatus.id=manager_backend.id"
                     " LIMIT 1"
             })
 
