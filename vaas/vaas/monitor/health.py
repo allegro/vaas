@@ -47,9 +47,9 @@ class BackendStatusManager(object):
                     executor.submit(self._load_from_single_varnish, dc_pattern, server)
                 )
             for future_result in future_results:
-                for address, status in future_result.result().items():
-                    if backend_to_status_map.get(address) != 'Sick':
-                        backend_to_status_map[address] = status
+                for backend_id, status in future_result.result().items():
+                    if backend_to_status_map.get(backend_id) != 'Sick':
+                        backend_to_status_map[backend_id] = status
         return backend_to_status_map
 
     def _load_from_single_varnish(self, dc_pattern, server):
@@ -78,27 +78,26 @@ class BackendStatusManager(object):
                             status = backend_status[-2]
 
                         if backend_id and backend_id not in backend_to_status_map or status == 'Sick':
-                            backend_address = self.backends.get(backend_id)
-                            if backend_address is not None:
-                                backend_to_status_map[backend_address] = status
+                            backend = self.backends.get(backend_id)
+                            if backend is not None:
+                                backend_to_status_map[backend_id] = status
         finally:
             return backend_to_status_map
 
     def store_backend_statuses(self, backend_to_status_map):
-        existing_statuses = {f"{s.address}:{s.port}": s for s in BackendStatus.objects.all()}
+        existing_statuses = {f"{s.backend_id}": s for s in BackendStatus.objects.all()}
         to_update = []
         to_add = []
 
-        for key, status in backend_to_status_map.items():
-            backend_status = existing_statuses.get(key)
+        for backend_id, status in backend_to_status_map.items():
+            backend_status = existing_statuses.get(backend_id)
             if backend_status:
                 if backend_status.timestamp < self.timestamp:
                     backend_status.status = status
                     backend_status.timestamp = self.timestamp
                     to_update.append(backend_status)
             else:
-                address, port = key.split(":")
-                to_add.append(BackendStatus(address=address, port=port, status=status, timestamp=self.timestamp))
+                to_add.append(BackendStatus(backend_id=backend_id, status=status, timestamp=self.timestamp))
         create_cnt = len(BackendStatus.objects.bulk_create(to_add))
 
         # TODO: report number of updated records after updating django to 4.0 or higher
