@@ -119,7 +119,13 @@
     priority: 51
     director: 2
     action: pass
-    clusters: [4]
+    clusters: [2]
+- model: router.positiveurl
+  pk: 1
+  fields: {url: http://192.168.1.4:6081/flexibleee, route: 1}
+- model: router.positiveurl
+  pk: 2
+  fields: {url: http://192.168.1.4:6081/wrong, route: 1}
 - model: auth.user
   fields:
     password: pbkdf2_sha256$36000$HSNx3yHNXG51$yggojN+90XWiHuGBK7YnrUZMWtMKpck45CsSel0JxUk=
