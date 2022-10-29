@@ -270,3 +270,6 @@ ROUTES_LEFT_CONDITIONS = env.json('ROUTES_LEFT_CONDITIONS', default={
     'req.http.Host': 'Domain_default',
     'req.http.X-Example': 'X-Example_default',
 })
+ROUTES_CANARY_HEADER = env.str('ROUTES_CANARY_HEADER', default='x-canary-random')
+if ROUTES_CANARY_HEADER:
+    ROUTES_LEFT_CONDITIONS[f'std.real(req.http.{ROUTES_CANARY_HEADER},0)'] = 'Canary'

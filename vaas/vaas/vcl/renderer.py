@@ -305,6 +305,8 @@ class VclTagBuilder(object):
             vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
         elif tag_name == 'FLEXIBLE_ROUTER':
             vcl_tag.parameters['routes'] = self.placeholders['routes']
+            vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
+            vcl_tag.parameters['canary_header'] = settings.ROUTES_CANARY_HEADER
         elif tag_name == 'TEST_ROUTER':
             vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
 
