@@ -63,32 +63,32 @@
     });
   }
   function poolTaskStatus(url) {
-    var continuePooling = true;
     $.ajax({
       url: url,
       dataType: 'json',
       error: handleError,
       success: function (data, textStatus, request) {
         const status = data.task_status
+        if (!isResultStillAwaited(url)) return;
         if (status === 'FAILURE') {
+          $('#task-id').data("status", "done")
           showError("Can't generate report. Task failed. Refresh page and try again")
-          continuePooling = false;
           $('#spinner').hide()
         }
         else if (status === 'SUCCESS') {
+          $('#task-id').data("status", "done")
           const validationResults = data.validation_results;
           const validationStatus = data.validation_status;
           $('#results').append(createTestResult(validationResults));
           $('#pass-count').text(countResult('PASS', validationResults));
           $('#failed-count').text(countResult('FAIL', validationResults));
-          $('#rapport-result').addClass(`label-${statusToClass(validationStatus)}`).text(validationStatus);
-          continuePooling = false;
+          $('#report-result').addClass(`label-${statusToClass(validationStatus)}`).text(validationStatus);
           $('#spinner').hide()
         }
         $('#task-status').removeClass();
         $('#task-status').addClass(`label label-${statusToClass(status)}`).text(status);
       },
-      complete: function () { if (continuePooling) { setTimeout(function () { poolTaskStatus(url) }, 5000) } },
+      complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolTaskStatus(url) }, 5000) } },
       timeout: 5000
     });
   }
@@ -112,6 +112,18 @@
   }
   function createTestResult(records) {
     var html = '';
+    records.sort(function(x, y) {
+      if (x.error_message && !y.error_message) {
+        return -1;
+      }
+      if (!x.error_message && y.error_message) {
+        return 1;
+      }
+      if (x.expected.route.id < y.expected.route.id) {
+        return -1;
+      }
+      return 1;
+    });
     records.forEach(function (record) {
       var errorMsg = ''
       if (!record.current.route) record.current.route = noDataPlaceholder
@@ -164,18 +176,32 @@
     return counter;
   }
 
+  function isResultStillAwaited(taskURL) {
+    return $('#task-id').text() == taskURL.split('/')[4] && $('#task-id').data("status") == "started";
+  }
+
+  function clearReportState() {
+    $('#task-status').removeClass();
+    $('#task-status').addClass(`label label-default`).text("unknown");
+    $('#report-result').removeClass();
+    $('#report-result').addClass(`label label-default`).text("UNKNOWN");
+    $('#pass-count').text(0);
+    $('#failed-count').text(0);
+    $('#results').text("");
+  }
+
   $(document).ready(function () {
     var testResultModalEl = $('#testResultModal');
     testResultModalEl.on('show.bs.modal', function (event) {
-      if (!taskURL) {
-        $('#error-message').remove()
-        $('#spinner').show()
-        createTask(function (data, textStatus, request) {
-          taskURL = request.getResponseHeader('Location')
-          $('#task-id').text(taskURL.split('/')[4]);
-          poolTaskStatus(taskURL);
-        });
-      }
+      clearReportState()
+      $('#error-message').remove()
+      $('#spinner').show()
+      createTask(function (data, textStatus, request) {
+        taskURL = request.getResponseHeader('Location')
+        $('#task-id').text(taskURL.split('/')[4]);
+        $('#task-id').data("status", "started");
+        poolTaskStatus(taskURL);
+      });
     });
   })
 </script>
@@ -190,7 +216,7 @@
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Routes Test Rapport</h4>
+        <h4 class="modal-title" id="myModalLabel">Routes Test Report</h4>
       </div>
       <div class="modal-body">
         <div class="panel panel-default">
@@ -202,7 +228,7 @@
             <h5>Task ID: <span id="task-id" class="label label-default"></span></h5>
           </div>
         </div>
-        <h2>Tests rapport result: <span id="rapport-result" class="label label-default">UNKNOWN</span></h2>
+        <h2>Tests report result: <span id="report-result" class="label label-default">UNKNOWN</span></h2>
         <h4>
           Details:
           <span class="label label-success">PASS <span id="pass-count" class="badge">0</span></span>
