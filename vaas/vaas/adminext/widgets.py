@@ -72,7 +72,9 @@ class ConditionWidget(forms.MultiWidget):
 
     def value_from_datadict(self, data, files, name):
         parts = super(ConditionWidget, self).value_from_datadict(data, files, name)
-        parts[2] = '"{}"'.format(parts[2])
+        # some operators are intended to use with numbers not strings
+        if parts[1] not in ('>', '<'):
+            parts[2] = '"{}"'.format(parts[2])
         return ' '.join(parts)
 
 

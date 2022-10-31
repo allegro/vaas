@@ -21,6 +21,12 @@ To start Vaas you just have to run:
 docker-compose up -d
 ```
 
+If you resume the development after a long break it is recommended to rebuild the environment by:
+
+```bash
+docker-compose up --build -d
+```
+
 Check That Everything Is Working
 ----------------
 To check that the build is working, run `docker-compose ps`. This should give you output similar to the below.

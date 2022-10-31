@@ -6,7 +6,7 @@ python /home/app/vaas/manage.py collectstatic --no-input
 echo "Migrating"
 python /home/app/vaas/manage.py migrate --run-syncdb
 
-echo "Loadind test_data"
+echo "Loading test_data"
 python /home/app/vaas/manage.py loaddata ./vaas/resources/data.yaml
 
 echo "Install the test requirements to allow [manage.py test] to be called within the container"
