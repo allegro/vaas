@@ -265,11 +265,14 @@ CELERY_RESULT_BACKEND = generate_redis_url(
     hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=CELERY_RESULT_DB_NUMBER, password=REDIS_PASSWORD)
 
 
-ROUTES_LEFT_CONDITIONS = env.json('ROUTES_LEFT_CONDITIONS', default={
-    'req.url': 'URL_default',
-    'req.http.Host': 'Domain_default',
-    'req.http.X-Example': 'X-Example_default',
-})
+ROUTES_LEFT_CONDITIONS = {}
+for condition in env.json('ROUTES_LEFT_CONDITIONS', default=[
+    {'name': 'req.url', 'value': 'URL_default'},
+    {'name': 'req.http.Host', 'value': 'Domain_default'},
+    {'name': 'req.http.X-Example', 'value': 'X-Example_default'},
+]):
+    ROUTES_LEFT_CONDITIONS[condition['name']] = condition['value']
+
 ROUTES_CANARY_HEADER = env.str('ROUTES_CANARY_HEADER', default='x-canary-random')
 if ROUTES_CANARY_HEADER:
     ROUTES_LEFT_CONDITIONS[f'std.real(req.http.{ROUTES_CANARY_HEADER},0)'] = 'Canary'
