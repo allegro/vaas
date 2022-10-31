@@ -42,8 +42,10 @@
             if (lastUrl.attr('id') != 'url_1') {
                 lastUrl.remove();
                 $("[id^='u_spanner_']").last().remove();
+                urlNumbers--;
+            } else {
+                $("input", lastUrl).val("");
             }
-            urlNumbers--;
         }
 
         window.addEventListener('load', (event) => {
