@@ -173,8 +173,12 @@ class CommandInputValidation(Validation):
         try:
             varnishes = [int(varnish_id) for varnish_id in set(bundle.data.get('varnish_ids', []))]
             assert VarnishServer.objects.filter(pk__in=varnishes).count() == len(varnishes)
+        except AssertionError:
+            errors['varnish_ids'] = 'Some of provided varnish identifiers does not exists'
+        except ValueError:
+            errors['varnish_ids'] = 'Unexpected type, identifiers have got to be an integer'
         except:  # noqa
-            errors['varnish_ids'] = 'Provided varnish identifiers are not valid'
+            errors['varnish_ids'] = 'Unexpected value'
         else:
             task = AsyncResult(bundle.data['pk'])
             if task.args and set(task.args[0]) != set(varnishes):
