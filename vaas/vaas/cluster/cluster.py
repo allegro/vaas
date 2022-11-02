@@ -47,6 +47,29 @@ def load_vcl_task(self, emmit_time, cluster_ids):
     return True
 
 
+@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+def connect_command(self, varnish_ids):
+    result = {}
+    with ThreadPoolExecutor(max_workers=len(varnish_ids)) as executor:
+        future_results = []
+        for server in VarnishServer.objects.filter(pk__in=varnish_ids):
+            future_results.append(
+                tuple([server, executor.submit(connect_status, server)])
+            )
+        for server, future_result in future_results:
+            result[server.pk] = future_result.result()
+    return result
+
+
+def connect_status(server: VarnishServer) -> str:
+    if server.status == 'active':
+        try:
+            return VarnishApiProvider().get_api(server).daemon_version()
+        except VclLoadException:
+            return 'error'
+    return server.status
+
+
 class VarnishCluster(object):
 
     def __init__(self, timeout=1):
