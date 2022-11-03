@@ -77,7 +77,7 @@ class RouteResource(ModelResource):
     def dehydrate_clusters(self, bundle):
         if bundle.obj.clusters_in_sync:
             return []
-        return [list(bundle.obj.clusters.values_list('name', flat=True))]
+        return list(bundle.obj.clusters.values_list('name', flat=True))
 
     def save(self, bundle, *args, **kwargs):
         positive_urls = bundle.data.get('positive_urls', [])
