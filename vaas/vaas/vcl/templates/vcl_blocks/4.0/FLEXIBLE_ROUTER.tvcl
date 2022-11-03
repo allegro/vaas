@@ -1,7 +1,7 @@
 # Flexible ROUTER
 {% if canary_header %}
     if (req.http.{{ validation_header }} == "1") {
-        set req.http.{{ canary_header }} = 100;
+        set req.http.{{ canary_header }} = 0;
     } else {
         set req.http.{{ canary_header }} = std.random(0, 100);
     }
