@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from typing import Optional, Dict
+
+from tastypie.bundle import Bundle
 from celery.result import AsyncResult
 from django.db.models import Count
 from django.urls.conf import re_path
@@ -156,19 +159,25 @@ class VclTemplateBlockResource(ModelResource):
 
 
 class CommandResource:
-    def __init__(self, pk=None, varnish_ids=None, status=None, output=None):
+    # TODO: fix formatting after replacing pep8 with some modern linter
+    def __init__(
+            self,
+            pk: str="",
+            varnish_ids: Optional[list]=None,
+            status: str="PENDING",
+            output: Optional[Dict[int, str]]=None):
         self.pk = pk
         self.id = pk
         self.varnish_ids = varnish_ids
         self.status = status
         self.output = output
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{}'.format(self.__dict__)
 
 
 class CommandInputValidation(Validation):
-    def is_valid(self, bundle, request=None):
+    def is_valid(self, bundle: Bundle, *args, **kwargs) -> Dict[str, str]:
         errors = {}
         try:
             varnishes = [int(varnish_id) for varnish_id in set(bundle.data.get('varnish_ids', []))]
@@ -229,9 +238,6 @@ class ConnectCommandResource(Resource):
             varnish_ids = task.args[0]
         return CommandResource(kwargs['pk'], varnish_ids, task.status, output=task.result)
 
-    def get_object_list(self, request):
-        return []
-
     def run_validation(self, bundle):
         self.is_valid(bundle)
         if bundle.errors:
@@ -241,4 +247,6 @@ class ConnectCommandResource(Resource):
         return [
             re_path(r"^varnish_server/(?P<resource_name>%s)/(?P<pk>[\w\d_.-]+)/$" % self._meta.resource_name,
                     self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^varnish_server/(?P<resource_name>%s)/$" % self._meta.resource_name,
+                    self.wrap_view('dispatch_list'), name="api_dispatch_list"),
         ]

@@ -2,6 +2,7 @@
 
 import logging
 import time
+from typing import List, Dict
 
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
@@ -48,7 +49,7 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
-def connect_command(self, varnish_ids):
+def connect_command(self, varnish_ids: List[int]) -> Dict[int, str]:
     result = {}
     with ThreadPoolExecutor(max_workers=len(varnish_ids)) as executor:
         future_results = []

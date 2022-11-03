@@ -149,14 +149,14 @@ To list backends located in specified DC belonging to specified Director:
 
 ### Call connect command for a set of varnishes by passing varnish ids
 
-Important remark: the command id (in the below example: 7110e99e-453a-4078-843a-f6c36dd358d1) passed in url should be uniq
+Important remark: the command id (in the below example: 7110e99e-453a-4078-843a-f6c36dd358d1) passed in url should be uniq.
 The intention of the command is to connect to each requested **active** varnish server and return a varnish version or error in the output map.
 For inactive or maintenance varnishes, the appropriate status will be returned.
 
     curl -X PUT \
     -d '{ "varnish_ids": [2,3]}' \
     -H "Content-Type: application/json" \
-    "http://localhost:3030/api/v0.1/varnish_server/connect-command/7110e99e-453a-4078-843a-f6c36dd358d1?username=admin&api_key=vagrant_api_key"
+    "http://localhost:3030/api/v0.1/varnish_server/connect-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key"
 
 expected output
 
@@ -173,7 +173,7 @@ expected output
 
 ### Verify command result
 
-    curl "http://localhost:3030/api/v0.1/varnish_server/connect-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key
+    curl "http://localhost:3030/api/v0.1/varnish_server/connect-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key"
 expected output
 
     {
