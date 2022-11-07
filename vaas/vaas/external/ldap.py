@@ -20,7 +20,6 @@ except ImportError:
 else:
     from django.dispatch import receiver
     from django.conf import settings
-    from django.utils.encoding import force_unicode
 
     LDAPSettings.defaults['GROUP_MAPPING'] = {}
 

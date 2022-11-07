@@ -28,7 +28,7 @@ VCL_TAGS = {
 }
 
 ROUTE_SETTINGS = {
-    'req.url': {'priority': 2, 'suffix': '([\/\?].*)?$'},
+    'req.url': {'priority': 2, 'suffix': r'([\/\?].*)?$'},
     'req.http.host': {'priority': 1, 'suffix': ''}
 }
 
@@ -209,10 +209,9 @@ class VclTagBuilder(object):
                 backends = self.input.distributed_backends
                 if varnish.is_canary:
                     backends = self.input.distributed_canary_backends
-                if (dc.symbol == varnish.dc.symbol or director.active_active) \
-                        and len(backends[dc.id][director.id]) > 0:
-                        vcl_directors.append(VclDirector(director, dc, backends[dc.id][director.id], varnish.dc))
-                        append = True
+                if (dc.symbol == varnish.dc.symbol or director.active_active) and len(backends[dc.id][director.id]) > 0:
+                    vcl_directors.append(VclDirector(director, dc, backends[dc.id][director.id], varnish.dc))
+                    append = True
             if append:
                 active_directors.append(director)
 
@@ -422,6 +421,6 @@ class VclRenderer(object):
                 "[%s] vcl '%s' rendering time: %f" % (varnish.ip, vcl.name, time.perf_counter() - start)
             )
             return vcl
-        except:
+        except:  # noqa
             logging.getLogger(__name__).exception('Cannot render template')
             raise

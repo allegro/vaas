@@ -3,15 +3,14 @@
 import os
 from factory.django import DjangoModelFactory
 from factory import Sequence, SubFactory
-from unittest.mock import *
-from nose.tools import *
+from unittest.mock import Mock, patch
+from nose.tools import assert_equals, assert_in, assert_list_equal, assert_true
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
 from vaas.manager.models import Director, Probe, Backend, TimeProfile
 from vaas.router.models import Route
 from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, VclVariable
 from django.conf import settings
-from taggit.managers import TaggableManager
 
 md5_mock = Mock()
 md5_mock.hexdigest = Mock(return_value="ca5ef")
@@ -106,7 +105,6 @@ class BackendFactory(DjangoModelFactory):
 class VclTagBuilderTest(TestCase):
 
     def setUp(self):
-        tags = TaggableManager()
         settings.SIGNALS = 'off'
         self.dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
         self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
@@ -240,7 +238,7 @@ class VclTagBuilderTest(TestCase):
         VclVariable.objects.create(key='MESH_PORT', value='30001', cluster=cluster4_with_mesh_and_standard_service)
 
         route = Route.objects.create(
-            condition='req.url ~ "^\/flexible"',
+            condition=r'req.url ~ "^\/flexible"',
             director=non_active_active_routed_by_path,
             priority=1,
             action='pass'

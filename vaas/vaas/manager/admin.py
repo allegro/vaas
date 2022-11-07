@@ -22,7 +22,7 @@ try:
     admin.site.unregister(ApiKey)
     admin.site.unregister(Tag)
     admin.site.unregister(TagAdmin)
-except:
+except:  # noqa
     pass
 
 
@@ -118,14 +118,14 @@ class DirectorAdmin(AuditableModelAdmin):
     def _custom_flag(self, flag):
         if flag:
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>" +
-                "<i class='glyphicon glyphicon-ban-circle'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>"
+                "<i class='glyphicon glyphicon-ban-circle'>"
                 "</i></a></div>"
             )
 
@@ -169,14 +169,14 @@ class BackendAdmin(AuditableModelAdmin):
     def custom_enabled(self, obj):
         if obj.enabled:
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs btn-success' href='#'><i class='glyphicon glyphicon-ok-sign'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>" +
-                "<i class='glyphicon glyphicon-ban-circle'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>"
+                "<i class='glyphicon glyphicon-ban-circle'>"
                 "</i></a></div>"
             )
 
@@ -186,17 +186,17 @@ class BackendAdmin(AuditableModelAdmin):
         if obj.status:
             if obj.status == 'Healthy':
                 return format_html(
-                    "<div class='span13 text-center'><a class='btn btn-xs btn-success' href='#'>" +
+                    "<div class='span13 text-center'><a class='btn btn-xs btn-success' href='#'>"
                     "<i class='glyphicon glyphicon-ok'> </i></a></div>"
                 )
             else:
                 return format_html(
-                    "<div class='span13 text-center'><a class='btn btn-xs btn-danger' href='#'>" +
+                    "<div class='span13 text-center'><a class='btn btn-xs btn-danger' href='#'>"
                     "<i class='glyphicon glyphicon-off'> </i></a></div>"
                 )
         else:
             return format_html(
-                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>" +
+                "<div class='span13 text-center'><a class='btn btn-xs' href='#'>"
                 "<i class='glyphicon glyphicon-off'></i></a></div>"
             )
 

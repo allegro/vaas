@@ -88,7 +88,7 @@ class VclRefreshMiddleware:
                             while not result.ready():
                                 uwsgi.async_sleep(1)
                                 uwsgi.suspend()
-                        except:
+                        except:  # noqa
                             pass
 
                     result.get()

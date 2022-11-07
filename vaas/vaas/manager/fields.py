@@ -37,7 +37,7 @@ class NormalizedDecimalField(models.DecimalField):
         try:
             format_str = "{0:." + str(self.decimal_places) + "f}"
             return Decimal(format_str.format(float(value)))
-        except:
+        except:  # noqa
             raise ValidationError(
                 self.error_messages['invalid'],
                 code='invalid',

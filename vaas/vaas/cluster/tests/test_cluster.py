@@ -9,7 +9,7 @@ from vaas.cluster.models import VarnishServer, Dc, LogicalCluster
 from vaas.cluster.cluster import VarnishCluster, ServerExtractor, ParallelRenderer, ParallelLoader, \
     VarnishApiProvider, VclLoadException
 from vaas.vcl.loader import VclLoader, VclStatus
-from vaas.vcl.renderer import VclRenderer, Vcl
+from vaas.vcl.renderer import Vcl
 from vaas.api.client import VarnishApi
 
 dc = Dc(name='Tokyo', symbol='dc2')

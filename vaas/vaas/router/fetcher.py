@@ -45,5 +45,5 @@ class Fetcher(object):
                                           response.status_code,
                                           route_id)
 
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
+        except requests.exceptions.RequestException:
             return ValidationResponse(url, None, None, -1, route_id)
