@@ -1,5 +1,3 @@
-import csv
-
 from django.contrib import admin
 
 from vaas.external.audit import AuditableModelAdmin

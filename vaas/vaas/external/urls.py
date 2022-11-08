@@ -26,5 +26,5 @@ for app in iterate_plugins():
     try:
         urlpatterns.append(url(r'{}/'.format(app), include('{}.urls'.format(app))))
         logger.info('Found urls for plugin: {}'.format(app))
-    except ImportError as e:
+    except ImportError:
         pass

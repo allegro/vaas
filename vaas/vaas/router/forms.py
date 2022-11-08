@@ -65,11 +65,11 @@ class RouteModelForm(ModelForm):
         configuration = provide_route_configuration()
         widgets = {
             'condition': ComplexConditionWidget(
-                variables=tuple((l.left, l.name) for l in configuration.lefts),
-                operators=tuple((o.operator, o.name) for o in configuration.operators)
+                variables=tuple((left.left, left.name) for left in configuration.lefts),
+                operators=tuple((operator.operator, operator.name) for operator in configuration.operators)
             ),
             'action': Select(
-                choices=tuple((a.action, a.name) for a in configuration.actions)
+                choices=tuple((action.action, action.name) for action in configuration.actions)
             ),
             'priority': PrioritySelect(
                 choices=tuple([(i, i) for i in range(1, 500)]),

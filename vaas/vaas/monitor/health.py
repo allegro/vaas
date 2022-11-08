@@ -10,11 +10,11 @@ from django.utils.timezone import utc
 
 from vaas.monitor.models import BackendStatus
 from vaas.manager.models import Backend
-from vaas.cluster.cluster import VarnishApiProvider, VclLoadException, ServerExtractor
+from vaas.cluster.cluster import VarnishApiProvider, ServerExtractor
 from vaas.cluster.helpers import BaseHelpers
 
 
-BACKEND_PATTERN = re.compile("^((?:.*_){5}[^(\s]*)")
+BACKEND_PATTERN = re.compile(r"^((?:.*_){5}[^(\s]*)")
 
 
 def provide_backend_status_manager():

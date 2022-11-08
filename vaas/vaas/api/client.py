@@ -83,7 +83,7 @@ class VarnishApi(varnish.VarnishHandler):
         # assert len(elements) == 2, f"cannot split response into two elements {elements}"
         try:
             status, length = map(int, elements)
-        except:
+        except:  # noqa
             raise VarnishApiReadException(
                 f'Cannot extract response code from {elements} for command {command}'
             )

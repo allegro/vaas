@@ -27,4 +27,5 @@ def set_var(parser, token):
         raise template.TemplateSyntaxError("'set' tag must be of the form:  {% set <var_name>  = <var_value> %}")
     return SetVarNode(parts[1], parts[3])
 
+
 register.tag('set', set_var)

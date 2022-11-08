@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
 
-from django.utils import timezone
-from taggit.managers import TaggableManager
-from tastypie import fields
-from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
+from tastypie import fields
 
-from vaas.validators import vcl_variable_validator, vcl_variable_key_validator,\
+from vaas.validators import vcl_variable_validator, vcl_variable_key_validator, \
     vcl_template_comment_validator, name_validator, dc_symbol_validator
 
 
@@ -31,7 +30,7 @@ class LogicalCluster(models.Model):
         if self._current_vcls is None:
             try:
                 self._current_vcls = set(json.loads(self.current_vcl_versions))
-            except:
+            except:  # noqa
                 self._current_vcls = set()
         return self._current_vcls
 

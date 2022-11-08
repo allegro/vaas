@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import *
-from nose.tools import *
+from unittest.mock import call, Mock, patch
+from nose.tools import assert_false, assert_true, assert_equals
 from django.test import TestCase
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import Vcl

@@ -48,5 +48,5 @@ class OutdatedServerManager(object):
         url = 'http://{}:{}/vaas/'.format(server.ip, server.http_port)
         try:
             return requests.get(url).json()['vcl_version']
-        except:
+        except:  # noqa
             return None

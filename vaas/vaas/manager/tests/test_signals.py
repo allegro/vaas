@@ -375,13 +375,11 @@ class TestSignals(TestCase):
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
-            kwargs = {'instance': director2, 'action': 'pre_clear'}
             director2.cluster.remove(cluster3)
             assert_equals([call([cluster3])], regenerate_and_reload_vcl_mock.call_args_list)
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
-            kwargs = {'instance': director2, 'action': 'post_add'}
             director2.cluster.add(cluster5)
             assert_equals([call([cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
 
@@ -395,13 +393,11 @@ class TestSignals(TestCase):
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
-            kwargs = {'instance': director2, 'action': 'pre_clear'}
             director2.cluster.remove(cluster3)
             assert_equals([call([cluster3, cluster4])], regenerate_and_reload_vcl_mock.call_args_list)
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
-            kwargs = {'instance': director2, 'action': 'post_add'}
             director2.cluster.add(cluster5)
             assert_equals([call([cluster4, cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
 
@@ -428,36 +424,6 @@ class TestSignals(TestCase):
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director3.delete()
-            # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert_equals([call([cluster1]), call([])], regenerate_and_reload_vcl_mock.call_args_list)
-
-    def test_vcl_update_when_route_will_be_deleted(self):
-        settings.SIGNALS = 'on'
-
-        cluster1 = LogicalCluster.objects.create(name="cluster_route")
-
-        probe1 = Probe.objects.create(name='test_director4_probe', url='/status')
-        director4 = Director.objects.create(
-            name='director4',
-            router='req.url',
-            route_expression='/first',
-            probe=probe1,
-            active_active=False,
-            mode='round-robin',
-            remove_path=False,
-            time_profile=TimeProfile.objects.create(name='timeprofile4')
-        )
-        route1 = Route.objects.create(
-            condition='some condition',
-            priority=51,
-            director=director4,
-            action='pass',
-        )
-        route1.clusters.add(cluster1)
-
-        with patch('vaas.manager.signals.regenerate_and_reload_vcl',
-                   return_value=None) as regenerate_and_reload_vcl_mock:
-            route1.delete()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
             assert_equals([call([cluster1]), call([])], regenerate_and_reload_vcl_mock.call_args_list)
 

@@ -18,10 +18,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip coverage
         pip install -r ./vaas/requirements/test.txt
-    - name: Lint with pep8
+    - name: Lint with flake8
       working-directory: vaas
       run: |
-        pep8 --first --show-source --show-pep8 vaas/
+        flake8  vaas/
     - name: Test with coverage
       working-directory: vaas
       run: |

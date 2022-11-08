@@ -29,7 +29,7 @@ class OutdatedServerManagerTest(TestCase):
     @requests_mock.mock()
     def test_should_load_outdated_servers_and_map_to_dto(self, m):
         outdated = self._create_varnish_server('127.0.0.1', 8080, 6082)
-        coherent = self._create_varnish_server('127.0.0.2', 8080, 6082)
+        self._create_varnish_server('127.0.0.2', 8080, 6082)
         m.get('http://127.0.0.1:8080/vaas/', json={"vcl_version": "outdated_version"})
         m.get('http://127.0.0.2:8080/vaas/', json={"vcl_version": "current_version"})
 
@@ -40,7 +40,7 @@ class OutdatedServerManagerTest(TestCase):
 
     @requests_mock.mock()
     def test_should_not_load_outdated_disabled_servers(self, m):
-        outdated_disabled = self._create_varnish_server('127.0.0.1', 8080, 6082, status='disabled')
+        self._create_varnish_server('127.0.0.1', 8080, 6082, status='disabled')
         outdated = self._create_varnish_server('127.0.0.2', 8080, 6082)
         m.get('http://127.0.0.1:8080/vaas/', json={"vcl_version": "outdated_version"})
         m.get('http://127.0.0.2:8080/vaas/', json={"vcl_version": "outdated_version"})

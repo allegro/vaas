@@ -248,7 +248,7 @@ SERVICE_TAG_HEADER = env.str('SERVICE_TAG_HEADER', default='x-service-tag')
 
 
 # CELERY
-def generate_redis_url(hostname: str, port: int, db_number: int, password: Optional[str]=None) -> str:
+def generate_redis_url(hostname: str, port: int, db_number: int, password: Optional[str] = None) -> str:
     if password:
         return f'redis://:{password}@{hostname}:{port}/{db_number}'
     return f'redis://{hostname}:{port}/{db_number}'

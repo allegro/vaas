@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from vaas.settings.celery import app
+# TODO: verify if below import is still required
+from vaas.settings.celery import app  # noqa

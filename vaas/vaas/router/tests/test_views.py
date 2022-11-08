@@ -1,6 +1,5 @@
 from django.test import TestCase
 from vaas.router.models import Route
-from vaas.router.forms import RouteModelForm
 from vaas.manager.models import Director, Probe, TimeProfile
 from vaas.cluster.models import LogicalCluster
 from django.urls import reverse

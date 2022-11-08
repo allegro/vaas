@@ -1,4 +1,4 @@
-from nose.tools import *
+from nose.tools import assert_is_none, assert_raises
 from django.test import TestCase
 from django.conf import settings
 

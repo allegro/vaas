@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCaseMixin
-from vaas.cluster.models import LogicalCluster, VarnishServer, VclTemplateBlock, VclTemplate, Dc
+from vaas.cluster.models import LogicalCluster
 
 User = get_user_model()
 

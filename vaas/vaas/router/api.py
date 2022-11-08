@@ -84,9 +84,9 @@ class RouteResource(ModelResource):
         bundle = super().save(bundle, *args, **kwargs)
         bundle.obj.positive_urls.exclude(url__in=positive_urls).delete()
         existing_urls = bundle.obj.positive_urls.values_list('url', flat=True)
-        for url in positive_urls:
-            if url not in existing_urls:
-                PositiveUrl.objects.create(url=url, route=bundle.obj)
+        for positive_url in positive_urls:
+            if positive_url not in existing_urls:
+                PositiveUrl.objects.create(url=positive_url, route=bundle.obj)
         return bundle
 
 

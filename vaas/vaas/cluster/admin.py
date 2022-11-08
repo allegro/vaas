@@ -18,16 +18,22 @@ ace_widget = AceWidget(theme='solarized_dark', mode='c_cpp', width='700px', heig
 
 def enable_varnish_servers(modeladmin, request, queryset):
     switch_status_and_reload(queryset, 'active')
+
+
 enable_varnish_servers.short_description = "Enable varnish servers"
 
 
 def maintenance_varnish_servers(modeladmin, request, queryset):
     switch_status_and_reload(queryset, 'maintenance')
+
+
 maintenance_varnish_servers.short_description = "Maintenance varnish servers"
 
 
 def disable_varnish_servers(modeladmin, request, queryset):
     switch_status_and_reload(queryset, 'disabled')
+
+
 disable_varnish_servers.short_description = "Disable varnish servers"
 
 
@@ -78,22 +84,22 @@ class VarnishServerAdmin(AuditableModelAdmin):
     def custom_enabled(self, obj):
         if obj.status == 'active':
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs btn-success' href='#'>" +
-                "<i class='glyphicon glyphicon-ok-sign'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs btn-success' href='#'>"
+                "<i class='glyphicon glyphicon-ok-sign'></i></a>"
                 "</div>"
             )
         elif obj.status == 'maintenance':
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs btn-warning' href='#'>" +
-                "<i class='glyphicon glyphicon-wrench'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs btn-warning' href='#'>"
+                "<i class='glyphicon glyphicon-wrench'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>"
                 "</div>"
             )
     custom_enabled.short_description = 'Enabled'
@@ -104,42 +110,42 @@ class VarnishServerAdmin(AuditableModelAdmin):
                 api = self.varnish_api_provider.get_api(obj)
                 version = api.daemon_version()
                 return format_html(
-                    "<div class='span13 text-center'>" +
-                    "<a class='btn btn-xs btn-success' href='#'>" + version + "</a>" +
+                    "<div class='span13 text-center'>"
+                    "<a class='btn btn-xs btn-success' href='#'>" + version + "</a>"
                     "</div>"
                 )
-            except:
+            except:  # noqa
                 return format_html(
-                    "<div class='span13 text-center'>" +
-                    "<a class='btn btn-xs btn-danger' href='#'><i class='glyphicon glyphicon-off'></i></a>" +
+                    "<div class='span13 text-center'>"
+                    "<a class='btn btn-xs btn-danger' href='#'><i class='glyphicon glyphicon-off'></i></a>"
                     "</div>"
                 )
         elif obj.status == 'maintenance':
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs btn-warning' href='#'>" +
-                "<i class='glyphicon glyphicon-wrench'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs btn-warning' href='#'>"
+                "<i class='glyphicon glyphicon-wrench'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>"
                 "</div>"
             )
 
     def custom_is_canary(self, obj):
         if obj.is_canary:
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs btn-success' href='#'>" +
-                "<i class='glyphicon glyphicon-ok-sign'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs btn-success' href='#'>"
+                "<i class='glyphicon glyphicon-ok-sign'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
-                "<div class='span13 text-center'>" +
-                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>" +
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>"
                 "</div>"
             )
     custom_is_canary.short_description = 'Canary'
@@ -147,16 +153,16 @@ class VarnishServerAdmin(AuditableModelAdmin):
     def vcl(self, obj):
         if obj.status in ('active', 'maintenance'):
             return format_html(
-                ("<div class='span13 text-center'>" +
-                 "<button type='button' class='btn btn-success' data-toggle='modal' " +
-                 "data-vcl='/manager/varnish/vcl/%s/'" +
-                 "data-target='#vclModal'>Show vcl</button>" +
+                ("<div class='span13 text-center'>"
+                 "<button type='button' class='btn btn-success' data-toggle='modal' "
+                 "data-vcl='/manager/varnish/vcl/%s/'"
+                 "data-target='#vclModal'>Show vcl</button>"
                  "</div>") % obj.id
             )
         else:
             return format_html(
-                ("<div class='span13 text-center'>" +
-                 "<button class='btn btn-danger' disabled>Show vcl</button>" +
+                ("<div class='span13 text-center'>"
+                 "<button class='btn btn-danger' disabled>Show vcl</button>"
                  "</div>")
             )
 
@@ -197,13 +203,13 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     def varnish_servers(self, obj):
         return format_html(
-            ("<div class='span13 text-center'>" +
+            ("<div class='span13 text-center'>"
              "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "
-             ">Show varnish servers (%d)</a>" +
-             "</div><br/>" +
-             "<div class='span13 text-center'>" +
+             ">Show varnish servers (%d)</a>"
+             "</div><br/>"
+             "<div class='span13 text-center'>"
              "<a class='btn btn-danger' href='/admin/cluster/varnishserver/?cluster__name=%s&outdated=outdated' "
-             ">Show outdated servers</a>" +
+             ">Show outdated servers</a>"
              "</div>") % (obj.name, obj.varnish_count(), obj.name)
         )
 
