@@ -159,13 +159,12 @@ class VclTemplateBlockResource(ModelResource):
 
 
 class CommandResource:
-    # TODO: fix formatting after replacing pep8 with some modern linter
     def __init__(
             self,
-            pk: str="",
-            varnish_ids: Optional[list]=None,
-            status: str="PENDING",
-            output: Optional[Dict[int, str]]=None):
+            pk: str = "",
+            varnish_ids: Optional[list] = None,
+            status: str = "PENDING",
+            output: Optional[Dict[int, str]] = None):
         self.pk = pk
         self.id = pk
         self.varnish_ids = varnish_ids
