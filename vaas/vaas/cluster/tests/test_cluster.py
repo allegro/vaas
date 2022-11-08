@@ -6,8 +6,8 @@ from django.test import TestCase
 
 from vaas.cluster.forms import VclTemplateModelForm
 from vaas.cluster.models import VarnishServer, Dc, LogicalCluster
-from vaas.cluster.cluster import VarnishCluster, ServerExtractor, ParallelRenderer, ParallelLoader, \
-    VarnishApiProvider, VclLoadException
+from vaas.cluster.cluster import connect_command, connect_status, VarnishCluster, ServerExtractor, ParallelRenderer, \
+    ParallelLoader, VarnishApiProvider, VclLoadException
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import Vcl
 from vaas.api.client import VarnishApi
@@ -33,6 +33,39 @@ query_set = Mock()
 query_set.prefetch_related = Mock(return_value=servers)
 
 sample_vcl = Vcl('Test-content', name='test')
+
+
+def test_should_return_connection_status_for_active_server():
+    server = VarnishServer(pk=11, ip='127.0.0.1', port='6082', status='active')
+    varnish_api_mock = Mock(daemon_version=Mock(return_value='varnish-7.0.3'))
+
+    with patch.object(VarnishApiProvider, 'get_api', return_value=varnish_api_mock):
+        assert_equals('varnish-7.0.3', connect_status(server))
+
+    varnish_api_mock.daemon_version.assert_called_once()
+
+
+def test_should_return_object_status_for_inactive_server():
+    for inactive_status in ('maintenance', 'disabled',):
+        inactive_server = VarnishServer(pk=11, ip='127.0.0.1', port='6082', status=inactive_status)
+        assert_equals(inactive_status, connect_status(inactive_server))
+
+
+def test_command_should_return_connection_statuses_for_each_server():
+    statuses = {
+        11: 'varnish-7.0.3',
+        12: 'maintenance',
+    }
+    db_servers = [
+        VarnishServer(pk=11),
+        VarnishServer(pk=12)
+    ]
+    with patch('vaas.cluster.cluster.VarnishServer.objects.filter', Mock(return_value=db_servers)):
+        with patch('vaas.cluster.cluster.connect_status', Mock(side_effect=lambda s: statuses[s.pk])):
+            result = connect_command([11, 12])
+            assert_equals(2, len(result))
+            assert_equals('varnish-7.0.3', result[11])
+            assert_equals('maintenance', result[12])
 
 
 class ServerExtractorTest(TestCase):

@@ -2,6 +2,7 @@
 
 import logging
 import time
+from typing import List, Dict
 
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor
@@ -45,6 +46,29 @@ def load_vcl_task(self, emmit_time, cluster_ids):
         statsd.timing('total_time_of_processing_vcl_task_without_change',
                       total_time_of_processing_vcl_task_without_change)
     return True
+
+
+@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+def connect_command(self, varnish_ids: List[int]) -> Dict[int, str]:
+    result = {}
+    with ThreadPoolExecutor(max_workers=len(varnish_ids)) as executor:
+        future_results = []
+        for server in VarnishServer.objects.filter(pk__in=varnish_ids):
+            future_results.append(
+                tuple([server, executor.submit(connect_status, server)])
+            )
+        for server, future_result in future_results:
+            result[server.pk] = future_result.result()
+    return result
+
+
+def connect_status(server: VarnishServer) -> str:
+    if server.status == 'active':
+        try:
+            return VarnishApiProvider().get_api(server).daemon_version()
+        except VclLoadException:
+            return 'error'
+    return server.status
 
 
 class VarnishCluster(object):
