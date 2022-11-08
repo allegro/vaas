@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
+from typing import Optional, Dict
+
+from tastypie.bundle import Bundle
+from celery.result import AsyncResult
 from django.db.models import Count
+from django.urls.conf import re_path
 
 from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
 from tastypie.authentication import ApiKeyAuthentication
+from tastypie.exceptions import NotFound, ImmediateHttpResponse
+from tastypie.validation import Validation
 
+from vaas.cluster.cluster import connect_command
 from vaas.cluster.coherency import OutdatedServer, OutdatedServerManager
 from vaas.cluster.forms import LogicalCLusterModelForm, DcModelForm, VclTemplateModelForm, VarnishServerModelForm, \
     VclTemplateBlockModelForm
@@ -148,3 +156,97 @@ class VclTemplateBlockResource(ModelResource):
             'name': ['exact'],
             'template': ALL_WITH_RELATIONS
         }
+
+
+class CommandResource:
+    # TODO: fix formatting after replacing pep8 with some modern linter
+    def __init__(
+            self,
+            pk: str="",
+            varnish_ids: Optional[list]=None,
+            status: str="PENDING",
+            output: Optional[Dict[int, str]]=None):
+        self.pk = pk
+        self.id = pk
+        self.varnish_ids = varnish_ids
+        self.status = status
+        self.output = output
+
+    def __repr__(self) -> str:
+        return '{}'.format(self.__dict__)
+
+
+class CommandInputValidation(Validation):
+    def is_valid(self, bundle: Bundle, *args, **kwargs) -> Dict[str, str]:
+        errors = {}
+        try:
+            varnishes = [int(varnish_id) for varnish_id in set(bundle.data.get('varnish_ids', []))]
+            assert VarnishServer.objects.filter(pk__in=varnishes).count() == len(varnishes)
+        except AssertionError:
+            errors['varnish_ids'] = 'Some of provided varnish identifiers does not exists'
+        except ValueError:
+            errors['varnish_ids'] = 'Unexpected type, identifiers have got to be an integer'
+        except:  # noqa
+            errors['varnish_ids'] = 'Unexpected value'
+        else:
+            task = AsyncResult(bundle.data['pk'])
+            if task.args and set(task.args[0]) != set(varnishes):
+                errors['__all__'] = 'Command: %s has been already ordered with another varnish_ids set' \
+                                    % bundle.data['pk']
+
+        return errors
+
+
+class ConnectCommandResource(Resource):
+    pk = fields.CharField(attribute='id', readonly=True)
+    varnish_ids = fields.ListField(attribute='varnish_ids')
+    status = fields.CharField(attribute='status', readonly=True, blank=True, null=True)
+    output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
+
+    class Meta:
+        resource_name = 'connect-command'
+        list_allowed_methods = []
+        detail_allowed_methods = ['put', 'get']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        validation = CommandInputValidation()
+        fields = ['input', 'status', 'output']
+        include_resource_uri = False
+        always_return_data = True
+
+    def obj_update(self, bundle, **kwargs):
+        bundle.data['pk'] = kwargs['pk']
+        self.run_validation(bundle)
+        raise NotFound()
+
+    def obj_create(self, bundle, **kwargs):
+        bundle.obj = CommandResource(pk=kwargs['pk'])
+        bundle = self.full_hydrate(bundle)
+        task = connect_command.apply_async([bundle.obj.varnish_ids], task_id=bundle.obj.pk)
+        bundle.obj.status = task.status
+        bundle.obj.output = task.result
+        return bundle
+
+    def hydrate_varnish_ids(self, bundle):
+        bundle.obj.varnish_ids = bundle.data['varnish_ids']
+        return bundle
+
+    def obj_get(self, bundle, **kwargs):
+        task = AsyncResult(kwargs['pk'])
+        varnish_ids = []
+        if task.args and len(task.args):
+            varnish_ids = task.args[0]
+        return CommandResource(kwargs['pk'], varnish_ids, task.status, output=task.result)
+
+    def run_validation(self, bundle):
+        self.is_valid(bundle)
+        if bundle.errors:
+            raise ImmediateHttpResponse(response=self.error_response(bundle.request, bundle.errors))
+
+    def prepend_urls(self):
+        return [
+            re_path(r"^varnish_server/(?P<resource_name>%s)/(?P<pk>[\w\d_.-]+)/$" % self._meta.resource_name,
+                    self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^varnish_server/(?P<resource_name>%s)/$" % self._meta.resource_name,
+                    self.wrap_view('dispatch_list'), name="api_dispatch_list"),
+        ]
