@@ -23,7 +23,7 @@ class VclLoader(object):
 
     def vcl_has_changed(self, vcl):
         """Compare version embedded in names"""
-        return vcl.compareVersion(self.varnish_api.vcl_active_name()) is False
+        return vcl.compare_version(self.varnish_api.vcl_active_name()) is False
 
     def load_new_vcl(self, vcl):
         try:

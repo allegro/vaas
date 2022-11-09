@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Optional, Dict
 
+from django.core.exceptions import ObjectDoesNotExist
 from tastypie.bundle import Bundle
 from celery.result import AsyncResult
 from django.db.models import Count
@@ -12,7 +13,7 @@ from tastypie.authentication import ApiKeyAuthentication
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
 from tastypie.validation import Validation
 
-from vaas.cluster.cluster import connect_command
+from vaas.cluster.cluster import connect_command, validate_vcl_command
 from vaas.cluster.coherency import OutdatedServer, OutdatedServerManager
 from vaas.cluster.forms import LogicalCLusterModelForm, DcModelForm, VclTemplateModelForm, VarnishServerModelForm, \
     VclTemplateBlockModelForm
@@ -158,7 +159,7 @@ class VclTemplateBlockResource(ModelResource):
         }
 
 
-class CommandResource:
+class ConnectCommandModel:
     def __init__(
             self,
             pk: str = "",
@@ -219,7 +220,7 @@ class ConnectCommandResource(Resource):
         raise NotFound()
 
     def obj_create(self, bundle, **kwargs):
-        bundle.obj = CommandResource(pk=kwargs['pk'])
+        bundle.obj = ConnectCommandModel(pk=kwargs['pk'])
         bundle = self.full_hydrate(bundle)
         task = connect_command.apply_async([bundle.obj.varnish_ids], task_id=bundle.obj.pk)
         bundle.obj.status = task.status
@@ -235,7 +236,7 @@ class ConnectCommandResource(Resource):
         varnish_ids = []
         if task.args and len(task.args):
             varnish_ids = task.args[0]
-        return CommandResource(kwargs['pk'], varnish_ids, task.status, output=task.result)
+        return ConnectCommandModel(kwargs['pk'], varnish_ids, task.status, output=task.result)
 
     def run_validation(self, bundle):
         self.is_valid(bundle)
@@ -248,4 +249,99 @@ class ConnectCommandResource(Resource):
                     self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
             re_path(r"^varnish_server/(?P<resource_name>%s)/$" % self._meta.resource_name,
                     self.wrap_view('dispatch_list'), name="api_dispatch_list"),
+        ]
+
+
+class ValidateVCLCommandModel:
+    def __init__(
+            self,
+            pk: str = "",
+            vcl_id: int = 0,
+            content: str = "",
+            status: str = "PENDING",
+            output: Optional[str] = None):
+        self.pk = pk
+        self.id = pk
+        self.vcl_id = vcl_id
+        self.content = content
+        self.status = status
+        self.output = output
+
+    def __repr__(self) -> str:
+        return '{}'.format({k: v for k, v in self.__dict__ if k != 'content'})
+
+
+class ValidateVCLCommandInputValidation(Validation):
+    def is_valid(self, bundle: Bundle, *args, **kwargs) -> Dict[str, str]:
+        errors = {}
+        try:
+            template = VclTemplate.objects.get(pk=bundle.data['vcl_id'])
+            assert VarnishServer.objects.filter(template=template, status='active').count() > 0
+        except ObjectDoesNotExist:
+            errors['__all__'] = f'VCL template with id: {bundle.data["vcl_id"]} does not exists'
+        except AssertionError:
+            errors['__all__'] = 'VCL template is not used by any active server'
+        else:
+            task = AsyncResult(bundle.data['pk'])
+            if task.args and (task.args[0] != bundle.data['pk'] or task.args[1] != bundle.data.get('content', '')):
+                errors['__all__'] = 'Command: has been already ordered with another parameters'
+
+        return errors
+
+
+class ValidateVCLCommandResource(Resource):
+    pk = fields.CharField(attribute='id', readonly=True)
+    content = fields.CharField(attribute='content')
+    status = fields.CharField(attribute='status', readonly=True, blank=True, null=True)
+    output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
+
+    class Meta:
+        resource_name = 'vcl-validate-command'
+        list_allowed_methods = []
+        detail_allowed_methods = ['put', 'get']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        validation = ValidateVCLCommandInputValidation()
+        fields = ['content', 'status', 'output']
+        include_resource_uri = False
+        always_return_data = True
+
+    def obj_update(self, bundle, **kwargs):
+        bundle.data['pk'] = kwargs['pk']
+        bundle.data['vcl_id'] = kwargs.get('vcl_id', -1)
+        self.run_validation(bundle)
+        raise NotFound()
+
+    def obj_create(self, bundle, **kwargs):
+        bundle.obj = ValidateVCLCommandModel(pk=kwargs['pk'], vcl_id=kwargs['vcl_id'])
+        bundle = self.full_hydrate(bundle)
+        task = validate_vcl_command.apply_async([bundle.obj.vcl_id, bundle.obj.content], task_id=bundle.obj.pk)
+        bundle.obj.status = task.status
+        bundle.obj.output = task.result
+        return bundle
+
+    def hydrate_content(self, bundle):
+        bundle.obj.content = bundle.data['content']
+        return bundle
+
+    def obj_get(self, bundle, **kwargs):
+        task = AsyncResult(kwargs['pk'])
+        vcl_id = 0
+        content = ''
+        if task.args and len(task.args) > 1:
+            vcl_id = task.args[0]
+            content = task.args[1]
+        return ValidateVCLCommandModel(kwargs['pk'], vcl_id, content, task.status, output=task.result)
+
+    def run_validation(self, bundle):
+        self.is_valid(bundle)
+        if bundle.errors:
+            raise ImmediateHttpResponse(response=self.error_response(bundle.request, bundle.errors))
+
+    def prepend_urls(self):
+        return [
+            re_path(r"^vcl_template/(?P<vcl_id>[\d]+)/(?P<resource_name>%s)/(?P<pk>[\w\d_.-]+)/$" %
+                    self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^vcl_template/(?P<vcl_id>[\d]+)/(?P<resource_name>%s)/$" %
+                    self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_dispatch_list"),
         ]

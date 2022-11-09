@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.utils import timezone
 from unittest.mock import patch, call, Mock
-from nose.tools import assert_true, assert_false, assert_equals, assert_list_equal, raises
+from nose.tools import assert_dict_equal, assert_equals, assert_false, assert_list_equal, assert_true, raises
 from django.test import TestCase
 
 from vaas.cluster.forms import VclTemplateModelForm
-from vaas.cluster.models import VarnishServer, Dc, LogicalCluster
-from vaas.cluster.cluster import connect_command, connect_status, VarnishCluster, ServerExtractor, ParallelRenderer, \
-    ParallelLoader, VarnishApiProvider, VclLoadException
+from vaas.cluster.models import Dc, LogicalCluster, VarnishServer, VclTemplate
+from vaas.cluster.cluster import connect_command, connect_status, validate_vcl_command, VarnishCluster, \
+    ServerExtractor, ParallelRenderer, ParallelLoader, VarnishApiProvider, VclLoadException
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import Vcl
 from vaas.api.client import VarnishApi
@@ -66,6 +66,55 @@ def test_command_should_return_connection_statuses_for_each_server():
             assert_equals(2, len(result))
             assert_equals('varnish-7.0.3', result[11])
             assert_equals('maintenance', result[12])
+
+
+def test_if_vcl_validation_returns_ok_for_template_not_linked_to_any_servers():
+    expected_result = {
+        'is_valid': True,
+        'servers_num': 0,
+    }
+    result = validate_vcl_command(None, VclTemplate())
+    assert_dict_equal(expected_result, result)
+
+
+def test_if_vcl_validation_returns_fail_for_vcl_that_can_not_be_loaded():
+    expected_result = {
+        'is_valid': False,
+        'servers_num': 1,
+        'error': {
+            'message': 'compilation failed',
+            'type': "<class 'vaas.cluster.exceptions.VclLoadException'>",
+        }
+    }
+    db_servers = [
+        VarnishServer(pk=11),
+    ]
+    exclude_mock = Mock(filter=Mock(return_value=Mock(prefetch_related=Mock(return_value=db_servers))))
+    with patch(
+            'vaas.cluster.cluster.VarnishServer.objects.exclude',
+            Mock(return_value=exclude_mock)):
+        with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=Mock()):
+            with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException("compilation failed")):
+                result = validate_vcl_command(None, VclTemplate())
+                assert_dict_equal(expected_result, result)
+
+
+def test_if_vcl_validation_returns_ok_for_vcl_that_is_successfully_loaded():
+    expected_result = {
+        'is_valid': True,
+        'servers_num': 1
+    }
+    db_servers = [
+        VarnishServer(pk=11),
+    ]
+    exclude_mock = Mock(filter=Mock(return_value=Mock(prefetch_related=Mock(return_value=db_servers))))
+    with patch(
+            'vaas.cluster.cluster.VarnishServer.objects.exclude',
+            Mock(return_value=exclude_mock)):
+        with patch.object(ParallelRenderer, 'render_vcl_for_servers', return_value=Mock()):
+            with patch.object(ParallelLoader, 'load_vcl_list', return_value=Mock()):
+                result = validate_vcl_command(None, VclTemplate())
+                assert_dict_equal(expected_result, result)
 
 
 class ServerExtractorTest(TestCase):
@@ -133,6 +182,20 @@ class ParallelLoaderTest(TestCase):
                 ParallelLoader().load_vcl_list(vcl_list)
                 assert_equals([call(first_vcl), call(second_vcl)], load_vcl_mock.call_args_list)
                 assert_equals([call(servers[0]), call(servers[1])], get_api_mock.call_args_list)
+
+    def test_should_load_vcl_list_to_associated_servers_and_force_them_to_be_discarded(self):
+        first_vcl = Vcl('Test-1', name='test-1')
+        second_vcl = Vcl('Test-2', name='test-2')
+        vcl_list = [(servers[0], first_vcl), (servers[1], second_vcl)]
+
+        with patch.object(VarnishApiProvider, 'get_api') as get_api_mock:
+            with patch.object(VclLoader, 'load_new_vcl') as load_vcl_mock:
+                with patch.object(VclLoader, 'discard_unused_vcls') as discard_mock:
+                    ParallelLoader().load_vcl_list(vcl_list, force_discard=True)
+
+                    assert_equals([call(first_vcl), call(second_vcl)], load_vcl_mock.call_args_list)
+                    assert_equals([call(servers[0]), call(servers[1])], get_api_mock.call_args_list)
+                    assert_equals(2, discard_mock.call_count)
 
     def test_should_return_loaded_vcl_list_which_should_be_use_on_servers(self):
         first_vcl = Vcl('Test-1', name='test-1')
