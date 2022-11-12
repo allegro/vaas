@@ -106,20 +106,13 @@ class VarnishServerAdmin(AuditableModelAdmin):
 
     def is_connected(self, obj):
         if obj.status == 'active':
-            try:
-                api = self.varnish_api_provider.get_api(obj)
-                version = api.daemon_version()
-                return format_html(
-                    "<div class='span13 text-center'>"
-                    "<a class='btn btn-xs btn-success' href='#'>" + version + "</a>"
-                    "</div>"
-                )
-            except:  # noqa
-                return format_html(
-                    "<div class='span13 text-center'>"
-                    "<a class='btn btn-xs btn-danger' href='#'><i class='glyphicon glyphicon-off'></i></a>"
-                    "</div>"
-                )
+            return format_html(
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-xs' data-varnish-id='" + str(obj.pk) + "' href='#'>"
+                "<i class='glyphicon loader'></i>"
+                "</a>"
+                "</div>"
+            )
         elif obj.status == 'maintenance':
             return format_html(
                 "<div class='span13 text-center'>"

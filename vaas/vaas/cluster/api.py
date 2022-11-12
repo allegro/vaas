@@ -8,7 +8,7 @@ from django.urls.conf import re_path
 
 from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
-from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
 from tastypie.validation import Validation
 
@@ -207,7 +207,7 @@ class ConnectCommandResource(Resource):
         list_allowed_methods = []
         detail_allowed_methods = ['put', 'get']
         authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         validation = CommandInputValidation()
         fields = ['input', 'status', 'output']
         include_resource_uri = False

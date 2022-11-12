@@ -23,24 +23,6 @@
 <script>
   var taskURL = '';
   const noDataPlaceholder = { name: 'no data', id: 'no data' };
-  const csrfToken = getCookie('csrftoken');
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-  function csrfSafeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-  }
   function handleError(request, textStatus, errorThrown) {
     $('#spinner').hide()
     console.error(textStatus, errorThrown)
@@ -54,11 +36,7 @@
       dataType: 'json',
       contentType: "application/json; charset=utf-8",
       error: handleError,
-      beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-          xhr.setRequestHeader("X-CSRFToken", csrfToken);
-        }
-      },
+      beforeSend: setCRSFToken,
       success: callback,
     });
   }
