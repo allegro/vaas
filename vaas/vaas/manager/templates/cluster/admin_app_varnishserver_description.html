@@ -1,6 +1,27 @@
 <!-- Modal -->
+<style>
+  .loader {
+    border: 10px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid #555;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+  }
+
+  @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
 <script>
+    var task_status = '';
     $(document).ready(function () {
+        var command_url = '/api/v0.1/varnish_server/connect-command/' + Date.now().toString(36) + Math.random().toString(36).substring(2) + '/';
         var vcl_modal = $('#vclModal');
         vcl_modal.on('show.bs.modal', function (event) {
             var vcl = $(event.relatedTarget).data('vcl');
@@ -9,8 +30,72 @@
         vcl_modal.on('hidden.bs.modal', function (e) {
             $(this).find('.modal-body').empty();
         });
+        connectCommand([2,], command_url);
+    });
 
-    })
+    function handleError(request, textStatus, errorThrown) {
+        console.error(textStatus, errorThrown)
+    }
+    function connectCommand(servers, url) {
+        return $.ajax({
+          type: 'PUT',
+          url: url,
+          data: JSON.stringify({'varnish_ids': findServers()}),
+          dataType: 'json',
+          contentType: "application/json; charset=utf-8",
+          error: handleError,
+          success: handleCommandResponse,
+          beforeSend: setCRSFToken,
+          complete: function () { if (task_status != 'done') { setTimeout(function () { poolCommandResult(url) }, 500) } },
+        });
+    }
+
+    function poolCommandResult(url) {
+        $.ajax({
+          url: url,
+          dataType: 'json',
+          error: handleError,
+          success: handleCommandResponse,
+          complete: function () { if (task_status != 'done') { setTimeout(function () { poolCommandResult(url) }, 500) } },
+          timeout: 5000
+        });
+    }
+
+    function handleCommandResponse(data, textStatus, request) {
+        const status = data.status
+        if (status === 'FAILURE') {
+          task_status = 'done';
+          $('[data-varnish-id]').each(function(index) {
+            $(this).addClass('btn-info')
+            $(this).children('i').removeClass('loader').addClass('glyphicon-remove')
+          })
+        }
+        else if (status === 'SUCCESS') {
+          task_status = 'done';
+          $('[data-varnish-id]').each(function(index) {
+            if ($(this).data('varnish-id') in data.output) {
+                var result = data.output[$(this).data('varnish-id')];
+                if (result !== 'error') {
+                    $(this).addClass('btn-success')
+                    $(this).children('i').remove()
+                    $(this).text(result)
+                } else {
+                    $(this).addClass('btn-danger')
+                    $(this).children('i').removeClass('loader').addClass('glyphicon-off')
+                }
+            }
+            $(this).addClass('btn-secondary')
+            $(this).children('i').removeClass('loader').addClass('glyphicon-remove')
+          })
+        }
+    }
+    function findServers() {
+        var result = [];
+        $('[data-varnish-id]').each(function(index) {
+            result.push($(this).data('varnish-id'));
+        })
+        return result;
+    }
 </script>
 <div class="modal fade" id="vclModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
