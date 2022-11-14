@@ -69,8 +69,8 @@ class Vcl(object):
         self.name = "{}-vol_{}".format(name, self.version)
         self.content = content.replace('##VCL_VERSION##', self.version)
 
-    def compareVersion(self, otherName):
-        return otherName[-5:] == self.name[-5:]
+    def compare_version(self, other_name):
+        return other_name[-5:] == self.name[-5:]
 
     def __eq__(self, other):
         return hashlib.md5(str(self).encode('utf-8')).hexdigest() == hashlib.md5(str(other).encode('utf-8')).hexdigest()
@@ -388,7 +388,7 @@ class VclRendererInput(object):
 
 
 class VclRenderer(object):
-    def render(self, varnish, version, input):
+    def render(self, varnish, version, input, content=None):
         try:
             start = time.perf_counter()
             vcl_tag_builder = VclTagBuilder(varnish, input)
@@ -396,7 +396,8 @@ class VclRenderer(object):
                 "[%s] vcl tag builder prepare time: %f" % (varnish.ip, time.perf_counter() - start)
             )
 
-            content = varnish.template.content
+            if content is None:
+                content = varnish.template.content
             for vcl_tags_level in VCL_TAGS[varnish.template.version]:
                 for tag_name in vcl_tags_level:
                     for vcl_tag in vcl_tag_builder.get_expanded_tags(tag_name):

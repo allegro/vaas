@@ -49,6 +49,31 @@ def load_vcl_task(self, emmit_time, cluster_ids):
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+def validate_vcl_command(self, vcl_id: int, content: str):
+    servers = VarnishServer.objects.exclude(status='disabled').filter(
+        template__pk=vcl_id).prefetch_related('dc', 'cluster')
+    result = {
+        'is_valid': True,
+        'servers_num': len(servers),
+    }
+    if len(servers):
+        vcl_name = f'validation_{timezone.now().strftime("%Y%m%d_%H_%M_%S")}'
+        try:
+            vcl_list = ParallelRenderer(settings.VAAS_RENDERER_MAX_WORKERS).render_vcl_for_servers(
+                vcl_name, servers, content
+            )
+            parallel_loader = ParallelLoader(settings.VAAS_LOADER_MAX_WORKERS)
+            parallel_loader.load_vcl_list(vcl_list, True)
+        except Exception as e:  # noqa
+            result['is_valid'] = False
+            result['error'] = {
+                'type': str(type(e)),
+                'message': str(e)
+            }
+    return result
+
+
+@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def connect_command(self, varnish_ids: List[int]) -> Dict[int, str]:
     result = {}
     with ThreadPoolExecutor(max_workers=len(varnish_ids)) as executor:
@@ -182,7 +207,7 @@ class ParallelRenderer(ParallelExecutor):
         self.renderer = VclRenderer()
 
     @collect_processing
-    def render_vcl_for_servers(self, vcl_name, servers):
+    def render_vcl_for_servers(self, vcl_name, servers, content=None):
         vcl_list = []
 
         start = time.perf_counter()
@@ -193,7 +218,7 @@ class ParallelRenderer(ParallelExecutor):
             future_results = []
             for server in servers:
                 future_results.append(
-                    tuple([server, executor.submit(self.renderer.render, server, vcl_name, render_input)])
+                    tuple([server, executor.submit(self.renderer.render, server, vcl_name, render_input, content)])
                 )
             for server, future_result in future_results:
                 vcl_list.append(tuple([server, future_result.result()]))
@@ -232,7 +257,7 @@ class ParallelLoader(ParallelExecutor):
         return discard_results
 
     @collect_processing
-    def load_vcl_list(self, vcl_list):
+    def load_vcl_list(self, vcl_list, force_discard=False):
         to_use = []
         start = time.perf_counter()
         aggregated_result = True
@@ -249,18 +274,22 @@ class ParallelLoader(ParallelExecutor):
                     if result == VclStatus.OK:
                         to_use.append(tuple([vcl, loader, server]))
             except VclLoadException as e:
-                discard_results = []
-                for vcl, loader, server, future_result in future_results:
-                    self._discard_unused_vcls(server, loader, executor, discard_results)
-                for server, status in discard_results:
-                    if status.result() is VclStatus.ERROR:
-                        self.logger.debug("ERROR while discard vcl's on %s" % (server))
-
+                self._discard_from_future(executor, future_results)
                 raise e
 
-        self.logger.debug("vcl's loaded: %f" % (time.perf_counter() - start))
+            if force_discard:
+                self._discard_from_future(executor, future_results)
 
+        self.logger.debug("vcl's loaded: %f" % (time.perf_counter() - start))
         return self._format_vcl_list(to_use, aggregated_result)
+
+    def _discard_from_future(self, executor, future_results):
+        discard_results = []
+        for vcl, loader, server, future_result in future_results:
+            self._discard_unused_vcls(server, loader, executor, discard_results)
+        for server, status in discard_results:
+            if status.result() is VclStatus.ERROR:
+                self.logger.debug("ERROR while discard vcl's on %s" % (server))
 
     @collect_processing
     def use_vcl_list(self, vcl_name, vcl_loaded_list):

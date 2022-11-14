@@ -8,23 +8,23 @@ Resources
 
 The following resources are available:
 
-|Name                |Description                                                               |Allowed actions               | Allowed commands |
-|--------------------|--------------------------------------------------------------------------|------------------------------|------------------|
-|*Backend*           |Represents a single node in a service (director)                          |preview, **add, edit, delete**|                  |
-|*Director*          |A Varnish director; may represent a SOA service                           |preview, **add, edit, delete**|                  |
-|*Probe*             |A health check used to determine backend status                           |preview, **add, edit, delete**|                  |
-|*Dc*                |Datacenter                                                                |preview, **add, edit, delete**|                  |
-|*Logical Cluster*   |Cluster of Varnish servers                                                |preview, **add, edit, delete**| connect-command  |
-|*Varnish Servers*   |A Varnish server                                                          |preview, **add, edit, delete**|                  |
-|*VCL Template Block*|A VCL template block                                                      |preview, **add, edit, delete**|                  |
-|*VCL Template*      |A VCL template                                                            |preview, **add, edit, delete**|                  |
-|*Time Profile*      |Default timeouts profile for director                                     |preview, **add, edit, delete**|                  |
-|*Purger*            |Purge object from varnishes from a given cluster                          |                              |                  |
-|*Outdated Server*   |Represents active varnish servers with outdated vcl                       |preview                       |                  |
-|*Task*              |Represents state of reloading task - check [VaaS Request Flow](./flow.md) |preview                       |                  |
-|*Route*             |Represents conditional routing to desired Director                        |preview, **add, edit, delete**|                  |
-|*RouteConfig*       |Represents possible request parameters, operators & actions, which can be used in Routes|preview|                  |
-|*ValidationReport*  |Represents report of positive urls validation which checks if positive urls are handled by desired Routes|preview|                  |
+|Name                |Description                                                               |Allowed actions               | Allowed commands     |
+|--------------------|--------------------------------------------------------------------------|------------------------------|----------------------|
+|*Backend*           |Represents a single node in a service (director)                          |preview, **add, edit, delete**|                      |
+|*Director*          |A Varnish director; may represent a SOA service                           |preview, **add, edit, delete**|                      |
+|*Probe*             |A health check used to determine backend status                           |preview, **add, edit, delete**|                      |
+|*Dc*                |Datacenter                                                                |preview, **add, edit, delete**|                      |
+|*Logical Cluster*   |Cluster of Varnish servers                                                |preview, **add, edit, delete**| connect-command      |
+|*Varnish Servers*   |A Varnish server                                                          |preview, **add, edit, delete**|                      |
+|*VCL Template Block*|A VCL template block                                                      |preview, **add, edit, delete**|                      |
+|*VCL Template*      |A VCL template                                                            |preview, **add, edit, delete**| vcl-validate-command |
+|*Time Profile*      |Default timeouts profile for director                                     |preview, **add, edit, delete**|                      |
+|*Purger*            |Purge object from varnishes from a given cluster                          |                              |                      |
+|*Outdated Server*   |Represents active varnish servers with outdated vcl                       |preview                       |                      |
+|*Task*              |Represents state of reloading task - check [VaaS Request Flow](./flow.md) |preview                       |                      |
+|*Route*             |Represents conditional routing to desired Director                        |preview, **add, edit, delete**|                      |
+|*RouteConfig*       |Represents possible request parameters, operators & actions, which can be used in Routes|preview|                      |
+|*ValidationReport*  |Represents report of positive urls validation which checks if positive urls are handled by desired Routes|preview|                      |
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -71,6 +71,40 @@ To list backends located in specified DC belonging to specified Director:
     -d '{ "version": "4.0", "content": "<VCL/>", "name": "vcl_template_4" }' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/vcl_template/?username=admin&api_key=vagrant_api_key"
+
+
+### Call vcl validate command for a new template content
+
+Important remark: the command id (in the below example: 7110e99e-453a-4078-843a-f6c36dd358d2) passed in url should be uniq.
+The intention of the command is to render new vcl template content, load it into servers connect to vcl template and verify if it will be properly compiled.
+
+    curl -X PUT \
+    -d '{ "content": "<VCL/>"}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/vcl_template/2/vcl-validate-command/7110e99e-453a-4078-843a-f6c36dd358d2/?username=admin&api_key=vagrant_api_key"
+
+expected output
+
+    {
+      "output": null,
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+      "status": "PENDING",
+      "content": "<VCL/>"
+    }
+
+### Verify command result
+
+    curl "http://localhost:3030/api/v0.1/varnish_server/connect-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key"
+expected output
+
+    {
+      "output":  {"is_valid": true, "servers_num": 3},
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358d1",
+      "status": "SUCCESS",
+      "content": "<VCL/>"
+    }
+
+It's worth mentioning that validation status is passed in output.is_valid, status (SUCCESS) means only that asynchronous validation was processed.
 
 ### Create a new Probe
 

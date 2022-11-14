@@ -25,7 +25,7 @@ class VclTest(TestCase):
     @patch('vaas.vcl.renderer.hashlib.md5', Mock(return_value=md5_mock))
     def test_should_compare_versions(self):
         vcl = Vcl('some_content', 'new-vcl')
-        assert_true(vcl.compareVersion('other-vcl-vol_ca5ef'))
+        assert_true(vcl.compare_version('other-vcl-vol_ca5ef'))
 
 
 class VclTagExpanderTest(TestCase):
@@ -446,6 +446,14 @@ class VclRendererTest(TestCase):
 
         assert_equals('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0.vcl', vcl.content)
+
+    def test_should_prepare_vcl_based_on_passed_content(self):
+        vcl_renderer = VclRenderer()
+        expected_content = 'sample-content'
+        vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput(), expected_content)
+
+        assert_equals('new-v4-1', vcl.name[:-10])
+        assert_equals(expected_content, vcl.content)
 
     def test_should_prepare_default_vcl_version4_with_canary_backend(self):
         vcl_renderer = VclRenderer()
