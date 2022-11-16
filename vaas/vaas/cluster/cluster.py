@@ -76,14 +76,15 @@ def validate_vcl_command(self, vcl_id: int, content: str):
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def connect_command(self, varnish_ids: List[int]) -> Dict[int, str]:
     result = {}
-    with ThreadPoolExecutor(max_workers=len(varnish_ids)) as executor:
-        future_results = []
-        for server in VarnishServer.objects.filter(pk__in=varnish_ids):
-            future_results.append(
-                tuple([server, executor.submit(connect_status, server)])
-            )
-        for server, future_result in future_results:
-            result[server.pk] = future_result.result()
+    if len(varnish_ids) > 0:
+        with ThreadPoolExecutor(max_workers=len(varnish_ids)) as executor:
+            future_results = []
+            for server in VarnishServer.objects.filter(pk__in=varnish_ids):
+                future_results.append(
+                    tuple([server, executor.submit(connect_status, server)])
+                )
+            for server, future_result in future_results:
+                result[server.pk] = future_result.result()
     return result
 
 
