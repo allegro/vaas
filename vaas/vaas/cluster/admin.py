@@ -200,8 +200,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         if obj.labels:
             for label in obj.labels:
                 labels_list_html += "<div class='span13 text-center'>%s</div>" % label
-            return format_html(labels_list_html)
-        return
+        return format_html(labels_list_html)
 
     labels.short_description = 'Labels'
 

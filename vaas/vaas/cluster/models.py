@@ -29,9 +29,7 @@ class LogicalCluster(models.Model):
 
     @property
     def current_vcls(self):
-        if self._current_vcls is None:
-            self._current_vcls = self._get_set(self.current_vcl_versions)
-        return self._current_vcls
+        return self._get_parsed_field(self._current_vcls, self.current_vcl_versions)
 
     @current_vcls.setter
     def current_vcls(self, versions):
@@ -39,19 +37,19 @@ class LogicalCluster(models.Model):
 
     @property
     def labels(self):
-        if self._labels is None:
-            self._labels = self._get_set(self.labels_list)
-        return self._labels
+        return self._get_parsed_field(self._labels, self.labels_list)
 
     @labels.setter
     def labels(self, labels):
         self._labels, self.labels_list = self._prepare_set_and_json(labels)
 
-    def _get_set(self, value):
-        try:
-            return set(json.loads(value))
-        except:  # noqa
-            return set()
+    def _get_parsed_field(self, field, values):
+        if field is None:
+            try:
+                field = set(json.loads(values))
+            except:  # noqa
+                field = set()
+        return field
 
     def _prepare_set_and_json(self, field):
         if isinstance(field, set):
