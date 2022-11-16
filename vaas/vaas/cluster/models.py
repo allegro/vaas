@@ -48,10 +48,10 @@ class LogicalCluster(models.Model):
         self._labels, self.labels_list = self._prepare_set_and_json(labels)
 
     def _get_set(self, value):
-            try:
-                return set(json.loads(value))
-            except:  # noqa
-                return set()
+        try:
+            return set(json.loads(value))
+        except:  # noqa
+            return set()
 
     def _prepare_set_and_json(self, field):
         if isinstance(field, set):
