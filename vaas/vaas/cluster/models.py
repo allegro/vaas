@@ -21,26 +21,42 @@ class LogicalCluster(models.Model):
     error_timestamp = models.DateTimeField(default=timezone.now)
     last_error_info = models.CharField(max_length=400, null=True, blank=True)
     current_vcl_versions = models.CharField(max_length=400, default='[]')
+    labels_list = models.CharField(max_length=500, default='[]')
     partial_reload = models.BooleanField(default=False)
     service_mesh_routing = models.BooleanField(default=False)
     _current_vcls = None
+    _labels = None
 
     @property
     def current_vcls(self):
-        if self._current_vcls is None:
-            try:
-                self._current_vcls = set(json.loads(self.current_vcl_versions))
-            except:  # noqa
-                self._current_vcls = set()
-        return self._current_vcls
+        return self._get_parsed_field(self._current_vcls, self.current_vcl_versions)
 
     @current_vcls.setter
     def current_vcls(self, versions):
-        if isinstance(versions, set):
-            versions = list(versions)
-        if isinstance(versions, list):
-            self._current_vcls = set(versions)
-            self.current_vcl_versions = json.dumps(versions)
+        self._current_vcls, self.current_vcl_versions = self._prepare_set_and_json(versions)
+
+    @property
+    def labels(self):
+        return self._get_parsed_field(self._labels, self.labels_list)
+
+    @labels.setter
+    def labels(self, labels):
+        self._labels, self.labels_list = self._prepare_set_and_json(labels)
+
+    def _get_parsed_field(self, field, values):
+        if field is None:
+            try:
+                field = set(json.loads(values))
+            except:  # noqa
+                field = set()
+        return field
+
+    def _prepare_set_and_json(self, field):
+        if isinstance(field, set):
+            field = list(field)
+        if isinstance(field, list):
+            return set(field), json.dumps(field)
+        return None, None
 
     def __str__(self):
         return "{} ({})".format(self.name, self.varnish_count())
