@@ -12,7 +12,7 @@ class Rewrite(models.Model):
         FOUND = 302
         TEMPORARY_REDIRECT = 307
 
-    condition = models.CharField(max_length=512, unique=True)
+    condition = models.CharField(max_length=512)
     destination = models.CharField(max_length=512)
     action = models.IntegerField(choices=ResponseStatusChoices.choices, default=301)
     priority = models.PositiveIntegerField()

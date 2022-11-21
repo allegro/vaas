@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Rewrite',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('condition', models.CharField(max_length=512, unique=True)),
+                ('condition', models.CharField(max_length=512)),
                 ('destination', models.CharField(max_length=512)),
                 ('action', models.IntegerField(choices=[(301, 'Move Pernamentlly'), (302, 'Found'), (307, 'Temporary Redirect')], default=301)),
                 ('priority', models.PositiveIntegerField()),
