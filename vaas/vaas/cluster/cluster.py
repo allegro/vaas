@@ -2,18 +2,18 @@
 
 import logging
 import time
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from django.utils import timezone
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future
 
 from vaas.settings.celery import app
 from django.conf import settings
 
-from vaas.api.client import VarnishApi
+from vaas.api.client import VarnishApi, VarnishApiReadException
 from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
-from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing
+from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing, Vcl
 from vaas.cluster.exceptions import VclLoadException
 from statsd.defaults.django import statsd
 from datetime import datetime
@@ -235,7 +235,7 @@ class ParallelLoader(ParallelExecutor):
         self.api_provider = VarnishApiProvider()
 
     @collect_processing
-    def _append_vcl(self, vcl, server, future_results, executor):
+    def _append_vcl(self, vcl: Vcl, server: VarnishServer, future_results: List, executor: ThreadPoolExecutor) -> None:
         """Suppress exceptions if cannot load vcl for server in maintenance state"""
         try:
             loader = VclLoader(self.api_provider.get_api(server), server.status == 'maintenance')
@@ -246,19 +246,34 @@ class ParallelLoader(ParallelExecutor):
             raise e
 
     @collect_processing
-    def _format_vcl_list(self, to_use, aggregated_result):
+    def _format_vcl_list(
+            self, to_use: List[Tuple[Vcl, VclLoader, VarnishServer]], aggregated_result: bool
+    ) -> List[Tuple[Vcl, VclLoader, VarnishServer]]:
         if not aggregated_result:
             raise VclLoadException
 
         return to_use
 
     @collect_processing
-    def _discard_unused_vcls(self, server, loader, executor, discard_results):
+    def _discard_unused_vcls(
+            self,
+            server: VarnishServer, loader: VclLoader, executor: ThreadPoolExecutor, discard_results: List[Tuple]
+    ) -> List[Tuple]:
         discard_results.append(tuple([server, executor.submit(loader.discard_unused_vcls)]))
         return discard_results
 
+    def _get_load_new_vcl_result(self, server: VarnishServer, result: Future[VclStatus]) -> VclStatus:
+        try:
+            return result.result()
+        except VarnishApiReadException:
+            if not server.cluster.partial_reload:
+                raise VclLoadException
+        return VclStatus.ERROR
+
     @collect_processing
-    def load_vcl_list(self, vcl_list, force_discard=False):
+    def load_vcl_list(
+            self, vcl_list: List[Tuple[VarnishServer, Vcl]], force_discard: bool = False
+    ) -> List[Tuple[Vcl, VclLoader, VarnishServer]]:
         to_use = []
         start = time.perf_counter()
         aggregated_result = True
@@ -268,7 +283,7 @@ class ParallelLoader(ParallelExecutor):
                 for server, vcl in vcl_list:
                     self._append_vcl(vcl, server, future_results, executor)
                 for vcl, loader, server, future_result in future_results:
-                    result = future_result.result()
+                    result = self._get_load_new_vcl_result(server, future_result)
                     """Suppress error if cannot load vcl for server in maintenance state"""
                     if result == VclStatus.ERROR and server.status == 'active' and not server.cluster.partial_reload:
                         aggregated_result = False
