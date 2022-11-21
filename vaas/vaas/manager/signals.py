@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from vaas.external.audit import audit_bulk_operations, Auditable
 from vaas.external.request import get_current_request
 from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, VclVariable
-from vaas.router.models import Route
+from vaas.router.models import Rewrite, Route
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
 
@@ -173,6 +173,12 @@ def vcl_update(sender, **kwargs):
             if instance_cluster not in clusters_to_refresh:
                 logger.debug("vcl_update(): %s" % str(instance_cluster))
                 clusters_to_refresh.append(instance_cluster)
+
+    # Rewrite
+    elif sender is Rewrite:
+        # TODO: Handle behaviour from update, delete create rewrites
+        logger.debug("Rewrite vcl_update(): %s" % str(instance))
+
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:
         reset_refreshed_clusters(instance)
