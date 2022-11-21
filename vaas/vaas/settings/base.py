@@ -278,7 +278,9 @@ ROUTES_CANARY_HEADER = env.str('ROUTES_CANARY_HEADER', default='x-canary-random'
 if ROUTES_CANARY_HEADER:
     ROUTES_LEFT_CONDITIONS[f'std.real(req.http.{ROUTES_CANARY_HEADER},0)'] = 'Canary'
 
-DOMAIN_MAPPER = env.json('DOMAIN_MAPPER', default={
+DOMAIN_MAPPER = {}
+for entry in env.json('DOMAIN_MAPPER', default=[
     {'name': 'example', 'value': 'example.com'},
     {'name': 'example.pl', 'value': 'example.{{ PLACEHOLDER }}.pl'},
-})
+]):
+    DOMAIN_MAPPER[entry['name']] = entry['value']
