@@ -6,16 +6,15 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
 
-RESPONSE_STATUS_CHICES = (
-    ('301', 'Move Pernamentlly'),
-    ('302', 'Found'),
-    ('307', 'Temporary Redirect')
-)
-
 class Rewrite(models.Model):
-    condition = models.CharField(max_length=512)
+    class ResponseStatusChoices(models.IntegerChoices):
+        MOVE_PERNAMENTLLY = 301
+        FOUND = 302
+        TEMPORARY_REDIRECT = 307
+
+    condition = models.CharField(max_length=512, unique=True)
     destination = models.CharField(max_length=512)
-    action = models.CharField(max_length=3, choices=RESPONSE_STATUS_CHICES, default='301')
+    action = models.IntegerField(choices=ResponseStatusChoices.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
 
