@@ -15,9 +15,9 @@ RESPONSE_STATUS_CHICES = (
 class Rewrite(models.Model):
     condition = models.CharField(max_length=512)
     destination = models.CharField(max_length=512)
-    action = models.CharField(max_length=64, choices=RESPONSE_STATUS_CHICES, default='301')
+    action = models.CharField(max_length=3, choices=RESPONSE_STATUS_CHICES, default='301')
     priority = models.PositiveIntegerField()
-    persevre_query_params = models.BooleanField(default=True)
+    preserve_query_params = models.BooleanField(default=True)
 
 class RewritePositiveUrl(models.Model):
     url = models.URLField()

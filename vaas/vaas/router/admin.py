@@ -15,7 +15,7 @@ class RewriteAdmin(AuditableModelAdmin):
     inlines = [
         RewritePositiveUrl,
     ]
-    list_display = ['condition', 'destination', 'action', 'priority', 'persevre_query_params']
+    list_display = ['condition', 'destination', 'action', 'priority', 'preserve_query_params']
 
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
