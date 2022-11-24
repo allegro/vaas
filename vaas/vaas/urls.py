@@ -9,7 +9,8 @@ from vaas.cluster.api import ConnectCommandResource, DcResource, VarnishServerRe
     ValidateVCLCommandResource, VclTemplateResource, LogicalClusterResource, OutdatedServerResource
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource, \
     ReloadTaskResource
-from vaas.router.api import RouteResource, RouteConfigurationResource, ValidateRoutesRequest, ValidationReportResource
+from vaas.router.api import RouteResource, RouteConfigurationResource, ValidateRoutesRequest, \
+    ValidationReportResource, ValidateRewritesCommandResource
 from vaas.purger.api import PurgeUrl
 from django.contrib import admin
 from social_django.models import Association, Nonce, UserSocialAuth
@@ -42,6 +43,7 @@ v01_api.register(ValidateRoutesRequest())
 v01_api.register(ValidationReportResource())
 v01_api.register(ConnectCommandResource())
 v01_api.register(ValidateVCLCommandResource())
+v01_api.register(ValidateRewritesCommandResource())
 
 urlpatterns = [
     url(r'^admin/purger/', include('vaas.purger.urls')),

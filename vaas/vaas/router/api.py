@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from typing import Any
+
+from celery.result import AsyncResult
+from django.urls import re_path
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
 from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
@@ -13,7 +17,7 @@ from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.router.models import Route, PositiveUrl, provide_route_configuration
 from vaas.router.forms import RouteModelForm
-from vaas.router.report import fetch_urls_async, prepare_report_from_task
+from vaas.router.report import fetch_urls_async, prepare_report_from_task, fetch_redirects_async
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
@@ -212,3 +216,64 @@ class ValidationReportResource(Resource):
 
     def get_object_list(self, request):
         return None
+
+
+class ValidationResultResource(Resource):
+    url = fields.CharField(attribute='url')
+    result = fields.CharField(attribute='result')
+    expected = fields.ToOneField(AssertionResource, attribute='expected', full=True, null=True)
+    current = fields.ToOneField(AssertionResource, attribute='current', full=True, null=True)
+    error_message = fields.CharField(attribute='error_message', null=True)
+
+    class Meta:
+        include_resource_uri = False
+
+
+class ValidateRewritesCommandModel:
+    def __init__(
+            self,
+            pk: str = "",
+            status: Any = "PENDING",
+            output: list = ()):
+        self.pk = pk
+        self.id = pk
+        self.status = status
+        self.output = output
+
+    def __repr__(self) -> str:
+        return '{}'.format({k: v for k, v in self.__dict__})
+
+
+class ValidateRewritesCommandResource(Resource):
+    pk = fields.CharField(attribute='id', readonly=True)
+    status = fields.CharField(attribute='status', readonly=True, blank=True, null=True)
+    output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
+
+    class Meta:
+        resource_name = 'validate-command'
+        list_allowed_methods = []
+        detail_allowed_methods = ['put', 'get']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        fields = ['status', 'output']
+        include_resource_uri = False
+        always_return_data = True
+
+    def obj_create(self, bundle, **kwargs):
+        bundle.obj = ValidateRewritesCommandModel(pk=kwargs['pk'])
+        bundle = self.full_hydrate(bundle)
+        task = fetch_redirects_async.apply_async(task_id=bundle.obj.pk)
+        bundle.obj.status = task.status
+        bundle.obj.output = task.result
+        return bundle
+
+    def obj_get(self, bundle, **kwargs):
+        task = AsyncResult(kwargs['pk'])
+        return ValidateRewritesCommandModel(kwargs['pk'], task.status, output=task.result)
+
+    def prepend_urls(self):
+        return [
+            re_path(r"^redirect/(?P<resource_name>%s)/(?P<pk>[\w\d_.-]+)/$" %
+                    self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^redirect/(?P<resource_name>%s)/$" %
+                    self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_dispatch_list")]

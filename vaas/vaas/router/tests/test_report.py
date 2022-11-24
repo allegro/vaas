@@ -1,6 +1,6 @@
 from django.test import TestCase
 from vaas.manager.models import Director
-from vaas.router.fetcher import ValidationResponse
+from vaas.router.fetcher import RouteAssertionResponse
 from vaas.router.models import Assertion, Named, Route, ValidationResult
 from vaas.router.report import ReportGenerator
 
@@ -40,8 +40,8 @@ class TestReportGenerator(TestCase):
             )
         ]
         validation_responses = [
-            ValidationResponse('https://example.com/first', 'first', '1', 203, 1),
-            ValidationResponse('https://example.com/second', 'second', '2', 203, 2)
+            RouteAssertionResponse('https://example.com/first', 'first', '1', 203, 1),
+            RouteAssertionResponse('https://example.com/second', 'second', '2', 203, 2)
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
@@ -66,8 +66,8 @@ class TestReportGenerator(TestCase):
             )
         ]
         validation_responses = [
-            ValidationResponse('https://example.com/first', 'first', '1', 203, 1),
-            ValidationResponse('https://example.com/first-with-suffix', 'first', '1', 203, 2)
+            RouteAssertionResponse('https://example.com/first', 'first', '1', 203, 1),
+            RouteAssertionResponse('https://example.com/first-with-suffix', 'first', '1', 203, 2)
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
@@ -101,9 +101,9 @@ class TestReportGenerator(TestCase):
             )
         ]
         validation_responses = [
-            ValidationResponse('https://unrouteable.com/first', None, None, -1, 1),
-            ValidationResponse('https://external-domain.com/first', None, None, 404, 1),
-            ValidationResponse('https://example.com/direct-route-in-vcl', 'first', None, 203, 1),
+            RouteAssertionResponse('https://unrouteable.com/first', None, None, -1, 1),
+            RouteAssertionResponse('https://external-domain.com/first', None, None, 404, 1),
+            RouteAssertionResponse('https://example.com/direct-route-in-vcl', 'first', None, 203, 1),
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)

@@ -6,24 +6,27 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
 
-class Rewrite(models.Model):
-    class ResponseStatusChoices(models.IntegerChoices):
-        MOVE_PERNAMENTLLY = 301
+
+class Redirect(models.Model):
+    class ResponseStatusCode(models.IntegerChoices):
+        MOVE_PERMANENTLY = 301
         FOUND = 302
         TEMPORARY_REDIRECT = 307
 
     condition = models.CharField(max_length=512)
     destination = models.CharField(max_length=512)
-    action = models.IntegerField(choices=ResponseStatusChoices.choices, default=301)
+    action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
 
-class RewritePositiveUrl(models.Model):
-    url = models.URLField()
+
+class RedirectAssertion(models.Model):
+    given_url = models.URLField()
     expected_location = models.CharField(max_length=512)
-    rewrite = models.ForeignKey(
-        'Rewrite', on_delete=models.CASCADE, related_name='rewritre_positive_urls',
-        related_query_name='rewritre_positive_url')
+    redirect = models.ForeignKey(
+        'Redirect', on_delete=models.CASCADE, related_name='assertions',
+        related_query_name='redirect_assertions')
+
 
 class Route(models.Model):
     condition = models.CharField(max_length=512)
