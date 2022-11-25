@@ -62,7 +62,7 @@ class TestFetcher(TestCase):
                            json={'location': '/new-two', 'redirect': 1},
                            status_code=203)
             expected_responses = [
-                RedirectAssertionResponse('http://redirect.me.com/one', '/new-one', 1, '/new-one', 1),
-                RedirectAssertionResponse('http://redirect.me.com/two', '/new-two', 1, '/new-two', 1),
+                RedirectAssertionResponse('http://redirect.me.com/one', '/new-one', 1, '/new-one', 1, 203),
+                RedirectAssertionResponse('http://redirect.me.com/two', '/new-two', 1, '/new-two', 1, 203),
             ]
             self.assertCountEqual(expected_responses, Fetcher().check_redirects(redirect_assertions))

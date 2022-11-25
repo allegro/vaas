@@ -128,10 +128,16 @@ class Named(DictEqual):
         self.name = name
 
 
-class Assertion(DictEqual):
+class RouteContext(DictEqual):
     def __init__(self, route, director):
         self.route = route
         self.director = director
+
+
+class RedirectContext(DictEqual):
+    def __init__(self, redirect, location):
+        self.redirect = redirect
+        self.location = location
 
 
 class ValidationResult(DictEqual):

@@ -25,13 +25,15 @@ class RouteAssertionResponse:
 
 class RedirectAssertionResponse:
     def __init__(
-            self, url: str, actual_location: str, actual_redirect: int, expected_location: str, expected_redirect: int
+            self, url: str, actual_location: str, actual_redirect: int, expected_location: str, expected_redirect: int,
+            status_code: int
     ):
         self.url = url
         self.actual_location = actual_location
         self.actual_redirect = actual_redirect
         self.expected_location = expected_location
         self.expected_redirect = expected_redirect
+        self.status_code = status_code
 
     def __repr__(self) -> str:
         return '{}'.format(self.__dict__)
@@ -57,7 +59,7 @@ class Fetcher:
     def _assert_redirect(self, url: str, location: str, redirect_id: int) -> RedirectAssertionResponse:
         data = self._fetch(url)
         return RedirectAssertionResponse(
-            url, data.get('location', ''), data.get('redirect', 0), location, redirect_id
+            url, data.get('location', ''), data.get('redirect', 0), location, redirect_id, data.get('status_code', 0)
         )
 
     def _check_assertions(self, assertions: list, callback: Callable) -> list:
