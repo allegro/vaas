@@ -22,8 +22,8 @@ class RewritePositiveUrl(models.Model):
     url = models.URLField()
     expected_location = models.CharField(max_length=512)
     rewrite = models.ForeignKey(
-        'Rewrite', on_delete=models.CASCADE, related_name='rewritre_positive_urls',
-        related_query_name='rewritre_positive_url')
+        'Rewrite', on_delete=models.CASCADE, related_name='rewrite_positive_urls',
+        related_query_name='rewrite_positive_url')
 
 class Route(models.Model):
     condition = models.CharField(max_length=512)
