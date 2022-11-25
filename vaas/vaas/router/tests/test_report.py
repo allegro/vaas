@@ -40,8 +40,8 @@ class TestReportGenerator(TestCase):
             )
         ]
         validation_responses = [
-            RouteAssertionResponse('https://example.com/first', 'first', '1', 203, 1),
-            RouteAssertionResponse('https://example.com/second', 'second', '2', 203, 2)
+            RouteAssertionResponse('https://example.com/first', 'first', 1, 203, 1),
+            RouteAssertionResponse('https://example.com/second', 'second', 2, 203, 2)
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
@@ -66,8 +66,8 @@ class TestReportGenerator(TestCase):
             )
         ]
         validation_responses = [
-            RouteAssertionResponse('https://example.com/first', 'first', '1', 203, 1),
-            RouteAssertionResponse('https://example.com/first-with-suffix', 'first', '1', 203, 2)
+            RouteAssertionResponse('https://example.com/first', 'first', 1, 203, 1),
+            RouteAssertionResponse('https://example.com/first-with-suffix', 'first', 1, 203, 2)
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)
@@ -100,10 +100,11 @@ class TestReportGenerator(TestCase):
                               'Probably url is routed directly to director in vcl_template'
             )
         ]
+        self.maxDiff = None
         validation_responses = [
-            RouteAssertionResponse('https://unrouteable.com/first', None, None, -1, 1),
-            RouteAssertionResponse('https://external-domain.com/first', None, None, 404, 1),
-            RouteAssertionResponse('https://example.com/direct-route-in-vcl', 'first', None, 203, 1),
+            RouteAssertionResponse('https://unrouteable.com/first', '', 0, 0, 1),
+            RouteAssertionResponse('https://external-domain.com/first', '', 0, 404, 1),
+            RouteAssertionResponse('https://example.com/direct-route-in-vcl', 'first', 0, 203, 1),
         ]
         report_generator = self._prepare_raport_generator_with_directors_and_routes()
         report = report_generator.generate_report(validation_responses)

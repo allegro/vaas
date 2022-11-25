@@ -80,14 +80,12 @@ class ReportGenerator(object):
     def _get_current_assertion(self, route_id, director_name):
         route = None
         director = None
-        try:
-            current_id = int(route_id)
-            route = Named(current_id, self._get_route_condition(current_id))
-        finally:
-            director_id = self.director_ids.get(director_name, None)
-            if director_id:
-                director = Named(director_id, director_name)
-            return Assertion(route=route, director=director)
+        if route_id > 0:
+            route = Named(route_id, self._get_route_condition(route_id))
+        director_id = self.director_ids.get(director_name, None)
+        if director_id:
+            director = Named(director_id, director_name)
+        return Assertion(route=route, director=director)
 
     def _get_route_condition(self, route_id):
         if route_id in self.routes:
@@ -95,16 +93,14 @@ class ReportGenerator(object):
         return ''
 
     def _get_result(self, validation_response):
-        try:
-            current_route = int(validation_response.route)
-            if current_route != validation_response.expected_route:
+        if validation_response.route > 0:
+            if validation_response.route != validation_response.expected_route:
                 return 'FAIL', 'Request was routed to improper route'
             return 'PASS', ''
-        except Exception:
-            return 'FAIL', self._prepare_error_message_for_no_route(validation_response)
+        return 'FAIL', self._prepare_error_message_for_no_route(validation_response)
 
     def _prepare_error_message_for_no_route(self, validation_response):
-        if validation_response.status_code == -1:
+        if validation_response.status_code <= 0:
             return 'Cannot fetch desired url. Is the url <{}> correct ?'.format(validation_response.url)
         if validation_response.status_code != 203:
             return 'Response was not generated via validation system. ' \

@@ -51,13 +51,13 @@ class Fetcher:
     def _assert_route(self, url: str, route_id: int) -> RouteAssertionResponse:
         data = self._fetch(url)
         return RouteAssertionResponse(
-            url, data.get('director', ''), data.get('route', -1), data.get('status_code', -1), route_id
+            url, data.get('director', ''), data.get('route', 0), data.get('status_code', 0), route_id
         )
 
     def _assert_redirect(self, url: str, location: str, redirect_id: int) -> RedirectAssertionResponse:
         data = self._fetch(url)
         return RedirectAssertionResponse(
-            url, data.get('location', ''), data.get('redirect', -1), location, redirect_id
+            url, data.get('location', ''), data.get('redirect', 0), location, redirect_id
         )
 
     def _check_assertions(self, assertions: list, callback: Callable) -> list:
@@ -71,7 +71,7 @@ class Fetcher:
         return result
 
     def _fetch(self, url):
-        data = {'status_code': -1}
+        data = {'status_code': 0}
         try:
             response = requests.get(url, headers={settings.VALIDATION_HEADER: '1'})
             data = {'status_code': response.status_code}
