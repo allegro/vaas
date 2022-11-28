@@ -9,7 +9,8 @@ from vaas.cluster.api import ConnectCommandResource, DcResource, VarnishServerRe
     ValidateVCLCommandResource, VclTemplateResource, LogicalClusterResource, OutdatedServerResource
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource, \
     ReloadTaskResource
-from vaas.router.api import RouteResource, RouteConfigurationResource, ValidateRoutesRequest, ValidationReportResource
+from vaas.router.api import RewriteResource, RouteResource, RouteConfigurationResource, ValidateRoutesRequest, \
+    ValidationReportResource
 from vaas.purger.api import PurgeUrl
 from django.contrib import admin
 from social_django.models import Association, Nonce, UserSocialAuth
@@ -36,6 +37,7 @@ v01_api.register(LogicalClusterResource())
 v01_api.register(PurgeUrl())
 v01_api.register(OutdatedServerResource())
 v01_api.register(ReloadTaskResource())
+v01_api.register(RewriteResource())
 v01_api.register(RouteResource())
 v01_api.register(RouteConfigurationResource())
 v01_api.register(ValidateRoutesRequest())

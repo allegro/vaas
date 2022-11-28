@@ -184,7 +184,7 @@ VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = env.float('VAAS_GATHER_STATUSES_CONNECT_T
 
 REFRESH_TRIGGERS_CLASS = tuple(env.json('REFRESH_TRIGGERS_CLASS', default=(
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable',
-    'Route'
+    'Route', 'Rewrite'
 )))
 
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
@@ -277,3 +277,10 @@ for condition in env.json('ROUTES_LEFT_CONDITIONS', default=[
 ROUTES_CANARY_HEADER = env.str('ROUTES_CANARY_HEADER', default='x-canary-random')
 if ROUTES_CANARY_HEADER:
     ROUTES_LEFT_CONDITIONS[f'std.real(req.http.{ROUTES_CANARY_HEADER},0)'] = 'Canary'
+
+DOMAIN_MAPPER = {}
+for entry in env.json('DOMAIN_MAPPER', default=[
+    {'name': 'example', 'value': 'example.com'},
+    {'name': 'example.pl', 'value': 'example.{{ PLACEHOLDER }}.pl'},
+]):
+    DOMAIN_MAPPER[entry['name']] = entry['value']

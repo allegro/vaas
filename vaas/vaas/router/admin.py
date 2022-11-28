@@ -1,10 +1,21 @@
 from django.contrib import admin
 
 from vaas.external.audit import AuditableModelAdmin
-from vaas.router.models import Route
+from vaas.router.models import Route, Rewrite, RewritePositiveUrl
 from vaas.router.forms import RouteModelForm
 from django.conf import settings
 
+
+class RewritePositiveUrl(admin.TabularInline):
+    model = RewritePositiveUrl
+    extra = 1
+
+class RewriteAdmin(AuditableModelAdmin):
+    model = Rewrite
+    inlines = [
+        RewritePositiveUrl,
+    ]
+    list_display = ['condition', 'destination', 'action', 'priority', 'preserve_query_params']
 
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
@@ -30,3 +41,4 @@ class RouteAdmin(AuditableModelAdmin):
 
 
 admin.site.register(Route, RouteAdmin)
+admin.site.register(Rewrite, RewriteAdmin)
