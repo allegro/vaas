@@ -5,6 +5,7 @@ from celery.result import AsyncResult
 from django.urls import re_path
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
+from tastypie.bundle import Bundle
 from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
 from tastypie.exceptions import ImmediateHttpResponse
 from django.http.response import HttpResponse
@@ -15,11 +16,61 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, PositiveUrl, provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
+
+
+class RedirectAssertionResource(Resource):
+    given_url = fields.CharField(attribute='given_url')
+    expected_location = fields.CharField(attribute='expected_location')
+
+    def dehydrate(self, bundle):
+        bundle = super().dehydrate(bundle)
+        del bundle.data['resource_uri']
+        return bundle
+
+
+class RedirectResource(ModelResource):
+    assertions = fields.ToManyField(
+        'vaas.router.api.RedirectAssertionResource', 'assertions', full=True)
+
+    class Meta:
+        queryset = Redirect.objects.all().prefetch_related('assertions')
+        resource_name = 'redirect'
+        serializer = PrettyJSONSerializer()
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        always_return_data = True
+
+    def save(self, bundle, *args, **kwargs):
+        assertions = bundle.data.get('assertions', [])
+        bundle.data['assertions'] = []
+        bundle = super().save(bundle, *args, **kwargs)
+        if len(assertions) != 0:
+            # if PATCH request not contains assertions field
+            # we do not want to delete existing assertions
+            if not self._is_patch_request_without_assertions_field(assertions):
+                # if HTTP request contains assertions
+                # we want to delete previous assertions attached to the Rewrite object
+                bundle.obj.assertions.all().delete()
+                for assertion in assertions:
+                    RedirectAssertion.objects.create(
+                        given_url=assertion['given_url'],
+                        expected_location=assertion['expected_location'],
+                        redirect=bundle.obj
+                    )
+        else:
+            bundle.obj.assertions.all().delete()
+
+        return bundle
+
+    # If PATCH request not contains redirect_assertions field,
+    # tastypie pulls out Bundle object with rewrite_positive_urls currently attached to the Redirect object
+    def _is_patch_request_without_assertions_field(self, redirect_assertions):
+        return all(isinstance(assertion, Bundle) for assertion in redirect_assertions)
 
 
 class RouteModelCleanedDataFormValidation(ModelCleanedDataFormValidation):
