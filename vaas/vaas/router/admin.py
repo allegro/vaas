@@ -26,7 +26,7 @@ class RouteAdmin(AuditableModelAdmin):
         return super().changelist_view(request, extra_context=ctx)
 
     class Media:
-        js = ('js/clusters-sync.js',)
+        js = ('js/clusters-sync.js', 'utils/js/labels.js')
 
 
 admin.site.register(Route, RouteAdmin)
