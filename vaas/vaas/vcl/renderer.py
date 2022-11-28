@@ -11,18 +11,18 @@ from django.db.models import Prefetch
 from jinja2 import Environment, FileSystemLoader
 
 from vaas.manager.models import Backend, Director
-from vaas.router.models import Route
+from vaas.router.models import Route, Rewrite
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
 
 VCL_TAGS = {
     '4.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH', 'VCL_PIPE'],
-        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
+        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'FLEXIBLE_REDIRECT', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
             'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH', 'USE_DIRECTOR_{DIRECTOR}',
          'USE_MESH_DIRECTOR_{DIRECTOR}', 'SET_ACTION'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
-            'SET_ROUTE_{ROUTE}'],
+            'SET_ROUTE_{ROUTE}', 'SET_REDIRECT_{REDIRECT}'],
         ['BACKEND_LIST_{DIRECTOR}_{DC}', 'CALL_USE_DIRECTOR_{DIRECTOR}']
     ]
 }
@@ -167,9 +167,24 @@ class VclTagBuilder(object):
             'probe': self.prepare_probe(vcl_directors),
             'active_director': active_directors,
             'routes': self.prepare_route(self.varnish, cluster_directors),
+            'redirects': self.prepare_redirect(),
             'cluster_directors': cluster_directors,
             'mesh_routing': varnish.cluster.service_mesh_routing
         }
+
+    @collect_processing
+    def prepare_redirect(self):
+        redirects = {}
+        for redirect in self.input.redirects:
+            if redirect.domain in self.varnish.cluster.labels:
+                record = redirects.get(redirect.domain, [])
+                if record:
+                    redirects[redirect.domain] = record.append(redirect)
+                else:
+                    redirects[redirect.domain] = [redirect]
+
+        return redirects
+
 
     @collect_processing
     def prepare_route(self, varnish, cluster_directors):
@@ -278,13 +293,28 @@ class VclTagBuilder(object):
                     )
                 )
 
+        if tag_name.endswith('{REDIRECT}'):
+            applied_rules = True
+            for _, redirects in self.placeholders['redirects'].items():
+                for redirect in redirects:
+                    result.append(
+                        VclTagExpander(
+                            tag_name.replace('{REDIRECT}', str(redirect.id)),
+                            self.get_tag_template_name(tag_name),
+                            self.input,
+                            parameters={
+                                'redirect': redirect
+                            }
+                        )
+                    )
+
         if not applied_rules:
             return [self.decorate_single_tag(tag_name)]
 
         return result
 
     def get_tag_template_name(self, tag_name):
-        return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '').replace('_{ROUTE}', '')
+        return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '').replace('_{ROUTE}', '').replace('_{REDIRECT}', '')
 
     def decorate_single_tag(self, tag_name):
         vcl_tag = VclTagExpander(tag_name, self.get_tag_template_name(tag_name), self.input, can_overwrite=True)
@@ -306,6 +336,8 @@ class VclTagBuilder(object):
             vcl_tag.parameters['routes'] = self.placeholders['routes']
             vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
             vcl_tag.parameters['canary_header'] = settings.ROUTES_CANARY_HEADER
+        elif tag_name == 'FLEXIBLE_REDIRECT':
+            vcl_tag.parameters['redirects'] = self.placeholders['redirects']
         elif tag_name == 'TEST_ROUTER':
             vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
 
@@ -330,6 +362,8 @@ class VclRendererInput(object):
             Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
+        self.redirects = list(Rewrite.objects.all())
+        ## TODO: add sort by priority
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all())
