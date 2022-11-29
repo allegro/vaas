@@ -135,7 +135,7 @@ def split_condition(value):
             return left, operator, right
     return ['req.url', '~', '']
 class ComplexRedirectConditionWidget(forms.MultiWidget):
-    def __init__(self,http_methods, domains, attrs=None): 
+    def __init__(self, http_methods, domains, attrs=None): 
         widgets = ( 
             forms.Select(choices=http_methods, attrs={'class': 'form-control','style': 'display: inline-block; width:15%'}),
             forms.Select(choices=domains, attrs={'class': 'form-control','style': 'display: inline-block; width:40%'}),
@@ -151,13 +151,13 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
                 http_method = parts[2]
                 src_path = parts[6]
                 return http_method[1:-1], condition_domain, src_path[1:-1]
-        return ['GET','','']
+        return 'GET','',''
 
 class ComplexRedirectConditionField(forms.MultiValueField):
     def __init__(self, **kwargs):
         configuration = provide_redirect_configuration() 
-        http_methods=tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
-        domains=tuple((domain.domain, domain.domain) for domain in configuration.domains)
+        http_methods = tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
+        domains = tuple((domain.domain, domain.domain) for domain in configuration.domains)
         fields = (
             forms.ChoiceField(choices=http_methods),
             forms.ChoiceField(choices=domains),

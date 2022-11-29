@@ -138,10 +138,9 @@ class RouteModelForm(ModelForm):
 class RedirectModelForm(ModelForm):
     preserve_query_params = BooleanField(required=False, label='Preserve query params')
     condition = ComplexRedirectConditionField()
-    src_domain = CharField(widget=HiddenInput(), required= False)
+    src_domain = CharField(widget=HiddenInput(), required=False)
     class Meta:
         model = Redirect
-        configuration = provide_redirect_configuration() 
         fields = '__all__'
 
         widgets = {

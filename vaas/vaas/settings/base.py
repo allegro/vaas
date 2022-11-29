@@ -285,9 +285,9 @@ for entry in env.json('DOMAIN_MAPPER', default=[
 ]):
     DOMAIN_MAPPER[entry['name']] = entry['value']
 
-REWRITE_METHODS = {}
-for entry in env.json('REWRITE_METHODS', default=[
+REDIRECT_METHODS = {}
+for entry in env.json('REDIRECT_METHODS', default=[
     {'name': 'GET', 'value': 'GET'},
     {'name': 'HEAD', 'value': 'HEAD'},
 ]):
-    REWRITE_METHODS[entry['name']] = entry['value']
+    REDIRECT_METHODS[entry['name']] = entry['value']

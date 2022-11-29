@@ -121,28 +121,24 @@ def provide_route_configuration():
             Action(action='pipe', name='bypass the cache')
         ],
     )
-class RewriteConfiguration(DictEqual):
+class RedirectConfiguration(DictEqual):
     def __init__(self, http_methods, domains):
-        self.pk = 'configuration'
         self.http_methods = http_methods
         self.domains = domains
 
 class HttpMethod(DictEqual):
     def __init__(self, http_method, name):
-        self.pk = http_method
         self.http_method = http_method
         self.name = name
 
-
 class Domain(DictEqual):
     def __init__(self, domain, name):
-        self.pk = domain
         self.domain = domain
         self.name = name
 
 def provide_redirect_configuration():
-    return RewriteConfiguration(
-        [HttpMethod(http_method=k, name=v) for k, v in settings.REWRITE_METHODS.items()],
+    return RedirectConfiguration(
+        [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
         [Domain(domain=k, name=v) for k, v in settings.DOMAIN_MAPPER.items()],
     )
 
