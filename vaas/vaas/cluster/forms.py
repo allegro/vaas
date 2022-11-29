@@ -28,6 +28,9 @@ class VclTemplateModelForm(ModelForm):
         model = VclTemplate
         fields = '__all__'
 
+    class Media:
+        js = ('cluster/js/vcl-validation.js', 'utils/js/labels.js',)
+
 
 class VarnishServerModelForm(ModelForm):
     def __init__(self, *args, **kwargs):

@@ -183,19 +183,21 @@ class ParallelLoaderTest(TestCase):
                 assert_equals([call(first_vcl), call(second_vcl)], load_vcl_mock.call_args_list)
                 assert_equals([call(servers[0]), call(servers[1])], get_api_mock.call_args_list)
 
-    def test_should_load_vcl_list_to_associated_servers_and_force_them_to_be_discarded(self):
+    def test_should_load_vcl_to_associated_servers_and_force_servers_to_discard_properly_loaded_vcls(self):
         first_vcl = Vcl('Test-1', name='test-1')
         second_vcl = Vcl('Test-2', name='test-2')
         vcl_list = [(servers[0], first_vcl), (servers[1], second_vcl)]
 
         with patch.object(VarnishApiProvider, 'get_api') as get_api_mock:
             with patch.object(VclLoader, 'load_new_vcl') as load_vcl_mock:
+                load_vcl_mock.side_effect = [VclStatus.OK, VclStatus.ERROR]
                 with patch.object(VclLoader, 'discard_unused_vcls') as discard_mock:
-                    ParallelLoader().load_vcl_list(vcl_list, force_discard=True)
+                    with self.assertRaises(VclLoadException):
+                        ParallelLoader().load_vcl_list(vcl_list, force_discard=True)
 
                     assert_equals([call(first_vcl), call(second_vcl)], load_vcl_mock.call_args_list)
                     assert_equals([call(servers[0]), call(servers[1])], get_api_mock.call_args_list)
-                    assert_equals(2, discard_mock.call_count)
+                    assert_equals(1, discard_mock.call_count)
 
     def test_should_return_loaded_vcl_list_which_should_be_use_on_servers(self):
         first_vcl = Vcl('Test-1', name='test-1')
