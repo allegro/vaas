@@ -12,23 +12,26 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Rewrite',
+            name='Redirect',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('condition', models.CharField(max_length=512)),
                 ('destination', models.CharField(max_length=512)),
-                ('action', models.IntegerField(choices=[(301, 'Move Pernamentlly'), (302, 'Found'), (307, 'Temporary Redirect')], default=301)),
+                ('action',
+                 models.IntegerField(choices=[(301, 'Move Permanently'), (302, 'Found'), (307, 'Temporary Redirect')],
+                                     default=301)),
                 ('priority', models.PositiveIntegerField()),
                 ('preserve_query_params', models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='RewritePositiveUrl',
+            name='RedirectAssertion',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField()),
+                ('given_url', models.URLField()),
                 ('expected_location', models.CharField(max_length=512)),
-                ('rewrite', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rewritre_positive_urls', related_query_name='rewritre_positive_url', to='router.rewrite')),
+                ('redirect', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assertions',
+                                               related_query_name='redirect_assertions', to='router.redirect')),
             ],
         ),
     ]
