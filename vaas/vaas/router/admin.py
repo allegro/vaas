@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from vaas.external.audit import AuditableModelAdmin
 from vaas.router.models import Route, Redirect, RedirectAssertion
-from vaas.router.forms import RouteModelForm
+from vaas.router.forms import RouteModelForm, RedirectModelForm
 from django.conf import settings
 
 
@@ -12,11 +12,11 @@ class RedirectAssertionAdmin(admin.TabularInline):
 
 
 class RedirectAdmin(AuditableModelAdmin):
-    model = Redirect
+    form = RedirectModelForm
     inlines = [
         RedirectAssertionAdmin,
     ]
-    list_display = ['condition', 'destination', 'action', 'priority', 'preserve_query_params']
+    list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
 
 
 class RouteAdmin(AuditableModelAdmin):

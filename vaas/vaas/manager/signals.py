@@ -174,10 +174,10 @@ def vcl_update(sender, **kwargs):
                 logger.debug("vcl_update(): %s" % str(instance_cluster))
                 clusters_to_refresh.append(instance_cluster)
 
-    # Rewrite
+    # Redirect
     elif sender is Redirect:
-        # TODO: Handle behaviour from update, delete create rewrites
-        logger.debug("Rewrite vcl_update(): %s" % str(instance))
+        # TODO: Handle behaviour from update, delete create redirects
+        logger.debug("Redirect vcl_update(): %s" % str(instance))
 
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:
