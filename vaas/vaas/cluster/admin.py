@@ -7,8 +7,8 @@ from django_ace import AceWidget
 
 from vaas.external.audit import AuditableModelAdmin
 from vaas.cluster.coherency import OutdatedServerManager
-from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
-from vaas.cluster.forms import VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
+from vaas.cluster.models import DomainMapping, VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
+from vaas.cluster.forms import DomainMappingForm, VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
     LogicalCLusterModelForm
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
@@ -166,6 +166,15 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     }
     list_display = ['tag', 'template']
 
+class DomainMappingAdmin(SimpleHistoryAdmin):
+    form = DomainMappingForm
+    search_fields = ['domain', 'mapping', 'type', 'clusters__name']
+    list_display = ['domain', 'mapping', 'type', 'get_clusters']
+
+    def get_clusters(self, obj):
+        return ", ".join([c.name for c in obj.clusters.all()])
+
+    get_clusters.short_description = 'Related clusters'
 
 class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
     form = VclTemplateModelForm
@@ -189,6 +198,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         'last_error_info',
         'get_tags',
         'labels',
+        'get_domains',
         'varnish_servers'
     ]
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
@@ -206,6 +216,16 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         return format_html(labels_list_html)
 
     labels.short_description = 'Labels'
+
+    def get_domains(self, obj):
+        domains_html = ''
+        for domain in obj.domainmapping_set.all():
+            domains_html += (
+                "<a class='btn btn-success' href='/admin/cluster/domainmapping/?q=%s'>%s</a></div><br/>"
+                ) % (obj.name, domain.domain)
+        return format_html(domains_html)
+
+    get_domains.short_description = 'Related Domains'
 
     def varnish_servers(self, obj):
         return format_html(
@@ -229,5 +249,6 @@ admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, VclTemplateAdmin)
 admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
 admin.site.register(Dc)
+admin.site.register(DomainMapping, DomainMappingAdmin)
 admin.site.register(LogicalCluster, LogicalClusterAdmin)
 admin.site.register(VclVariable, VclVariableAdmin)

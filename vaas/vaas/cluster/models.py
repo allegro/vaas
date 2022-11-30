@@ -103,6 +103,15 @@ class Dc(models.Model):
                         },
                     )
 
+class DomainMapping(models.Model):
+    TYPE_CHOICES = (
+        ('static', 'Static'),
+        ('dynamic', 'Dynamic')
+    )
+    domain = models.CharField(max_length=128)
+    mapping = models.CharField(max_length=128)
+    type = models.CharField(max_length=7, choices=TYPE_CHOICES, default='static')
+    clusters = models.ManyToManyField(LogicalCluster)
 
 class VclTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, validators=[name_validator])
