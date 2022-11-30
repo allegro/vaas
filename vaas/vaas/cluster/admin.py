@@ -169,6 +169,7 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
 
 class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
     form = VclTemplateModelForm
+    search_fields = ['name']
     formfield_overrides = {
         models.TextField: {'widget': ace_widget},
     }
@@ -178,9 +179,11 @@ class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
 
 class LogicalClusterAdmin(admin.ModelAdmin):
     form = LogicalCLusterModelForm
+    search_fields = ['name', 'labels']
     list_display = [
         'name',
         'service_mesh_routing',
+        'partial_reload',
         'reload_timestamp',
         'error_timestamp',
         'last_error_info',

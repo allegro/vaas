@@ -10,7 +10,7 @@ from vaas.cluster.cluster import connect_command, connect_status, validate_vcl_c
     ServerExtractor, ParallelRenderer, ParallelLoader, VarnishApiProvider, VclLoadException
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import Vcl
-from vaas.api.client import VarnishApi
+from vaas.api.client import VarnishApi, VarnishApiReadException
 
 dc = Dc(name='Tokyo', symbol='dc2')
 cluster1 = LogicalCluster(name='cluster1', id=1)
@@ -183,19 +183,21 @@ class ParallelLoaderTest(TestCase):
                 assert_equals([call(first_vcl), call(second_vcl)], load_vcl_mock.call_args_list)
                 assert_equals([call(servers[0]), call(servers[1])], get_api_mock.call_args_list)
 
-    def test_should_load_vcl_list_to_associated_servers_and_force_them_to_be_discarded(self):
+    def test_should_load_vcl_to_associated_servers_and_force_servers_to_discard_properly_loaded_vcls(self):
         first_vcl = Vcl('Test-1', name='test-1')
         second_vcl = Vcl('Test-2', name='test-2')
         vcl_list = [(servers[0], first_vcl), (servers[1], second_vcl)]
 
         with patch.object(VarnishApiProvider, 'get_api') as get_api_mock:
             with patch.object(VclLoader, 'load_new_vcl') as load_vcl_mock:
+                load_vcl_mock.side_effect = [VclStatus.OK, VclStatus.ERROR]
                 with patch.object(VclLoader, 'discard_unused_vcls') as discard_mock:
-                    ParallelLoader().load_vcl_list(vcl_list, force_discard=True)
+                    with self.assertRaises(VclLoadException):
+                        ParallelLoader().load_vcl_list(vcl_list, force_discard=True)
 
                     assert_equals([call(first_vcl), call(second_vcl)], load_vcl_mock.call_args_list)
                     assert_equals([call(servers[0]), call(servers[1])], get_api_mock.call_args_list)
-                    assert_equals(2, discard_mock.call_count)
+                    assert_equals(1, discard_mock.call_count)
 
     def test_should_return_loaded_vcl_list_which_should_be_use_on_servers(self):
         first_vcl = Vcl('Test-1', name='test-1')
@@ -218,11 +220,20 @@ class ParallelLoaderTest(TestCase):
                 ParallelLoader().load_vcl_list(vcl_list)
 
     @raises(VclLoadException)
-    def test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server(self):
+    def test_should_raise_custom_exception_if_timeout_occurred_while_loading_vcl(self):
         first_vcl = Vcl('Test-1', name='test-1')
         vcl_list = [(servers[1], first_vcl)]
 
         with patch.object(VarnishApiProvider, 'get_api'):
+            with patch.object(VclLoader, 'load_new_vcl', side_effect=VarnishApiReadException):
+                ParallelLoader().load_vcl_list(vcl_list)
+
+    @raises(VclLoadException)
+    def test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server(self):
+        first_vcl = Vcl('Test-1', name='test-1')
+        vcl_list = [(servers[1], first_vcl)]
+
+        with patch.object(VarnishApi, '__init__', side_effect=Exception):
             ParallelLoader().load_vcl_list(vcl_list)
 
     def assert_loaded_vcl_contains_proper_vcl_and_server(self, loaded_vcl_tuple, expected_vcl, expected_server):
@@ -276,6 +287,24 @@ class ParallelLoaderTest(TestCase):
             with patch.object(VclLoader, 'load_new_vcl', return_value=VclStatus.OK):
                 # as opposed to test:
                 # test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server
+                # it DOES NOT raise any exception when cluster allow partial reloads
+                # what is being tested implicitly there.
+                to_use = ParallelLoader().load_vcl_list(vcl_list)
+                assert_equals(len(to_use), 1)
+
+    def test_should_return_vcl_list_without_servers_that_have_timed_out_while_loading_vcl(self):
+        first_vcl = Vcl('Test-1', name='test-1')
+        second_vcl = Vcl('Test-2', name='test-2')
+        cluster_with_partial_reload = LogicalCluster(name='cluster1', id=1, partial_reload=True)
+        server = VarnishServer(ip='127.0.0.1', port='6082', hostname='localhost-1', secret='secret-1', dc=dc,
+                               cluster=cluster_with_partial_reload, status='active')
+
+        vcl_list = [(server, first_vcl), (servers[1], second_vcl)]
+
+        with patch.object(VarnishApiProvider, 'get_api'):
+            with patch.object(VclLoader, 'load_new_vcl', side_effect=[VarnishApiReadException, VclStatus.OK]):
+                # as opposed to test:
+                # test_should_raise_custom_exception_if_timeout_occurred_while_loading_vcl
                 # it DOES NOT raise any exception when cluster allow partial reloads
                 # what is being tested implicitly there.
                 to_use = ParallelLoader().load_vcl_list(vcl_list)
