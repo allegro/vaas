@@ -1,29 +1,33 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
 
-class Rewrite(models.Model):
-    class ResponseStatusChoices(models.IntegerChoices):
-        MOVE_PERNAMENTLLY = 301
+
+class Redirect(models.Model):
+    class ResponseStatusCode(models.IntegerChoices):
+        MOVE_PERMANENTLY = 301
         FOUND = 302
         TEMPORARY_REDIRECT = 307
 
+    src_domain = models.CharField(max_length=256)
     condition = models.CharField(max_length=512)
-    destination = models.CharField(max_length=512)
-    action = models.IntegerField(choices=ResponseStatusChoices.choices, default=301)
+    destination = models.CharField(max_length=512,validators=[RegexValidator(regex="^/.*",message="Destination should be relative")])
+    action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
 
-class RewritePositiveUrl(models.Model):
-    url = models.URLField()
+
+class RedirectAssertion(models.Model):
+    given_url = models.URLField()
     expected_location = models.CharField(max_length=512)
-    rewrite = models.ForeignKey(
-        'Rewrite', on_delete=models.CASCADE, related_name='rewrite_positive_urls',
-        related_query_name='rewrite_positive_url')
+    redirect = models.ForeignKey(
+        'Redirect', on_delete=models.CASCADE, related_name='assertions',
+        related_query_name='redirect_assertions')
+
 
 class Route(models.Model):
     condition = models.CharField(max_length=512)
@@ -117,7 +121,26 @@ def provide_route_configuration():
             Action(action='pipe', name='bypass the cache')
         ],
     )
+class RedirectConfiguration(DictEqual):
+    def __init__(self, http_methods, domains):
+        self.http_methods = http_methods
+        self.domains = domains
 
+class HttpMethod(DictEqual):
+    def __init__(self, http_method, name):
+        self.http_method = http_method
+        self.name = name
+
+class Domain(DictEqual):
+    def __init__(self, domain, name):
+        self.domain = domain
+        self.name = name
+
+def provide_redirect_configuration():
+    return RedirectConfiguration(
+        [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
+        [Domain(domain=k, name=v) for k, v in settings.DOMAIN_MAPPER.items()],
+    )
 
 class Named(DictEqual):
     def __init__(self, id, name):
@@ -125,10 +148,16 @@ class Named(DictEqual):
         self.name = name
 
 
-class Assertion(DictEqual):
+class RouteContext(DictEqual):
     def __init__(self, route, director):
         self.route = route
         self.director = director
+
+
+class RedirectContext(DictEqual):
+    def __init__(self, redirect, location):
+        self.redirect = redirect
+        self.location = location
 
 
 class ValidationResult(DictEqual):

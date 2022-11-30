@@ -30,7 +30,7 @@
         vcl_modal.on('hidden.bs.modal', function (e) {
             $(this).find('.modal-body').empty();
         });
-        connectCommand([2,], command_url);
+        connectCommand(findServers(), command_url);
     });
 
     function handleError(request, textStatus, errorThrown) {
@@ -40,7 +40,7 @@
         return $.ajax({
           type: 'PUT',
           url: url,
-          data: JSON.stringify({'varnish_ids': findServers()}),
+          data: JSON.stringify({'varnish_ids': servers}),
           dataType: 'json',
           contentType: "application/json; charset=utf-8",
           error: handleError,

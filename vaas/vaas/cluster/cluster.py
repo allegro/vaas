@@ -302,7 +302,9 @@ class ParallelLoader(ParallelExecutor):
     def _discard_from_future(self, executor, future_results):
         discard_results = []
         for vcl, loader, server, future_result in future_results:
-            self._discard_unused_vcls(server, loader, executor, discard_results)
+            result = self._get_load_new_vcl_result(server, future_result)
+            if result == VclStatus.OK:
+                self._discard_unused_vcls(server, loader, executor, discard_results)
         for server, status in discard_results:
             if status.result() is VclStatus.ERROR:
                 self.logger.debug("ERROR while discard vcl's on %s" % (server))

@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from typing import Any
+
+from celery.result import AsyncResult
+from django.urls import re_path
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
 from tastypie.bundle import Bundle
@@ -12,15 +16,15 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, PositiveUrl, Rewrite, RewritePositiveUrl, provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
-from vaas.router.report import fetch_urls_async, prepare_report_from_task
+from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
 
-class RewritePositiveUrlResource(Resource):
-    url = fields.CharField(attribute='url')
+class RedirectAssertionResource(Resource):
+    given_url = fields.CharField(attribute='given_url')
     expected_location = fields.CharField(attribute='expected_location')
 
     def dehydrate(self, bundle):
@@ -29,40 +33,44 @@ class RewritePositiveUrlResource(Resource):
         return bundle
 
 
-class RewriteResource(ModelResource):
-    rewrite_positive_urls = fields.ToManyField('vaas.router.api.RewritePositiveUrlResource', 'rewrite_positive_urls', full=True)
+class RedirectResource(ModelResource):
+    assertions = fields.ToManyField(
+        'vaas.router.api.RedirectAssertionResource', 'assertions', full=True)
 
     class Meta:
-        queryset = Rewrite.objects.all().prefetch_related('rewrite_positive_urls')
-        resource_name = 'rewrite'
+        queryset = Redirect.objects.all().prefetch_related('assertions')
+        resource_name = 'redirect'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         always_return_data = True
 
     def save(self, bundle, *args, **kwargs):
-        rewrite_positive_urls = bundle.data.get('rewrite_positive_urls', [])
-        bundle.data['rewrite_positive_urls'] = []
+        assertions = bundle.data.get('assertions', [])
+        bundle.data['assertions'] = []
         bundle = super().save(bundle, *args, **kwargs)
-        if len(rewrite_positive_urls) != 0:
-            # if PATCH request not contains rewrite_positive_urls field we do not want to deleting existing rewrite_positive_urls
-            if not self._is_patch_request_without_rewrite_positive_urls_field(rewrite_positive_urls):
-                # if HTTP request contains rewrite_positive_urls we want delete previous rewrite_positive_urls attached to the Rewrite object
-                bundle.obj.rewrite_positive_urls.all().delete()
-                for rewrite_positive_url in rewrite_positive_urls:
-                    RewritePositiveUrl.objects.create(
-                        url=rewrite_positive_url['url'],
-                        expected_location=rewrite_positive_url['expected_location'],
-                        rewrite=bundle.obj
+        if len(assertions) != 0:
+            # if PATCH request not contains assertions field
+            # we do not want to delete existing assertions
+            if not self._is_patch_request_without_assertions_field(assertions):
+                # if HTTP request contains assertions
+                # we want to delete previous assertions attached to the Rewrite object
+                bundle.obj.assertions.all().delete()
+                for assertion in assertions:
+                    RedirectAssertion.objects.create(
+                        given_url=assertion['given_url'],
+                        expected_location=assertion['expected_location'],
+                        redirect=bundle.obj
                     )
         else:
-            bundle.obj.rewrite_positive_urls.all().delete()
+            bundle.obj.assertions.all().delete()
 
         return bundle
 
-    # If PATCH request not contains rewrite_positive_urls field, tastypie pulls out Bundle object with rewrite_positive_urls currently attached to the Rewrite object
-    def _is_patch_request_without_rewrite_positive_urls_field(self, rewrite_positive_urls):
-        return all(isinstance(rewrite_positive_url, Bundle) for rewrite_positive_url in rewrite_positive_urls)
+    # If PATCH request not contains redirect_assertions field,
+    # tastypie pulls out Bundle object with rewrite_positive_urls currently attached to the Redirect object
+    def _is_patch_request_without_assertions_field(self, redirect_assertions):
+        return all(isinstance(assertion, Bundle) for assertion in redirect_assertions)
 
 
 class RouteModelCleanedDataFormValidation(ModelCleanedDataFormValidation):
@@ -255,7 +263,70 @@ class ValidationReportResource(Resource):
         include_resource_uri = False
 
     def obj_get(self, bundle, **kwargs):
-        return prepare_report_from_task(kwargs['pk'])
+        return prepare_report_from_task(kwargs['pk'], 'route')
 
     def get_object_list(self, request):
         return None
+
+
+class ValidationResultResource(Resource):
+    url = fields.CharField(attribute='url')
+    result = fields.CharField(attribute='result')
+    expected = fields.ToOneField(AssertionResource, attribute='expected', full=True, null=True)
+    current = fields.ToOneField(AssertionResource, attribute='current', full=True, null=True)
+    error_message = fields.CharField(attribute='error_message', null=True)
+
+    class Meta:
+        include_resource_uri = False
+
+
+class ValidateRedirectsCommandModel:
+    def __init__(
+            self,
+            pk: str = "",
+            status: Any = "PENDING",
+            output: Any = None):
+        self.pk = pk
+        self.id = pk
+        self.status = status
+        self.output = output
+
+    def __repr__(self) -> str:
+        return '{}'.format({k: v for k, v in self.__dict__})
+
+
+class ValidateRedirectsCommandResource(Resource):
+    pk = fields.CharField(attribute='id', readonly=True)
+    status = fields.CharField(attribute='status', readonly=True, blank=True, null=True)
+    output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
+
+    class Meta:
+        resource_name = 'validate-command'
+        list_allowed_methods = []
+        detail_allowed_methods = ['put', 'get']
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        fields = ['status', 'output']
+        include_resource_uri = False
+        always_return_data = True
+
+    def obj_create(self, bundle, **kwargs):
+        bundle.obj = ValidateRedirectsCommandModel(pk=kwargs['pk'])
+        bundle = self.full_hydrate(bundle)
+        task = fetch_redirects_async.apply_async(task_id=bundle.obj.pk)
+        bundle.obj.status = task.status
+        bundle.obj.output = task.result
+        return bundle
+
+    def obj_get(self, bundle, **kwargs):
+        task = AsyncResult(kwargs['pk'])
+        return ValidateRedirectsCommandModel(
+            kwargs['pk'], task.status, output=prepare_report_from_task(kwargs['pk'], 'redirect').__dict__
+        )
+
+    def prepend_urls(self):
+        return [
+            re_path(r"^redirect/(?P<resource_name>%s)/(?P<pk>[\w\d_.-]+)/$" %
+                    self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^redirect/(?P<resource_name>%s)/$" %
+                    self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_dispatch_list")]
