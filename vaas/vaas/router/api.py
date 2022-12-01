@@ -7,7 +7,7 @@ from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
-from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.exceptions import ImmediateHttpResponse, NotFound
 from django.http.response import HttpResponse
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist
@@ -301,7 +301,9 @@ class ValidateRedirectsCommandResource(Resource):
     output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
 
     class Meta:
-        resource_name = 'validate-command'
+        # prefixing the name with underscores forces prepend_urls to be matched
+        # before urls linked to other resources
+        resource_name = '__validate-command'
         list_allowed_methods = []
         detail_allowed_methods = ['put', 'get']
         authorization = DjangoAuthorization()
@@ -309,6 +311,10 @@ class ValidateRedirectsCommandResource(Resource):
         fields = ['status', 'output']
         include_resource_uri = False
         always_return_data = True
+
+    def obj_update(self, bundle, **kwargs):
+        bundle.data['pk'] = kwargs['pk']
+        raise NotFound()
 
     def obj_create(self, bundle, **kwargs):
         bundle.obj = ValidateRedirectsCommandModel(pk=kwargs['pk'])
@@ -326,7 +332,6 @@ class ValidateRedirectsCommandResource(Resource):
 
     def prepend_urls(self):
         return [
-            re_path(r"^redirect/(?P<resource_name>%s)/(?P<pk>[\w\d_.-]+)/$" %
-                    self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-            re_path(r"^redirect/(?P<resource_name>%s)/$" %
-                    self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_dispatch_list")]
+            re_path(r"^redirect/validate-command/(?P<pk>[\w\d_.-]+)/$",
+                    self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^redirect/validate-command/$", self.wrap_view('dispatch_list'), name="api_dispatch_list")]
