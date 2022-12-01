@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from vaas.router.models import provide_redirect_configuration
-from vaas.cluster.models import DomainMapping
 from django.core.validators import RegexValidator
 
 

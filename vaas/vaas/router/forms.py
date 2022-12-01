@@ -7,7 +7,7 @@ from vaas.adminext.widgets import ComplexConditionWidget,ComplexRedirectConditio
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
-from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration, provide_redirect_configuration
+from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration
 
 
 class MultipleUrl(MultiValueField):
