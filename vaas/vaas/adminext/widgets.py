@@ -157,7 +157,7 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
 class ComplexRedirectConditionField(forms.MultiValueField):
     def __init__(self, **kwargs):
         configuration: RedirectConfiguration = provide_redirect_configuration()
-        http_methods: Tuple= tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
+        http_methods: Tuple = tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
         domains: Tuple = tuple((domain.domain, domain.pk) for domain in configuration.domains)
         fields = (
             forms.ChoiceField(choices=http_methods),
