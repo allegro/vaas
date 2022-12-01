@@ -159,11 +159,11 @@ class RedirectModelForm(ModelForm):
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         pretify_fields(self.fields.values())
 
-    def clean(self):
+    def clean(self) -> None:
         src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
         self.cleaned_data['src_domain'] = src_domain
 
-def pretify_fields(fields):
+def pretify_fields(fields) -> None:
     for field in fields:
         if not isinstance(field.widget,CheckboxInput):
             field.widget.attrs.update({'class': 'form-control'})

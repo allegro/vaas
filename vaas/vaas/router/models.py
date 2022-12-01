@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import List
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
@@ -125,24 +126,24 @@ def provide_route_configuration():
 
 
 class RedirectConfiguration(DictEqual):
-    def __init__(self, http_methods, domains):
+    def __init__(self, http_methods: List[str, str], domains: List[str, int]):
         self.http_methods = http_methods
         self.domains = domains
 
 
 class HttpMethod(DictEqual):
-    def __init__(self, http_method, name):
+    def __init__(self, http_method: str, name: str):
         self.http_method = http_method
         self.name = name
 
 
 class Domain(DictEqual):
-    def __init__(self, domain, pk):
+    def __init__(self, domain: str, pk: int):
         self.domain = domain
         self.pk = pk
 
 
-def provide_redirect_configuration():
+def provide_redirect_configuration() -> RedirectConfiguration:
     return RedirectConfiguration(
         [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
         [

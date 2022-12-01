@@ -2,6 +2,7 @@ from django.contrib.admin import SimpleListFilter
 from django.db import models
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import SafeText
 from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
@@ -171,7 +172,7 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
     search_fields = ['domain', 'mapping', 'type', 'clusters__name']
     list_display = ['domain', 'mapping', 'type', 'get_clusters']
 
-    def get_clusters(self, obj):
+    def get_clusters(self, obj) -> str:
         return ", ".join([c.name for c in obj.clusters.all()])
 
     get_clusters.short_description = 'Related clusters'
@@ -217,7 +218,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     labels.short_description = 'Labels'
 
-    def get_domains(self, obj):
+    def get_domains(self, obj) -> SafeText:
         domains_html = ''
         for domain in obj.domainmapping_set.all():
             domains_html += (

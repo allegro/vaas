@@ -101,7 +101,7 @@ class DirectorAdmin(AuditableModelAdmin):
     list_filter = ['cluster__name', 'service']
     actions = [enable_director, disable_director]
 
-    def get_clusters(self, obj):
+    def get_clusters(self, obj) -> str:
         """Return string with newline separated clusters for directory passed as argument"""
         return "\n".join([cluster.name for cluster in obj.cluster.all()])
 

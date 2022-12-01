@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from typing import List, Optional, Tuple
 from django import forms
-from vaas.router.models import provide_redirect_configuration
+from vaas.router.models import provide_redirect_configuration, RedirectConfiguration
 from django.core.validators import RegexValidator
 
 
@@ -135,7 +136,7 @@ def split_condition(value):
             return left, operator, right
     return ['req.url', '~', '']
 class ComplexRedirectConditionWidget(forms.MultiWidget):
-    def __init__(self, http_methods, domains, attrs=None): 
+    def __init__(self, http_methods: Tuple, domains: Tuple, attrs=None): 
         widgets = ( 
             forms.Select(choices=http_methods, attrs={'class': 'form-control','style': 'display: inline-block; width:15%'}),
             forms.Select(choices=domains, attrs={'class': 'form-control','style': 'display: inline-block; width:40%'}),
@@ -143,7 +144,7 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
         )
         super().__init__(widgets, attrs)
 
-    def decompress(self, value):
+    def decompress(self, value: str) -> Tuple[str, str, str]:
         if value:
             parts = value.split(' ')
             condition_domain = self.attrs.get('condition_domain', None)
@@ -155,9 +156,9 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
 
 class ComplexRedirectConditionField(forms.MultiValueField):
     def __init__(self, **kwargs):
-        configuration = provide_redirect_configuration() 
-        http_methods = tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
-        domains = tuple((domain.domain, domain.pk) for domain in configuration.domains)
+        configuration: RedirectConfiguration = provide_redirect_configuration()
+        http_methods: Tuple= tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
+        domains: Tuple = tuple((domain.domain, domain.pk) for domain in configuration.domains)
         fields = (
             forms.ChoiceField(choices=http_methods),
             forms.ChoiceField(choices=domains),
@@ -166,7 +167,7 @@ class ComplexRedirectConditionField(forms.MultiValueField):
         widget=ComplexRedirectConditionWidget(http_methods, domains)
         super().__init__(fields=fields, widget=widget, **kwargs)
 
-    def compress(self, data_list):
+    def compress(self, data_list: List) -> Optional[str]:
         if data_list:
             http_method = data_list[0]
             src_path = data_list[2]
