@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from vaas.router.models import provide_redirect_configuration
+from vaas.cluster.models import DomainMapping
 from django.core.validators import RegexValidator
 
 
@@ -157,14 +158,14 @@ class ComplexRedirectConditionField(forms.MultiValueField):
     def __init__(self, **kwargs):
         configuration = provide_redirect_configuration() 
         http_methods = tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
-        domains = tuple((domain.domain, domain.domain) for domain in configuration.domains)
+        domains = tuple((domain.domain, domain.pk) for domain in configuration.domains)
         fields = (
             forms.ChoiceField(choices=http_methods),
             forms.ChoiceField(choices=domains),
             forms.CharField(validators=[RegexValidator(regex="^/.*",message="From path should be relative")]),
         )
         widget=ComplexRedirectConditionWidget(http_methods, domains)
-        super().__init__(fields=fields,widget=widget, **kwargs)
+        super().__init__(fields=fields, widget=widget, **kwargs)
 
     def compress(self, data_list):
         if data_list:

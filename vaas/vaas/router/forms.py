@@ -1,11 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, CharField, HiddenInput, MultiValueField, BooleanField
+from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, MultiValueField, BooleanField
 from django.conf import settings
 from vaas.adminext.widgets import ComplexConditionWidget,ComplexRedirectConditionField, MultiUrlWidget, PrioritySelect, SearchableSelect, \
     split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from vaas.cluster.models import LogicalCluster
+from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
 from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration, provide_redirect_configuration
 
@@ -137,8 +137,8 @@ class RouteModelForm(ModelForm):
 
 class RedirectModelForm(ModelForm):
     preserve_query_params = BooleanField(required=False, label='Preserve query params')
+    src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
     condition = ComplexRedirectConditionField()
-    src_domain = CharField(widget=HiddenInput(), required=False)
     class Meta:
         model = Redirect
         fields = '__all__'
@@ -160,7 +160,7 @@ class RedirectModelForm(ModelForm):
         pretify_fields(self.fields.values())
 
     def clean(self):
-        src_domain = self.data['condition_1']
+        src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
         self.cleaned_data['src_domain'] = src_domain
 
 def pretify_fields(fields):

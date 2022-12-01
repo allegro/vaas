@@ -212,7 +212,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         labels_list_html = ''
         if obj.labels:
             for label in obj.labels:
-                labels_list_html += "<div class='span13 text-center'>%s</div>" % label
+                labels_list_html += "<span class='label label-default'>%s</span>" % label
         return format_html(labels_list_html)
 
     labels.short_description = 'Labels'
@@ -221,8 +221,8 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         domains_html = ''
         for domain in obj.domainmapping_set.all():
             domains_html += (
-                "<a class='btn btn-success' href='/admin/cluster/domainmapping/?q=%s'>%s</a></div><br/>"
-                ) % (obj.name, domain.domain)
+                "<span class='label label-primary'>%s</apan>"
+                ) % domain.domain
         return format_html(domains_html)
 
     get_domains.short_description = 'Related Domains'

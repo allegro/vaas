@@ -3,7 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
-from vaas.cluster.models import LogicalCluster
+from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
 
 
@@ -13,9 +13,10 @@ class Redirect(models.Model):
         FOUND = 302
         TEMPORARY_REDIRECT = 307
 
-    src_domain = models.CharField(max_length=256)
+    src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
     condition = models.CharField(max_length=512)
-    destination = models.CharField(max_length=512,validators=[RegexValidator(regex="^/.*",message="Destination should be relative")])
+    destination = models.CharField(max_length=512, validators=[RegexValidator(
+        regex="^/.*", message="Destination should be relative")])
     action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
@@ -121,26 +122,35 @@ def provide_route_configuration():
             Action(action='pipe', name='bypass the cache')
         ],
     )
+
+
 class RedirectConfiguration(DictEqual):
     def __init__(self, http_methods, domains):
         self.http_methods = http_methods
         self.domains = domains
+
 
 class HttpMethod(DictEqual):
     def __init__(self, http_method, name):
         self.http_method = http_method
         self.name = name
 
+
 class Domain(DictEqual):
-    def __init__(self, domain, name):
+    def __init__(self, domain, pk):
         self.domain = domain
-        self.name = name
+        self.pk = pk
+
 
 def provide_redirect_configuration():
     return RedirectConfiguration(
         [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
-        [Domain(domain=k, name=v) for k, v in settings.DOMAIN_MAPPER.items()],
+        [
+            Domain(domain=domainMapping.pk, pk=domainMapping.domain)
+            for domainMapping in DomainMapping.objects.all()
+        ],
     )
+
 
 class Named(DictEqual):
     def __init__(self, id, name):
