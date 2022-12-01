@@ -113,6 +113,9 @@ class DomainMapping(models.Model):
     type = models.CharField(max_length=7, choices=TYPE_CHOICES, default='static')
     clusters = models.ManyToManyField(LogicalCluster)
 
+    def __str__(self):
+        return f'{self.domain}'
+
 class VclTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, validators=[name_validator])
     content = models.TextField()

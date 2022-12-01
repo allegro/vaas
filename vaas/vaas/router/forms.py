@@ -138,7 +138,6 @@ class RouteModelForm(ModelForm):
 class RedirectModelForm(ModelForm):
     preserve_query_params = BooleanField(required=False, label='Preserve query params')
     src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
-    condition = ComplexRedirectConditionField()
     class Meta:
         model = Redirect
         fields = '__all__'
@@ -155,6 +154,7 @@ class RedirectModelForm(ModelForm):
             condition_domain = kwargs['instance'].src_domain
         super().__init__(*args, **kwargs)
         self.fields['priority'].initial = 250
+        self.fields['condition'] = ComplexRedirectConditionField()
         self.fields['condition'].widget.attrs.update({'condition_domain' : condition_domain})
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         pretify_fields(self.fields.values())
