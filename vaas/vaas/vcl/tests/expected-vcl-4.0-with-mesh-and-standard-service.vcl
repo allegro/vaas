@@ -101,7 +101,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "5feca", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "94725", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -115,6 +115,11 @@ sub vcl_synth {
     if (resp.status == 998) {
         set resp.http.Location = resp.reason + req.http.host + req.url;
         set resp.status = 301;
+        synthetic ("");
+        return (deliver);
+    } else if (resp.status == 888) {
+        set resp.http.Location = resp.reason + req.http.host + req.http.x-destination;
+        set resp.status = std.integer(req.http.x-response-code, 301);
         synthetic ("");
         return (deliver);
     }
@@ -143,6 +148,11 @@ sub vcl_recv {
 
     unset req.http.x-canary-random;
 
+# Flexible REDIRECT
+
+    if(req.http.x-action == "redirect") {
+        return (synth(888, req.http.X-Forwarded-Proto + "://"));
+    }
 # Test ROUTER
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
