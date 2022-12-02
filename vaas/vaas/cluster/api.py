@@ -300,7 +300,7 @@ class ValidateVCLCommandResource(Resource):
         list_allowed_methods = []
         detail_allowed_methods = ['put', 'get']
         authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         validation = ValidateVCLCommandInputValidation()
         fields = ['content', 'status', 'output']
         include_resource_uri = False

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.forms import ModelForm, TextInput
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
+from django.forms import ModelMultipleChoiceField
 
 from vaas.adminext.widgets import SearchableSelect
 from vaas.cluster.models import LogicalCluster, Dc, VclTemplate, VarnishServer, VclTemplateBlock, VclVariable
@@ -9,6 +12,11 @@ class LogicalCLusterModelForm(ModelForm):
     class Meta:
         model = LogicalCluster
         fields = '__all__'
+
+
+class DomainMappingForm(ModelForm):
+    clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
+                                        widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
 
 
 class DcModelForm(ModelForm):
@@ -27,6 +35,9 @@ class VclTemplateModelForm(ModelForm):
     class Meta:
         model = VclTemplate
         fields = '__all__'
+
+    class Media:
+        js = ('cluster/js/vcl-validation.js', 'utils/js/labels.js',)
 
 
 class VarnishServerModelForm(ModelForm):

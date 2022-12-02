@@ -74,20 +74,6 @@
     $('#error-message').remove()
     $('.modal-body').prepend(`<div id="error-message" class="alert alert-danger" role="alert">${message}</div>`)
   }
-  function statusToClass(status) {
-    switch (status) {
-      case 'PENDING':
-        return 'info';
-      case 'PASS':
-      case 'SUCCESS':
-        return 'success'
-      case 'FAIL':
-      case 'FAILURE':
-        return 'danger'
-      default:
-        return 'default'
-    }
-  }
   function createTestResult(records) {
     var html = '';
     records.sort(function(x, y) {

@@ -75,10 +75,10 @@ class Vcl(object):
     def __eq__(self, other):
         return hashlib.md5(str(self).encode('utf-8')).hexdigest() == hashlib.md5(str(other).encode('utf-8')).hexdigest()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.content + '\n'
 
-    def __unicode__(self):
+    def __unicode__(self) -> str:
         return self.content + '\n'
 
 
@@ -137,10 +137,10 @@ class VclTagExpander(object):
                 return vcl_template_blocks[0].content
         return ""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '<' + self.tag + '/>'
 
-    def __unicode__(self):
+    def __unicode__(self) -> str:
         return '<' + self.tag + '/>'
 
 

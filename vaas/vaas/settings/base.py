@@ -280,7 +280,14 @@ if ROUTES_CANARY_HEADER:
 
 DOMAIN_MAPPER = {}
 for entry in env.json('DOMAIN_MAPPER', default=[
-    {'name': 'example', 'value': 'example.com'},
+    {'name': 'example.com', 'value': 'example.com'},
     {'name': 'example.pl', 'value': 'example.{{ PLACEHOLDER }}.pl'},
 ]):
     DOMAIN_MAPPER[entry['name']] = entry['value']
+
+REDIRECT_METHODS = {}
+for entry in env.json('REDIRECT_METHODS', default=[
+    {'name': 'GET', 'value': 'GET'},
+    {'name': 'HEAD', 'value': 'HEAD'},
+]):
+    REDIRECT_METHODS[entry['name']] = entry['value']

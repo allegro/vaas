@@ -1,30 +1,35 @@
 # -*- coding: utf-8 -*-
+from typing import List
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
-from vaas.cluster.models import LogicalCluster
+from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
 
-class Rewrite(models.Model):
-    class ResponseStatusChoices(models.IntegerChoices):
-        MOVE_PERNAMENTLLY = 301
+
+class Redirect(models.Model):
+    class ResponseStatusCode(models.IntegerChoices):
+        MOVE_PERMANENTLY = 301
         FOUND = 302
         TEMPORARY_REDIRECT = 307
 
-    domain = models.CharField(max_length=512, default='')
+    src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
     condition = models.CharField(max_length=512)
-    destination = models.CharField(max_length=512)
-    action = models.IntegerField(choices=ResponseStatusChoices.choices, default=301)
+    destination = models.CharField(max_length=512, validators=[RegexValidator(
+        regex="^/.*", message="Destination should be relative")])
+    action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
 
-class RewritePositiveUrl(models.Model):
-    url = models.URLField()
+
+class RedirectAssertion(models.Model):
+    given_url = models.URLField()
     expected_location = models.CharField(max_length=512)
-    rewrite = models.ForeignKey(
-        'Rewrite', on_delete=models.CASCADE, related_name='rewrite_positive_urls',
-        related_query_name='rewrite_positive_url')
+    redirect = models.ForeignKey(
+        'Redirect', on_delete=models.CASCADE, related_name='assertions',
+        related_query_name='redirect_assertions')
+
 
 class Route(models.Model):
     condition = models.CharField(max_length=512)
@@ -39,7 +44,7 @@ class Route(models.Model):
             return self.director.cluster.all()
         return self.clusters.all()
 
-    def __str__(self):
+    def __str__(self) -> str:
         name = "(Priority: %s) if (%s) then %s for %s" % (
             self.priority, self.condition, self.action, str(self.director))
         return name
@@ -120,16 +125,50 @@ def provide_route_configuration():
     )
 
 
+class HttpMethod(DictEqual):
+    def __init__(self, http_method: str, name: str):
+        self.http_method = http_method
+        self.name = name
+
+
+class Domain(DictEqual):
+    def __init__(self, domain: str, pk: int):
+        self.domain = domain
+        self.pk = pk
+
+
+class RedirectConfiguration(DictEqual):
+    def __init__(self, http_methods: List[HttpMethod], domains: List[Domain]):
+        self.http_methods = http_methods
+        self.domains = domains
+
+
+def provide_redirect_configuration() -> RedirectConfiguration:
+    return RedirectConfiguration(
+        [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
+        [
+            Domain(domain=domainMapping.domain, pk=domainMapping.pk)
+            for domainMapping in DomainMapping.objects.all()
+        ],
+    )
+
+
 class Named(DictEqual):
     def __init__(self, id, name):
         self.id = id
         self.name = name
 
 
-class Assertion(DictEqual):
+class RouteContext(DictEqual):
     def __init__(self, route, director):
         self.route = route
         self.director = director
+
+
+class RedirectContext(DictEqual):
+    def __init__(self, redirect, location):
+        self.redirect = redirect
+        self.location = location
 
 
 class ValidationResult(DictEqual):

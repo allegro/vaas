@@ -1,21 +1,23 @@
 from django.contrib import admin
 
 from vaas.external.audit import AuditableModelAdmin
-from vaas.router.models import Route, Rewrite, RewritePositiveUrl
-from vaas.router.forms import RouteModelForm
+from vaas.router.models import Route, Redirect, RedirectAssertion
+from vaas.router.forms import RouteModelForm, RedirectModelForm
 from django.conf import settings
 
 
-class RewritePositiveUrl(admin.TabularInline):
-    model = RewritePositiveUrl
+class RedirectAssertionAdmin(admin.TabularInline):
+    model = RedirectAssertion
     extra = 1
 
-class RewriteAdmin(AuditableModelAdmin):
-    model = Rewrite
+
+class RedirectAdmin(AuditableModelAdmin):
+    form = RedirectModelForm
     inlines = [
-        RewritePositiveUrl,
+        RedirectAssertionAdmin,
     ]
-    list_display = ['condition', 'destination', 'action', 'priority', 'preserve_query_params']
+    list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
+
 
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
@@ -37,8 +39,8 @@ class RouteAdmin(AuditableModelAdmin):
         return super().changelist_view(request, extra_context=ctx)
 
     class Media:
-        js = ('js/clusters-sync.js',)
+        js = ('js/clusters-sync.js', 'utils/js/labels.js')
 
 
 admin.site.register(Route, RouteAdmin)
-admin.site.register(Rewrite, RewriteAdmin)
+admin.site.register(Redirect, RedirectAdmin)
