@@ -11,8 +11,6 @@ sub vcl_recv {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));
     } else if(req.http.x-action == "pipe") {
         return (pipe);
-    } else if(req.http.x-action == "redirect") {
-        return (synth(std.integer(req.http.x-response-code), req.http.x-destination));
     }
 
     # POST, PUT, DELETE are passed directly to backend

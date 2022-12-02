@@ -108,13 +108,13 @@ class VclTagBuilderTest(TestCase):
         settings.SIGNALS = 'off'
         self.dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
         self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
-        cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test', labels='[example.com, placeholder:dev1]')
-        cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test', labels='[env:prod]')
+        cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test', labels_list='["example.com", "placeholder:dev1"]')
+        cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test', labels_list='["env:prod"]')
         cluster3_with_mesh_service = LogicalClusterFactory.create(
-            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True, labels='[cluster3]'
+            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True, labels_list='["cluster3"]'
         )
         cluster4_with_mesh_and_standard_service = LogicalClusterFactory.create(
-            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True, labels='[cluster4]'
+            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True, labels_list='["cluster4"]'
         )
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1

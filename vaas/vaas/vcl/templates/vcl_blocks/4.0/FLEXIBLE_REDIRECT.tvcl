@@ -8,3 +8,7 @@
 {% endfor %}
     }
 {% endfor %}
+
+    if(req.http.x-action == "redirect") {
+        return (synth(888, req.http.X-Forwarded-Proto + "://"));
+    }

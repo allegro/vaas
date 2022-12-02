@@ -11,7 +11,7 @@ from django.db.models import Prefetch
 from jinja2 import Environment, FileSystemLoader
 
 from vaas.manager.models import Backend, Director
-from vaas.router.models import Route, Rewrite
+from vaas.router.models import Route, Redirect
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
 
 VCL_TAGS = {
@@ -176,13 +176,12 @@ class VclTagBuilder(object):
     def prepare_redirect(self):
         redirects = {}
         for redirect in self.input.redirects:
-            if redirect.domain in self.varnish.cluster.labels:
-                record = redirects.get(redirect.domain, [])
-                if record:
-                    redirects[redirect.domain] = record.append(redirect)
+            if redirect.src_domain in self.varnish.cluster.domainmapping_set.all():
+                records = redirects.get(redirect.src_domain.domain, [])
+                if records:
+                    records.append(redirect)
                 else:
-                    redirects[redirect.domain] = [redirect]
-
+                    redirects[redirect.src_domain.domain] = [redirect]
         return redirects
 
 
@@ -362,7 +361,7 @@ class VclRendererInput(object):
             Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
-        self.redirects = list(Rewrite.objects.all())
+        self.redirects = list(Redirect.objects.all())
         ## TODO: add sort by priority
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
