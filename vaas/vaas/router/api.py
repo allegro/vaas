@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from celery.result import AsyncResult
 from django.urls import re_path
@@ -55,7 +55,7 @@ class RedirectResource(ModelResource):
             self._update_assertions(bundle.obj, assertions)
         return bundle
 
-    def _update_assertions(self, redirect: Redirect, new_assertions: dict) -> None:
+    def _update_assertions(self, redirect: Redirect, new_assertions: List[dict]) -> None:
         to_add = []
         to_delete = redirect.get_hashed_assertions_pks()
         for assertion in new_assertions:
