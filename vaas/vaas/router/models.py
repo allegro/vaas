@@ -147,7 +147,7 @@ def provide_redirect_configuration() -> RedirectConfiguration:
     return RedirectConfiguration(
         [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
         [
-            Domain(domain=domainMapping.pk, pk=domainMapping.domain)
+            Domain(domain=domainMapping.domain, pk=domainMapping.pk)
             for domainMapping in DomainMapping.objects.all()
         ],
     )

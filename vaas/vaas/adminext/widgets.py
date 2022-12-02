@@ -80,6 +80,7 @@ class ConditionWidget(forms.MultiWidget):
             parts[2] = '"{}"'.format(parts[2])
         return ' '.join(parts)
 
+
 class ComplexConditionWidget(forms.MultiWidget):
     def __init__(self, variables, operators, *args, **kwargs):
         self.conjunction = CONJUNCTION
@@ -135,12 +136,17 @@ def split_condition(value):
                 right = right[:-1]
             return left, operator, right
     return ['req.url', '~', '']
+
+
 class ComplexRedirectConditionWidget(forms.MultiWidget):
-    def __init__(self, http_methods: Tuple, domains: Tuple, attrs=None): 
-        widgets = ( 
-            forms.Select(choices=http_methods, attrs={'class': 'form-control','style': 'display: inline-block; width:15%'}),
-            forms.Select(choices=domains, attrs={'class': 'form-control','style': 'display: inline-block; width:40%'}),
-            forms.TextInput(attrs={'class': 'form-control','style': 'display: inline-block; width:45%','placeholder': 'Source path'}),
+    def __init__(self, http_methods: Tuple, domains: Tuple, attrs=None):
+        widgets = (
+            forms.Select(choices=http_methods,
+                         attrs={'class': 'form-control', 'style': 'display: inline-block; width:15%'}),
+            forms.Select(choices=domains,
+                         attrs={'class': 'form-control', 'style': 'display: inline-block; width:40%'}),
+            forms.TextInput(attrs={'class': 'form-control',
+                            'style': 'display: inline-block; width:45%', 'placeholder': 'Source path'}),
         )
         super().__init__(widgets, attrs)
 
@@ -152,19 +158,22 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
                 http_method = parts[2]
                 src_path = parts[6]
                 return http_method[1:-1], condition_domain, src_path[1:-1]
-        return 'GET','',''
+        return 'GET', '', ''
+
 
 class ComplexRedirectConditionField(forms.MultiValueField):
     def __init__(self, **kwargs):
         configuration: RedirectConfiguration = provide_redirect_configuration()
-        http_methods: Tuple = tuple((http_method.http_method, http_method.name) for http_method in configuration.http_methods)
-        domains: Tuple = tuple((domain.domain, domain.pk) for domain in configuration.domains)
+        http_methods: Tuple = tuple((http_method.http_method, http_method.name)
+                                    for http_method in configuration.http_methods)
+        domains: Tuple = tuple((domain.pk, domain.domain) for domain in configuration.domains)
         fields = (
             forms.ChoiceField(choices=http_methods),
             forms.ChoiceField(choices=domains),
-            forms.CharField(validators=[RegexValidator(regex="^/.*",message="From path should be relative")]),
+            forms.CharField(validators=[
+                RegexValidator(regex="^/.*", message="From path should be relative")]),
         )
-        widget=ComplexRedirectConditionWidget(http_methods, domains)
+        widget = ComplexRedirectConditionWidget(http_methods, domains)
         super().__init__(fields=fields, widget=widget, **kwargs)
 
     def compress(self, data_list: List) -> Optional[str]:

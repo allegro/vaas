@@ -103,6 +103,7 @@ class Dc(models.Model):
                         },
                     )
 
+
 class DomainMapping(models.Model):
     TYPE_CHOICES = (
         ('static', 'Static'),
@@ -115,6 +116,7 @@ class DomainMapping(models.Model):
 
     def __str__(self) -> str:
         return f'{self.domain}'
+
 
 class VclTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, validators=[name_validator])

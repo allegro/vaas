@@ -8,7 +8,8 @@ from django_ace import AceWidget
 
 from vaas.external.audit import AuditableModelAdmin
 from vaas.cluster.coherency import OutdatedServerManager
-from vaas.cluster.models import DomainMapping, VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
+from vaas.cluster.models import DomainMapping, VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, \
+    VclVariable
 from vaas.cluster.forms import DomainMappingForm, VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
     LogicalCLusterModelForm
 from vaas.cluster.cluster import VarnishApiProvider
@@ -167,6 +168,7 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     }
     list_display = ['tag', 'template']
 
+
 class DomainMappingAdmin(SimpleHistoryAdmin):
     form = DomainMappingForm
     search_fields = ['domain', 'mapping', 'type', 'clusters__name']
@@ -176,6 +178,7 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
         return ", ".join([c.name for c in obj.clusters.all()])
 
     get_clusters.short_description = 'Related clusters'
+
 
 class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
     form = VclTemplateModelForm
@@ -221,9 +224,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
     def get_domains(self, obj: LogicalCluster) -> SafeText:
         domains_html = ''
         for domain in obj.domainmapping_set.all():
-            domains_html += (
-                "<span class='label label-primary'>%s</apan>"
-                ) % domain.domain
+            domains_html += ("<span class='label label-primary'>%s</apan>") % domain.domain
         return format_html(domains_html)
 
     get_domains.short_description = 'Related Domains'
