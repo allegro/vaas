@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
+from typing import Dict
+
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 from vaas.cluster.models import LogicalCluster
 from vaas.manager.models import Director
+
+
+class RedirectAssertion(models.Model):
+    given_url = models.URLField()
+    expected_location = models.CharField(max_length=512)
+    redirect = models.ForeignKey(
+        'Redirect', on_delete=models.CASCADE, related_name='assertions',
+        related_query_name='redirect_assertions')
 
 
 class Redirect(models.Model):
@@ -20,13 +30,8 @@ class Redirect(models.Model):
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
 
-
-class RedirectAssertion(models.Model):
-    given_url = models.URLField()
-    expected_location = models.CharField(max_length=512)
-    redirect = models.ForeignKey(
-        'Redirect', on_delete=models.CASCADE, related_name='assertions',
-        related_query_name='redirect_assertions')
+    def get_hashed_assertions_pks(self) -> Dict[int, int]:
+        return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
 
 
 class Route(models.Model):
