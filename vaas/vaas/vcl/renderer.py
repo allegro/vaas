@@ -5,6 +5,7 @@ import os
 import hashlib
 import time
 import functools
+from typing import Dict, List
 
 from django.conf import settings
 from django.db.models import Prefetch
@@ -18,7 +19,7 @@ VCL_TAGS = {
     '4.0': [
         ['VCL'],
         ['HEADERS', 'ACL', 'DIRECTORS', 'VAAS_STATUS', 'RECV', 'OTHER_FUNCTIONS', 'EMPTY_DIRECTOR_SYNTH', 'VCL_PIPE'],
-        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'FLEXIBLE_REDIRECT', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
+        ['ROUTER', 'EXPLICITE_ROUTER', 'FLEXIBLE_ROUTER', 'DIRECTOR_{DIRECTOR}', 'DIRECTOR_INIT_{DIRECTOR}',
             'PROPER_PROTOCOL_REDIRECT', 'TEST_ROUTER', 'TEST_RESPONSE_SYNTH', 'USE_DIRECTOR_{DIRECTOR}',
          'USE_MESH_DIRECTOR_{DIRECTOR}', 'SET_ACTION'],
         ['SET_BACKEND_{DIRECTOR}', 'BACKEND_DEFINITION_LIST_{DIRECTOR}_{DC}', 'DIRECTOR_DEFINITION_{DIRECTOR}_{DC}',
@@ -167,19 +168,19 @@ class VclTagBuilder(object):
             'probe': self.prepare_probe(vcl_directors),
             'active_director': active_directors,
             'routes': self.prepare_route(self.varnish, cluster_directors),
-            'redirects': self.prepare_redirect(),
+            'redirects': self.prepare_redirects(),
             'cluster_directors': cluster_directors,
             'mesh_routing': varnish.cluster.service_mesh_routing
         }
 
     @collect_processing
-    def prepare_redirect(self):
+    def prepare_redirects(self) -> Dict[str, List[Redirect]]:
         redirects = {}
+        cluster_domains = self.varnish.cluster.domainmapping_set.all()
         for redirect in self.input.redirects:
-            if redirect.src_domain in self.varnish.cluster.domainmapping_set.all():
-                records = redirects.get(redirect.src_domain.domain, [])
-                if records:
-                    records.append(redirect)
+            if redirect.src_domain in cluster_domains:
+                if entries := redirects.get(redirect.src_domain.domain, []):
+                    entries.append(redirect)
                 else:
                     redirects[redirect.src_domain.domain] = [redirect]
         return redirects
@@ -333,10 +334,9 @@ class VclTagBuilder(object):
             vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
         elif tag_name == 'FLEXIBLE_ROUTER':
             vcl_tag.parameters['routes'] = self.placeholders['routes']
+            vcl_tag.parameters['redirects'] = self.placeholders['redirects']
             vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
             vcl_tag.parameters['canary_header'] = settings.ROUTES_CANARY_HEADER
-        elif tag_name == 'FLEXIBLE_REDIRECT':
-            vcl_tag.parameters['redirects'] = self.placeholders['redirects']
         elif tag_name == 'TEST_ROUTER':
             vcl_tag.parameters['validation_header'] = settings.VALIDATION_HEADER
 

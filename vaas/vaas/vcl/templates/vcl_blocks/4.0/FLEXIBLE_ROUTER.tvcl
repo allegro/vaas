@@ -15,3 +15,18 @@
 {% if canary_header %}
     unset req.http.{{ canary_header }};
 {% endif %}
+
+# Flexible REDIRECT
+{% for domain, redirect_list in redirects.items() %}
+    if (req.http.host ~ "{{ domain }}") {
+{% for redirect in redirect_list %}
+    {% if loop.index > 1 %}    else if {% else %}    if {% endif %}({{ redirect.condition }}) {
+        <SET_REDIRECT_{{ redirect.id }}/>
+    }
+{% endfor %}
+    }
+{% endfor %}
+
+    if(req.http.x-action == "redirect") {
+        return (synth(888, req.http.X-Forwarded-Proto + "://"));
+    }
