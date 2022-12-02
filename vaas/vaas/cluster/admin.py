@@ -172,7 +172,7 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
     search_fields = ['domain', 'mapping', 'type', 'clusters__name']
     list_display = ['domain', 'mapping', 'type', 'get_clusters']
 
-    def get_clusters(self, obj) -> str:
+    def get_clusters(self, obj: DomainMapping) -> str:
         return ", ".join([c.name for c in obj.clusters.all()])
 
     get_clusters.short_description = 'Related clusters'
@@ -204,12 +204,12 @@ class LogicalClusterAdmin(admin.ModelAdmin):
     ]
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
 
-    def get_tags(self, obj):
+    def get_tags(self, obj: LogicalCluster) -> str:
         return ", ".join(obj.current_vcls)
 
     get_tags.short_description = 'Current vcls'
 
-    def labels(self, obj):
+    def labels(self, obj: LogicalCluster) -> SafeText:
         labels_list_html = ''
         if obj.labels:
             for label in obj.labels:
@@ -218,7 +218,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     labels.short_description = 'Labels'
 
-    def get_domains(self, obj) -> SafeText:
+    def get_domains(self, obj: LogicalCluster) -> SafeText:
         domains_html = ''
         for domain in obj.domainmapping_set.all():
             domains_html += (
@@ -228,7 +228,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     get_domains.short_description = 'Related Domains'
 
-    def varnish_servers(self, obj):
+    def varnish_servers(self, obj: LogicalCluster) -> SafeText:
         return format_html(
             ("<div class='span13 text-center'>"
              "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "

@@ -44,7 +44,7 @@ class Route(models.Model):
             return self.director.cluster.all()
         return self.clusters.all()
 
-    def __str__(self):
+    def __str__(self) -> str:
         name = "(Priority: %s) if (%s) then %s for %s" % (
             self.priority, self.condition, self.action, str(self.director))
         return name
@@ -125,12 +125,6 @@ def provide_route_configuration():
     )
 
 
-class RedirectConfiguration(DictEqual):
-    def __init__(self, http_methods: List[str, str], domains: List[str, int]):
-        self.http_methods = http_methods
-        self.domains = domains
-
-
 class HttpMethod(DictEqual):
     def __init__(self, http_method: str, name: str):
         self.http_method = http_method
@@ -141,6 +135,12 @@ class Domain(DictEqual):
     def __init__(self, domain: str, pk: int):
         self.domain = domain
         self.pk = pk
+
+
+class RedirectConfiguration(DictEqual):
+    def __init__(self, http_methods: List[HttpMethod], domains: List[Domain]):
+        self.http_methods = http_methods
+        self.domains = domains
 
 
 def provide_redirect_configuration() -> RedirectConfiguration:

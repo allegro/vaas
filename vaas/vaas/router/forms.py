@@ -1,3 +1,4 @@
+from typing import Any, List
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, MultiValueField, BooleanField
@@ -163,7 +164,7 @@ class RedirectModelForm(ModelForm):
         src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
         self.cleaned_data['src_domain'] = src_domain
 
-def pretify_fields(fields) -> None:
+def pretify_fields(fields: List[Any]) -> None:
     for field in fields:
         if not isinstance(field.widget,CheckboxInput):
             field.widget.attrs.update({'class': 'form-control'})
