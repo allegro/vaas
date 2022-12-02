@@ -8,23 +8,24 @@ Resources
 
 The following resources are available:
 
-|Name                |Description                                                               |Allowed actions               | Allowed commands     |
-|--------------------|--------------------------------------------------------------------------|------------------------------|----------------------|
-|*Backend*           |Represents a single node in a service (director)                          |preview, **add, edit, delete**|                      |
-|*Director*          |A Varnish director; may represent a SOA service                           |preview, **add, edit, delete**|                      |
-|*Probe*             |A health check used to determine backend status                           |preview, **add, edit, delete**|                      |
-|*Dc*                |Datacenter                                                                |preview, **add, edit, delete**|                      |
-|*Logical Cluster*   |Cluster of Varnish servers                                                |preview, **add, edit, delete**| connect-command      |
-|*Varnish Servers*   |A Varnish server                                                          |preview, **add, edit, delete**|                      |
-|*VCL Template Block*|A VCL template block                                                      |preview, **add, edit, delete**|                      |
-|*VCL Template*      |A VCL template                                                            |preview, **add, edit, delete**| vcl-validate-command |
-|*Time Profile*      |Default timeouts profile for director                                     |preview, **add, edit, delete**|                      |
-|*Purger*            |Purge object from varnishes from a given cluster                          |                              |                      |
-|*Outdated Server*   |Represents active varnish servers with outdated vcl                       |preview                       |                      |
-|*Task*              |Represents state of reloading task - check [VaaS Request Flow](./flow.md) |preview                       |                      |
-|*Route*             |Represents conditional routing to desired Director                        |preview, **add, edit, delete**|                      |
-|*RouteConfig*       |Represents possible request parameters, operators & actions, which can be used in Routes|preview|                      |
-|*ValidationReport*  |Represents report of positive urls validation which checks if positive urls are handled by desired Routes|preview|                      |
+| Name                 | Description                                                                                               |Allowed actions               | Allowed commands       |
+|----------------------|-----------------------------------------------------------------------------------------------------------|------------------------------|------------------------|
+| *Backend*            | Represents a single node in a service (director)                                                          |preview, **add, edit, delete**|                        |
+| *Director*           | A Varnish director; may represent a SOA service                                                           |preview, **add, edit, delete**|                        |
+| *Probe*              | A health check used to determine backend status                                                           |preview, **add, edit, delete**|                        |
+| *Dc*                 | Datacenter                                                                                                |preview, **add, edit, delete**|                        |
+| *Logical Cluster*    | Cluster of Varnish servers                                                                                |preview, **add, edit, delete**| connect-command        |
+| *Varnish Servers*    | A Varnish server                                                                                          |preview, **add, edit, delete**|                        |
+| *VCL Template Block* | A VCL template block                                                                                      |preview, **add, edit, delete**|                        |
+| *VCL Template*       | A VCL template                                                                                            |preview, **add, edit, delete**| vcl-validate-command   |
+| *Time Profile*       | Default timeouts profile for director                                                                     |preview, **add, edit, delete**|                        |
+| *Purger*             | Purge object from varnishes from a given cluster                                                          |                              |                        |
+| *Outdated Server*    | Represents active varnish servers with outdated vcl                                                       |preview                       |                        |
+| *Task*               | Represents state of reloading task - check [VaaS Request Flow](./flow.md)                                 |preview                       |                        |
+| *Redirect*           | Represents conditional redirection to particular URL                                                      |preview, **add, edit, delete**| validate-command       |
+| *Route*              | Represents conditional routing to desired Director                                                        |preview, **add, edit, delete**|                        |
+| *RouteConfig*        | Represents possible request parameters, operators & actions, which can be used in Routes                  |preview|                        |
+| *ValidationReport*   | Represents report of positive urls validation which checks if positive urls are handled by desired Routes |preview|                        |
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -306,6 +307,29 @@ expected output
     curl -i "http://localhost:3030/api/v0.1/task/578d87b6-4dd5-4786-961d-4b3717e616c8/?username=admin&api_key=vagrant_api_key"
 
 
+### List redirects
+
+    curl "http://localhost:3030/api/v0.1/redirect/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Create new redirect
+
+    curl -X POST \
+    -d '{"action":"302", "condition": "/path", "destination":"/new-path", "preserve_query_params": false, "priority": 1, "assertions": [{"expected_location": "/new-path", "given_url": "http://mydomain.example/newpath"}]}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/redirect/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Delete single route
+
+    curl -X DELETE \
+    "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Partially update route
+
+    curl -X PATCH \
+    -d '{"priority":2}' -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
+
+
 ### List routes
 
     curl "http://localhost:3030/api/v0.1/route/?username=admin&api_key=vagrant_api_key&format=json"
@@ -328,6 +352,37 @@ expected output
     -d '{"action":"pass", "cluster": ["/api/v0.1/logical_cluster/1/"], "condition": "req.http.Host ~ \"example.com\" && req.url ~ \"\/path\"", "director":"/api/v0.1/director/1/", "priority":4}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Call validate-command for all redirects
+
+    curl -X PUT \
+    -d '{ }' -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358d2/?username=admin&api_key=vagrant_api_key"
+
+expected output
+
+    {
+      "output": null,
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+      "status": "PENDING"
+    }
+
+### Verify command result
+
+    curl "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key"
+
+expected output
+
+    {
+      "output": {
+        "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+        "task_status": "SUCCESS",
+        "validation_results": [],
+        "validation_status": "PASS"
+      },
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+      "status": "SUCCESS"
+    }
 
 ### Examine route config
 
