@@ -10,6 +10,11 @@ sub vcl_synth {
         set resp.status = 301;
         synthetic ("");
         return (deliver);
+    } else if (resp.status == 888) {
+        set resp.http.Location = resp.reason + req.http.host + req.http.x-destination;
+        set resp.status = std.integer(req.http.x-response-code, 301);
+        synthetic ("");
+        return (deliver);
     }
 }
 sub protocol_redirect {

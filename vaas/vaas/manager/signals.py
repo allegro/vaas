@@ -13,6 +13,7 @@ from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Vc
 from vaas.router.models import Redirect, Route
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
+from vaas.cluster.models import DomainMapping
 
 
 def switch_state_and_reload(queryset, enabled):
@@ -176,8 +177,11 @@ def vcl_update(sender, **kwargs):
 
     # Redirect
     elif sender is Redirect:
-        # TODO: Handle behaviour from update, delete create redirects
-        logger.debug("Redirect vcl_update(): %s" % str(instance))
+        instance_clusters = instance.src_domain.clusters.all()
+        for instance_cluster in instance_clusters:
+            if instance_cluster not in clusters_to_refresh:
+                logger.debug("vcl_update(): %s" % str(instance_cluster))
+                clusters_to_refresh.append(instance_cluster)
 
     regenerate_and_reload_vcl(clusters_to_refresh)
     if sender is Director:
