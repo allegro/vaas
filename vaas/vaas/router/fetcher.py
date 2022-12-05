@@ -43,6 +43,9 @@ class RedirectAssertionResponse:
 
 
 class Fetcher:
+    ROUTE_VALIDATION = '1'
+    REDIRECT_VALIDATION = '2'
+
     def check_urls(self, assertions: List[PositiveUrl]) -> List[RouteAssertionResponse]:
         return self._check_assertions([(a.url, a.route.pk) for a in assertions], self._assert_route)
 
@@ -51,16 +54,31 @@ class Fetcher:
             [(a.given_url, a.expected_location, a.redirect.pk) for a in assertions], self._assert_redirect)
 
     def _assert_route(self, url: str, route_id: int) -> RouteAssertionResponse:
-        data = self._fetch(url)
+        data = self._fetch(url, self.ROUTE_VALIDATION)
         return RouteAssertionResponse(
-            url, data.get('director', ''), data.get('route', 0), data.get('status_code', 0), route_id
+            url,
+            data.get('director', ''),
+            self._cast_id(data.get('route', 0)),
+            self._cast_id(data.get('status_code', 0)),
+            route_id
         )
 
     def _assert_redirect(self, url: str, location: str, redirect_id: int) -> RedirectAssertionResponse:
-        data = self._fetch(url)
+        data = self._fetch(url, self.REDIRECT_VALIDATION)
         return RedirectAssertionResponse(
-            url, data.get('location', ''), data.get('redirect', 0), location, redirect_id, data.get('status_code', 0)
+            url,
+            data.get('location', ''),
+            self._cast_id(data.get('redirect', 0)),
+            location,
+            redirect_id,
+            self._cast_id(data.get('status_code', 0))
         )
+
+    def _cast_id(self, value: Any) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            return 0
 
     def _check_assertions(self, assertions: list, callback: Callable) -> list:
         result = []
@@ -72,10 +90,10 @@ class Fetcher:
             result.append(future.result())
         return result
 
-    def _fetch(self, url):
+    def _fetch(self, url: str, validation_type: str) -> dict:
         data = {'status_code': 0}
         try:
-            response = requests.get(url, headers={settings.VALIDATION_HEADER: '1'})
+            response = requests.get(url, headers={settings.VALIDATION_HEADER: validation_type})
             data = {'status_code': response.status_code}
             data.update(response.json())
         finally:

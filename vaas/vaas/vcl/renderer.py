@@ -185,7 +185,6 @@ class VclTagBuilder(object):
                     redirects[redirect.src_domain.domain] = [redirect]
         return redirects
 
-
     @collect_processing
     def prepare_route(self, varnish, cluster_directors):
         routes = []
@@ -314,7 +313,8 @@ class VclTagBuilder(object):
         return result
 
     def get_tag_template_name(self, tag_name):
-        return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '').replace('_{ROUTE}', '').replace('_{REDIRECT}', '')
+        return tag_name.replace('_{DIRECTOR}', '').replace('_{DC}', '').replace('_{PROBE}', '')\
+            .replace('_{ROUTE}', '').replace('_{REDIRECT}', '')
 
     def decorate_single_tag(self, tag_name):
         vcl_tag = VclTagExpander(tag_name, self.get_tag_template_name(tag_name), self.input, can_overwrite=True)
@@ -362,7 +362,7 @@ class VclRendererInput(object):
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
         self.redirects = list(Redirect.objects.all())
-        ## TODO: add sort by priority
+        # TODO: add sort by priority
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all())

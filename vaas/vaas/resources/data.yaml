@@ -78,7 +78,7 @@
   pk: 1
   fields: {name: cluster1_siteA_test, reload_timestamp: '2019-11-19T08:02:15.994071+00:00',
     error_timestamp: '2019-11-13T07:46:40.450785+00:00', last_error_info: null,
-           current_vcl_versions: '[]', labels_list: '["placeholder:cluster1"]'}
+           current_vcl_versions: '[]', labels_list: '["placeholder:192.168.199.6"]'}
 - model: cluster.logicalcluster
   pk: 2
   fields: {name: cluster2_siteB_test, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
@@ -96,10 +96,12 @@
             current_vcl_versions: '[]', labels_list: '["placeholder:cluster4"]'}
 - model: cluster.domainmapping
   pk: 1
-  fields: {domain: "mydomain.com", mapping: "mydomain.base{{ placeholder }}.com",
-    type: static, clusters: [1]}
+  fields: {domain: "mydomain.com", mapping: "{{ placeholder }}:6081", type: dynamic, clusters: [1]}
 - model: cluster.domainmapping
   pk: 2
+  fields: {domain: "192.168.199.6:6081", mapping: "192.168.199.6:6081", type: static, clusters: [1]}
+- model: cluster.domainmapping
+  pk: 3
   fields: {domain: "example.com", mapping: "example.base.com", type: static, clusters: [3]}
 - model: cluster.vcltemplate
   pk: 2

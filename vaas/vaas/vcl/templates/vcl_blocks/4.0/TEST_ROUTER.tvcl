@@ -2,3 +2,6 @@
 if (req.http.{{ validation_header }} == "1") {
     return (synth(601, "Test routing response"));
 }
+if (req.http.{{ validation_header }} == "2") {
+    return (synth(602, "Test routing response"));
+}

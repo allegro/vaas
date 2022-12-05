@@ -1,3 +1,4 @@
-set req.http.x-destination = "{{ redirect.destination }}";
+set req.http.x-redirect = "{{ redirect.id }}";
+        set req.http.x-destination = "{{ redirect.destination }}";
         set req.http.x-response-code = "{{ redirect.action }}";
         set req.http.x-action = "redirect";

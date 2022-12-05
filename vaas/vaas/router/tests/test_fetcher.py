@@ -15,13 +15,17 @@ class TestFetcher(TestCase):
                            json={'director': 'first', 'route': 1},
                            status_code=203)
             expected_response = {'status_code': 203, 'director': 'first', 'route': 1}
-            self.assertEqual(expected_response, Fetcher()._fetch('http://test.com/first-route'))
+            self.assertEqual(
+                expected_response, Fetcher()._fetch('http://test.com/first-route', Fetcher.ROUTE_VALIDATION)
+            )
 
     def test_should_return_validation_data_on_connection_exception(self):
         with requests_mock.Mocker() as m:
             m.register_uri('GET', 'http://test.com/first-route', exc=requests.exceptions.ConnectTimeout)
             expected_response = {'status_code': 0}
-            self.assertEqual(expected_response, Fetcher()._fetch('http://test.com/first-route'))
+            self.assertEqual(
+                expected_response, Fetcher()._fetch('http://test.com/first-route', Fetcher.ROUTE_VALIDATION)
+            )
 
     def test_should_check_positive_urls(self):
         route = Route(pk=1)
