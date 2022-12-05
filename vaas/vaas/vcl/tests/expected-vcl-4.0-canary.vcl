@@ -336,7 +336,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "7bc07", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "fce36", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -416,9 +416,6 @@ sub vcl_recv {
     }
     }
 
-    if(req.http.x-action == "redirect") {
-        return (synth(888, req.http.X-Forwarded-Proto + "://"));
-    }
 # Test ROUTER
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
@@ -429,6 +426,11 @@ if (req.http.x-validation == "1") {
     # Handler for no backend in director
     if(req.http.x-action != "nobackend") {
         set req.http.x-action = req.http.x-route-action;
+    }
+
+    # Handler for redirect
+    if(req.http.x-action == "redirect") {
+        return (synth(888, req.http.X-Forwarded-Proto + "://"));
     }
     if(req.http.x-action == "nobackend") {
         return(synth(404, "<!--Director " + req.http.x-director + " has no backends or is disabled-->"));

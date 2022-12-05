@@ -13,3 +13,8 @@
     if(req.http.x-action != "nobackend") {
         set req.http.x-action = req.http.x-route-action;
     }
+
+    # Handler for redirect
+    if(req.http.x-action == "redirect") {
+        return (synth(888, req.http.X-Forwarded-Proto + "://"));
+    }
