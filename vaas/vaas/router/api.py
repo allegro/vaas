@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any
+from typing import Any, Dict, List
 
 from celery.result import AsyncResult
 from django.urls import re_path
@@ -49,23 +49,27 @@ class RedirectResource(ModelResource):
         assertions = bundle.data.get('assertions', [])
         bundle.data['assertions'] = []
         bundle = super().save(bundle, *args, **kwargs)
-        if len(assertions) != 0:
-            # if PATCH request not contains assertions field
-            # we do not want to delete existing assertions
-            if not self._is_patch_request_without_assertions_field(assertions):
-                # if HTTP request contains assertions
-                # we want to delete previous assertions attached to the Rewrite object
-                bundle.obj.assertions.all().delete()
-                for assertion in assertions:
-                    RedirectAssertion.objects.create(
-                        given_url=assertion['given_url'],
-                        expected_location=assertion['expected_location'],
-                        redirect=bundle.obj
-                    )
-        else:
-            bundle.obj.assertions.all().delete()
-
+        # if PATCH request not contains assertions field
+        # we do not want to delete existing assertions
+        if not self._is_patch_request_without_assertions_field(assertions):
+            self._update_assertions(bundle.obj, assertions)
         return bundle
+
+    def _update_assertions(self, redirect: Redirect, new_assertions: List[dict]) -> None:
+        to_add = []
+        to_delete = redirect.get_hashed_assertions_pks()
+        for assertion in new_assertions:
+            h = hash((assertion['given_url'], assertion['expected_location']))
+            if h in to_delete:
+                to_delete.pop(h)
+            else:
+                assertion['redirect'] = redirect
+                to_add.append(RedirectAssertion(**assertion))
+        if len(to_add):
+            redirect.assertions.bulk_create(to_add)
+        if len(to_delete):
+            redirect.assertions.filter(pk__in=to_delete.values()).delete()
+
 
     # If PATCH request not contains redirect_assertions field,
     # tastypie pulls out Bundle object with rewrite_positive_urls currently attached to the Redirect object
@@ -267,17 +271,6 @@ class ValidationReportResource(Resource):
 
     def get_object_list(self, request):
         return None
-
-
-class ValidationResultResource(Resource):
-    url = fields.CharField(attribute='url')
-    result = fields.CharField(attribute='result')
-    expected = fields.ToOneField(AssertionResource, attribute='expected', full=True, null=True)
-    current = fields.ToOneField(AssertionResource, attribute='current', full=True, null=True)
-    error_message = fields.CharField(attribute='error_message', null=True)
-
-    class Meta:
-        include_resource_uri = False
 
 
 class ValidateRedirectsCommandModel:
