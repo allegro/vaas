@@ -300,7 +300,7 @@ class ValidateRedirectsCommandResource(Resource):
         list_allowed_methods = []
         detail_allowed_methods = ['put', 'get']
         authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
         fields = ['status', 'output']
         include_resource_uri = False
         always_return_data = True
@@ -317,6 +317,10 @@ class ValidateRedirectsCommandResource(Resource):
         bundle.obj.output = task.result
         return bundle
 
+    def obj_update(self, bundle, **kwargs):
+        bundle.data['pk'] = kwargs['pk']
+        raise NotFound()
+        
     def obj_get(self, bundle, **kwargs):
         task = AsyncResult(kwargs['pk'])
         return ValidateRedirectsCommandModel(
