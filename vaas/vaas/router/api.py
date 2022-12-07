@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Dict, List
+from typing import Any, List
 
 from celery.result import AsyncResult
 from django.urls import re_path
@@ -69,7 +69,6 @@ class RedirectResource(ModelResource):
             redirect.assertions.bulk_create(to_add)
         if len(to_delete):
             redirect.assertions.filter(pk__in=to_delete.values()).delete()
-
 
     # If PATCH request not contains redirect_assertions field,
     # tastypie pulls out Bundle object with rewrite_positive_urls currently attached to the Redirect object
@@ -317,10 +316,6 @@ class ValidateRedirectsCommandResource(Resource):
         bundle.obj.output = task.result
         return bundle
 
-    def obj_update(self, bundle, **kwargs):
-        bundle.data['pk'] = kwargs['pk']
-        raise NotFound()
-        
     def obj_get(self, bundle, **kwargs):
         task = AsyncResult(kwargs['pk'])
         return ValidateRedirectsCommandModel(

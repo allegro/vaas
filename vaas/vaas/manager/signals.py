@@ -13,7 +13,6 @@ from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Vc
 from vaas.router.models import Redirect, Route
 from vaas.manager.middleware import VclRefreshState
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
-from vaas.cluster.models import DomainMapping
 
 
 def switch_state_and_reload(queryset, enabled):

@@ -109,13 +109,18 @@ class VclTagBuilderTest(TestCase):
         settings.SIGNALS = 'off'
         self.dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
         self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
-        cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test', labels_list='["example.com", "placeholder:dev1"]')
+        cluster1 = LogicalClusterFactory.create(
+            id=1, name='cluster1_siteA_test', labels_list='["example.com", "placeholder:dev1"]'
+        )
         cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test', labels_list='["env:prod"]')
         cluster3_with_mesh_service = LogicalClusterFactory.create(
             id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True, labels_list='["cluster3"]'
         )
         cluster4_with_mesh_and_standard_service = LogicalClusterFactory.create(
-            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True, labels_list='["cluster4"]'
+            id=4,
+            name='cluster4_siteB_test_with_mesh_and_standard_service',
+            service_mesh_routing=True,
+            labels_list='["cluster4"]'
         )
         self.domainapping = DomainMapping.objects.create(domain='example.com', mapping='example.base.com', type=301)
         self.domainapping.clusters.add(cluster2)
