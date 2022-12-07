@@ -130,7 +130,7 @@ class RouteReportGenerator(ReportGenerator):
 
 class RedirectReportGenerator(ReportGenerator):
     def __init__(self, redirects: List[Redirect]):
-        self.routes = {r.pk: r for r in redirects}
+        self.redirects = {r.pk: r for r in redirects}
 
     def _get_expected_value(self, validation_response: RedirectAssertionResponse) -> RedirectContext:
         return RedirectContext(
@@ -148,9 +148,9 @@ class RedirectReportGenerator(ReportGenerator):
             redirect = Named(redirect_id, self._get_redirect_condition(redirect_id))
         return RedirectContext(redirect=redirect, location=validation_response.actual_location)
 
-    def _get_redirect_condition(self, route_id):
-        if route_id in self.routes:
-            return self.routes[route_id].condition
+    def _get_redirect_condition(self, redirect_id: int) -> str:
+        if redirect_id in self.redirects:
+            return self.redirects[redirect_id].condition
         return ''
 
     def _get_result(self, validation_response: RedirectAssertionResponse):

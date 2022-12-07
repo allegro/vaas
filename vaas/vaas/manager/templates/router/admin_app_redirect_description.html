@@ -66,15 +66,40 @@
     }
     else if (status === 'SUCCESS') {
       setCommandStatus('done');
-
-      // TODO: parse validation result
-      console.log('validation result', data.output)
-
+      $('#results').append(createTestResult(data.output.validation_results))
       $('#command-result').addClass(`label-${statusToClass(validationStatus(data.output.validation_status))}`).text(data.output.validation_status);
       $('#spinner').hide()
     }
     $('#command-status').removeClass();
     $('#command-status').addClass(`label label-${statusToClass(status)}`).text(status);
+  }
+
+  function createTestResult(records) {
+    var html = '';
+    records.sort(function(x, y) {
+      if (x.error_message && !y.error_message) {
+        return -1;
+      }
+      if (!x.error_message && y.error_message) {
+        return 1;
+      }
+      if (x.expected.redirect.id < y.expected.redirect.id) {
+        return -1;
+      }
+      return 1;
+    });
+    records.forEach(function (record) {
+      var errorMsg = ''
+      console.log(record)
+      if (!record.current.redirect) record.current.redirect = noDataPlaceholder
+      if (record.error_message) errorMsg = `<div class="alert alert-danger" role="alert">${record.error_message}</div>`
+      html += `<div class="panel panel-${statusToClass(record.result)}">
+          <div class="panel-heading">
+            <h3 class="panel-title">${record.url}</h3>
+          </div>
+        </div>`
+    });
+    return html
   }
 
   function handleErrorResponse(request, textStatus, errorThrown) {
