@@ -53,7 +53,6 @@ class RouteModelForm(ModelForm):
         if self.instance.pk is None:
             self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
         pretify_fields(self.fields.values())
-        self.fields['priority'].initial = 250
         self.fields['positive_urls'].widget.decompress(initial_urls)
         if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
             self.fields['director'].widget = self.fields['director'].widget.widget
@@ -72,7 +71,7 @@ class RouteModelForm(ModelForm):
                 choices=tuple((action.action, action.name) for action in configuration.actions)
             ),
             'priority': PrioritySelect(
-                choices=tuple([(i, i) for i in range(1, 500)]),
+                choices=tuple([(i, i) if i != 0 else ('', '') for i in range(0, 500)]),
             ),
             'director': SearchableSelect(),
         }
