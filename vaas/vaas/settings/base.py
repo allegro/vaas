@@ -184,7 +184,7 @@ VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = env.float('VAAS_GATHER_STATUSES_CONNECT_T
 
 REFRESH_TRIGGERS_CLASS = tuple(env.json('REFRESH_TRIGGERS_CLASS', default=(
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable',
-    'Route', 'Rewrite'
+    'Route', 'Redirect'
 )))
 
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)

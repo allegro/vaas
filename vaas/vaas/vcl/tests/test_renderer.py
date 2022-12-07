@@ -8,8 +8,9 @@ from nose.tools import assert_equals, assert_in, assert_list_equal, assert_true
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
 from vaas.manager.models import Director, Probe, Backend, TimeProfile
-from vaas.router.models import Route
-from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, VclVariable
+from vaas.router.models import Redirect, Route
+from vaas.cluster.models import DomainMapping, VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, \
+    VclVariable
 from django.conf import settings
 
 md5_mock = Mock()
@@ -108,14 +109,16 @@ class VclTagBuilderTest(TestCase):
         settings.SIGNALS = 'off'
         self.dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
         self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
-        cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
-        cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
+        cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test', labels_list='["example.com", "placeholder:dev1"]')
+        cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test', labels_list='["env:prod"]')
         cluster3_with_mesh_service = LogicalClusterFactory.create(
-            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True
+            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True, labels_list='["cluster3"]'
         )
         cluster4_with_mesh_and_standard_service = LogicalClusterFactory.create(
-            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True
+            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True, labels_list='["cluster4"]'
         )
+        self.domainapping = DomainMapping.objects.create(domain='example.com', mapping='example.base.com', type=301)
+        self.domainapping.clusters.add(cluster2)
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -244,6 +247,15 @@ class VclTagBuilderTest(TestCase):
             action='pass'
         )
         route.clusters.add(cluster2)
+
+        self.redirect = Redirect.objects.create(
+            src_domain=self.domainapping,
+            condition='req.method == "GET" && req.url ~ "/source"',
+            destination='/destination',
+            action=301,
+            priority=250,
+            preserve_query_params=False
+        )
 
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=self.dc2, template=template_v4_with_tag,
                                                     cluster=cluster1)
