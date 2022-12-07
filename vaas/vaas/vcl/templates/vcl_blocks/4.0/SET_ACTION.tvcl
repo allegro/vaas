@@ -9,12 +9,12 @@
         set req.backend_hint = mesh_default_proxy;
     }
 {% endif %}
-    # Handler for no backend in director
-    if(req.http.x-action != "nobackend") {
-        set req.http.x-action = req.http.x-route-action;
-    }
-
     # Handler for redirect
     if(req.http.x-action == "redirect") {
         return (synth(888, req.http.X-Forwarded-Proto + "://"));
+    }
+
+    # Handler for no backend in director
+    if(req.http.x-action != "nobackend") {
+        set req.http.x-action = req.http.x-route-action;
     }
