@@ -71,7 +71,7 @@ class RouteModelForm(ModelForm):
                 choices=tuple((action.action, action.name) for action in configuration.actions)
             ),
             'priority': PrioritySelect(
-                choices=tuple([(i, i) if i != 0 else ('', '') for i in range(0, 500)]),
+                choices=tuple([(i, i) for i in range(1, 500)]),
             ),
             'director': SearchableSelect(),
         }
