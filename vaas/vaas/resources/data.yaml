@@ -135,6 +135,21 @@
 - model: router.positiveurl
   pk: 2
   fields: {url: http://192.168.199.4:6081/wrong, route: 1}
+- model: router.redirectassertion
+  pk: 1
+  fields:
+    given_url: http://192.168.199.6:6081/source_url
+    expected_location: /destination_url
+    redirect: 1
+- model: router.redirect
+  pk: 1
+  fields:
+    src_domain: 2
+    condition: req.method == "GET" && req.url ~ "/source_url"
+    destination: /destination_url
+    action: 301
+    priority: 250
+    preserve_query_params: false
 - model: auth.user
   fields:
     password: pbkdf2_sha256$36000$HSNx3yHNXG51$yggojN+90XWiHuGBK7YnrUZMWtMKpck45CsSel0JxUk=
