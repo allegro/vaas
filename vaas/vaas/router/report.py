@@ -10,28 +10,28 @@ from vaas.router.models import RouteContext, Named, PositiveUrl, Route, Validati
 from vaas.settings.celery import app
 
 
-def _to_dict(element):
+def to_dict(element):
     result = element
     if hasattr(element, '__dict__'):
         result = {}
         for k, v in element.__dict__.items():
-            result[k] = _to_dict(v)
+            result[k] = to_dict(v)
 
     elif type(element) == list:
         result = []
         for subelement in element:
-            result.append(_to_dict(subelement))
+            result.append(to_dict(subelement))
     return result
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def fetch_urls_async(self) -> dict:
-    return _to_dict(Fetcher().check_urls(PositiveUrl.objects.all()))
+    return to_dict(Fetcher().check_urls(PositiveUrl.objects.all()))
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def fetch_redirects_async(self) -> dict:
-    return _to_dict(Fetcher().check_redirects(RedirectAssertion.objects.all()))
+    return to_dict(Fetcher().check_redirects(RedirectAssertion.objects.all()))
 
 
 def prepare_report_from_task(task_id: str, report_type: str = 'route') -> ValidationReport:
@@ -130,7 +130,7 @@ class RouteReportGenerator(ReportGenerator):
 
 class RedirectReportGenerator(ReportGenerator):
     def __init__(self, redirects: List[Redirect]):
-        self.routes = {r.pk: r for r in redirects}
+        self.redirects = {r.pk: r for r in redirects}
 
     def _get_expected_value(self, validation_response: RedirectAssertionResponse) -> RedirectContext:
         return RedirectContext(
@@ -148,9 +148,9 @@ class RedirectReportGenerator(ReportGenerator):
             redirect = Named(redirect_id, self._get_redirect_condition(redirect_id))
         return RedirectContext(redirect=redirect, location=validation_response.actual_location)
 
-    def _get_redirect_condition(self, route_id):
-        if route_id in self.routes:
-            return self.routes[route_id].condition
+    def _get_redirect_condition(self, redirect_id: int) -> str:
+        if redirect_id in self.redirects:
+            return self.redirects[redirect_id].condition
         return ''
 
     def _get_result(self, validation_response: RedirectAssertionResponse):

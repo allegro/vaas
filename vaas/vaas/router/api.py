@@ -18,7 +18,7 @@ from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
 from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
-from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task
+from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task, to_dict
 from vaas.adminext.widgets import split_complex_condition, split_condition
 from vaas.external.oauth import VaasMultiAuthentication
 
@@ -319,7 +319,7 @@ class ValidateRedirectsCommandResource(Resource):
     def obj_get(self, bundle, **kwargs):
         task = AsyncResult(kwargs['pk'])
         return ValidateRedirectsCommandModel(
-            kwargs['pk'], task.status, output=prepare_report_from_task(kwargs['pk'], 'redirect').__dict__
+            kwargs['pk'], task.status, output=to_dict(prepare_report_from_task(kwargs['pk'], 'redirect'))
         )
 
     def prepend_urls(self):
