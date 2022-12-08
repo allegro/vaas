@@ -18,6 +18,9 @@ class RedirectAdmin(AuditableModelAdmin):
     ]
     list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
 
+    class Media:
+        js = ('utils/js/labels.js', 'js/redirect.js')
+        css = ('css/style.css')
 
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
@@ -40,6 +43,7 @@ class RouteAdmin(AuditableModelAdmin):
 
     class Media:
         js = ('js/clusters-sync.js', 'utils/js/labels.js')
+        css = ('css/style.css')
 
 
 admin.site.register(Route, RouteAdmin)

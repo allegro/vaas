@@ -1,0 +1,48 @@
+<script>
+  $(document).ready(function () {
+    var testResultModalEl = $('#testResultModal');
+    testResultModalEl.on('show.bs.modal', function (event) {
+      var commandId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      clearModal(commandId)
+      redirectsValidateCommand('/api/v0.1/redirect/validate-command/' + commandId + '/');
+    });
+  })
+</script>
+<div class='pull-right'>
+  <button id="test" type="button" class="btn btn-info" data-toggle="modal" data-target="#testResultModal">
+    Run redirects test
+  </button>
+</div>
+<div class="modal fade" id="testResultModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document" style="width: 80%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Redirects Test Report</h4>
+      </div>
+      <div class="modal-body">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Task info</h3>
+          </div>
+          <div id="command-details" class="panel-body">
+            <h5>Command status: <span id="command-status" class="label label-default">unknown</span></h5>
+            <h5>Command ID: <span id="command-id" class="label label-default"></span></h5>
+          </div>
+        </div>
+        <h2>Tests report result: <span id="command-result" class="label label-default">UNKNOWN</span></h2>
+        <h4>
+          Details:
+          <span class="label label-success">PASS <span id="pass-count" class="badge">0</span></span>
+          <span class="label label-danger">FAILED <span id="failed-count" class="badge">0</span></span>
+        </h4>
+        <div id="spinner" class="loader center-block"></div>
+        <div id="results"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
