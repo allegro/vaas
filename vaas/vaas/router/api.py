@@ -16,8 +16,7 @@ from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, ValidationReport, \
-    provide_route_configuration
+from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task, to_dict
 from vaas.adminext.widgets import split_complex_condition, split_condition
@@ -271,6 +270,8 @@ class ValidationReportResource(Resource):
 
     def get_object_list(self, request):
         return None
+
+
 class ValidateRedirectsCommandModel:
     def __init__(
             self,
@@ -284,10 +285,13 @@ class ValidateRedirectsCommandModel:
 
     def __repr__(self) -> str:
         return '{}'.format({k: v for k, v in self.__dict__})
+
+
 class ValidateRedirectsCommandResource(Resource):
     pk = fields.CharField(attribute='id', readonly=True)
     status = fields.CharField(attribute='status', readonly=True, blank=True, null=True)
     output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
+
     class Meta:
         # prefixing the name with underscores forces prepend_urls to be matched
         # before urls linked to other resources
@@ -309,7 +313,7 @@ class ValidateRedirectsCommandResource(Resource):
         bundle = self.full_hydrate(bundle)
         task = fetch_redirects_async.apply_async(task_id=bundle.obj.pk)
         bundle.obj.status = task.status
-        bundle.obj.output =task.result
+        bundle.obj.output = task.result
         return bundle
 
     def obj_get(self, bundle, **kwargs):

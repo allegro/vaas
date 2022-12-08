@@ -9,6 +9,7 @@ from vaas.router.models import RouteContext, Named, PositiveUrl, Route, Validati
     RedirectAssertion, Redirect, RedirectContext
 from vaas.settings.celery import app
 
+
 def to_dict(element):
     result = element
     if hasattr(element, '__dict__'):
