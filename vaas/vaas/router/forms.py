@@ -155,11 +155,11 @@ class RedirectModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         condition_domain = ""
         if kwargs.get('instance', None):
-            condition_domain = kwargs['instance'].src_domain
+            condition_domain = kwargs['instance'].src_domain.pk
         super().__init__(*args, **kwargs)
         self.fields['priority'].initial = 250
         self.fields['condition'] = ComplexRedirectConditionField()
-        self.fields['condition'].widget.attrs.update({'condition_domain': condition_domain.pk})
+        self.fields['condition'].widget.attrs.update({'condition_domain': condition_domain})
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         pretify_fields(self.fields.values())
 
