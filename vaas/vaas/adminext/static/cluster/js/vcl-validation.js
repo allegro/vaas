@@ -9,9 +9,9 @@ $(document).ready(function () {
                 var commandId = Date.now().toString(36) + Math.random().toString(36).substring(2);
                 event.preventDefault();
                 clearModal(commandId);
-                vclValidateCommand(
-                    $('textarea[name=content]').val(),
-                    '/api/v0.1/vcl_template/' + templateId + '/vcl-validate-command/' + commandId + '/'
+                validateCommand(
+                    '/api/v0.1/vcl_template/' + templateId + '/vcl-validate-command/' + commandId + '/',
+                    {'content': $('textarea[name=content]').val()}
                 );
             });
         }
@@ -35,31 +35,6 @@ function parseTemplateId() {
     return linkParts[linkParts.length - 3]
 }
 
-function vclValidateCommand(content, url) {
-    return $.ajax({
-      type: 'PUT',
-      url: url,
-      data: JSON.stringify({'content': content}),
-      dataType: 'json',
-      contentType: "application/json; charset=utf-8",
-      error: handleErrorResponse,
-      success: handleVclValidateResponse,
-      beforeSend: setCRSFToken,
-      complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolVclValidateResult(url) }, 500) } },
-    });
-}
-
-function poolVclValidateResult(url) {
-    $.ajax({
-      url: url,
-      dataType: 'json',
-      error: handleErrorResponse,
-      success: handleVclValidateResponse,
-      complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolVclValidateResult(url) }, 500) } },
-      timeout: 5000
-    });
-}
-
 function handleErrorResponse(request, textStatus, errorThrown) {
     setCommandStatus('done');
     console.error(textStatus, errorThrown)
@@ -71,7 +46,7 @@ function handleErrorResponse(request, textStatus, errorThrown) {
     $('#command-status').addClass(`label label-${statusToClass(status)}`).text('error');
 }
 
-function handleVclValidateResponse(data, textStatus, request) {
+function handleCommandValidateResponse(data, textStatus, request) {
     const status = data.status
     if (checkCommandStatus(data.pk, 'done')) return;
     if (status === 'FAILURE') {
@@ -97,21 +72,4 @@ function validationStatus(status) {
         return 'SUCCESS';
     }
     return 'FAIL';
-}
-
-function checkCommandStatus(status) {
-    return $('#command-id').data('status') == status
-}
-
-function setCommandStatus(status) {
-    $('#command-id').data('status', status)
-}
-
-function isPollingFinished(commandId, status) {
-    return $('#command-id').text() != commandId || checkCommandStatus('done')
-}
-
-function isResultStillAwaited(commandURL) {
-    var parts = commandURL.split('/')
-    return !isPollingFinished(parts[parts.length-2], 'done');
 }

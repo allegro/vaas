@@ -37,7 +37,10 @@ class VclTemplateModelForm(ModelForm):
         fields = '__all__'
 
     class Media:
-        js = ('cluster/js/vcl-validation.js', 'utils/js/labels.js',)
+        js = ('cluster/js/vcl-validation.js', 'utils/js/labels.js', 'js/command.js',)
+        css = {
+            'all': ('css/style.css', )
+        }
 
 
 class VarnishServerModelForm(ModelForm):

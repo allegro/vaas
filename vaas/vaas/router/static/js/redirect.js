@@ -1,30 +1,5 @@
-const noDataPlaceholder = { name: 'no data', id: 'no data' };
-function redirectsValidateCommand(url) {
-    return $.ajax({
-        type: 'PUT',
-        url: url,
-        data: '{}',
-        dataType: 'json',
-        contentType: "application/json; charset=utf-8",
-        error: handleErrorResponse,
-        success: handleRedirectsValidateResponse,
-        beforeSend: setCRSFToken,
-        complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolRedirectsValidateResult(url) }, 500) } },
-    });
-}
-
-function poolRedirectsValidateResult(url) {
-    $.ajax({
-        url: url,
-        dataType: 'json',
-        error: handleErrorResponse,
-        success: handleRedirectsValidateResponse,
-        complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolRedirectsValidateResult(url) }, 500) } },
-        timeout: 5000
-    });
-}
-
-function handleRedirectsValidateResponse(data, textStatus, request) {
+const noDataPlaceholder = { name: 'no data', id: 'no data' }
+function handleCommandValidateResponse(data, textStatus, request) {
     const status = data.status
     if (checkCommandStatus('done')) return;
     if (status === 'FAILURE') {
@@ -58,7 +33,6 @@ function createTestResult(records) {
     }
     return 1;
     });
-    console.log(records)
     records.forEach(function (record) {
         var errorMsg = ''
         if (!record.current.redirect) record.current.redirect = noDataPlaceholder
@@ -101,44 +75,12 @@ function createTestResult(records) {
     return html
 }
 
-function countResult(resultString, records) {
-    var counter = 0;
-    records.forEach(function (record) {
-        if (record.result === resultString) {
-        counter += 1
-        }
-    })
-    return counter;
-}
-
 function handleErrorResponse(request, textStatus, errorThrown) {
     setCommandStatus('done');
     console.error(textStatus, errorThrown)
     $('#command-details').append(`<div id="error-message" class="alert alert-danger" role="alert">${request.responseText || errorThrown}</div>`)
     $('#command-result').addClass(`label-${statusToClass('FAIL')}`).text(validationStatus('Error'));
     $('#spinner').hide();
-}
-
-function showError(message) {
-    $('#error-message').remove()
-    $('#command-details').append(`<div id="error-message" class="alert alert-danger" role="alert">${message}</div>`)
-}
-
-function isPollingFinished(commandId, status) {
-    return $('#command-id').text() != commandId || checkCommandStatus('done')
-}
-
-function isResultStillAwaited(commandURL) {
-    var parts = commandURL.split('/')
-    return !isPollingFinished(parts[parts.length - 2], 'done');
-}
-
-function setCommandStatus(status) {
-    $('#command-id').data('status', status)
-}
-
-function checkCommandStatus(status) {
-    return $('#command-id').data('status') == status
 }
 
 function clearModal(commandId) {

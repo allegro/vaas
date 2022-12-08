@@ -19,7 +19,7 @@ class RedirectAdmin(AuditableModelAdmin):
     list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
 
     class Media:
-        js = ('utils/js/labels.js', 'js/redirect.js',)
+        js = ('utils/js/labels.js', 'js/redirect.js', 'js/command.js', 'js/utils.js',)
         css = {'all': ('css/style.css',)}
 
 class RouteAdmin(AuditableModelAdmin):
@@ -42,7 +42,7 @@ class RouteAdmin(AuditableModelAdmin):
         return super().changelist_view(request, extra_context=ctx)
 
     class Media:
-        js = ('js/clusters-sync.js', 'utils/js/labels.js',)
+        js = ('js/clusters-sync.js', 'utils/js/labels.js', 'js/utils.js',)
         css = {'all': ('css/style.css',)}
 
 

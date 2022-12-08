@@ -4,7 +4,7 @@
     testResultModalEl.on('show.bs.modal', function (event) {
       var commandId = Date.now().toString(36) + Math.random().toString(36).substring(2);
       clearModal(commandId)
-      redirectsValidateCommand('/api/v0.1/redirect/validate-command/' + commandId + '/');
+      validateCommand('/api/v0.1/redirect/validate-command/' + commandId + '/');
     });
   })
 </script>

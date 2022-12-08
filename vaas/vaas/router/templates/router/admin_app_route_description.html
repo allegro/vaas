@@ -55,19 +55,7 @@
   }
   function createTestResult(records) {
     var html = '';
-    records.sort(function(x, y) {
-      if (x.error_message && !y.error_message) {
-        return -1;
-      }
-      if (!x.error_message && y.error_message) {
-        return 1;
-      }
-      if (x.expected.route.id < y.expected.route.id) {
-        return -1;
-      }
-      return 1;
-    });
-    records.forEach(function (record) {
+    records.sort(sortByFailure).forEach(function (record) {
       var errorMsg = ''
       if (!record.current.route) record.current.route = noDataPlaceholder
       if (!record.current.director) record.current.director = noDataPlaceholder
@@ -124,6 +112,8 @@
   }
 
   function clearReportState() {
+    $('#error-message').remove();
+    $('#spinner').show();
     $('#task-status').removeClass();
     $('#task-status').addClass(`label label-default`).text("unknown");
     $('#report-result').removeClass();
@@ -137,8 +127,6 @@
     var testResultModalEl = $('#testResultModal');
     testResultModalEl.on('show.bs.modal', function (event) {
       clearReportState()
-      $('#error-message').remove()
-      $('#spinner').show()
       createTask(function (data, textStatus, request) {
         taskURL = request.getResponseHeader('Location')
         $('#task-id').text(taskURL.split('/')[4]);
