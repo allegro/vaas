@@ -53,6 +53,7 @@ class RouteModelForm(ModelForm):
         if self.instance.pk is None:
             self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
         pretify_fields(self.fields.values())
+        self.fields['priority'].initial = 250
         self.fields['positive_urls'].widget.decompress(initial_urls)
         if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
             self.fields['director'].widget = self.fields['director'].widget.widget
