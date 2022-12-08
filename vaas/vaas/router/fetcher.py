@@ -41,7 +41,6 @@ class RedirectAssertionResponse:
     def __eq__(self, other: Any) -> bool:
         return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
 
-
 class Fetcher:
     ROUTE_VALIDATION = '1'
     REDIRECT_VALIDATION = '2'

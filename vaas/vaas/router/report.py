@@ -9,29 +9,28 @@ from vaas.router.models import RouteContext, Named, PositiveUrl, Route, Validati
     RedirectAssertion, Redirect, RedirectContext
 from vaas.settings.celery import app
 
-
-def _to_dict(element):
+def to_dict(element):
     result = element
     if hasattr(element, '__dict__'):
         result = {}
         for k, v in element.__dict__.items():
-            result[k] = _to_dict(v)
+            result[k] = to_dict(v)
 
     elif type(element) == list:
         result = []
         for subelement in element:
-            result.append(_to_dict(subelement))
+            result.append(to_dict(subelement))
     return result
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def fetch_urls_async(self) -> dict:
-    return _to_dict(Fetcher().check_urls(PositiveUrl.objects.all()))
+    return to_dict(Fetcher().check_urls(PositiveUrl.objects.all()))
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def fetch_redirects_async(self) -> dict:
-    return _to_dict(Fetcher().check_redirects(RedirectAssertion.objects.all()))
+    return to_dict(Fetcher().check_redirects(RedirectAssertion.objects.all()))
 
 
 def prepare_report_from_task(task_id: str, report_type: str = 'route') -> ValidationReport:
