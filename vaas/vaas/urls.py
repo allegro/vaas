@@ -5,7 +5,7 @@ from django.contrib.admin.sites import NotRegistered
 from django.views.generic.base import RedirectView
 from tastypie.api import Api
 
-from vaas.cluster.api import ConnectCommandResource, DcResource, VarnishServerResource, VclTemplateBlockResource, \
+from vaas.cluster.api import ConnectCommandResource, DomainMappingResource, DcResource, VarnishServerResource, VclTemplateBlockResource, \
     ValidateVCLCommandResource, VclTemplateResource, LogicalClusterResource, OutdatedServerResource
 from vaas.manager.api import ProbeResource, DirectorResource, BackendResource, TimeProfileResource, \
     ReloadTaskResource
@@ -45,6 +45,7 @@ v01_api.register(ValidationReportResource())
 v01_api.register(ConnectCommandResource())
 v01_api.register(ValidateVCLCommandResource())
 v01_api.register(ValidateRedirectsCommandResource())
+v01_api.register(DomainMappingResource())
 
 urlpatterns = [
     url(r'^admin/purger/', include('vaas.purger.urls')),
