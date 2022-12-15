@@ -1,0 +1,75 @@
+{% spaceless %}
+<div class="input-group" id="input-group">
+    {% for widget in widget.subwidgets %}
+    {% if forloop.first %}
+    <span class="input-group-addon">
+        {% include widget.template_name %}
+    </span>
+    {% else %}
+    {% include widget.template_name %}
+    {% endif %}
+    {% endfor %}
+</div>
+{% endspaceless %}
+
+<script>
+    (function ($) {
+
+        const Validation = {
+            Unknown: 'unknown',
+            Success: 'has-success',
+            Error: 'has-error',
+        }
+
+        const state = {
+            regex_compilation: 'unknown'
+        };
+
+        function updateTarget(oldState, newState) {
+            $("#input-group").removeClass(oldState)
+            if (newState != Validation.Unknown) {
+                $("#input-group").addClass(newState)
+            }
+        }
+
+        function setRegexCompilationState(newState) {
+            if (state.validation_state != newState) {
+                let old = state.regex_compilation;
+                state.regex_compilation = newState;
+                updateTarget(old, newState);
+            }
+        };
+
+        function regex_dynamic_check() {
+            const input_value = $(this).val()
+            if (input_value.length == 0) {
+                setRegexCompilationState(Validation.Unknown)
+                return
+            }
+            try {
+                new RegExp(input_value);
+                setRegexCompilationState(Validation.Success)
+            } catch (e) {
+                if (e instanceof SyntaxError) {
+                    setRegexCompilationState(Validation.Error)
+                } else {
+                    console.error(e)
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            const rewrite_groups_checkbox = $('#id_rewrite_groups_0');
+            rewrite_groups_checkbox.change(function () {
+                if (rewrite_groups_checkbox.is(":checked")) {
+                    $("#id_rewrite_groups_1").prop('disabled', false);
+                } else {
+                    $("#id_rewrite_groups_1").prop('disabled', true);
+                    $("#id_rewrite_groups_1").val('');
+                    setRegexCompilationState(Validation.Unknown);
+                }
+            });
+            $("#id_rewrite_groups_1").on("input", regex_dynamic_check);
+        });
+    })(django.jQuery);
+</script>
