@@ -1,8 +1,8 @@
-from typing import Any, List
+from typing import Any, List, Dict
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, \
-    MultiValueField, BooleanField, 	MultiWidget, Widget
+    MultiValueField, BooleanField, MultiWidget, Widget
 from django.conf import settings
 from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, RewriteGroupsField, \
     PrioritySelect, SearchableSelect, split_complex_condition
@@ -159,7 +159,7 @@ class RedirectModelForm(ModelForm):
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         pretify_fields(self.fields.values())
 
-    def clean(self) -> None:
+    def clean(self) -> Dict[str, Any]:
         cleaned_data = super().clean()
         src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
         cleaned_data['src_domain'] = src_domain

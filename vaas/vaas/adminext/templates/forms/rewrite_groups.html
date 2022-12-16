@@ -22,7 +22,7 @@
         }
 
         const state = {
-            regex_compilation: 'unknown'
+            regexCompilation: 'unknown'
         };
 
         function updateTarget(oldState, newState) {
@@ -33,21 +33,21 @@
         }
 
         function setRegexCompilationState(newState) {
-            if (state.validation_state != newState) {
-                let old = state.regex_compilation;
-                state.regex_compilation = newState;
+            if (state.regexCompilation != newState) {
+                let old = state.regexCompilation;
+                state.regexCompilation = newState;
                 updateTarget(old, newState);
             }
         };
 
-        function regex_dynamic_check() {
-            const input_value = $(this).val()
-            if (input_value.length == 0) {
+        function checkDynamicRegex() {
+            const inputValue = $(this).val()
+            if (inputValue.length == 0) {
                 setRegexCompilationState(Validation.Unknown)
                 return
             }
             try {
-                new RegExp(input_value);
+                new RegExp(inputValue);
                 setRegexCompilationState(Validation.Success)
             } catch (e) {
                 if (e instanceof SyntaxError) {
@@ -59,9 +59,8 @@
         }
 
         $(document).ready(function () {
-            const rewrite_groups_checkbox = $('#id_rewrite_groups_0');
-            rewrite_groups_checkbox.change(function () {
-                if (rewrite_groups_checkbox.is(":checked")) {
+            $('#id_rewrite_groups_0').change(function () {
+                if ($(this).is(":checked")) {
                     $("#id_rewrite_groups_1").prop('disabled', false);
                 } else {
                     $("#id_rewrite_groups_1").prop('disabled', true);
@@ -69,7 +68,7 @@
                     setRegexCompilationState(Validation.Unknown);
                 }
             });
-            $("#id_rewrite_groups_1").on("input", regex_dynamic_check);
+            $("#id_rewrite_groups_1").on("input", checkDynamicRegex);
         });
     })(django.jQuery);
 </script>
