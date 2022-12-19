@@ -291,6 +291,7 @@ class VclTagBuilder(object):
         if tag_name == 'VAAS_STATUS':
             vcl_tag.parameters['server'] = self.varnish
             vcl_tag.parameters['allow_metrics_header'] = settings.ALLOW_METRICS_HEADER
+            vcl_tag.parameters['vaas_status_code_503_trigger_file'] = settings.VAAS_STATUS_CODE_503_TRIGGER_FILE
         elif tag_name in ('RECV'):
             vcl_tag.parameters['mesh_routing'] = self.placeholders['mesh_routing']
         elif tag_name == 'SET_ACTION':
