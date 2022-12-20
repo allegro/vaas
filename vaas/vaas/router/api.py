@@ -34,16 +34,20 @@ class RedirectAssertionResource(Resource):
 
 
 class RedirectResource(ModelResource):
+    src_domain = fields.ForeignKey('vaas.cluster.api.DomainMappingResource', 'src_domain')
     assertions = fields.ToManyField(
         'vaas.router.api.RedirectAssertionResource', 'assertions', full=True)
 
     class Meta:
-        queryset = Redirect.objects.all().prefetch_related('assertions')
+        queryset = Redirect.objects.all().prefetch_related('assertions', 'src_domain')
         resource_name = 'redirect'
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         always_return_data = True
+
+    def dehydrate_src_domain(self, bundle):
+        return bundle.obj.src_domain.domain
 
     def save(self, bundle, *args, **kwargs):
         assertions = bundle.data.get('assertions', [])
