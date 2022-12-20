@@ -96,12 +96,15 @@ sub vcl_recv {
 sub vcl_synth {
     if (resp.status == 999) {
             set resp.status = 503;
+        if (std.file_exists("/etc/vaas_status_503")) {
+            set resp.status = 503;
+        }
         synthetic("");
     }
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "5feca", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "99708", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
