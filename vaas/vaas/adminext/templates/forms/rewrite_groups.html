@@ -1,5 +1,5 @@
 {% spaceless %}
-<div class="input-group" id="input-group">
+<div class="input-group"  {% include "django/forms/widgets/attrs.html" %}">
     {% for widget in widget.subwidgets %}
     {% if forloop.first %}
     <span class="input-group-addon">
@@ -26,9 +26,9 @@
         };
 
         function updateTarget(oldState, newState) {
-            $("#input-group").removeClass(oldState)
+            $("#id_rewrite_groups").removeClass(oldState)
             if (newState != Validation.Unknown) {
-                $("#input-group").addClass(newState)
+                $("#id_rewrite_groups").addClass(newState)
             }
         }
 
@@ -59,6 +59,9 @@
         }
 
         $(document).ready(function () {
+            if($("#id_rewrite_groups_1").val()) {
+                setRegexCompilationState(Validation.Success);
+            }
             $('#id_rewrite_groups_0').change(function () {
                 if ($(this).is(":checked")) {
                     $("#id_rewrite_groups_1").prop('disabled', false);
