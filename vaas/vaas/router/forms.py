@@ -1,16 +1,15 @@
-from typing import Any, List
+from typing import Any, List, Dict
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, \
-    MultiValueField, BooleanField
+    MultiValueField, BooleanField, MultiWidget, Widget
 from django.conf import settings
-from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, \
+from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, RewriteGroupsField, \
     PrioritySelect, SearchableSelect, split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
 from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration
-
 
 class MultipleUrl(MultiValueField):
     default_error_messages = {
@@ -136,16 +135,13 @@ class RouteModelForm(ModelForm):
             else:
                 return
         raise ValidationError('This combination of director, cluster and priority already exists')
-
-
 class RedirectModelForm(ModelForm):
     preserve_query_params = BooleanField(required=False, label='Preserve query params')
     src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
-
+    rewrite_groups = RewriteGroupsField(required=False)
     class Meta:
         model = Redirect
         fields = '__all__'
-
         widgets = {
             'priority': PrioritySelect(
                 choices=tuple([(i, i) for i in range(1, 500)]),
@@ -153,22 +149,30 @@ class RedirectModelForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        condition_domain = ""
-        if kwargs.get('instance', None):
-            condition_domain = kwargs['instance'].src_domain.pk
         super().__init__(*args, **kwargs)
+        condition_domain = ""
+        if instance := kwargs.get('instance', None):
+            condition_domain = instance.src_domain.pk
         self.fields['priority'].initial = 250
         self.fields['condition'] = ComplexRedirectConditionField()
         self.fields['condition'].widget.attrs.update({'condition_domain': condition_domain})
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         pretify_fields(self.fields.values())
 
-    def clean(self) -> None:
+    def clean(self) -> Dict[str, Any]:
+        cleaned_data = super().clean()
         src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
-        self.cleaned_data['src_domain'] = src_domain
-
+        cleaned_data['src_domain'] = src_domain
+        return cleaned_data
 
 def pretify_fields(fields: List[Any]) -> None:
     for field in fields:
-        if not isinstance(field.widget, CheckboxInput):
-            field.widget.attrs.update({'class': 'form-control'})
+        if isinstance(field.widget, MultiWidget):
+            for widget in field.widget.widgets:
+                add_form_control(widget)
+        else:
+            add_form_control(field.widget)
+
+def add_form_control(widget: Widget) -> None:
+    if not isinstance(widget, CheckboxInput):
+        widget.attrs.update({'class': 'form-control'})

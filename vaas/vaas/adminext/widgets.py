@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import re
 from typing import List, Optional, Tuple
 from django import forms
 from vaas.router.models import provide_redirect_configuration, RedirectConfiguration
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 
 CONJUNCTION = ' && '
@@ -183,3 +185,52 @@ class ComplexRedirectConditionField(forms.MultiValueField):
 
             return f"req.method == \"{http_method}\" && req.url ~ \"{src_path}\""
         return None
+
+class RewriteGroupsInput(forms.TextInput):
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context["widget"]["attrs"].update(
+            {'disabled': value==None}
+        )
+        return context
+
+class RewriteGroupsWidget(forms.MultiWidget):
+    template_name = 'forms/rewrite_groups.html'
+
+    def __init__(self):
+        widgets = (
+            forms.CheckboxInput,
+            RewriteGroupsInput(attrs={'placeholder': 'Place here your regular expression for rewrite source groups'}),
+        )
+        super().__init__(widgets)
+
+    def decompress(self, value):
+        if value:
+            return [True, value]
+        return [False, None]
+
+class RewriteGroupsField(forms.MultiValueField):
+    widget = RewriteGroupsWidget
+    
+    def __init__(self, **kwargs):
+        fields = (
+            forms.BooleanField(),
+            forms.CharField(),
+        )
+        super().__init__(fields=fields, **kwargs)
+
+    def validate(self, value) -> None:
+        super().validate(value)
+        try:
+            re.compile(value)
+        except re.error as e:
+            raise ValidationError(f"Not valid regex: {e.msg}.")
+
+
+    def compress(self, data_list):
+        if data_list:
+            enabled, rewrite_groups = data_list
+            if enabled and rewrite_groups in self.empty_values:
+                raise ValidationError("This field is required")
+            return rewrite_groups
+        return ''   
