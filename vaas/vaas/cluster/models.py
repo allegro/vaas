@@ -109,7 +109,7 @@ class DomainMapping(models.Model):
         ('static', 'Static'),
         ('dynamic', 'Dynamic')
     )
-    domain = models.CharField(max_length=128)
+    domain = models.CharField(max_length=128, unique=True)
     mapping = models.CharField(max_length=128)
     type = models.CharField(max_length=7, choices=TYPE_CHOICES, default='static')
     clusters = models.ManyToManyField(LogicalCluster)
