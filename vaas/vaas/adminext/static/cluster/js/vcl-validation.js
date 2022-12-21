@@ -31,7 +31,7 @@ function clearModal(commandId) {
 }
 
 function parseTemplateId() {
-    var linkParts = $('.deletelink').attr('href').split('/')
+    var linkParts = $('.btn.deletelink').attr('href').split('/')
     return linkParts[linkParts.length - 3]
 }
 
