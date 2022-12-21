@@ -156,7 +156,7 @@ class VclDirector(object):
         return self.dc.symbol == self.current_dc.symbol
 
 
-class VclTagBuilder(object):
+class VclTagBuilder:
     def __init__(self, varnish, input_data):
         self.input = input_data
         self.varnish = varnish
@@ -179,10 +179,11 @@ class VclTagBuilder(object):
         cluster_domains = self.varnish.cluster.domainmapping_set.all()
         for redirect in self.input.redirects:
             if redirect.src_domain in cluster_domains:
-                if entries := redirects.get(redirect.src_domain.domain, []):
+                domain = redirect.src_domain.mapped_domain(self.varnish.cluster)
+                if entries := redirects.get(domain, []):
                     entries.append(redirect)
                 else:
-                    redirects[redirect.src_domain.domain] = [redirect]
+                    redirects[domain] = [redirect]
         return redirects
 
     @collect_processing

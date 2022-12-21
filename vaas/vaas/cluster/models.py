@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from typing import Set, Dict
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -113,6 +114,19 @@ class DomainMapping(models.Model):
     mapping = models.CharField(max_length=128)
     type = models.CharField(max_length=7, choices=TYPE_CHOICES, default='static')
     clusters = models.ManyToManyField(LogicalCluster)
+
+    def mapped_domain(self, cluster: LogicalCluster) -> str:
+        result = str(self.mapping)
+        if self.type == 'dynamic':
+            result = result.format(**self._prepare_placeholders(cluster.labels))
+        return result
+
+    def _prepare_placeholders(self, labels: Set[str]) -> Dict[str, str]:
+        result = {}
+        for label in labels:
+            if label.count(":") == 1:
+                _, result[_] = label.split(":")
+        return result
 
     def __str__(self) -> str:
         return f'{self.domain}'
