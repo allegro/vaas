@@ -96,12 +96,9 @@
             current_vcl_versions: '[]', labels_list: '["placeholder:cluster4"]'}
 - model: cluster.domainmapping
   pk: 1
-  fields: {domain: "mydomain.com", mapping: "{{ placeholder }}:6081", type: dynamic, clusters: [1]}
+  fields: {domain: "mydomain.com", mapping: "{placeholder}:6081", type: dynamic, clusters: [1]}
 - model: cluster.domainmapping
   pk: 2
-  fields: {domain: "192.168.199.6:6081", mapping: "192.168.199.6:6081", type: static, clusters: [1]}
-- model: cluster.domainmapping
-  pk: 3
   fields: {domain: "example.com", mapping: "example.base.com", type: static, clusters: [3]}
 - model: cluster.vcltemplate
   pk: 2
@@ -150,7 +147,7 @@
 - model: router.redirect
   pk: 1
   fields:
-    src_domain: 2
+    src_domain: 1
     condition: req.method == "GET" && req.url ~ "/source_url"
     destination: /destination_url
     action: 301
