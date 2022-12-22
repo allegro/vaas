@@ -25,8 +25,7 @@ class Redirect(models.Model):
     src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
     condition = models.CharField(max_length=512)
     rewrite_groups = models.CharField(max_length=512, default='', blank=True)
-    destination = models.CharField(max_length=512, validators=[RegexValidator(
-        regex="^/.*", message="Destination should be relative")])
+    destination = models.CharField(max_length=512)
     action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)

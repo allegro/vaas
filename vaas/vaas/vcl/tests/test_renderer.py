@@ -258,7 +258,7 @@ class VclTagBuilderTest(TestCase):
         self.redirect = Redirect.objects.create(
             src_domain=self.domainapping,
             condition='req.method == "GET" && req.url ~ "/source"',
-            destination='/destination',
+            destination='http://example.com/destination',
             action=301,
             priority=250,
             preserve_query_params=False
@@ -413,6 +413,7 @@ class VclTagBuilderTest(TestCase):
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         assert_equals(['example.prod.com'], list(tag.parameters['redirects'].keys()))
         assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][0].src_domain.domain)
+        assert_equals('http://example.prod.com/destination', tag.parameters['redirects']['example.prod.com'][0].destination)
 
 
 class VclRendererInputTest(TestCase):
