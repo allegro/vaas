@@ -140,6 +140,16 @@ def split_condition(value):
     return ['req.url', '~', '']
 
 
+def split_redirect_condition(value: str) -> Tuple[str, str]:
+    if value:
+        parts = value.split(' ')
+        if len(parts) > 1:
+            http_method = parts[2]
+            src_path = parts[6]
+            return http_method[1:-1], src_path[1:-1]
+    return 'GET', ''
+
+
 class ComplexRedirectConditionWidget(forms.MultiWidget):
     def __init__(self, http_methods: Tuple, domains: Tuple, attrs=None):
         widgets = (
@@ -153,14 +163,9 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value: str) -> Tuple[str, str, str]:
-        if value:
-            parts = value.split(' ')
-            condition_domain = self.attrs.get('condition_domain', None)
-            if len(parts) > 1:
-                http_method = parts[2]
-                src_path = parts[6]
-                return http_method[1:-1], condition_domain, src_path[1:-1]
-        return 'GET', '', ''
+        method, path = split_redirect_condition(value)
+        domain = self.attrs.get('condition_domain', None)
+        return method, domain, path
 
 
 class ComplexRedirectConditionField(forms.MultiValueField):
@@ -182,17 +187,24 @@ class ComplexRedirectConditionField(forms.MultiValueField):
         if data_list:
             http_method = data_list[0]
             src_path = data_list[2]
-
             return f"req.method == \"{http_method}\" && req.url ~ \"{src_path}\""
         return None
+
+
+def split_rewrite_groups(value: Optional[str]) -> tuple[bool, Optional[str]]:
+    if value:
+        return (True, value)
+    return (False, None)
+
 
 class RewriteGroupsInput(forms.TextInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"].update(
-            {'disabled': value==None}
+            {'disabled': value == None}
         )
         return context
+
 
 class RewriteGroupsWidget(forms.MultiWidget):
     template_name = 'forms/rewrite_groups.html'
@@ -205,13 +217,12 @@ class RewriteGroupsWidget(forms.MultiWidget):
         super().__init__(widgets)
 
     def decompress(self, value):
-        if value:
-            return [True, value]
-        return [False, None]
+        return split_rewrite_groups(value)
+
 
 class RewriteGroupsField(forms.MultiValueField):
     widget = RewriteGroupsWidget
-    
+
     def __init__(self, **kwargs):
         fields = (
             forms.BooleanField(),
@@ -226,11 +237,10 @@ class RewriteGroupsField(forms.MultiValueField):
         except re.error as e:
             raise ValidationError(f"Not valid regex: {e.msg}.")
 
-
     def compress(self, data_list):
         if data_list:
             enabled, rewrite_groups = data_list
             if enabled and rewrite_groups in self.empty_values:
                 raise ValidationError("This field is required")
             return rewrite_groups
-        return ''   
+        return ''
