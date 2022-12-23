@@ -7,7 +7,7 @@ from tastypie.resources import ModelResource, ALL_WITH_RELATIONS, Resource
 from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
-from tastypie.exceptions import ImmediateHttpResponse, NotFound
+from tastypie.exceptions import ImmediateHttpResponse, NotFound, ApiFieldError
 from django.http.response import HttpResponse
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,8 +19,10 @@ from vaas.external.serializer import PrettyJSONSerializer
 from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task, to_dict
-from vaas.adminext.widgets import split_complex_condition, split_condition
+from vaas.adminext.widgets import split_complex_condition, split_condition, split_redirect_condition, split_rewrite_groups
 from vaas.external.oauth import VaasMultiAuthentication
+from vaas.cluster.models import DomainMapping
+from vaas.router.forms import RedirectModelForm
 
 
 class RedirectAssertionResource(Resource):
@@ -36,7 +38,7 @@ class RedirectAssertionResource(Resource):
 class RedirectResource(ModelResource):
     src_domain = fields.ForeignKey('vaas.cluster.api.DomainMappingResource', 'src_domain')
     assertions = fields.ToManyField(
-        'vaas.router.api.RedirectAssertionResource', 'assertions', full=True)
+        'vaas.router.api.RedirectAssertionResource', 'assertions', full=True, null=True)
 
     class Meta:
         queryset = Redirect.objects.all().prefetch_related('assertions', 'src_domain')
@@ -44,10 +46,33 @@ class RedirectResource(ModelResource):
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        validation = ModelCleanedDataFormValidation(form_class=RedirectModelForm)
         always_return_data = True
 
     def dehydrate_src_domain(self, bundle):
         return bundle.obj.src_domain.domain
+
+    def hydrate_rewrite_groups(self, bundle):
+        rewrite_groups = bundle.data.get('rewrite_groups', None)
+        bundle.data['rewrite_groups_0'], bundle.data['rewrite_groups_1'] = split_rewrite_groups(rewrite_groups)
+        return bundle
+
+    def hydrate_src_domain(self, bundle):
+        if src_domain := bundle.data.get('src_domain', None):
+            try:
+                domain = DomainMapping.objects.get(domain=src_domain)
+                bundle.data['src_domain'] = domain
+            except ObjectDoesNotExist:
+                raise ApiFieldError(f"Domain mapping not found for domain: {src_domain}")
+        return bundle
+
+    def hydrate_condition(self, bundle):
+        condition = bundle.data.get('condition', None)
+        method, path = split_redirect_condition(condition)
+        bundle.data['condition_0'] = method
+        bundle.data['condition_1'] = bundle.data['src_domain'].pk
+        bundle.data['condition_2'] = path
+        return bundle
 
     def save(self, bundle, *args, **kwargs):
         assertions = bundle.data.get('assertions', [])

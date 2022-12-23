@@ -11,6 +11,7 @@ from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
 from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration
 
+
 class MultipleUrl(MultiValueField):
     default_error_messages = {
         'invalid': 'Enter a list of proper urls.',
@@ -135,10 +136,13 @@ class RouteModelForm(ModelForm):
             else:
                 return
         raise ValidationError('This combination of director, cluster and priority already exists')
+
+
 class RedirectModelForm(ModelForm):
     preserve_query_params = BooleanField(required=False, label='Preserve query params')
     src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
     rewrite_groups = RewriteGroupsField(required=False)
+
     class Meta:
         model = Redirect
         fields = '__all__'
@@ -165,6 +169,7 @@ class RedirectModelForm(ModelForm):
         cleaned_data['src_domain'] = src_domain
         return cleaned_data
 
+
 def pretify_fields(fields: List[Any]) -> None:
     for field in fields:
         if isinstance(field.widget, MultiWidget):
@@ -172,6 +177,7 @@ def pretify_fields(fields: List[Any]) -> None:
                 add_form_control(widget)
         else:
             add_form_control(field.widget)
+
 
 def add_form_control(widget: Widget) -> None:
     if not isinstance(widget, CheckboxInput):
