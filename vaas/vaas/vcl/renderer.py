@@ -10,11 +10,10 @@ from typing import Dict, List
 from django.conf import settings
 from django.db.models import Prefetch
 from jinja2 import Environment, FileSystemLoader
-from urllib.parse import urlsplit
 
 from vaas.manager.models import Backend, Director
 from vaas.router.models import Route, Redirect
-from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster, DomainMapping
+from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
 
 VCL_TAGS = {
     '4.0': [
@@ -156,6 +155,15 @@ class VclDirector(object):
     def is_active(self):
         return self.dc.symbol == self.current_dc.symbol
 
+class VclRedirect(object):
+    def __init__(self, redirect, cluster):
+        self.id = redirect.id
+        self.src_domain = redirect.src_domain
+        self.rewrite_groups = redirect.rewrite_groups
+        self.action = redirect.action
+        self.condition = redirect.condition
+        self.destination = redirect.get_redirect_destination(cluster)
+
 class VclTagBuilder:
     def __init__(self, varnish, input_data):
         self.input = input_data
@@ -174,7 +182,7 @@ class VclTagBuilder:
         }
 
     @collect_processing
-    def prepare_redirects(self) -> Dict[str, List[Redirect]]:
+    def prepare_redirects(self) -> Dict[str, List[VclRedirect]]:
         redirects = {}
         cluster_domains = self.varnish.cluster.domainmapping_set.all()
         for redirect in self.input.redirects:
@@ -183,17 +191,8 @@ class VclTagBuilder:
                 if entries := redirects.get(domain, []):
                     entries.append(redirect)
                 else:
-                    redirect.destination = self.get_redirect_destination(redirect, self.varnish.cluster)
-                    redirects[domain] = [redirect]
+                    redirects[domain] = [VclRedirect(redirect, self.varnish.cluster)]
         return redirects
-
-    def get_redirect_destination(self, redirect: Redirect, cluster: LogicalCluster) -> str:
-        destination_url = urlsplit(redirect.destination)
-        domain_mapping = DomainMapping.objects.filter(domain=destination_url.netloc)
-        if len(domain_mapping) == 1:
-            domain = domain_mapping[0].mapped_domain(cluster)
-            return redirect.destination.replace(destination_url.netloc, domain)
-        return redirect.destination
 
     @collect_processing
     def prepare_route(self, varnish, cluster_directors):

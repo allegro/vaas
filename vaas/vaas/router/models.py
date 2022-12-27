@@ -2,7 +2,8 @@
 from typing import Dict, List
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+from urllib.parse import urlsplit
 
 from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
@@ -32,6 +33,14 @@ class Redirect(models.Model):
 
     def get_hashed_assertions_pks(self) -> Dict[int, int]:
         return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
+
+    def get_redirect_destination(self, cluster: LogicalCluster) -> str:
+        destination_url = urlsplit(self.destination)
+        domain_mapping = DomainMapping.objects.filter(domain=destination_url.netloc)
+        if len(domain_mapping) == 1:
+            domain = domain_mapping[0].mapped_domain(cluster)
+            return self.destination.replace(destination_url.netloc, domain)
+        return self.destination
 
 
 class Route(models.Model):
