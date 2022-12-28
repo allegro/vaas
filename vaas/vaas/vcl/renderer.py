@@ -155,6 +155,14 @@ class VclDirector(object):
     def is_active(self):
         return self.dc.symbol == self.current_dc.symbol
 
+class VclRedirect(object):
+    def __init__(self, redirect, cluster):
+        self.id = redirect.id
+        self.src_domain = redirect.src_domain
+        self.rewrite_groups = redirect.rewrite_groups
+        self.action = redirect.action
+        self.condition = redirect.condition
+        self.destination = redirect.get_redirect_destination(cluster)
 
 class VclTagBuilder:
     def __init__(self, varnish, input_data):
@@ -174,7 +182,7 @@ class VclTagBuilder:
         }
 
     @collect_processing
-    def prepare_redirects(self) -> Dict[str, List[Redirect]]:
+    def prepare_redirects(self) -> Dict[str, List[VclRedirect]]:
         redirects = {}
         cluster_domains = self.varnish.cluster.domainmapping_set.all()
         for redirect in self.input.redirects:
@@ -183,7 +191,7 @@ class VclTagBuilder:
                 if entries := redirects.get(domain, []):
                     entries.append(redirect)
                 else:
-                    redirects[domain] = [redirect]
+                    redirects[domain] = [VclRedirect(redirect, self.varnish.cluster)]
         return redirects
 
     @collect_processing
