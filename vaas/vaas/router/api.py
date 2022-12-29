@@ -342,7 +342,7 @@ class ValidateRedirectsCommandResource(Resource):
         bundle = self.full_hydrate(bundle)
         task = fetch_redirects_async.apply_async(task_id=bundle.obj.pk)
         bundle.obj.status = task.status
-        bundle.obj.output = task.result
+        bundle.obj.output = to_dict(prepare_report_from_task(kwargs['pk'], 'redirect'))
         return bundle
 
     def obj_get(self, bundle, **kwargs):
