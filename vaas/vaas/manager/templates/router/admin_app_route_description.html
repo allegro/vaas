@@ -11,69 +11,72 @@
   }
 
   @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
   }
-  
+
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>
 <script>
-  var taskURL = '';
   const noDataPlaceholder = { name: 'no data', id: 'no data' };
-  function handleError(request, textStatus, errorThrown) {
-    $('#spinner').hide()
-    console.error(textStatus, errorThrown)
-    showError(errorThrown || `${textStatus}, check console log for more details`)
-  }
-  function createTask(callback) {
+  function routesValidateCommand(url) {
     return $.ajax({
-      type: 'POST',
-      url: '/api/v0.1/validate_routes/',
+      type: 'PUT',
+      url: url,
       data: '{}',
       dataType: 'json',
       contentType: "application/json; charset=utf-8",
-      error: handleError,
+      error: handleErrorResponse,
+      success: handleRoutesValidateResponse,
       beforeSend: setCRSFToken,
-      success: callback,
+      complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolRoutesValidateResult(url) }, 500) } },
     });
   }
-  function poolTaskStatus(url) {
+
+  function poolRoutesValidateResult(url) {
     $.ajax({
       url: url,
       dataType: 'json',
-      error: handleError,
-      success: function (data, textStatus, request) {
-        const status = data.task_status
-        if (!isResultStillAwaited(url)) return;
-        if (status === 'FAILURE') {
-          $('#task-id').data("status", "done")
-          showError("Can't generate report. Task failed. Refresh page and try again")
-          $('#spinner').hide()
-        }
-        else if (status === 'SUCCESS') {
-          $('#task-id').data("status", "done")
-          const validationResults = data.validation_results;
-          const validationStatus = data.validation_status;
-          $('#results').append(createTestResult(validationResults));
-          $('#pass-count').text(countResult('PASS', validationResults));
-          $('#failed-count').text(countResult('FAIL', validationResults));
-          $('#report-result').addClass(`label-${statusToClass(validationStatus)}`).text(validationStatus);
-          $('#spinner').hide()
-        }
-        $('#task-status').removeClass();
-        $('#task-status').addClass(`label label-${statusToClass(status)}`).text(status);
-      },
-      complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolTaskStatus(url) }, 5000) } },
+      error: handleErrorResponse,
+      success: handleRoutesValidateResponse,
+      complete: function () { if (isResultStillAwaited(url)) { setTimeout(function () { poolRoutesValidateResult(url) }, 500) } },
       timeout: 5000
     });
   }
-  function showError(message) {
-    $('#error-message').remove()
-    $('.modal-body').prepend(`<div id="error-message" class="alert alert-danger" role="alert">${message}</div>`)
+
+  function handleRoutesValidateResponse(data, textStatus, request) {
+    const status = data.status
+    if (checkCommandStatus('done')) return;
+    if (status === 'FAILURE') {
+      setCommandStatus('done');
+      showError("Can't generate report. Task failed. Refresh page and try again")
+      $('#spinner').hide()
+    }
+    else if (status === 'SUCCESS') {
+      setCommandStatus('done');
+      $('#results').append(createTestResult(data.output.validation_results))
+      $('#pass-count').text(countResult('PASS', data.output.validation_results));
+      $('#failed-count').text(countResult('FAIL', data.output.validation_results));
+      $('#command-result').addClass(`label-${statusToClass(data.output.validation_status)}`).text(data.output.validation_status);
+      $('#spinner').hide()
+    }
+    $('#command-status').removeClass();
+    $('#command-status').addClass(`label label-${statusToClass(status)}`).text(status);
   }
+
   function createTestResult(records) {
     var html = '';
     records.sort(function(x, y) {
@@ -130,6 +133,7 @@
     });
     return html
   }
+
   function countResult(resultString, records) {
     var counter = 0;
     records.forEach(function (record) {
@@ -140,34 +144,74 @@
     return counter;
   }
 
-  function isResultStillAwaited(taskURL) {
-    return $('#task-id').text() == taskURL.split('/')[4] && $('#task-id').data("status") == "started";
+  function handleErrorResponse(request, textStatus, errorThrown) {
+    setCommandStatus('done');
+    console.error(textStatus, errorThrown)
+    $('#command-details').append(`<div id="error-message" class="alert alert-danger" role="alert">${request.responseText || errorThrown}</div>`)
+    $('#command-result').addClass(`label-${statusToClass('FAIL')}`).text(validationStatus('Error'));
+    $('#spinner').hide();
   }
 
-  function clearReportState() {
-    $('#task-status').removeClass();
-    $('#task-status').addClass(`label label-default`).text("unknown");
-    $('#report-result').removeClass();
-    $('#report-result').addClass(`label label-default`).text("UNKNOWN");
+  function showError(message) {
+    $('#error-message').remove()
+    $('#command-details').append(`<div id="error-message" class="alert alert-danger" role="alert">${message}</div>`)
+  }
+
+  function isPollingFinished(commandId, status) {
+    return $('#command-id').text() != commandId || checkCommandStatus('done')
+  }
+
+  function isResultStillAwaited(commandURL) {
+    var parts = commandURL.split('/')
+    return !isPollingFinished(parts[parts.length - 2], 'done');
+  }
+
+  function setCommandStatus(status) {
+    $('#command-id').data('status', status)
+  }
+
+  function checkCommandStatus(status) {
+    return $('#command-id').data('status') == status
+  }
+
+  function statusToClass(status) {
+    switch (status) {
+      case 'PENDING':
+        return 'info';
+      case 'PASS':
+      case 'SUCCESS':
+        return 'success'
+      case 'FAIL':
+      case 'FAILURE':
+        return 'danger'
+      default:
+        return 'default'
+    }
+  }
+
+  function clearModal(commandId) {
+    $('#spinner').show();
+    $('#results').text("");
     $('#pass-count').text(0);
     $('#failed-count').text(0);
-    $('#results').text("");
+    $('#error-message').remove();
+    $('#command-status').removeClass();
+    $('#command-status').addClass(`label label-default`).text("unknown");
+    $('#command-result').removeClass();
+    $('#command-result').addClass(`label label-default`).text("UNKNOWN");
+    $('#command-id').text(commandId);
+    $('#command-id').data("status", "started");
   }
 
   $(document).ready(function () {
     var testResultModalEl = $('#testResultModal');
     testResultModalEl.on('show.bs.modal', function (event) {
-      clearReportState()
-      $('#error-message').remove()
-      $('#spinner').show()
-      createTask(function (data, textStatus, request) {
-        taskURL = request.getResponseHeader('Location')
-        $('#task-id').text(taskURL.split('/')[4]);
-        $('#task-id').data("status", "started");
-        poolTaskStatus(taskURL);
-      });
+      var commandId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      clearModal(commandId)
+      routesValidateCommand('/api/v0.1/route/validate-command/' + commandId + '/');
     });
   })
+
 </script>
 <div class='pull-right'>
   <button id="test" type="button" class="btn btn-info" data-toggle="modal" data-target="#testResultModal">
@@ -187,12 +231,12 @@
           <div class="panel-heading">
             <h3 class="panel-title">Task info</h3>
           </div>
-          <div class="panel-body">
-            <h5>Task status: <span id="task-status" class="label label-default">unknown</span></h5>
-            <h5>Task ID: <span id="task-id" class="label label-default"></span></h5>
+          <div id="command-details" class="panel-body">
+            <h5>Command status: <span id="command-status" class="label label-default">unknown</span></h5>
+            <h5>Command ID: <span id="command-id" class="label label-default"></span></h5>
           </div>
         </div>
-        <h2>Tests report result: <span id="report-result" class="label label-default">UNKNOWN</span></h2>
+        <h2>Tests report result: <span id="command-result" class="label label-default">UNKNOWN</span></h2>
         <h4>
           Details:
           <span class="label label-success">PASS <span id="pass-count" class="badge">0</span></span>
