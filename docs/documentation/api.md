@@ -23,9 +23,8 @@ The following resources are available:
 | *Outdated Server*    | Represents active varnish servers with outdated vcl                                                       |preview                       |                        |
 | *Task*               | Represents state of reloading task - check [VaaS Request Flow](./flow.md)                                 |preview                       |                        |
 | *Redirect*           | Represents conditional redirection to particular URL                                                      |preview, **add, edit, delete**| validate-command       |
-| *Route*              | Represents conditional routing to desired Director                                                        |preview, **add, edit, delete**|                        |
+| *Route*              | Represents conditional routing to desired Director                                                        |preview, **add, edit, delete**| validate-command       |
 | *RouteConfig*        | Represents possible request parameters, operators & actions, which can be used in Routes                  |preview|                        |
-| *ValidationReport*   | Represents report of positive urls validation which checks if positive urls are handled by desired Routes |preview|                        |
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -318,6 +317,37 @@ expected output
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/redirect/?username=admin&api_key=vagrant_api_key&format=json"
 
+### Call validate-command for all redirects
+
+    curl -X PUT \
+    -d '{ }' -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358d2/?username=admin&api_key=vagrant_api_key"
+
+expected output
+
+    {
+      "output": null,
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+      "status": "PENDING"
+    }
+
+### Verify command result
+
+    curl "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key"
+
+expected output
+
+    {
+      "output": {
+        "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+        "task_status": "SUCCESS",
+        "validation_results": [],
+        "validation_status": "PASS"
+      },
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+      "status": "SUCCESS"
+    }
+
 ### Delete single route
 
     curl -X DELETE \
@@ -353,34 +383,65 @@ expected output
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/route/1/?username=admin&api_key=vagrant_api_key&format=json"
 
-### Call validate-command for all redirects
+### Call validate-command for all routes
 
     curl -X PUT \
     -d '{ }' -H "Content-Type: application/json" \
-    "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358d2/?username=admin&api_key=vagrant_api_key"
-
-expected output
-
-    {
-      "output": null,
-      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
-      "status": "PENDING"
-    }
-
-### Verify command result
-
-    curl "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358d1/?username=admin&api_key=vagrant_api_key"
+    "http://localhost:3030/api/v0.1/route/validate-command/7110e99e-453a-4078-843a-f6c36dd358dd/?username=admin&api_key=vagrant_api_key"
 
 expected output
 
     {
       "output": {
-        "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+        "pk": "7110e99e-453a-4078-843a-f6c36dd358dd",
+        "task_status": "PENDING",
+        "validation_results": null,
+        "validation_status": null
+      },
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358dd",
+      "status": "PENDING"
+    }
+
+### Verify command result
+
+    curl "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358dd/?username=admin&api_key=vagrant_api_key"
+
+expected output
+
+    {
+      "output": {
+        "pk": "7110e99e-453a-4078-843a-f6c36dd358dd",
         "task_status": "SUCCESS",
-        "validation_results": [],
+        "validation_results": [
+          {
+            "current": {
+              "director": {
+                "id": 2,
+                "name": "second_service"
+              },
+              "route": {
+                "id": 1,
+                "name": "req.url ~ \"^\\/flexibleee\""
+              }
+            },
+            "error_message": "",
+            "expected": {
+              "director": {
+                "id": 2,
+                "name": "second_service"
+              },
+              "route": {
+                "id": 1,
+                "name": "req.url ~ \"^\\/flexibleee\""
+              }
+            },
+            "result": "PASS",
+            "url": "http://192.168.199.4:6081/flexibleee"
+          }
+        ],
         "validation_status": "PASS"
       },
-      "pk": "7110e99e-453a-4078-843a-f6c36dd358d2",
+      "pk": "7110e99e-453a-4078-843a-f6c36dd358dd",
       "status": "SUCCESS"
     }
 
@@ -388,21 +449,7 @@ expected output
 
     curl "http://localhost:3030/api/v0.1/route_config/?username=admin&api_key=vagrant_api_key&format=json"
 
-### Trigger positive url validation (check if positive urls are routed via desired Routes)
 
-    curl -XPOST "http://localhost:3030/api/v0.1/validate_routes/?username=admin&api_key=admin_api_key&format=json"  -H'Content-Type: application/json' -d'{}'
-
-Above request is asynchronous, it means all checks are verified in background.
-Response contains *Location* header which provides url to validation report.
-Report will be available after validation is finished.
-
-### Fetch positive url validation report
-
-    curl "http://localhost:3030/api/v0.1/validation_report/<REPORT-ID>/?username=admin&api_key=admin_api_key&format=json"
-
-If report is available, field status will be set to "SUCCESS".
-Otherwise, please try again in a moment.
-The validation report is available for 500 seconds after its ready.
 
 Explore more
 ============

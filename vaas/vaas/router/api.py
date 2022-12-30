@@ -232,28 +232,6 @@ class RouteConfigurationResource(Resource):
         return None
 
 
-class ValidateRoutesRequest(Resource):
-
-    class Meta:
-        resource_name = 'validate_routes'
-        list_allowed_methods = ['post']
-        authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
-        include_resource_uri = False
-
-    def obj_create(self, bundle, **kwargs):
-        task = fetch_urls_async.delay()
-        raise ImmediateHttpResponse(self.create_http_response(task.id))
-
-    def get_object_list(self, request):
-        return None
-
-    def create_http_response(self, task_id):
-        response = HttpResponse(status=202)
-        response.setdefault('Location', '/api/v0.1/validation_report/{}/'.format(task_id))
-        return response
-
-
 class NamedResource(Resource):
     id = fields.IntegerField(attribute='id', null=True)
     name = fields.CharField(attribute='name', null=True)
@@ -281,27 +259,7 @@ class ValidationResultResource(Resource):
         include_resource_uri = False
 
 
-class ValidationReportResource(Resource):
-    validation_results = fields.ToManyField(ValidationResultResource, 'validation_results', full=True, null=True)
-    validation_status = fields.CharField(attribute='validation_status', null=True)
-    task_status = fields.CharField(attribute='task_status')
-
-    class Meta:
-        resource_name = 'validation_report'
-        list_allowed_methods = ['get']
-        authorization = DjangoAuthorization()
-        authentication = VaasMultiAuthentication(ApiKeyAuthentication(), SessionAuthentication())
-        fields = ['validation_results', 'validation_status', 'task_status']
-        include_resource_uri = False
-
-    def obj_get(self, bundle, **kwargs):
-        return prepare_report_from_task(kwargs['pk'], 'route')
-
-    def get_object_list(self, request):
-        return None
-
-
-class ValidateRedirectsCommandModel:
+class ValidateCommandModel:
     def __init__(
             self,
             pk: str = "",
@@ -316,15 +274,12 @@ class ValidateRedirectsCommandModel:
         return '{}'.format({k: v for k, v in self.__dict__})
 
 
-class ValidateRedirectsCommandResource(Resource):
+class AbstractValidateCommandResource(Resource):
     pk = fields.CharField(attribute='id', readonly=True)
     status = fields.CharField(attribute='status', readonly=True, blank=True, null=True)
     output = fields.DictField(attribute='output', readonly=True, blank=True, null=True)
 
     class Meta:
-        # prefixing the name with underscores forces prepend_urls to be matched
-        # before urls linked to other resources
-        resource_name = '__validate-command'
         list_allowed_methods = []
         detail_allowed_methods = ['put', 'get']
         authorization = DjangoAuthorization()
@@ -332,27 +287,51 @@ class ValidateRedirectsCommandResource(Resource):
         fields = ['status', 'output']
         include_resource_uri = False
         always_return_data = True
+        name = ''
 
     def obj_update(self, bundle, **kwargs):
         bundle.data['pk'] = kwargs['pk']
         raise NotFound()
 
-    def obj_create(self, bundle, **kwargs):
-        bundle.obj = ValidateRedirectsCommandModel(pk=kwargs['pk'])
-        bundle = self.full_hydrate(bundle)
-        task = fetch_redirects_async.apply_async(task_id=bundle.obj.pk)
-        bundle.obj.status = task.status
-        bundle.obj.output = to_dict(prepare_report_from_task(kwargs['pk'], 'redirect'))
-        return bundle
+    def prepend_urls(self):
+        return [
+            re_path(r"^{}/validate-command/(?P<pk>[\w\d_.-]+)/$".format(self.Meta.name),
+                    self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            re_path(r"^{}/validate-command/$".format(self.Meta.name),
+                    self.wrap_view('dispatch_list'), name="api_dispatch_list")]
 
     def obj_get(self, bundle, **kwargs):
         task = AsyncResult(kwargs['pk'])
-        return ValidateRedirectsCommandModel(
-            kwargs['pk'], task.status, output=to_dict(prepare_report_from_task(kwargs['pk'], 'redirect'))
+        return ValidateCommandModel(
+            kwargs['pk'], task.status, output=to_dict(prepare_report_from_task(kwargs['pk'], self.Meta.name))
         )
 
-    def prepend_urls(self):
-        return [
-            re_path(r"^redirect/validate-command/(?P<pk>[\w\d_.-]+)/$",
-                    self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-            re_path(r"^redirect/validate-command/$", self.wrap_view('dispatch_list'), name="api_dispatch_list")]
+    def obj_create(self, bundle, **kwargs):
+        self.order_command(kwargs['pk'])
+        bundle.obj = self.obj_get(bundle, pk=kwargs['pk'])
+        return bundle
+
+    def order_command(self, pk):
+        raise NotImplementedError()
+
+
+class ValidateRedirectsCommandResource(AbstractValidateCommandResource):
+    class Meta(AbstractValidateCommandResource.Meta):
+        # prefixing the name with underscores forces prepend_urls to be matched
+        # before urls linked to other resources
+        name = 'redirect'
+        resource_name = '__validate-redirect-command'
+
+    def order_command(self, pk):
+        return fetch_redirects_async.apply_async(task_id=pk)
+
+
+class ValidateRoutesCommandResource(AbstractValidateCommandResource):
+    class Meta(AbstractValidateCommandResource.Meta):
+        # prefixing the name with underscores forces prepend_urls to be matched
+        # before urls linked to other resources
+        name = 'route'
+        resource_name = '__validate-route-command'
+
+    def order_command(self, pk):
+        return fetch_urls_async.apply_async(task_id=pk)
