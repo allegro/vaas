@@ -7,7 +7,7 @@ from celery.result import AsyncResult
 from django.db.models import Count
 from django.urls.conf import re_path
 
-from tastypie.resources import ALL_WITH_RELATIONS, Resource, ModelResource
+from tastypie.resources import ALL, ALL_WITH_RELATIONS, Resource, ModelResource
 from tastypie import fields
 from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
@@ -62,7 +62,7 @@ class LogicalClusterResource(ModelResource):
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
         always_return_data = True
         filtering = {
-            'name': ['exact'],
+            'name': ALL,
             'reload_timestamp': ['exact'],
         }
 
