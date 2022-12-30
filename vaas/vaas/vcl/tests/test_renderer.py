@@ -261,7 +261,8 @@ class VclTagBuilderTest(TestCase):
             destination='http://example.com/destination',
             action=301,
             priority=250,
-            preserve_query_params=False
+            preserve_query_params=False,
+            required_custom_header=False
         )
 
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=self.dc2, template=template_v4_with_tag,

@@ -291,3 +291,6 @@ for entry in env.json('REDIRECT_METHODS', default=[
     {'name': 'HEAD', 'value': 'HEAD'},
 ]):
     REDIRECT_METHODS[entry['name']] = entry['value']
+
+REDIRECT_CUSTOM_HEADER = env.str('REDIRECT_CUSTOM_HEADER', default='x-internal-network')
+REDIRECT_CUSTOM_HEADER_LABEL = env.str('REDIRECT_CUSTOM_HEADER_LABEL', default='Fire redirect only if {} header is present'.format(REDIRECT_CUSTOM_HEADER))
