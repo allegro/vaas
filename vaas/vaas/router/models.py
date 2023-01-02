@@ -30,6 +30,7 @@ class Redirect(models.Model):
     action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
+    required_custom_header = models.BooleanField(default=False)
 
     def get_hashed_assertions_pks(self) -> Dict[int, int]:
         return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
@@ -42,6 +43,11 @@ class Redirect(models.Model):
             return self.destination.replace(destination_url.netloc, domain)
         return self.destination
 
+    @property
+    def final_condition(self):
+        if self.required_custom_header:
+            return f'{self.condition} && req.http.{settings.REDIRECT_CUSTOM_HEADER}'
+        return self.condition
 
 class Route(models.Model):
     condition = models.CharField(max_length=512)

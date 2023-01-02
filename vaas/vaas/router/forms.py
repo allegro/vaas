@@ -140,6 +140,7 @@ class RouteModelForm(ModelForm):
 
 class RedirectModelForm(ModelForm):
     preserve_query_params = BooleanField(required=False, label='Preserve query params')
+    required_custom_header = BooleanField(required=False, label=settings.REDIRECT_CUSTOM_HEADER_LABEL)
     src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
     rewrite_groups = RewriteGroupsField(required=False)
 
