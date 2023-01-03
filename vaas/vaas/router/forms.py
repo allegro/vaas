@@ -113,6 +113,7 @@ class RouteModelForm(ModelForm):
             clusters = cleaned_data.get('director').cluster.values_list('id', flat=True)
         else:
             clusters = cleaned_data.get('clusters')
+
         routes_with_sync = Route.objects.filter(
             clusters_in_sync=True,
             director=cleaned_data.get('director'),
@@ -168,7 +169,19 @@ class RedirectModelForm(ModelForm):
         cleaned_data = super().clean()
         src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
         cleaned_data['src_domain'] = src_domain
-        return cleaned_data
+
+        redirects = Redirect.objects.filter(
+            src_domain = src_domain,
+            priority=cleaned_data.get('priority'))
+
+        if redirects.count() == 0:
+            return cleaned_data
+        if self.instance.pk:
+            if redirects.exclude(pk=self.instance.pk).exists():
+                raise ValidationError('This combination of source domain and priority already exists')
+            else:
+                return cleaned_data
+        raise ValidationError('This combination of source domain and priority already exists')
 
 
 def pretify_fields(fields: List[Any]) -> None:

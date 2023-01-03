@@ -189,7 +189,7 @@ class VclTagBuilder:
             if redirect.src_domain in cluster_domains:
                 domain = redirect.src_domain.mapped_domain(self.varnish.cluster)
                 if entries := redirects.get(domain, []):
-                    entries.append(redirect)
+                    entries.append(VclRedirect(redirect, self.varnish.cluster))
                 else:
                     redirects[domain] = [VclRedirect(redirect, self.varnish.cluster)]
         return redirects
@@ -370,8 +370,7 @@ class VclRendererInput(object):
             Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
-        self.redirects = list(Redirect.objects.all())
-        # TODO: add sort by priority
+        self.redirects = list(Redirect.objects.all().order_by('src_domain','priority'))
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all())

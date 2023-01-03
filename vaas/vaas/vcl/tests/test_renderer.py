@@ -255,12 +255,22 @@ class VclTagBuilderTest(TestCase):
         )
         route.clusters.add(cluster2)
 
-        self.redirect = Redirect.objects.create(
+        Redirect.objects.create(
             src_domain=self.domainapping,
             condition='req.method == "GET" && req.url ~ "/source"',
             destination='http://example.com/destination',
             action=301,
             priority=250,
+            preserve_query_params=False,
+            required_custom_header=False
+        )
+
+        Redirect.objects.create(
+            src_domain=self.domainapping,
+            condition='req.method == "GET" && req.url ~ "/source"',
+            destination='http://example.com/new_destination',
+            action=301,
+            priority=210,
             preserve_query_params=False,
             required_custom_header=False
         )
@@ -413,8 +423,15 @@ class VclTagBuilderTest(TestCase):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         assert_equals(['example.prod.com'], list(tag.parameters['redirects'].keys()))
-        assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][0].src_domain.domain)
-        assert_equals('http://example.prod.com/destination', tag.parameters['redirects']['example.prod.com'][0].destination)
+        assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
+        assert_equals('http://example.prod.com/destination', tag.parameters['redirects']['example.prod.com'][1].destination)
+
+    def test_should_sort_redirects_by_priority(self):
+        vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
+        tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
+        assert_equals(['example.prod.com'], list(tag.parameters['redirects'].keys()))
+        assert_equals(2, tag.parameters['redirects']['example.prod.com'][0].id)
+        assert_equals(1, tag.parameters['redirects']['example.prod.com'][1].id)
 
 
 class VclRendererInputTest(TestCase):
