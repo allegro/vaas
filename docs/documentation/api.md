@@ -313,7 +313,7 @@ expected output
 ### Create new redirect
 
     curl -X POST \
-    -d '{"action":"302", "condition": "req.method == \"GET\" && req.url ~ \"/path\"", "src_domain": "example.com", "destination":"/new-path", "preserve_query_params": false, "required_custom_header": false, "priority": 1, "assertions": [{"expected_location": "/new-path", "given_url": "http://mydomain.example/newpath"}]}' \
+    -d '{"action":"302", "condition": "req.method == \"GET\" && req.url ~ \"/path\"", "src_domain": "example.com", "destination":"/new-path", "preserve_query_params": false, "required_custom_header": false, "priority": 1, "assertions": [{"expected_location": "/new-path", "given_url": "http://example.com"/path"}]}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/redirect/?username=admin&api_key=vagrant_api_key&format=json"
 
