@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import uuid
 from typing import Dict, List
 from django.db import models
 from django.conf import settings
@@ -31,6 +32,7 @@ class Redirect(models.Model):
     priority = models.PositiveIntegerField()
     preserve_query_params = models.BooleanField(default=True)
     required_custom_header = models.BooleanField(default=False)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def get_hashed_assertions_pks(self) -> Dict[int, int]:
         return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
