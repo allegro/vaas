@@ -313,7 +313,7 @@ expected output
 ### Create new redirect
 
     curl -X POST \
-    -d '{"action":"302", "condition": "/path", "destination":"/new-path", "preserve_query_params": false, "priority": 1, "assertions": [{"expected_location": "/new-path", "given_url": "http://mydomain.example/newpath"}]}' \
+    -d '{"action":"302", "condition": "req.method == \"GET\" && req.url ~ \"/path\"", "src_domain": "example.com", "destination":"/new-path", "preserve_query_params": false, "required_custom_header": false, "priority": 1, "assertions": [{"expected_location": "/new-path", "given_url": "http://example.com"/path"}]}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/redirect/?username=admin&api_key=vagrant_api_key&format=json"
 
@@ -348,12 +348,12 @@ expected output
       "status": "SUCCESS"
     }
 
-### Delete single route
+### Delete single redirect
 
     curl -X DELETE \
     "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
 
-### Partially update route
+### Partially update redirect
 
     curl -X PATCH \
     -d '{"priority":2}' -H "Content-Type: application/json" \
@@ -404,7 +404,7 @@ expected output
 
 ### Verify command result
 
-    curl "http://localhost:3030/api/v0.1/redirect/validate-command/7110e99e-453a-4078-843a-f6c36dd358dd/?username=admin&api_key=vagrant_api_key"
+    curl "http://localhost:3030/api/v0.1/route/validate-command/7110e99e-453a-4078-843a-f6c36dd358dd/?username=admin&api_key=vagrant_api_key"
 
 expected output
 
