@@ -15,6 +15,9 @@ sub vcl_synth {
         {% else %}
             set resp.status = 503;
         {% endif %}
+        if (std.file_exists("{{ vaas_status_code_503_trigger_file }}")) {
+            set resp.status = 503;
+        }
         synthetic("");
     }
     if (resp.status == 989) {

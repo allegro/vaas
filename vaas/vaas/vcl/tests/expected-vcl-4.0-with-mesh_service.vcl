@@ -71,6 +71,9 @@ sub vcl_recv {
 sub vcl_synth {
     if (resp.status == 999) {
             set resp.status = 503;
+        if (std.file_exists("/etc/vaas_status_503")) {
+            set resp.status = 503;
+        }
         synthetic("");
     }
     if (resp.status == 989) {

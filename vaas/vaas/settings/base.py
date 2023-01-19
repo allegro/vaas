@@ -246,6 +246,8 @@ CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
 MESH_X_ORIGINAL_HOST = env.str('MESH_X_ORIGINAL_HOST', default='x-original-host')
 SERVICE_TAG_HEADER = env.str('SERVICE_TAG_HEADER', default='x-service-tag')
 
+# If file exists in specified path /vaas_status endpoint will return HTTP 503 code
+VAAS_STATUS_CODE_503_TRIGGER_FILE = env.str('VAAS_STATUS_CODE_503_TRIGGER_FILE', default='/etc/vaas_status_503')
 
 # CELERY
 def generate_redis_url(hostname: str, port: int, db_number: int, password: Optional[str] = None) -> str:
