@@ -155,6 +155,7 @@ class VclDirector(object):
     def is_active(self):
         return self.dc.symbol == self.current_dc.symbol
 
+
 class VclRedirect(object):
     def __init__(self, redirect, cluster):
         self.id = redirect.id
@@ -163,6 +164,7 @@ class VclRedirect(object):
         self.action = redirect.action
         self.final_condition = redirect.final_condition
         self.destination = redirect.get_redirect_destination(cluster)
+
 
 class VclTagBuilder:
     def __init__(self, varnish, input_data):
@@ -371,7 +373,7 @@ class VclRendererInput(object):
             Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
-        self.redirects = list(Redirect.objects.all().order_by('src_domain','priority'))
+        self.redirects = list(Redirect.objects.all().order_by('src_domain', 'priority'))
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all())

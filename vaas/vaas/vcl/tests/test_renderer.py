@@ -424,7 +424,8 @@ class VclTagBuilderTest(TestCase):
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         assert_equals(['example.prod.com'], list(tag.parameters['redirects'].keys()))
         assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
-        assert_equals('http://example.prod.com/destination', tag.parameters['redirects']['example.prod.com'][1].destination)
+        assert_equals('http://example.prod.com/destination',
+                      tag.parameters['redirects']['example.prod.com'][1].destination)
 
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())

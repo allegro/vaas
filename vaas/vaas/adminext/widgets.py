@@ -201,7 +201,7 @@ class RewriteGroupsInput(forms.TextInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"].update(
-            {'disabled': value == None}
+            {'disabled': value is None}
         )
         return context
 

@@ -72,7 +72,7 @@ class ModelCleanedDataFormValidation(CleanedDataFormValidation):
         for field in relation_fields:
             if field in kwargs['data']:
                 if isinstance(kwargs['data'][field], models.Model):
-                     kwargs['data'][field] = kwargs['data'][field].pk
+                    kwargs['data'][field] = kwargs['data'][field].pk
                 elif isinstance(kwargs['data'][field], list):
                     kwargs['data'][field] = list(map(self.uri_to_pk, kwargs['data'][field]))
                 else:

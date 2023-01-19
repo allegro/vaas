@@ -18,6 +18,7 @@ class RedirectAdmin(AuditableModelAdmin):
     ]
     list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
 
+
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
     search_fields = ['condition', 'clusters__name', 'director__name']

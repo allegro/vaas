@@ -4,7 +4,7 @@ from typing import Optional, Dict
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.bundle import Bundle
 from celery.result import AsyncResult
-from django.db.models import Count, Prefetch
+from django.db.models import Count
 from django.urls.conf import re_path
 
 from tastypie.resources import ALL, ALL_WITH_RELATIONS, Resource, ModelResource
@@ -345,8 +345,11 @@ class ValidateVCLCommandResource(Resource):
             re_path(r"^vcl_template/(?P<vcl_id>[\d]+)/(?P<resource_name>%s)/$" %
                     self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_dispatch_list"),
         ]
+
+
 class DomainMappingResource(ModelResource):
     clusters = fields.ToManyField('vaas.cluster.api.LogicalClusterResource', 'clusters')
+
     class Meta:
         queryset = DomainMapping.objects.all().prefetch_related('clusters')
         resource_name = 'domain-mapping'
@@ -360,6 +363,6 @@ class DomainMappingResource(ModelResource):
             'type': ['exact'],
             'clusters': ALL_WITH_RELATIONS,
         }
-        
+
     def dehydrate_clusters(self, bundle):
         return list(bundle.obj.clusters.values_list('name', flat=True))

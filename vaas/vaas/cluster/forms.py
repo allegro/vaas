@@ -5,7 +5,8 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.forms import ModelMultipleChoiceField
 
 from vaas.adminext.widgets import SearchableSelect
-from vaas.cluster.models import LogicalCluster, Dc, VclTemplate, VarnishServer, VclTemplateBlock, VclVariable, DomainMapping
+from vaas.cluster.models import LogicalCluster, Dc, VclTemplate, VarnishServer, VclTemplateBlock, VclVariable, \
+    DomainMapping
 
 
 class LogicalCLusterModelForm(ModelForm):
@@ -17,6 +18,7 @@ class LogicalCLusterModelForm(ModelForm):
 class DomainMappingForm(ModelForm):
     clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
                                         widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
+
     class Meta:
         model = DomainMapping
         fields = '__all__'

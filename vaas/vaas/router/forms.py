@@ -4,8 +4,8 @@ from django.core.validators import URLValidator
 from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, \
     MultiValueField, BooleanField, MultiWidget, Widget
 from django.conf import settings
-from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, RewriteGroupsField, \
-    PrioritySelect, SearchableSelect, split_complex_condition
+from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, \
+    RewriteGroupsField, PrioritySelect, SearchableSelect, split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
@@ -171,7 +171,7 @@ class RedirectModelForm(ModelForm):
         cleaned_data['src_domain'] = src_domain
 
         redirects = Redirect.objects.filter(
-            src_domain = src_domain,
+            src_domain=src_domain,
             priority=cleaned_data.get('priority'))
 
         if redirects.count() == 0:

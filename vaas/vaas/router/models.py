@@ -51,6 +51,7 @@ class Redirect(models.Model):
             return f'{self.condition} && req.http.{settings.REDIRECT_CUSTOM_HEADER}'
         return self.condition
 
+
 class Route(models.Model):
     condition = models.CharField(max_length=512)
     priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
