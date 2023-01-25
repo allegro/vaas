@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from typing import Set, Dict
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -58,7 +59,7 @@ class LogicalCluster(models.Model):
             return set(field), json.dumps(field)
         return None, None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{} ({})".format(self.name, self.varnish_count())
 
     def __eq__(self, other):
@@ -84,7 +85,7 @@ class Dc(models.Model):
     def normalized_symbol(self):
         return self.symbol.replace("-", "_")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.symbol
 
     def validate_unique(self, exclude=None):
@@ -104,6 +105,33 @@ class Dc(models.Model):
                     )
 
 
+class DomainMapping(models.Model):
+    TYPE_CHOICES = (
+        ('static', 'Static'),
+        ('dynamic', 'Dynamic')
+    )
+    domain = models.CharField(max_length=128, unique=True)
+    mapping = models.CharField(max_length=128)
+    type = models.CharField(max_length=7, choices=TYPE_CHOICES, default='static')
+    clusters = models.ManyToManyField(LogicalCluster)
+
+    def mapped_domain(self, cluster: LogicalCluster) -> str:
+        result = str(self.mapping)
+        if self.type == 'dynamic':
+            result = result.format(**self._prepare_placeholders(cluster.labels))
+        return result
+
+    def _prepare_placeholders(self, labels: Set[str]) -> Dict[str, str]:
+        result = {}
+        for label in labels:
+            if label.count(":") == 1:
+                _, result[_] = label.split(":")
+        return result
+
+    def __str__(self) -> str:
+        return f'{self.domain}'
+
+
 class VclTemplate(models.Model):
     name = models.CharField(max_length=100, unique=True, validators=[name_validator])
     content = models.TextField()
@@ -111,7 +139,7 @@ class VclTemplate(models.Model):
     comment = models.CharField(max_length=64, validators=[vcl_template_comment_validator])
     history = HistoricalRecords()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def get_template_version(self):
@@ -149,7 +177,7 @@ class VarnishServer(models.Model):
     cluster = models.ForeignKey(LogicalCluster, on_delete=models.PROTECT)
     is_canary = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}:{} ({})".format(self.ip, self.port, self.hostname)
 
     class Meta:
@@ -186,7 +214,7 @@ class VclVariable(models.Model):
     value = models.CharField(max_length=254)
     cluster = models.ForeignKey(LogicalCluster, on_delete=models.DO_NOTHING)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}: {}".format(self.key, self.value)
 
     class Meta:

@@ -184,7 +184,7 @@ VAAS_GATHER_STATUSES_CONNECT_TIMEOUT = env.float('VAAS_GATHER_STATUSES_CONNECT_T
 
 REFRESH_TRIGGERS_CLASS = tuple(env.json('REFRESH_TRIGGERS_CLASS', default=(
     'Probe', 'Backend', 'Director', 'VarnishServer', 'VclTemplate', 'VclTemplateBlock', 'TimeProfile', 'VclVariable',
-    'Route'
+    'Route', 'Redirect'
 )))
 
 CELERY_TASK_RESULT_EXPIRES = env.int('CELERY_TASK_RESULT_EXPIRES', default=600)
@@ -279,3 +279,20 @@ for condition in env.json('ROUTES_LEFT_CONDITIONS', default=[
 ROUTES_CANARY_HEADER = env.str('ROUTES_CANARY_HEADER', default='x-canary-random')
 if ROUTES_CANARY_HEADER:
     ROUTES_LEFT_CONDITIONS[f'std.real(req.http.{ROUTES_CANARY_HEADER},0)'] = 'Canary'
+
+DOMAIN_MAPPER = {}
+for entry in env.json('DOMAIN_MAPPER', default=[
+    {'name': 'example.com', 'value': 'example.com'},
+    {'name': 'example.pl', 'value': 'example.{{ PLACEHOLDER }}.pl'},
+]):
+    DOMAIN_MAPPER[entry['name']] = entry['value']
+
+REDIRECT_METHODS = {}
+for entry in env.json('REDIRECT_METHODS', default=[
+    {'name': 'GET', 'value': 'GET'},
+    {'name': 'HEAD', 'value': 'HEAD'},
+]):
+    REDIRECT_METHODS[entry['name']] = entry['value']
+
+REDIRECT_CUSTOM_HEADER = env.str('REDIRECT_CUSTOM_HEADER', default='x-internal-network')
+REDIRECT_CUSTOM_HEADER_LABEL = env.str('REDIRECT_CUSTOM_HEADER_LABEL', default='Require {} header'.format(REDIRECT_CUSTOM_HEADER))

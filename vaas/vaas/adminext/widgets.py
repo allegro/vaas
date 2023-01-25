@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+import re
+from typing import List, Optional, Tuple
 from django import forms
+from vaas.router.models import provide_redirect_configuration, RedirectConfiguration
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 
 CONJUNCTION = ' && '
@@ -61,7 +66,7 @@ class ConditionWidget(forms.MultiWidget):
     def __init__(self, variables, operators, *args, **kwargs):
         widgets = [
             forms.Select(choices=variables, attrs={'class': 'form-control', 'col': 'col-md-2'}),
-            forms.Select(choices=operators, attrs={'class': 'form-control', 'col': 'col-md-2'}),
+            forms.Select(choices=operators, attrs={'class': 'form-control', 'col': 'col-md-3'}),
             forms.TextInput(attrs={'class': 'form-control', 'col': 'col-md-4'}),
         ]
         super(ConditionWidget, self).__init__(widgets, *args, **kwargs)
@@ -133,3 +138,109 @@ def split_condition(value):
                 right = right[:-1]
             return left, operator, right
     return ['req.url', '~', '']
+
+
+def split_redirect_condition(value: str) -> Tuple[str, str]:
+    if value:
+        parts = value.split(' ')
+        if len(parts) > 1:
+            http_method = parts[2]
+            src_path = parts[6]
+            return http_method[1:-1], src_path[1:-1]
+    return 'GET', ''
+
+
+class ComplexRedirectConditionWidget(forms.MultiWidget):
+    def __init__(self, http_methods: Tuple, domains: Tuple, attrs=None):
+        widgets = (
+            forms.Select(choices=http_methods,
+                         attrs={'class': 'form-control', 'style': 'display: inline-block; width:15%'}),
+            forms.Select(choices=domains,
+                         attrs={'class': 'form-control', 'style': 'display: inline-block; width:40%'}),
+            forms.TextInput(attrs={'class': 'form-control',
+                            'style': 'display: inline-block; width:45%', 'placeholder': 'Source path'}),
+        )
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value: str) -> Tuple[str, str, str]:
+        method, path = split_redirect_condition(value)
+        domain = self.attrs.get('condition_domain', None)
+        return method, domain, path
+
+
+class ComplexRedirectConditionField(forms.MultiValueField):
+    def __init__(self, **kwargs):
+        configuration: RedirectConfiguration = provide_redirect_configuration()
+        http_methods: Tuple = tuple((http_method.http_method, http_method.name)
+                                    for http_method in configuration.http_methods)
+        domains: Tuple = tuple((domain.pk, domain.domain) for domain in configuration.domains)
+        fields = (
+            forms.ChoiceField(choices=http_methods),
+            forms.ChoiceField(choices=domains),
+            forms.CharField(validators=[
+                RegexValidator(regex="^/.*", message="From path should be relative")]),
+        )
+        widget = ComplexRedirectConditionWidget(http_methods, domains)
+        super().__init__(fields=fields, widget=widget, **kwargs)
+
+    def compress(self, data_list: List) -> Optional[str]:
+        if data_list:
+            http_method = data_list[0]
+            src_path = data_list[2]
+            return f"req.method == \"{http_method}\" && req.url ~ \"{src_path}\""
+        return None
+
+
+def split_rewrite_groups(value: Optional[str]) -> tuple[bool, Optional[str]]:
+    if value:
+        return (True, value)
+    return (False, None)
+
+
+class RewriteGroupsInput(forms.TextInput):
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context["widget"]["attrs"].update(
+            {'disabled': value is None}
+        )
+        return context
+
+
+class RewriteGroupsWidget(forms.MultiWidget):
+    template_name = 'forms/rewrite_groups.html'
+
+    def __init__(self):
+        widgets = (
+            forms.CheckboxInput,
+            RewriteGroupsInput(attrs={'placeholder': 'Place here your regular expression for rewrite source groups'}),
+        )
+        super().__init__(widgets)
+
+    def decompress(self, value):
+        return split_rewrite_groups(value)
+
+
+class RewriteGroupsField(forms.MultiValueField):
+    widget = RewriteGroupsWidget
+
+    def __init__(self, **kwargs):
+        fields = (
+            forms.BooleanField(),
+            forms.CharField(),
+        )
+        super().__init__(fields=fields, **kwargs)
+
+    def validate(self, value) -> None:
+        super().validate(value)
+        try:
+            re.compile(value)
+        except re.error as e:
+            raise ValidationError(f"Not valid regex: {e.msg}.")
+
+    def compress(self, data_list):
+        if data_list:
+            enabled, rewrite_groups = data_list
+            if enabled and rewrite_groups in self.empty_values:
+                raise ValidationError("This field is required")
+            return rewrite_groups
+        return ''

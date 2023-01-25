@@ -1,14 +1,15 @@
-# -*- coding: utf-8 -*-
+from typing import Any, List, Dict
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.forms import ModelForm, ModelMultipleChoiceField, Select, MultiValueField, BooleanField
+from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, \
+    MultiValueField, BooleanField, MultiWidget, Widget
 from django.conf import settings
-from vaas.adminext.widgets import ComplexConditionWidget, MultiUrlWidget, PrioritySelect, SearchableSelect, \
-    split_complex_condition
+from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, \
+    RewriteGroupsField, PrioritySelect, SearchableSelect, split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from vaas.cluster.models import LogicalCluster
+from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
-from vaas.router.models import Route, PositiveUrl, provide_route_configuration
+from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration
 
 
 class MultipleUrl(MultiValueField):
@@ -51,8 +52,7 @@ class RouteModelForm(ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
             self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
+        pretify_fields(self.fields.values())
         self.fields['priority'].initial = 250
         self.fields['positive_urls'].widget.decompress(initial_urls)
         if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
@@ -113,6 +113,7 @@ class RouteModelForm(ModelForm):
             clusters = cleaned_data.get('director').cluster.values_list('id', flat=True)
         else:
             clusters = cleaned_data.get('clusters')
+
         routes_with_sync = Route.objects.filter(
             clusters_in_sync=True,
             director=cleaned_data.get('director'),
@@ -136,3 +137,62 @@ class RouteModelForm(ModelForm):
             else:
                 return
         raise ValidationError('This combination of director, cluster and priority already exists')
+
+
+class RedirectModelForm(ModelForm):
+    preserve_query_params = BooleanField(required=False, label='Preserve query params')
+    required_custom_header = BooleanField(required=False, label=settings.REDIRECT_CUSTOM_HEADER_LABEL)
+    src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
+    rewrite_groups = RewriteGroupsField(required=False)
+
+    class Meta:
+        model = Redirect
+        fields = '__all__'
+        widgets = {
+            'priority': PrioritySelect(
+                choices=tuple([(i, i) for i in range(1, 500)]),
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        condition_domain = ""
+        if instance := kwargs.get('instance', None):
+            condition_domain = instance.src_domain.pk
+        self.fields['priority'].initial = 250
+        self.fields['condition'] = ComplexRedirectConditionField()
+        self.fields['condition'].widget.attrs.update({'condition_domain': condition_domain})
+        self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
+        pretify_fields(self.fields.values())
+
+    def clean(self) -> Dict[str, Any]:
+        cleaned_data = super().clean()
+        src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
+        cleaned_data['src_domain'] = src_domain
+
+        redirects = Redirect.objects.filter(
+            src_domain=src_domain,
+            priority=cleaned_data.get('priority'))
+
+        if redirects.count() == 0:
+            return cleaned_data
+        if self.instance.pk:
+            if redirects.exclude(pk=self.instance.pk).exists():
+                raise ValidationError('This combination of source domain and priority already exists')
+            else:
+                return cleaned_data
+        raise ValidationError('This combination of source domain and priority already exists')
+
+
+def pretify_fields(fields: List[Any]) -> None:
+    for field in fields:
+        if isinstance(field.widget, MultiWidget):
+            for widget in field.widget.widgets:
+                add_form_control(widget)
+        else:
+            add_form_control(field.widget)
+
+
+def add_form_control(widget: Widget) -> None:
+    if not isinstance(widget, CheckboxInput):
+        widget.attrs.update({'class': 'form-control'})

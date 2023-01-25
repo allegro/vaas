@@ -135,7 +135,8 @@ To purge object from varnishes from a given cluster, click on *Manager -> Purger
 * **Url to purge:** url of object to purge eg. http://example.com/contact
 * **Varnish Cluster:** select cluster to purge
 
-![Manager - Routes](img/manager_add_route.png)
+## [Router] Routes
+![Router - Routes](img/manager_add_route.png)
 
 * **Condition:** condition to be met
 * **Positive url:** example of url which could match for defined route condition
@@ -143,3 +144,14 @@ To purge object from varnishes from a given cluster, click on *Manager -> Purger
 * **Action:** action for the route
 * **Cluster:** related cluster
 * **Director:** related director
+
+## [Router] Redirects
+![Router - Redirects](img/manager_add_redirect.png)
+
+* **Condition** condition to be met
+* **Rewrite groups (optional)** build complex redirect with regex rewrites 
+* **Destination** destination for the redirect, this value will be present in `Location` header
+* **Action** response code of the redirect (ex. `301`,`302`)
+* **Priority** priority of the redirect
+* **Preserve query params** if checked, all query params will be preserved in destionation
+* **Require x-header-name header** if checked, redirect will be executed only if header `x-header-name` will be present

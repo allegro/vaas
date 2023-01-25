@@ -79,7 +79,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "981e1", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "69882", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -95,10 +95,15 @@ sub vcl_synth {
         set resp.status = 301;
         synthetic ("");
         return (deliver);
+    } else if (resp.status == 888) {
+        set resp.http.Location = req.http.x-destination;
+        set resp.status = std.integer(req.http.x-response-code, 301);
+        synthetic ("");
+        return (deliver);
     }
 }
 sub protocol_redirect {
-    if (req.esi_level == 0 && (req.method == "GET" || req.method == "HEAD")) {
+    if (req.esi_level == 0 && (req.method == "GET" || req.method == "HEAD") && req.http.X-Accept-Proto) {
         if ((req.http.X-Accept-Proto != "both") && (req.http.X-Accept-Proto != req.http.X-Forwarded-Proto)) {
             return(synth(998, req.http.X-Accept-Proto + "://"));
         }
@@ -121,9 +126,14 @@ sub vcl_recv {
 
     unset req.http.x-canary-random;
 
+# Flexible REDIRECT
+
 # Test ROUTER
 if (req.http.x-validation == "1") {
     return (synth(601, "Test routing response"));
+}
+if (req.http.x-validation == "2") {
+    return (synth(602, "Test routing response"));
 }
     # Call protocol redirect sub
     call protocol_redirect;
@@ -136,6 +146,11 @@ if (req.http.x-validation == "1") {
         # Setup default backend to use
         set req.backend_hint = mesh_default_proxy;
     }
+    # Handler for redirect
+    if(req.http.x-action == "redirect") {
+        return (synth(888, req.http.X-Forwarded-Proto + "://"));
+    }
+
     # Handler for no backend in director
     if(req.http.x-action != "nobackend") {
         set req.http.x-action = req.http.x-route-action;
@@ -156,9 +171,16 @@ if (req.http.x-validation == "1") {
 ## test response synth ##
 sub vcl_synth {
     if (resp.status == 601) {
-        set req.http.X-Director = regsuball(req.http.X-VaaS-Director, ".*/", "\1");
-        synthetic ( {"{ "route": ""} + req.http.X-Route + {"", "director": ""} + req.http.X-Director + {"" }"} );
-        set resp.http.X-Validation-Response = 1;
+        set req.http.x-director = regsuball(req.http.X-VaaS-Director, ".*/", "\1");
+        synthetic ( {"{ "route": ""} + req.http.X-Route + {"", "director": ""} + req.http.x-director + {"" }"} );
+        set resp.http.x-validation-response = 1;
+        set resp.http.Content-Type = "application/json";
+        set resp.status = 203;
+        return (deliver);
+    }
+    if (resp.status == 602) {
+        synthetic ( {"{ "redirect": ""} + req.http.x-redirect + {"", "location": ""} + req.http.x-destination + {"" }"} );
+        set resp.http.x-validation-response = 1;
         set resp.http.Content-Type = "application/json";
         set resp.status = 203;
         return (deliver);

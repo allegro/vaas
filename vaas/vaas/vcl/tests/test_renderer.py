@@ -8,8 +8,9 @@ from nose.tools import assert_equals, assert_in, assert_list_equal, assert_true
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
 from vaas.manager.models import Director, Probe, Backend, TimeProfile
-from vaas.router.models import Route
-from vaas.cluster.models import VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, VclVariable
+from vaas.router.models import Redirect, Route
+from vaas.cluster.models import DomainMapping, VclTemplate, VclTemplateBlock, Dc, VarnishServer, LogicalCluster, \
+    VclVariable
 from django.conf import settings
 
 md5_mock = Mock()
@@ -108,14 +109,23 @@ class VclTagBuilderTest(TestCase):
         settings.SIGNALS = 'off'
         self.dc2 = DcFactory.create(name='Tokyo', symbol="dc2")
         self.dc1 = DcFactory.create(name="Bilbao", symbol="dc1")
-        cluster1 = LogicalClusterFactory.create(id=1, name='cluster1_siteA_test')
-        cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test')
+        cluster1 = LogicalClusterFactory.create(
+            id=1, name='cluster1_siteA_test', labels_list='["example.com", "env:prod"]'
+        )
+        cluster2 = LogicalClusterFactory.create(id=2, name='cluster2_siteB_test', labels_list='["env:prod"]')
         cluster3_with_mesh_service = LogicalClusterFactory.create(
-            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True
+            id=3, name='cluster3_siteB_test_with_mesh_service', service_mesh_routing=True, labels_list='["cluster3"]'
         )
         cluster4_with_mesh_and_standard_service = LogicalClusterFactory.create(
-            id=4, name='cluster4_siteB_test_with_mesh_and_standard_service', service_mesh_routing=True
+            id=4,
+            name='cluster4_siteB_test_with_mesh_and_standard_service',
+            service_mesh_routing=True,
+            labels_list='["cluster4"]'
         )
+        self.domainapping = DomainMapping.objects.create(
+            domain='example.com', mapping='example.{env}.com', type='dynamic'
+        )
+        self.domainapping.clusters.add(cluster1)
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -244,6 +254,26 @@ class VclTagBuilderTest(TestCase):
             action='pass'
         )
         route.clusters.add(cluster2)
+
+        Redirect.objects.create(
+            src_domain=self.domainapping,
+            condition='req.method == "GET" && req.url ~ "/source"',
+            destination='http://example.com/destination',
+            action=301,
+            priority=250,
+            preserve_query_params=False,
+            required_custom_header=False
+        )
+
+        Redirect.objects.create(
+            src_domain=self.domainapping,
+            condition='req.method == "GET" && req.url ~ "/source"',
+            destination='http://example.com/new_destination',
+            action=301,
+            priority=210,
+            preserve_query_params=False,
+            required_custom_header=False
+        )
 
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=self.dc2, template=template_v4_with_tag,
                                                     cluster=cluster1)
@@ -388,6 +418,21 @@ class VclTagBuilderTest(TestCase):
                 break
 
         assert_list_equal(expected_datacenters, active_director_datacenters)
+
+    def test_should_decorate_flexible_router_tag_with_mapped_domain(self):
+        vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
+        tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
+        assert_equals(['example.prod.com'], list(tag.parameters['redirects'].keys()))
+        assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
+        assert_equals('http://example.prod.com/destination',
+                      tag.parameters['redirects']['example.prod.com'][1].destination)
+
+    def test_should_sort_redirects_by_priority(self):
+        vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
+        tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
+        assert_equals(['example.prod.com'], list(tag.parameters['redirects'].keys()))
+        assert_equals(2, tag.parameters['redirects']['example.prod.com'][0].id)
+        assert_equals(1, tag.parameters['redirects']['example.prod.com'][1].id)
 
 
 class VclRendererInputTest(TestCase):

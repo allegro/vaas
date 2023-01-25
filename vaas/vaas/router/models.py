@@ -1,10 +1,55 @@
 # -*- coding: utf-8 -*-
+import uuid
+from typing import Dict, List
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from urllib.parse import urlsplit
 
-from vaas.cluster.models import LogicalCluster
+from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
+
+
+class RedirectAssertion(models.Model):
+    given_url = models.URLField()
+    expected_location = models.CharField(max_length=512)
+    redirect = models.ForeignKey(
+        'Redirect', on_delete=models.CASCADE, related_name='assertions',
+        related_query_name='redirect_assertions')
+
+
+class Redirect(models.Model):
+    class ResponseStatusCode(models.IntegerChoices):
+        MOVE_PERMANENTLY = 301
+        FOUND = 302
+        TEMPORARY_REDIRECT = 307
+
+    src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
+    condition = models.CharField(max_length=512)
+    rewrite_groups = models.CharField(max_length=512, default='', blank=True)
+    destination = models.CharField(max_length=512)
+    action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
+    priority = models.PositiveIntegerField()
+    preserve_query_params = models.BooleanField(default=True)
+    required_custom_header = models.BooleanField(default=False)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
+    def get_hashed_assertions_pks(self) -> Dict[int, int]:
+        return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
+
+    def get_redirect_destination(self, cluster: LogicalCluster) -> str:
+        destination_url = urlsplit(self.destination)
+        domain_mapping = DomainMapping.objects.filter(domain=destination_url.netloc)
+        if len(domain_mapping) == 1:
+            domain = domain_mapping[0].mapped_domain(cluster)
+            return self.destination.replace(destination_url.netloc, domain)
+        return self.destination
+
+    @property
+    def final_condition(self):
+        if self.required_custom_header:
+            return f'{self.condition} && req.http.{settings.REDIRECT_CUSTOM_HEADER}'
+        return self.condition
 
 
 class Route(models.Model):
@@ -20,7 +65,7 @@ class Route(models.Model):
             return self.director.cluster.all()
         return self.clusters.all()
 
-    def __str__(self):
+    def __str__(self) -> str:
         name = "(Priority: %s) if (%s) then %s for %s" % (
             self.priority, self.condition, self.action, str(self.director))
         return name
@@ -101,16 +146,50 @@ def provide_route_configuration():
     )
 
 
+class HttpMethod(DictEqual):
+    def __init__(self, http_method: str, name: str):
+        self.http_method = http_method
+        self.name = name
+
+
+class Domain(DictEqual):
+    def __init__(self, domain: str, pk: int):
+        self.domain = domain
+        self.pk = pk
+
+
+class RedirectConfiguration(DictEqual):
+    def __init__(self, http_methods: List[HttpMethod], domains: List[Domain]):
+        self.http_methods = http_methods
+        self.domains = domains
+
+
+def provide_redirect_configuration() -> RedirectConfiguration:
+    return RedirectConfiguration(
+        [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
+        [
+            Domain(domain=domainMapping.domain, pk=domainMapping.pk)
+            for domainMapping in DomainMapping.objects.all()
+        ],
+    )
+
+
 class Named(DictEqual):
     def __init__(self, id, name):
         self.id = id
         self.name = name
 
 
-class Assertion(DictEqual):
+class RouteContext(DictEqual):
     def __init__(self, route, director):
         self.route = route
         self.director = director
+
+
+class RedirectContext(DictEqual):
+    def __init__(self, redirect, location):
+        self.redirect = redirect
+        self.location = location
 
 
 class ValidationResult(DictEqual):

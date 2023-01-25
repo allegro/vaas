@@ -2,13 +2,15 @@ from django.contrib.admin import SimpleListFilter
 from django.db import models
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import SafeText
 from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
 from vaas.external.audit import AuditableModelAdmin
 from vaas.cluster.coherency import OutdatedServerManager
-from vaas.cluster.models import VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, VclVariable
-from vaas.cluster.forms import VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
+from vaas.cluster.models import DomainMapping, VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, \
+    VclVariable
+from vaas.cluster.forms import DomainMappingForm, VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
     LogicalCLusterModelForm
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
@@ -167,6 +169,17 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ['tag', 'template']
 
 
+class DomainMappingAdmin(SimpleHistoryAdmin):
+    form = DomainMappingForm
+    search_fields = ['domain', 'mapping', 'type', 'clusters__name']
+    list_display = ['domain', 'mapping', 'type', 'get_clusters']
+
+    def get_clusters(self, obj: DomainMapping) -> str:
+        return ", ".join([c.name for c in obj.clusters.all()])
+
+    get_clusters.short_description = 'Related clusters'
+
+
 class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
     form = VclTemplateModelForm
     search_fields = ['name']
@@ -189,25 +202,34 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         'last_error_info',
         'get_tags',
         'labels',
+        'get_domains',
         'varnish_servers'
     ]
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
 
-    def get_tags(self, obj):
+    def get_tags(self, obj: LogicalCluster) -> str:
         return ", ".join(obj.current_vcls)
 
     get_tags.short_description = 'Current vcls'
 
-    def labels(self, obj):
+    def labels(self, obj: LogicalCluster) -> SafeText:
         labels_list_html = ''
         if obj.labels:
             for label in obj.labels:
-                labels_list_html += "<div class='span13 text-center'>%s</div>" % label
+                labels_list_html += "<span class='label label-default'>%s</span>" % label
         return format_html(labels_list_html)
 
     labels.short_description = 'Labels'
 
-    def varnish_servers(self, obj):
+    def get_domains(self, obj: LogicalCluster) -> SafeText:
+        domains_html = ''
+        for domain in obj.domainmapping_set.all():
+            domains_html += ("<span class='label label-primary'>%s</apan>") % domain.domain
+        return format_html(domains_html)
+
+    get_domains.short_description = 'Related Domains'
+
+    def varnish_servers(self, obj: LogicalCluster) -> SafeText:
         return format_html(
             ("<div class='span13 text-center'>"
              "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "
@@ -229,5 +251,6 @@ admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, VclTemplateAdmin)
 admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
 admin.site.register(Dc)
+admin.site.register(DomainMapping, DomainMappingAdmin)
 admin.site.register(LogicalCluster, LogicalClusterAdmin)
 admin.site.register(VclVariable, VclVariableAdmin)

@@ -16,12 +16,12 @@ from tastypie.validation import Validation
 from vaas.cluster.cluster import connect_command, validate_vcl_command
 from vaas.cluster.coherency import OutdatedServer, OutdatedServerManager
 from vaas.cluster.forms import LogicalCLusterModelForm, DcModelForm, VclTemplateModelForm, VarnishServerModelForm, \
-    VclTemplateBlockModelForm
+    VclTemplateBlockModelForm, DomainMappingForm
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 from vaas.external.serializer import PrettyJSONSerializer
-from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock
+from vaas.cluster.models import Dc, VarnishServer, VclTemplate, LogicalCluster, VclTemplateBlock, DomainMapping
 from vaas.external.oauth import VaasMultiAuthentication
 
 
@@ -345,3 +345,24 @@ class ValidateVCLCommandResource(Resource):
             re_path(r"^vcl_template/(?P<vcl_id>[\d]+)/(?P<resource_name>%s)/$" %
                     self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_dispatch_list"),
         ]
+
+
+class DomainMappingResource(ModelResource):
+    clusters = fields.ToManyField('vaas.cluster.api.LogicalClusterResource', 'clusters')
+
+    class Meta:
+        queryset = DomainMapping.objects.all().prefetch_related('clusters')
+        resource_name = 'domain-mapping'
+        serializer = PrettyJSONSerializer()
+        authorization = DjangoAuthorization()
+        authentication = VaasMultiAuthentication(ApiKeyAuthentication())
+        validation = ModelCleanedDataFormValidation(form_class=DomainMappingForm)
+        always_return_data = True
+        filtering = {
+            'domain': ['exact'],
+            'type': ['exact'],
+            'clusters': ALL_WITH_RELATIONS,
+        }
+
+    def dehydrate_clusters(self, bundle):
+        return list(bundle.obj.clusters.values_list('name', flat=True))
