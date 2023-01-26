@@ -192,7 +192,7 @@ class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
 
 class LogicalClusterAdmin(admin.ModelAdmin):
     form = LogicalCLusterModelForm
-    search_fields = ['name', 'labels']
+    search_fields = ['name', 'labels_list']
     list_display = [
         'name',
         'service_mesh_routing',
