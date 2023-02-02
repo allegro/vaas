@@ -146,34 +146,6 @@ def provide_route_configuration():
     )
 
 
-class HttpMethod(DictEqual):
-    def __init__(self, http_method: str, name: str):
-        self.http_method = http_method
-        self.name = name
-
-
-class Domain(DictEqual):
-    def __init__(self, domain: str, pk: int):
-        self.domain = domain
-        self.pk = pk
-
-
-class RedirectConfiguration(DictEqual):
-    def __init__(self, http_methods: List[HttpMethod], domains: List[Domain]):
-        self.http_methods = http_methods
-        self.domains = domains
-
-
-def provide_redirect_configuration() -> RedirectConfiguration:
-    return RedirectConfiguration(
-        [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
-        [
-            Domain(domain=domainMapping.domain, pk=domainMapping.pk)
-            for domainMapping in DomainMapping.objects.all()
-        ],
-    )
-
-
 class Named(DictEqual):
     def __init__(self, id, name):
         self.id = id

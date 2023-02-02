@@ -148,7 +148,7 @@
   pk: 1
   fields:
     src_domain: 1
-    condition: req.method == "GET" && req.url ~ "/source_url"
+    condition: req.url ~ "/source_url"
     destination: http://mydomain.com/destination_url
     action: 301
     priority: 250

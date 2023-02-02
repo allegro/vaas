@@ -167,7 +167,7 @@ class RedirectModelForm(ModelForm):
 
     def clean(self) -> Dict[str, Any]:
         cleaned_data = super().clean()
-        src_domain = DomainMapping.objects.get(pk=self.data['condition_1'])
+        src_domain = DomainMapping.objects.get(pk=self.data['condition_0'])
         cleaned_data['src_domain'] = src_domain
 
         redirects = Redirect.objects.filter(

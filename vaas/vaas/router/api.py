@@ -18,8 +18,7 @@ from vaas.external.serializer import PrettyJSONSerializer
 from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task, to_dict
-from vaas.adminext.widgets import split_complex_condition, split_condition, split_redirect_condition, \
-    split_rewrite_groups
+from vaas.adminext.widgets import split_complex_condition, split_condition, split_rewrite_groups
 from vaas.external.oauth import VaasMultiAuthentication
 from vaas.cluster.models import DomainMapping
 from vaas.router.forms import RedirectModelForm
@@ -68,10 +67,8 @@ class RedirectResource(ModelResource):
 
     def hydrate_condition(self, bundle):
         condition = bundle.data.get('condition', None)
-        method, path = split_redirect_condition(condition)
-        bundle.data['condition_0'] = method
-        bundle.data['condition_1'] = bundle.data['src_domain'].pk
-        bundle.data['condition_2'] = path
+        bundle.data['condition_0'] = bundle.data['src_domain'].pk
+        bundle.data['condition_1'] = condition
         return bundle
 
     def save(self, bundle, *args, **kwargs):
