@@ -287,12 +287,5 @@ for entry in env.json('DOMAIN_MAPPER', default=[
 ]):
     DOMAIN_MAPPER[entry['name']] = entry['value']
 
-REDIRECT_METHODS = {}
-for entry in env.json('REDIRECT_METHODS', default=[
-    {'name': 'GET', 'value': 'GET'},
-    {'name': 'HEAD', 'value': 'HEAD'},
-]):
-    REDIRECT_METHODS[entry['name']] = entry['value']
-
 REDIRECT_CUSTOM_HEADER = env.str('REDIRECT_CUSTOM_HEADER', default='x-internal-network')
 REDIRECT_CUSTOM_HEADER_LABEL = env.str('REDIRECT_CUSTOM_HEADER_LABEL', default='Require {} header'.format(REDIRECT_CUSTOM_HEADER))
