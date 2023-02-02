@@ -153,7 +153,8 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
             forms.Select(choices=domains,
                          attrs={'class': 'form-control', 'style': 'display: inline-block; width:40%'}),
             forms.TextInput(attrs={'class': 'form-control',
-                            'style': 'display: inline-block; width:60%', 'placeholder': 'Source path: ^/example([\/\?#].*)?$'}),
+                            'style': 'display: inline-block; width:60%',
+                            'placeholder': 'Source path: ^/example([/?#].*)?$'}),
         )
         super().__init__(widgets, attrs)
 

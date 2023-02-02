@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import uuid
-from typing import Dict, List
+from typing import Dict
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
