@@ -68,7 +68,7 @@ class RedirectResource(ModelResource):
     def hydrate_condition(self, bundle):
         condition = bundle.data.get('condition', None)
         bundle.data['condition_0'] = bundle.data['src_domain'].pk
-        bundle.data['condition_1'] = condition
+        bundle.data['condition_1'] = split_redirect_condition(condition)
         return bundle
 
     def save(self, bundle, *args, **kwargs):
