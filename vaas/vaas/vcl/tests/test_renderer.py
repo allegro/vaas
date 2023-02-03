@@ -257,7 +257,7 @@ class VclTagBuilderTest(TestCase):
 
         Redirect.objects.create(
             src_domain=self.domainapping,
-            condition='req.method == "GET" && req.url ~ "/source"',
+            condition='req.url ~ "/source"',
             destination='http://example.com/destination',
             action=301,
             priority=250,
@@ -267,7 +267,7 @@ class VclTagBuilderTest(TestCase):
 
         Redirect.objects.create(
             src_domain=self.domainapping,
-            condition='req.method == "GET" && req.url ~ "/source"',
+            condition='req.url ~ "/source"',
             destination='http://example.com/new_destination',
             action=301,
             priority=210,

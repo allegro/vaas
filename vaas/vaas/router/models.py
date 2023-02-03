@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import uuid
-from typing import Dict, List
+from typing import Dict
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -142,34 +142,6 @@ def provide_route_configuration():
         [
             Action(action='pass', name='pass route directly'),
             Action(action='pipe', name='bypass the cache')
-        ],
-    )
-
-
-class HttpMethod(DictEqual):
-    def __init__(self, http_method: str, name: str):
-        self.http_method = http_method
-        self.name = name
-
-
-class Domain(DictEqual):
-    def __init__(self, domain: str, pk: int):
-        self.domain = domain
-        self.pk = pk
-
-
-class RedirectConfiguration(DictEqual):
-    def __init__(self, http_methods: List[HttpMethod], domains: List[Domain]):
-        self.http_methods = http_methods
-        self.domains = domains
-
-
-def provide_redirect_configuration() -> RedirectConfiguration:
-    return RedirectConfiguration(
-        [HttpMethod(http_method=k, name=v) for k, v in settings.REDIRECT_METHODS.items()],
-        [
-            Domain(domain=domainMapping.domain, pk=domainMapping.pk)
-            for domainMapping in DomainMapping.objects.all()
         ],
     )
 
