@@ -18,7 +18,8 @@ from vaas.external.serializer import PrettyJSONSerializer
 from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion, provide_route_configuration
 from vaas.router.forms import RouteModelForm
 from vaas.router.report import fetch_urls_async, fetch_redirects_async, prepare_report_from_task, to_dict
-from vaas.adminext.widgets import split_complex_condition, split_condition, split_rewrite_groups
+from vaas.adminext.widgets import split_complex_condition, split_condition, split_rewrite_groups, \
+    split_redirect_condition
 from vaas.external.oauth import VaasMultiAuthentication
 from vaas.cluster.models import DomainMapping
 from vaas.router.forms import RedirectModelForm
