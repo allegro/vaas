@@ -13,9 +13,8 @@ class RedirectAssertionAdmin(admin.TabularInline):
 
 class RedirectAdmin(AuditableModelAdmin):
     form = RedirectModelForm
-    inlines = [
-        RedirectAssertionAdmin,
-    ]
+    inlines = [RedirectAssertionAdmin]
+    search_fields = ['condition', 'src_domain__domain', 'destination']
     list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
 
 
