@@ -156,7 +156,7 @@ class RedirectModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        rewrite_groups, condition_domain = "", ""
+        condition_domain, rewrite_groups = "", ""
         if instance := kwargs.get('instance', None):
             condition_domain = instance.src_domain.pk
             rewrite_groups = instance.rewrite_groups
