@@ -156,7 +156,7 @@ class RedirectModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        condition_domain = ""
+        rewrite_groups, condition_domain = "", ""
         if instance := kwargs.get('instance', None):
             condition_domain = instance.src_domain.pk
             rewrite_groups = instance.rewrite_groups
@@ -165,7 +165,6 @@ class RedirectModelForm(ModelForm):
         self.fields['condition'].widget.attrs.update({'condition_domain': condition_domain})
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         if rewrite_groups:
-            print(f"{rewrite_groups}")
             self.fields['preserve_query_params'].widget.attrs.update({'disabled': True})
         pretify_fields(self.fields.values())
 
