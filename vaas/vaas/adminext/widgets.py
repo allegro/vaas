@@ -190,6 +190,7 @@ def split_rewrite_groups(value: Optional[str]) -> tuple[bool, Optional[str]]:
 class RewriteGroupsInput(forms.TextInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
+        print(f"{name}, {value}, {attrs}")
         context["widget"]["attrs"].update(
             {'disabled': value is None}
         )

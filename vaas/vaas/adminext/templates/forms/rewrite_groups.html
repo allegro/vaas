@@ -65,9 +65,12 @@
             $('#id_rewrite_groups_0').change(function () {
                 if ($(this).is(":checked")) {
                     $("#id_rewrite_groups_1").prop('disabled', false);
+                    $('#id_preserve_query_params').prop('disabled', true);
+                    $('#id_preserve_query_params').prop('checked', false);
                 } else {
                     $("#id_rewrite_groups_1").prop('disabled', true);
                     $("#id_rewrite_groups_1").val('');
+                    $('#id_preserve_query_params').prop('disabled', false);
                     setRegexCompilationState(Validation.Unknown);
                 }
             });
@@ -75,3 +78,19 @@
         });
     })(django.jQuery);
 </script>
+
+<!-- $(document).ready(function () {
+    const rewrite_groups = $('#id_rewrite_groups_0');
+    if (rewrite_groups.is(":checked")) {
+        $(".field-preserve_query_params").disabled();
+    }
+    rewrite_groups.change(function(){
+        if ($(this).is(':checked')) {
+            $(".field-preserve_query_params").disabled();
+            $(".field-preserve_query_params").checked = false;
+        } else {
+            $(".field-preserve_query_params").disabled();
+        }
+    });
+}); -->
+
