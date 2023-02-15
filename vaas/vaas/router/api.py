@@ -68,7 +68,7 @@ class RedirectResource(ModelResource):
 
     def hydrate_preserve_query_params(self, bundle):
         if bundle.data.get('preserve_query_params', None) and bundle.data.get('rewrite_groups', None):
-            raise ApiFieldError(f"preserve_query_params not allowed when rewrite_groups are define.")
+            raise ApiFieldError("preserve_query_params not allowed when rewrite_groups are define.")
         return bundle
 
     def hydrate_condition(self, bundle):
