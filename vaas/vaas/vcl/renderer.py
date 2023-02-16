@@ -162,6 +162,7 @@ class VclRedirect(object):
         self.src_domain = redirect.src_domain
         self.rewrite_groups = redirect.rewrite_groups
         self.action = redirect.action
+        self.preserve_query_params = redirect.preserve_query_params
         self.final_condition = redirect.final_condition
         self.destination = redirect.get_redirect_destination(cluster)
 

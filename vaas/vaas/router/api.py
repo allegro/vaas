@@ -66,6 +66,11 @@ class RedirectResource(ModelResource):
                 raise ApiFieldError(f"Domain mapping not found for domain: {src_domain}")
         return bundle
 
+    def hydrate_preserve_query_params(self, bundle):
+        if bundle.data.get('preserve_query_params', None) and bundle.data.get('rewrite_groups', None):
+            raise ApiFieldError("preserve_query_params not allowed when rewrite_groups are define.")
+        return bundle
+
     def hydrate_condition(self, bundle):
         condition = bundle.data.get('condition', None)
         bundle.data['condition_0'] = bundle.data['src_domain'].pk
