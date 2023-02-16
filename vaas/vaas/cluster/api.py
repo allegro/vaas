@@ -128,7 +128,8 @@ class VarnishServerResource(ModelResource):
             'ip': ['exact'],
             'port': ['exact'],
             'http_port': ['exact'],
-            'cluster': ['exact']
+            'cluster': ['exact'],
+            'dc': ALL_WITH_RELATIONS
         }
 
 
