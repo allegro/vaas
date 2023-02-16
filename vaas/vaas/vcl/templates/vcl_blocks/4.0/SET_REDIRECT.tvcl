@@ -5,7 +5,7 @@ set req.http.x-redirect = "{{ redirect.id }}";
         set req.http.x-destination = "{{ redirect.destination }}";
         {% endif %}
         {% if redirect.preserve_query_params %}
-        set req.http.x-query-params = regsub(req.url, "([^\?]+)(\?.*)?$", "\2");
+        set req.http.x-query-params = regsub(req.url, "(^.*)(\?.*)$", "\2");
         set req.http.x-destination = req.http.x-destination + req.http.x-query-params;
         {% endif %}
         set req.http.x-response-code = "{{ redirect.action }}";
