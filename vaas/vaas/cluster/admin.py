@@ -216,7 +216,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         labels_list_html = ''
         if obj.labels:
             for label in obj.labels:
-                labels_list_html += "<span class='label label-default'>%s</span>" % label
+                labels_list_html += "<span class='label label-default' style='display: inline-block;'>%s</span>" % label
         return format_html(labels_list_html)
 
     labels.short_description = 'Labels'
@@ -224,7 +224,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
     def get_domains(self, obj: LogicalCluster) -> SafeText:
         domains_html = ''
         for domain in obj.domainmapping_set.all():
-            domains_html += ("<span class='label label-primary'>%s</apan>") % domain.domain
+            domains_html += ("<span class='label label-primary' style='display: inline-block;'>%s</span>") % domain.domain
         return format_html(domains_html)
 
     get_domains.short_description = 'Related Domains'
