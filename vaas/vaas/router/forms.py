@@ -39,8 +39,10 @@ class RouteModelForm(ModelForm):
     positive_urls = MultipleUrl(fields='', widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
     clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
                                         widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
+
     clusters_in_sync = BooleanField(required=False, initial=settings.CLUSTER_IN_SYNC_ENABLED,
-                                    label='Clusters in sync with director')
+                                    label='Clusters in sync with director',
+                                    widget=HiddenInput() if settings.CLUSTER_IN_SYNC_HIDDEN else None)
 
     def __init__(self, *args, **kwargs):
         initial_urls = []
@@ -49,9 +51,14 @@ class RouteModelForm(ModelForm):
                 kwargs['initial'] = {}
             initial_urls = [p.url for p in kwargs['instance'].positive_urls.all()]
             kwargs['initial']['positive_urls'] = initial_urls
+            # if clusters_in_sync is not manageable then forcibly set default value
+            if settings.CLUSTER_IN_SYNC_HIDDEN:
+                kwargs['initial']['clusters_in_sync'] = settings.CLUSTER_IN_SYNC_ENABLED
+
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
             self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
+
         pretify_fields(self.fields.values())
         self.fields['priority'].initial = 250
         self.fields['positive_urls'].widget.decompress(initial_urls)
