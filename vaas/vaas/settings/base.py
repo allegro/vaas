@@ -243,7 +243,7 @@ STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')
 
 CLUSTER_IN_SYNC_ENABLED = env.bool('CLUSTER_IN_SYNC_ENABLED', default=False)
-CLUSTER_IN_SYNC_HIDDEN = env.bool('ROUTE_CLUSTER_IN_SYNC_ENABLED', default=False)
+CLUSTER_IN_SYNC_HIDDEN = env.bool('CLUSTER_IN_SYNC_HIDDEN', default=False)
 MESH_X_ORIGINAL_HOST = env.str('MESH_X_ORIGINAL_HOST', default='x-original-host')
 SERVICE_TAG_HEADER = env.str('SERVICE_TAG_HEADER', default='x-service-tag')
 
