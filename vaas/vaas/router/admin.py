@@ -17,6 +17,10 @@ class RedirectAdmin(AuditableModelAdmin):
     search_fields = ['condition', 'src_domain__domain', 'destination']
     list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
 
+    class Media:
+        js = ('utils/js/labels.js', 'js/test-report.js', )
+        css = {'all': ('css/test-report.css', )}
+
 
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
@@ -38,7 +42,8 @@ class RouteAdmin(AuditableModelAdmin):
         return super().changelist_view(request, extra_context=ctx)
 
     class Media:
-        js = ('js/clusters-sync.js', 'utils/js/labels.js')
+        js = ('js/clusters-sync.js', 'js/test-report.js', 'utils/js/labels.js')
+        css = {'all': ('css/test-report.css', )}
 
 
 admin.site.register(Route, RouteAdmin)
