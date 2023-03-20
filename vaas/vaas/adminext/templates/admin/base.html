@@ -5,8 +5,22 @@
 <head>
     <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-    {% block extrastyle %}{% endblock %}
+    <!-- customize TabularInline form -->
+    {% block extrastyle %}
+    <style>
+        td.original p {
+            display: none;
+        }
+        td.delete{
+            text-align:center;
+        }
+        td.delete .inline-deletelink {
+            float: inherit;
+            background-position: center;
+            color: transparent;
+        }
+    </style>
+    {% endblock %}
 
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="{% static "admin/css/overrides.css" %}" />
