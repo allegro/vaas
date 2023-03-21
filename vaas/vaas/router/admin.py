@@ -11,10 +11,9 @@ class RedirectAssertionAdmin(admin.TabularInline):
     form = RedirectAssertionForm
 
     def get_extra(self, request, obj=None, **kwargs):
-        extra = 1
         if obj and obj.assertions.count() > 0:
             return 0
-        return extra
+        return 1
 
 
 class PositiveURLAdmin(admin.TabularInline):
@@ -22,10 +21,9 @@ class PositiveURLAdmin(admin.TabularInline):
     form = PositiveUrlForm
 
     def get_extra(self, request, obj=None, **kwargs):
-        extra = 1
         if obj and obj.positive_urls.count() > 0:
             return 0
-        return extra
+        return 1
 
 
 class RedirectAdmin(AuditableModelAdmin):
