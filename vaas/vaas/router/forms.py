@@ -1,15 +1,14 @@
 from typing import Any, List, Dict
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
 from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Select, ModelChoiceField, HiddenInput, \
-    MultiValueField, BooleanField, MultiWidget, Widget
+    MultiValueField, BooleanField, MultiWidget, Widget, URLInput
 from django.conf import settings
-from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, MultiUrlWidget, \
+from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, \
     RewriteGroupsField, PrioritySelect, SearchableSelect, split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
-from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration
+from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_configuration, RedirectAssertion
 
 
 class MultipleUrl(MultiValueField):
@@ -36,7 +35,6 @@ class MultipleUrl(MultiValueField):
 
 
 class RouteModelForm(ModelForm):
-    positive_urls = MultipleUrl(fields='', widget=MultiUrlWidget(), validators=[URLValidator()], required=False)
     clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
                                         widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
 
@@ -45,12 +43,9 @@ class RouteModelForm(ModelForm):
                                     widget=HiddenInput() if settings.CLUSTER_IN_SYNC_HIDDEN else None)
 
     def __init__(self, *args, **kwargs):
-        initial_urls = []
         if kwargs.get('instance', None):
             if not kwargs.get('initial', None):
                 kwargs['initial'] = {}
-            initial_urls = [p.url for p in kwargs['instance'].positive_urls.all()]
-            kwargs['initial']['positive_urls'] = initial_urls
             # if clusters_in_sync is not manageable then forcibly set default value
             if settings.CLUSTER_IN_SYNC_HIDDEN:
                 kwargs['initial']['clusters_in_sync'] = settings.CLUSTER_IN_SYNC_ENABLED
@@ -59,9 +54,8 @@ class RouteModelForm(ModelForm):
         if self.instance.pk is None:
             self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
 
-        pretify_fields(self.fields.values())
+        prettify_fields(self.fields.values())
         self.fields['priority'].initial = 250
-        self.fields['positive_urls'].widget.decompress(initial_urls)
         if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
             self.fields['director'].widget = self.fields['director'].widget.widget
             self.fields['director'].queryset = Director.objects.exclude(virtual=True).order_by('name')
@@ -83,16 +77,6 @@ class RouteModelForm(ModelForm):
             ),
             'director': SearchableSelect(),
         }
-
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        instance.save()
-        instance.positive_urls.exclude(url__in=self.cleaned_data['positive_urls']).delete()
-        existing_urls = instance.positive_urls.values_list('url', flat=True)
-        for url in self.cleaned_data['positive_urls']:
-            if url not in existing_urls:
-                PositiveUrl.objects.create(url=url, route=instance)
-        return instance
 
     def clean_condition(self):
         complex_condition = self.cleaned_data['condition']
@@ -173,7 +157,7 @@ class RedirectModelForm(ModelForm):
         self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
         if rewrite_groups:
             self.fields['preserve_query_params'].widget.attrs.update({'disabled': True})
-        pretify_fields(self.fields.values())
+        prettify_fields(self.fields.values())
 
     def clean(self) -> Dict[str, Any]:
         cleaned_data = super().clean()
@@ -194,7 +178,29 @@ class RedirectModelForm(ModelForm):
         raise ValidationError('This combination of source domain and priority already exists')
 
 
-def pretify_fields(fields: List[Any]) -> None:
+class RedirectAssertionForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['given_url'].widget = URLInput()
+        prettify_fields(self.fields.values())
+
+    class Meta:
+        model = RedirectAssertion
+        fields = '__all__'
+
+
+class PositiveUrlForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['url'].widget = URLInput()
+        prettify_fields(self.fields.values())
+
+    class Meta:
+        model = PositiveUrl
+        fields = '__all__'
+
+
+def prettify_fields(fields: List[Any]) -> None:
     for field in fields:
         if isinstance(field.widget, MultiWidget):
             for widget in field.widget.widgets:
