@@ -366,4 +366,6 @@ class DomainMappingResource(ModelResource):
         }
 
     def dehydrate_clusters(self, bundle):
+        if bundle.obj.type == "dynamic":
+            return []
         return list(bundle.obj.clusters.values_list('name', flat=True))
