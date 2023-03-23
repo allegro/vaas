@@ -10,7 +10,6 @@ from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
 from tastypie.exceptions import NotFound, ApiFieldError
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import URLValidator
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
 from vaas.external.api import ExtendedDjangoAuthorization as DjangoAuthorization
@@ -108,19 +107,6 @@ class RedirectResource(ModelResource):
         return all(isinstance(assertion, Bundle) for assertion in redirect_assertions)
 
 
-class RouteModelCleanedDataFormValidation(ModelCleanedDataFormValidation):
-    def is_valid(self, bundle, request=None):
-        positive_urls = bundle.data['positive_urls']
-        validate_url = URLValidator()
-        errors = super().is_valid(bundle, request)
-        try:
-            for positive_url in positive_urls:
-                validate_url(positive_url)
-        except Exception:
-            errors['positive_urls'] = 'Enter a list of proper urls'
-        return errors
-
-
 class PositiveUrlResource(Resource):
     url = fields.CharField(attribute='url')
 
@@ -133,7 +119,7 @@ class PositiveUrlResource(Resource):
 class RouteResource(ModelResource):
     director = fields.ForeignKey('vaas.manager.api.DirectorResource', 'director')
     clusters = fields.ToManyField('vaas.cluster.api.LogicalClusterResource', 'clusters')
-    positive_urls = fields.ToManyField('vaas.router.api.PositiveUrlResource', 'positive_urls', full=True)
+    positive_urls = fields.ToManyField('vaas.router.api.PositiveUrlResource', 'positive_urls', full=True, null=True)
 
     class Meta:
         queryset = Route.objects.all().prefetch_related('clusters', 'positive_urls')
@@ -141,7 +127,7 @@ class RouteResource(ModelResource):
         serializer = PrettyJSONSerializer()
         authorization = DjangoAuthorization()
         authentication = VaasMultiAuthentication(ApiKeyAuthentication())
-        validation = RouteModelCleanedDataFormValidation(form_class=RouteModelForm)
+        validation = ModelCleanedDataFormValidation(form_class=RouteModelForm)
         always_return_data = True
         filtering = {
             'director': ALL_WITH_RELATIONS,
