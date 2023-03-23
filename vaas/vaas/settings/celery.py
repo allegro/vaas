@@ -18,8 +18,8 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
-
-app.conf.broker_transport_options = {'max_retries': 5, 'socket_keepalive': True}
+import socket
+app.conf.broker_transport_options = {'max_retries': 5, 'socket_keepalive': True, 'socket_keepalive_options': {socket.TCP_KEEPIDLE: 10, socket.TCP_KEEPINTVL: 10}}
 app.conf.beatx_store = settings.BROKER_URL
 app.conf.beat_max_loop_interval = settings.CELERY_BEAT_MAX_LOOP_INTERVAL
 app.conf.beat_schedule = {
