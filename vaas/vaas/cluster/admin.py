@@ -175,6 +175,8 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
     list_display = ['domain', 'mapping', 'type', 'get_clusters']
 
     def get_clusters(self, obj: DomainMapping) -> str:
+        if obj.type == "dynamic":
+            return "clusters are connected by appropriate labels"
         return ", ".join([c.name for c in obj.clusters.all()])
 
     get_clusters.short_description = 'Related clusters'
