@@ -29,9 +29,13 @@ app.conf.beat_schedule = {
     },
 }
 # For better handle connection errors to redis we need to setup redis_backend_health_check_interval parameter
-# https://docs.celeryq.dev/en/stable/userguide/configuration.html?highlight=redis_retry_on_timeout#redis-backend-health-check-interval
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-keepalive
 app.conf.redis_socket_keepalive = True
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-retry-on-timeout
 app.conf.redis_retry_on_timeout = True
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-connect-timeout
 app.conf.redis_socket_connect_timeout = 120
-app.conf.redis_socket_timeout = 60
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-timeout
+app.conf.redis_socket_timeout = 120
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html?highlight=redis_retry_on_timeout#redis-backend-health-check-interval
 app.conf.redis_backend_health_check_interval = settings.REDIS_BACKEND_HEALTH_CHECK_INTERVAL_SEC
