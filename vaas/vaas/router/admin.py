@@ -58,7 +58,7 @@ class RouteAdmin(AuditableModelAdmin):
         return super().changelist_view(request, extra_context=ctx)
 
     class Media:
-        js = ('js/clusters-sync.js', 'js/test-report.js', 'utils/js/labels.js')
+        js = ('js/test-report.js', 'utils/js/labels.js')
         css = {'all': ('css/test-report.css', )}
 
 

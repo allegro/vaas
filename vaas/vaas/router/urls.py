@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import url
+from django.urls import path
 
-from vaas.router.views import priorities
+from vaas.router.views import allowed_redirect_priorities, allowed_route_priorities
 
 urlpatterns = [
-    url(r'^route/priorities/(?P<director_id>\d+)/(?P<route_id>\d+)/(?P<current>\d+)/$', priorities, name='priorities'),
+    path(
+        'route/priorities/<int:director_id>/<int:route_id>/<int:current>/',
+        allowed_route_priorities,
+        name='route_priorities'
+    ),
+    path(
+        'redirect/priorities/<str:domain>/<int:redirect_id>/<int:current>/',
+        allowed_redirect_priorities,
+        name='redirect_priorities'
+    ),
 ]

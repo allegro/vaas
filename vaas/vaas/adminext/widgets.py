@@ -14,6 +14,9 @@ class PrioritySelect(forms.Select):
         super().__init__(attrs, choices)
         self.template_name = 'forms/priority.html'
 
+    class Media:
+        js = ('priority/js/priority-select.js',)
+
 
 class SearchableSelect(forms.Select):
     def __init__(self, attrs=None, choices=()):

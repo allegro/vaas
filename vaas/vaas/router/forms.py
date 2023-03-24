@@ -4,7 +4,7 @@ from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxInput, Sel
     MultiValueField, BooleanField, MultiWidget, Widget, URLInput
 from django.conf import settings
 from vaas.adminext.widgets import ComplexConditionWidget, ComplexRedirectConditionField, \
-    RewriteGroupsField, PrioritySelect, SearchableSelect, split_complex_condition
+    RewriteGroupsField, SearchableSelect, split_complex_condition
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from vaas.cluster.models import LogicalCluster, DomainMapping
 from vaas.manager.models import Director
@@ -72,11 +72,14 @@ class RouteModelForm(ModelForm):
             'action': Select(
                 choices=tuple((action.action, action.name) for action in configuration.actions)
             ),
-            'priority': PrioritySelect(
+            'priority': Select(
                 choices=tuple([(i, i) for i in range(1, 500)]),
             ),
             'director': SearchableSelect(),
         }
+
+    class Media:
+        js = ('js/route-form.js', 'utils/js/refresh-select.js',)
 
     def clean_condition(self):
         complex_condition = self.cleaned_data['condition']
@@ -140,10 +143,13 @@ class RedirectModelForm(ModelForm):
         model = Redirect
         fields = '__all__'
         widgets = {
-            'priority': PrioritySelect(
+            'priority': Select(
                 choices=tuple([(i, i) for i in range(1, 500)]),
             ),
         }
+
+    class Media:
+        js = ('js/redirect-form.js', 'utils/js/refresh-select.js',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
