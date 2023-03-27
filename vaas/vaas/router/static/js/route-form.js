@@ -10,11 +10,6 @@ function getChosenClusters() {
 }
 
 function reloadPriorities() {
-    // prevent from reading select-picker if it is not initialized
-    if (SelectBox.cache.id_clusters_to === undefined) {
-        setTimeout(reloadPriorities, 100)
-        return
-    }
     let director_id = $("[name=director]").val() || 0,
         current = $("[name=priority]").val(),
         clusters_sync = $("#id_clusters_in_sync").is(":checked"),
@@ -26,8 +21,12 @@ function reloadPriorities() {
     refreshOptions($("[name=priority]"), `/router/route/priorities/${director_id}/${route_id}/${current}/?${getChosenClusters()}${clusters_sync ? `&clusters_sync=${clusters_sync}` : ''}`)
 }
 
-// delay adding listeners until clusters widget is ready
-$.when( $.ready ).then(function() {
+function initForm() {
+    // wait until select-picker is ready before initialize
+    if (SelectBox.cache.id_clusters_to === undefined) {
+        setTimeout(initForm, 100)
+        return
+    }
     let clusters_in_sync = $("#id_clusters_in_sync");
     if (clusters_in_sync.is(":checked")) {
         $(".field-clusters").hide();
@@ -40,14 +39,29 @@ $.when( $.ready ).then(function() {
         }
         reloadPriorities();
     });
-    $("#id_clusters_add_link").click(reloadPriorities);
-    $("#id_clusters_remove_link").click(reloadPriorities);
-    $("#id_clusters_add_all_link").click(reloadPriorities);
-    $("#id_clusters_remove_all_link").click(reloadPriorities);
-    // TODO handle listening on cluster changes by clicking them
+    // override original function that is called as effect of many different events
+    // instead of adding custom listener for each event
+    // original js: /static/admin/js/SelectBox.js
+    SelectBox.move = (function(original) {
+        return function(from, to) {
+            original(from, to);
+            reloadPriorities();
+        };
+    })(SelectBox.move);
+    SelectBox.move_all = (function(original) {
+        return function(from, to) {
+            original(from, to);
+            reloadPriorities();
+        };
+    })(SelectBox.move_all);
     $("[name=director]").change(function () {
         clusters_in_sync.prop("disabled", $(this).find(":selected").text() === "---------");
         reloadPriorities();
     });
     reloadPriorities();
+}
+
+// delay adding listeners until clusters widget is ready
+$(function() {
+    initForm();
 });
