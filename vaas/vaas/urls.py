@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import django.urls as urls
 from django.conf.urls import include, url
 from django.contrib.admin.sites import NotRegistered
 from django.views.generic.base import RedirectView
@@ -51,7 +52,7 @@ urlpatterns = [
     url(r'^admin/purger/', include('vaas.purger.urls')),
     url(r'^$', RedirectView.as_view(url='/admin/')),
     url(r'^manager/', include('vaas.manager.urls')),
-    url(r'^router/', include(('vaas.router.urls', 'vaas'), namespace='router')),
+    urls.path('router/', urls.include(('vaas.router.urls', 'vaas'), namespace='router')),
     url(r'^account/', include('vaas.account.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(v01_api.urls)),
