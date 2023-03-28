@@ -78,12 +78,12 @@
   pk: 1
   fields: {name: cluster1_siteA_test, reload_timestamp: '2019-11-19T08:02:15.994071+00:00',
     error_timestamp: '2019-11-13T07:46:40.450785+00:00', last_error_info: null,
-           current_vcl_versions: '[]', labels_list: '["placeholder:192.168.199.6"]'}
+           current_vcl_versions: '[]', labels_list: '["one:192.168.199.6"]'}
 - model: cluster.logicalcluster
   pk: 2
   fields: {name: cluster2_siteB_test, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
     error_timestamp: '2019-11-13T07:46:40.453146+00:00', last_error_info: null,
-    current_vcl_versions: '[]', labels_list: '["env:dev"]'}
+    current_vcl_versions: '[]', labels_list: '["two:192.168.199.4", "env:dev"]'}
 - model: cluster.logicalcluster
   pk: 3
   fields: {name: cluster3_siteA_dev, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
@@ -96,10 +96,10 @@
             current_vcl_versions: '[]', labels_list: '["placeholder:cluster4"]'}
 - model: cluster.domainmapping
   pk: 1
-  fields: {domain: "mydomain.com", mapping: "{placeholder}:6081", type: dynamic, clusters: [1]}
+  fields: {domain: "mydomain.com", mappings_list: '["{one}:6081","{two}:6081"]', type: dynamic, clusters: []}
 - model: cluster.domainmapping
   pk: 2
-  fields: {domain: "example.com", mapping: "example.base.com", type: static, clusters: [3]}
+  fields: {domain: "example.com", mappings_list: '["example.base.com"]', type: static, clusters: [3]}
 - model: cluster.vcltemplate
   pk: 2
   fields: {name: vagrant_template_4, content: "<VCL/>", version: '4.0', comment: wefwef}

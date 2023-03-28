@@ -123,7 +123,7 @@ class VclTagBuilderTest(TestCase):
             labels_list='["cluster4"]'
         )
         self.domainapping = DomainMapping.objects.create(
-            domain='example.com', mapping='example.{env}.com', type='dynamic'
+            domain='example.com', mappings_list='["example.{env}.com"]', type='dynamic'
         )
         self.domainapping.clusters.add(cluster1)
         time_profile = TimeProfile.objects.create(
