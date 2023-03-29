@@ -17,7 +17,7 @@ from vaas.validators import vcl_variable_validator, vcl_variable_key_validator, 
 
 class AbsModelWithJsonField:
 
-    def _get_parsed_field(self, field: Optional[set], values: str) -> Set[str]:
+    def _get_parsed_field(self, field: Optional[Set], values: str) -> Set[str]:
         if field is None:
             try:
                 field = set(json.loads(values))
@@ -153,13 +153,6 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
             result = result or not required_labels.difference(cluster_labels)
         return result
 
-    def __prepare_placeholders_arguments(self, labels: Set[str]) -> Dict[str, str]:
-        result = {}
-        for label in labels:
-            if label.count(":") == 1:
-                _, result[_] = label.split(":")
-        return result
-
     def __parse_placeholders(self) -> Dict[str, Set[str]]:
         result = {}
         if self.type == 'dynamic':
@@ -169,21 +162,6 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
 
     def __str__(self) -> str:
         return f'{self.domain}'
-
-    def _get_parsed_field(self, field, values):
-        if field is None:
-            try:
-                field = set(json.loads(values))
-            except:  # noqa
-                field = set()
-        return field
-
-    def _prepare_set_and_json(self, field):
-        if isinstance(field, set):
-            field = list(field)
-        if isinstance(field, list):
-            return set(field), json.dumps(field)
-        return None, None
 
 
 class VclTemplate(models.Model):
