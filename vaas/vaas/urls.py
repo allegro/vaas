@@ -4,7 +4,6 @@ from django.conf.urls import include, url
 from django.contrib.admin.sites import NotRegistered
 from django.views.generic.base import RedirectView
 from tastypie.api import Api
-
 from vaas.cluster.api import ConnectCommandResource, DomainMappingResource, DcResource, VarnishServerResource, \
     VclTemplateBlockResource, ValidateVCLCommandResource, VclTemplateResource, LogicalClusterResource, \
     OutdatedServerResource
@@ -57,6 +56,7 @@ urlpatterns = [
     url(r'^api/', include(v01_api.urls)),
     url(r'^plugins/', include(('vaas.external.urls', 'vaas'), namespace='plugins')),
     url('', include('social_django.urls', namespace='social')),
+    url('', include('django_prometheus.urls')),
 ]
 
 admin.site.site_header = 'VaaS Administration'

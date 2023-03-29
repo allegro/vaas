@@ -60,9 +60,11 @@ INSTALLED_APPS = (
     'taggit',
     'django_ace',
     'simple_history',
+    'django_prometheus',
 )
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'log_request_id.middleware.RequestIDMiddleware',
@@ -72,6 +74,7 @@ MIDDLEWARE = [
     'vaas.manager.middleware.VclRefreshMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 # Plugins definition

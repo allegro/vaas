@@ -14,6 +14,9 @@ from jinja2 import Environment, FileSystemLoader
 from vaas.manager.models import Backend, Director
 from vaas.router.models import Route, Redirect
 from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
+from prometheus_client import Summary
+
+REQUEST_TIME = Summary('renderer_processing_seconds', 'Time spent processing request')
 
 VCL_TAGS = {
     '4.0': [
@@ -109,6 +112,7 @@ class VclTagExpander(object):
             self.parameters = {}
 
     @collect_processing
+    @REQUEST_TIME.time()
     def expand(self, vcl_template):
         db_content = self.get_db_tag_content(vcl_template)
         if not db_content:
