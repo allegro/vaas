@@ -135,14 +135,14 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
     def labels(self, mappings: Union[List, Set]) -> None:
         self._mappings, self.mappings_list = self._prepare_set_and_json(mappings)
 
-    def mapped_domain(self, cluster: LogicalCluster) -> str:
-        # TODO: should be transformed to mapped_domains -> List[str] in consecutive change
-        result = str(list(self.mappings)[0])
-        if self.type == 'dynamic':
-            cluster_labels = set(list(cluster.parsed_labels().keys()))
-            for mapping, required_labels in self.__parse_placeholders().items():
-                if not required_labels.difference(cluster_labels):
-                    result = mapping.format(**cluster.parsed_labels())
+    def mapped_domains(self, cluster: LogicalCluster) -> List[str]:
+        if self.type == 'static':
+            return list(self.mappings)
+        result = []
+        cluster_labels = set(list(cluster.parsed_labels().keys()))
+        for mapping, required_labels in self.__parse_placeholders().items():
+            if not required_labels.difference(cluster_labels):
+                result.append(mapping.format(**cluster.parsed_labels()))
         return result
 
     def is_cluster_related_by_labels(self, cluster: LogicalCluster) -> bool:

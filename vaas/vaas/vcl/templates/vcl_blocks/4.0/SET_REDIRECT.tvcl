@@ -1,4 +1,4 @@
-set req.http.x-redirect = "{{ redirect.id }}";
+set req.http.x-redirect = "{{ redirect.redirect_id }}";
         {% if redirect.rewrite_groups %}
         set req.http.x-destination = regsub(req.url, "{{ redirect.rewrite_groups }}", "{{ redirect.destination }}");
         {% else %}
