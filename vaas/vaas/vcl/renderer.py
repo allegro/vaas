@@ -13,7 +13,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from vaas.manager.models import Backend, Director
 from vaas.router.models import Route, Redirect
-from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
+from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster, DomainMapping
+from vaas.cluster.mapping import MappingProvider
 
 VCL_TAGS = {
     '4.0': [
@@ -187,9 +188,9 @@ class VclTagBuilder:
     @collect_processing
     def prepare_redirects(self) -> Dict[str, List[VclRedirect]]:
         redirects = {}
-        cluster_domains = self.varnish.cluster.domainmapping_set.all()
+        related_domains = MappingProvider(DomainMapping.objects.all()).provide_related_domains(self.varnish.cluster)
         for redirect in self.input.redirects:
-            if redirect.src_domain in cluster_domains:
+            if str(redirect.src_domain) in related_domains:
                 domain = redirect.src_domain.mapped_domain(self.varnish.cluster)
                 if entries := redirects.get(domain, []):
                     entries.append(VclRedirect(redirect, self.varnish.cluster))

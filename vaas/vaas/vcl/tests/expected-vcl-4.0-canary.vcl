@@ -339,7 +339,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "9dbc8", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "e7ebd", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -411,6 +411,20 @@ sub vcl_recv {
     unset req.http.x-canary-random;
 
 # Flexible REDIRECT
+    if (req.http.host == "example.prod.com") {
+    if (req.url ~ "/source") {
+        set req.http.x-redirect = "2";
+        set req.http.x-destination = "http://example.prod.com/new_destination";
+        set req.http.x-response-code = "301";
+        set req.http.x-action = "redirect";
+    }
+    else if (req.url ~ "/source") {
+        set req.http.x-redirect = "1";
+        set req.http.x-destination = "http://example.prod.com/destination";
+        set req.http.x-response-code = "301";
+        set req.http.x-action = "redirect";
+    }
+    }
 
 # Test ROUTER
 if (req.http.x-validation == "1") {
