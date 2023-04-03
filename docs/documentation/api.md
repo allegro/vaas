@@ -368,14 +368,14 @@ expected output
 ### Add static mapping (providing logical cluster(s) resource uri is required)
 
     curl -X POST \
-    -d'{"clusters": ["/api/v0.1/logical_cluster/1/"], "domain": "static-example.com", "mappings_list": "[\"internal-representation.internal\"], "type": "static"}' \
+    -d'{"clusters": ["/api/v0.1/logical_cluster/1/"], "domain": "static-example.com", "mappings": ["internal-representation.internal"], "type": "static"}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/domain-mapping/?username=admin&api_key=vagrant_api_key&format=json"
 
 ### Add dynamic mapping (logical clusters are linked dynamically if they have appropriate labels)
 
     curl -X POST \
-    -d'{"clusters": [], "domain": "dynamic-example.com", "mapping": "{required-label}.internal", "type": "dynamic"}' \
+    -d'{"clusters": [], "domain": "dynamic-example.com", "mappings": ["{required-label}.internal"], "type": "dynamic"}' \
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/domain-mapping/?username=admin&api_key=vagrant_api_key&format=json"
 

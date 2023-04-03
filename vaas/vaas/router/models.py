@@ -37,12 +37,10 @@ class Redirect(models.Model):
     def get_hashed_assertions_pks(self) -> Dict[int, int]:
         return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
 
-    def get_redirect_destination(self, cluster: LogicalCluster) -> str:
+    def get_redirect_destination(self, mapped_domain: str) -> str:
         destination_url = urlsplit(self.destination)
-        domain_mapping = DomainMapping.objects.filter(domain=destination_url.netloc)
-        if len(domain_mapping) == 1:
-            domain = domain_mapping[0].mapped_domain(cluster)
-            return self.destination.replace(destination_url.netloc, domain)
+        if DomainMapping.objects.filter(domain=destination_url.netloc).exists():
+            return self.destination.replace(destination_url.netloc, mapped_domain)
         return self.destination
 
     @property
