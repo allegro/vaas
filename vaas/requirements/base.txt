@@ -1,3 +1,4 @@
+django_prometheus
 django==3.1.14
 django-nose==1.4.7
 enum34==1.1.10
