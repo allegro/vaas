@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from typing import Optional, Dict
+import json
+from typing import Optional, Dict, List
 
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.bundle import Bundle
@@ -350,8 +351,10 @@ class ValidateVCLCommandResource(Resource):
 
 class DomainMappingResource(ModelResource):
     clusters = fields.ToManyField('vaas.cluster.api.LogicalClusterResource', 'clusters')
+    mappings = fields.ListField(blank=True, null=True)
 
     class Meta:
+        excludes = ('mappings_list',)
         queryset = DomainMapping.objects.all().prefetch_related('clusters')
         resource_name = 'domain-mapping'
         serializer = PrettyJSONSerializer()
@@ -365,5 +368,17 @@ class DomainMappingResource(ModelResource):
             'clusters': ALL_WITH_RELATIONS,
         }
 
-    def dehydrate_clusters(self, bundle):
+    def dehydrate_clusters(self, bundle: Bundle) -> List[str]:
+        if bundle.obj.type == "dynamic":
+            return []
         return list(bundle.obj.clusters.values_list('name', flat=True))
+
+    def dehydrate_mappings(self, bundle: Bundle) -> List[str]:
+        try:
+            return json.loads(bundle.obj.mappings_list)
+        except: # noqa
+            return []
+
+    def hydrate_mappings(self, bundle: Bundle) -> Bundle:
+        bundle.obj.mappings_list = json.dumps(bundle.data['mappings'])
+        return bundle

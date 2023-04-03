@@ -13,7 +13,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from vaas.manager.models import Backend, Director
 from vaas.router.models import Route, Redirect
-from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster
+from vaas.cluster.models import VclTemplateBlock, Dc, VclVariable, LogicalCluster, DomainMapping
+from vaas.cluster.mapping import MappingProvider
 
 VCL_TAGS = {
     '4.0': [
@@ -156,15 +157,16 @@ class VclDirector(object):
         return self.dc.symbol == self.current_dc.symbol
 
 
-class VclRedirect(object):
-    def __init__(self, redirect, cluster):
-        self.id = redirect.id
+class VclRedirect:
+    def __init__(self, redirect: Redirect, mapped_domain: str):
+        self.id = f"{redirect.pk}/{mapped_domain}"
+        self.redirect_id = redirect.pk
         self.src_domain = redirect.src_domain
         self.rewrite_groups = redirect.rewrite_groups
         self.action = redirect.action
         self.preserve_query_params = redirect.preserve_query_params
         self.final_condition = redirect.final_condition
-        self.destination = redirect.get_redirect_destination(cluster)
+        self.destination = redirect.get_redirect_destination(mapped_domain)
 
 
 class VclTagBuilder:
@@ -187,14 +189,14 @@ class VclTagBuilder:
     @collect_processing
     def prepare_redirects(self) -> Dict[str, List[VclRedirect]]:
         redirects = {}
-        cluster_domains = self.varnish.cluster.domainmapping_set.all()
+        related_domains = MappingProvider(DomainMapping.objects.all()).provide_related_domains(self.varnish.cluster)
         for redirect in self.input.redirects:
-            if redirect.src_domain in cluster_domains:
-                domain = redirect.src_domain.mapped_domain(self.varnish.cluster)
-                if entries := redirects.get(domain, []):
-                    entries.append(VclRedirect(redirect, self.varnish.cluster))
-                else:
-                    redirects[domain] = [VclRedirect(redirect, self.varnish.cluster)]
+            if str(redirect.src_domain) in related_domains:
+                for mapped_domain in redirect.src_domain.mapped_domains(self.varnish.cluster):
+                    if entries := redirects.get(mapped_domain, []):
+                        entries.append(VclRedirect(redirect, mapped_domain))
+                    else:
+                        redirects[mapped_domain] = [VclRedirect(redirect, mapped_domain)]
         return redirects
 
     @collect_processing

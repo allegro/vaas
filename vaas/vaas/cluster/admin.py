@@ -6,6 +6,7 @@ from django.utils.safestring import SafeText
 from simple_history.admin import SimpleHistoryAdmin
 from django_ace import AceWidget
 
+from vaas.cluster.mapping import MappingProvider
 from vaas.external.audit import AuditableModelAdmin
 from vaas.cluster.coherency import OutdatedServerManager
 from vaas.cluster.models import DomainMapping, VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, \
@@ -171,12 +172,18 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
 
 class DomainMappingAdmin(SimpleHistoryAdmin):
     form = DomainMappingForm
-    search_fields = ['domain', 'mapping', 'type', 'clusters__name']
-    list_display = ['domain', 'mapping', 'type', 'get_clusters']
+    search_fields = ['domain', 'get_mappings', 'type', 'clusters__name']
+    list_display = ['domain', 'get_mappings', 'type', 'get_clusters']
+
+    def get_mappings(self, obj: DomainMapping) -> str:
+        return ", ".join(sorted(list(obj.mappings)))
 
     def get_clusters(self, obj: DomainMapping) -> str:
+        if obj.type == "dynamic":
+            return "clusters are connected by appropriate labels"
         return ", ".join([c.name for c in obj.clusters.all()])
 
+    get_mappings.short_description = 'Mappings'
     get_clusters.short_description = 'Related clusters'
 
 
@@ -206,6 +213,12 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         'varnish_servers'
     ]
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
+    provider = None
+
+    def _get_provider(self) -> MappingProvider:
+        if self.provider is None:
+            self.provider = MappingProvider(DomainMapping.objects.all())
+        return self.provider
 
     def get_tags(self, obj: LogicalCluster) -> str:
         return ", ".join(obj.current_vcls)
@@ -223,9 +236,8 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     def get_domains(self, obj: LogicalCluster) -> SafeText:
         domains_html = ''
-        for domain in obj.domainmapping_set.all():
-            domains_html += (
-                "<span class='label label-primary' style='display: inline-block;'>%s</span>") % domain.domain
+        for domain in self._get_provider().provide_related_domains(obj):
+            domains_html += f"<span class='label label-primary' style='display: inline-block;'>{domain}</span>"
         return format_html(domains_html)
 
     get_domains.short_description = 'Related Domains'

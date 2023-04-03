@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Set, Dict
+import string
+from typing import Set, Dict, List, Union, Tuple, Optional
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -14,7 +15,25 @@ from vaas.validators import vcl_variable_validator, vcl_variable_key_validator, 
     vcl_template_comment_validator, name_validator, dc_symbol_validator
 
 
-class LogicalCluster(models.Model):
+class AbsModelWithJsonField:
+
+    def _get_parsed_field(self, field: Optional[Set], values: str) -> Set[str]:
+        if field is None:
+            try:
+                field = set(json.loads(values))
+            except:  # noqa
+                field = set()
+        return field
+
+    def _prepare_set_and_json(self, field: Union[List, Set]) -> Tuple[Set, str]:
+        if isinstance(field, set):
+            field = list(field)
+        if isinstance(field, list):
+            return set(field), json.dumps(field)
+        return set(), ""
+
+
+class LogicalCluster(models.Model, AbsModelWithJsonField):
     """Model representing a cluster of varnish servers"""
     name = models.CharField(max_length=100, validators=[name_validator], unique=True)
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
@@ -29,35 +48,27 @@ class LogicalCluster(models.Model):
     _labels = None
 
     @property
-    def current_vcls(self):
+    def current_vcls(self) -> Set[str]:
         return self._get_parsed_field(self._current_vcls, self.current_vcl_versions)
 
     @current_vcls.setter
-    def current_vcls(self, versions):
+    def current_vcls(self, versions: Union[List, Set]) -> None:
         self._current_vcls, self.current_vcl_versions = self._prepare_set_and_json(versions)
 
     @property
-    def labels(self):
+    def labels(self) -> Set[str]:
         return self._get_parsed_field(self._labels, self.labels_list)
 
     @labels.setter
-    def labels(self, labels):
+    def labels(self, labels: Union[List, Set]) -> None:
         self._labels, self.labels_list = self._prepare_set_and_json(labels)
 
-    def _get_parsed_field(self, field, values):
-        if field is None:
-            try:
-                field = set(json.loads(values))
-            except:  # noqa
-                field = set()
-        return field
-
-    def _prepare_set_and_json(self, field):
-        if isinstance(field, set):
-            field = list(field)
-        if isinstance(field, list):
-            return set(field), json.dumps(field)
-        return None, None
+    def parsed_labels(self) -> Dict[str, str]:
+        result = {}
+        for label in self.labels:
+            if label.count(":") == 1:
+                _, result[_] = label.split(":")
+        return result
 
     def __str__(self) -> str:
         return "{} ({})".format(self.name, self.varnish_count())
@@ -105,27 +116,48 @@ class Dc(models.Model):
                     )
 
 
-class DomainMapping(models.Model):
+class DomainMapping(models.Model, AbsModelWithJsonField):
     TYPE_CHOICES = (
         ('static', 'Static'),
         ('dynamic', 'Dynamic')
     )
     domain = models.CharField(max_length=128, unique=True)
-    mapping = models.CharField(max_length=128)
+    mappings_list = models.CharField(max_length=500, default='[]')
     type = models.CharField(max_length=7, choices=TYPE_CHOICES, default='static')
     clusters = models.ManyToManyField(LogicalCluster)
+    _mappings = None
 
-    def mapped_domain(self, cluster: LogicalCluster) -> str:
-        result = str(self.mapping)
-        if self.type == 'dynamic':
-            result = result.format(**self._prepare_placeholders(cluster.labels))
+    @property
+    def mappings(self) -> Set[str]:
+        return self._get_parsed_field(self._mappings, self.mappings_list)
+
+    @mappings.setter
+    def labels(self, mappings: Union[List, Set]) -> None:
+        self._mappings, self.mappings_list = self._prepare_set_and_json(mappings)
+
+    def mapped_domains(self, cluster: LogicalCluster) -> List[str]:
+        if self.type == 'static':
+            return list(self.mappings)
+        result = []
+        cluster_labels = set(list(cluster.parsed_labels().keys()))
+        for mapping, required_labels in self.__parse_placeholders().items():
+            if not required_labels.difference(cluster_labels):
+                result.append(mapping.format(**cluster.parsed_labels()))
         return result
 
-    def _prepare_placeholders(self, labels: Set[str]) -> Dict[str, str]:
+    def is_cluster_related_by_labels(self, cluster: LogicalCluster) -> bool:
+        result = False
+        cluster_labels = set(list(cluster.parsed_labels().keys()))
+        # check if all needed placeholders of any mapping are satisfied by cluster labels
+        for required_labels in self.__parse_placeholders().values():
+            result = result or not required_labels.difference(cluster_labels)
+        return result
+
+    def __parse_placeholders(self) -> Dict[str, Set[str]]:
         result = {}
-        for label in labels:
-            if label.count(":") == 1:
-                _, result[_] = label.split(":")
+        if self.type == 'dynamic':
+            for mapping in self.mappings:
+                result[mapping] = {name for _, name, _, _ in string.Formatter().parse(str(mapping)) if name}
         return result
 
     def __str__(self) -> str:

@@ -17,11 +17,22 @@ class LogicalCLusterModelForm(ModelForm):
 
 class DomainMappingForm(ModelForm):
     clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
-                                        widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
+                                        widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'),
+                                        required=False)
 
     class Meta:
         model = DomainMapping
         fields = '__all__'
+
+    class Media:
+        js = ('js/mapping-type-switch.js',)
+
+    def clean(self):
+        cleaned_data = super(DomainMappingForm, self).clean()
+        if cleaned_data.get('type', "static") == "static":
+            if len(cleaned_data.get('clusters', None)) == 0:
+                self._errors['clusters'] = self.error_class(['Selecting clusters is required for static mapping'])
+        return self.cleaned_data
 
 
 class DcModelForm(ModelForm):
@@ -42,7 +53,7 @@ class VclTemplateModelForm(ModelForm):
         fields = '__all__'
 
     class Media:
-        js = ('cluster/js/vcl-validation.js', 'utils/js/labels.js',)
+        js = ('js/vcl-validation.js', 'utils/js/labels.js',)
 
 
 class VarnishServerModelForm(ModelForm):

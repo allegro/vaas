@@ -8,23 +8,25 @@ Resources
 
 The following resources are available:
 
-| Name                 | Description                                                                                               |Allowed actions               | Allowed commands       |
-|----------------------|-----------------------------------------------------------------------------------------------------------|------------------------------|------------------------|
-| *Backend*            | Represents a single node in a service (director)                                                          |preview, **add, edit, delete**|                        |
-| *Director*           | A Varnish director; may represent a SOA service                                                           |preview, **add, edit, delete**|                        |
-| *Probe*              | A health check used to determine backend status                                                           |preview, **add, edit, delete**|                        |
-| *Dc*                 | Datacenter                                                                                                |preview, **add, edit, delete**|                        |
-| *Logical Cluster*    | Cluster of Varnish servers                                                                                |preview, **add, edit, delete**| connect-command        |
-| *Varnish Servers*    | A Varnish server                                                                                          |preview, **add, edit, delete**|                        |
-| *VCL Template Block* | A VCL template block                                                                                      |preview, **add, edit, delete**|                        |
-| *VCL Template*       | A VCL template                                                                                            |preview, **add, edit, delete**| vcl-validate-command   |
-| *Time Profile*       | Default timeouts profile for director                                                                     |preview, **add, edit, delete**|                        |
-| *Purger*             | Purge object from varnishes from a given cluster                                                          |                              |                        |
-| *Outdated Server*    | Represents active varnish servers with outdated vcl                                                       |preview                       |                        |
-| *Task*               | Represents state of reloading task - check [VaaS Request Flow](./flow.md)                                 |preview                       |                        |
-| *Redirect*           | Represents conditional redirection to particular URL                                                      |preview, **add, edit, delete**| validate-command       |
-| *Route*              | Represents conditional routing to desired Director                                                        |preview, **add, edit, delete**| validate-command       |
-| *RouteConfig*        | Represents possible request parameters, operators & actions, which can be used in Routes                  |preview|                        |
+| Name                 | Description                                                                                       | Allowed actions                | Allowed commands       |
+|----------------------|---------------------------------------------------------------------------------------------------|--------------------------------|------------------------|
+| *Backend*            | Represents a single node in a service (director)                                                  | preview, **add, edit, delete** |                        |
+| *Director*           | A Varnish director; may represent a SOA service                                                   | preview, **add, edit, delete** |                        |
+| *Probe*              | A health check used to determine backend status                                                   | preview, **add, edit, delete** |                        |
+| *Dc*                 | Datacenter                                                                                        | preview, **add, edit, delete** |                        |
+| *Logical Cluster*    | Cluster of Varnish servers                                                                        | preview, **add, edit, delete** | connect-command        |
+| *Varnish Servers*    | A Varnish server                                                                                  | preview, **add, edit, delete** |                        |
+| *VCL Template Block* | A VCL template block                                                                              | preview, **add, edit, delete** |                        |
+| *VCL Template*       | A VCL template                                                                                    | preview, **add, edit, delete** | vcl-validate-command   |
+| *Time Profile*       | Default timeouts profile for director                                                             | preview, **add, edit, delete** |                        |
+| *Purger*             | Purge object from varnishes from a given cluster                                                  |                                |                        |
+| *Outdated Server*    | Represents active varnish servers with outdated vcl                                               | preview                        |                        |
+| *Task*               | Represents state of reloading task - check [VaaS Request Flow](./flow.md)                         | preview                        |                        |
+| *Redirect*           | Represents conditional redirection to particular URL                                              | preview, **add, edit, delete** | validate-command       |
+| *DomainMapping*      | Represents domains representations specific for particular clusters that can be used in redirects | preview, **add, edit, delete** |                        |
+| *Route*              | Represents conditional routing to desired Director                                                | preview, **add, edit, delete** | validate-command       |
+| *RouteConfig*        | Represents possible request parameters, operators & actions, which can be used in Routes          | preview                        |                        |
+
 
 VaaS resources can be previewed under http://<VaaS instance\>/api/v0.1/?format=json
 
@@ -317,6 +319,17 @@ expected output
     -H "Content-Type: application/json" \
     "http://localhost:3030/api/v0.1/redirect/?username=admin&api_key=vagrant_api_key&format=json"
 
+### Delete single redirect
+
+    curl -X DELETE \
+    "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
+
+### Partially update redirect
+
+    curl -X PATCH \
+    -d '{"priority":2}' -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
+
 ### Call validate-command for all redirects
 
     curl -X PUT \
@@ -348,17 +361,23 @@ expected output
       "status": "SUCCESS"
     }
 
-### Delete single redirect
+### List domain mappings
 
-    curl -X DELETE \
-    "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
+    curl "http://localhost:3030/api/v0.1/domain-mapping/?username=admin&api_key=vagrant_api_key&format=json"
 
-### Partially update redirect
+### Add static mapping (providing logical cluster(s) resource uri is required)
 
-    curl -X PATCH \
-    -d '{"priority":2}' -H "Content-Type: application/json" \
-    "http://localhost:3030/api/v0.1/redirect/1/?username=admin&api_key=vagrant_api_key&format=json"
+    curl -X POST \
+    -d'{"clusters": ["/api/v0.1/logical_cluster/1/"], "domain": "static-example.com", "mappings": ["internal-representation.internal"], "type": "static"}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/domain-mapping/?username=admin&api_key=vagrant_api_key&format=json"
 
+### Add dynamic mapping (logical clusters are linked dynamically if they have appropriate labels)
+
+    curl -X POST \
+    -d'{"clusters": [], "domain": "dynamic-example.com", "mappings": ["{required-label}.internal"], "type": "dynamic"}' \
+    -H "Content-Type: application/json" \
+    "http://localhost:3030/api/v0.1/domain-mapping/?username=admin&api_key=vagrant_api_key&format=json"
 
 ### List routes
 
