@@ -243,7 +243,7 @@ STATSD_PORT = env.int('STATSD_PORT', default=8125)
 STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 
 # Prometheus environments
-PROMETHEUS_URI_PATH = env.str('PROMETHEUS_URI_PATH', default='^metrics')
+PROMETHEUS_URI_PATH = env.str('PROMETHEUS_URI_PATH', default='metrics')
 
 # HEADER FOR PERMIT ACCESS TO /vaas/ ENDPOINT
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')
