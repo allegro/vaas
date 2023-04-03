@@ -215,10 +215,10 @@ class LogicalClusterAdmin(admin.ModelAdmin):
     exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
     provider = None
 
-    def _get_provider(self) -> MappingProvider:
-        if self.provider is None:
-            self.provider = MappingProvider(DomainMapping.objects.all())
-        return self.provider
+    def get_changelist_instance(self, request):
+        # refresh provider on each changelist view
+        self.provider = MappingProvider(DomainMapping.objects.all())
+        return super().get_changelist_instance(request)
 
     def get_tags(self, obj: LogicalCluster) -> str:
         return ", ".join(obj.current_vcls)
@@ -236,7 +236,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     def get_domains(self, obj: LogicalCluster) -> SafeText:
         domains_html = ''
-        for domain in self._get_provider().provide_related_domains(obj):
+        for domain in self.provider.provide_related_domains(obj):
             domains_html += f"<span class='label label-primary' style='display: inline-block;'>{domain}</span>"
         return format_html(domains_html)
 
