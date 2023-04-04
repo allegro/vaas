@@ -31,7 +31,7 @@ sentry-sdk==1.14.0
 
 # newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
 kombu==5.2.3
-redis==4.1.2
+redis==4.4.4
 django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/allegro/python-varnish@0.2.2#egg=python_varnish
 django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.2#egg=django_ace
