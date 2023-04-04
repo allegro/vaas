@@ -60,9 +60,11 @@ INSTALLED_APPS = (
     'taggit',
     'django_ace',
     'simple_history',
+    'django_prometheus',
 )
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'log_request_id.middleware.RequestIDMiddleware',
@@ -72,6 +74,7 @@ MIDDLEWARE = [
     'vaas.manager.middleware.VclRefreshMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 # Plugins definition
@@ -238,6 +241,9 @@ STATSD_ENABLE = env.bool('STATSD_ENABLE', default=False)
 STATSD_HOST = env.str('STATSD_HOST', default='localhost')
 STATSD_PORT = env.int('STATSD_PORT', default=8125)
 STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
+
+# Prometheus environments
+PROMETHEUS_URI_PATH = env.str('PROMETHEUS_URI_PATH', default='metrics')
 
 # HEADER FOR PERMIT ACCESS TO /vaas/ ENDPOINT
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')
