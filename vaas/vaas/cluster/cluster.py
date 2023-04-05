@@ -10,46 +10,38 @@ from concurrent.futures import ThreadPoolExecutor, Future
 from vaas.settings.celery import app
 from django.conf import settings
 
+from vaas.prometheus.metrics import s_queue_time_from_order_to_execute_task, s_processing_vcl_task_with_change, \
+    s_processing_vcl_task_without_change, events_with_change, events_without_change, varnish_cluster_successful_reload_vcl
 from vaas.api.client import VarnishApi, VarnishApiReadException
 from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.vcl.loader import VclLoader, VclStatus
-from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing, Vcl
+from vaas.vcl.renderer import VclRenderer, VclRendererInput, collect_processing, Vcl
 from vaas.cluster.exceptions import VclLoadException
 from statsd.defaults.django import statsd
 from datetime import datetime
 
-
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
-def load_vcl_task(self, emmit_time, cluster_ids):
+def load_vcl_task(self, emmit_time: datetime, cluster_ids: List[int]) -> bool:
     emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
                                            timezone=timezone.utc)
-    if settings.STATSD_ENABLE:
-        queue_time_from_order_to_execute_task = timezone.now() - emmit_time_aware
-        statsd.timing('queue_time_from_order_to_execute_task', queue_time_from_order_to_execute_task)
+    s_queue_time_from_order_to_execute_task.observe((timezone.now() - emmit_time_aware).total_seconds())
 
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(
-        pk__in=cluster_ids, reload_timestamp__lte=emmit_time
-    ).prefetch_related('varnishserver_set')
+        pk__in=cluster_ids, reload_timestamp__lte=emmit_time).prefetch_related('varnishserver_set')
     if len(clusters) > 0:
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
-        if settings.STATSD_ENABLE:
-            statsd.gauge('events_with_change', 1)
-            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
-            statsd.timing('total_time_of_processing_vcl_task_with_change',
-                          total_time_of_processing_vcl_task_with_change)
+        events_with_change.inc()
+        s_processing_vcl_task_with_change.observe((timezone.now() - emmit_time_aware).total_seconds())
         return varnish_cluster_load_vcl
 
-    if settings.STATSD_ENABLE:
-        statsd.gauge('events_without_change', 1)
-        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
-        statsd.timing('total_time_of_processing_vcl_task_without_change',
-                      total_time_of_processing_vcl_task_without_change)
+    events_without_change.inc()
+    s_processing_vcl_task_without_change.observe((timezone.now() - emmit_time_aware).total_seconds())
     return True
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
-def validate_vcl_command(self, vcl_id: int, content: str):
+def validate_vcl_command(self, vcl_id: int, content: str) -> Dict[str, any]:
     servers = VarnishServer.objects.exclude(status='disabled').filter(
         template__pk=vcl_id).prefetch_related('dc', 'cluster')
     result = {
@@ -109,7 +101,6 @@ class VarnishCluster(object):
         return VarnishApiProvider().get_api(VarnishServer.objects.get(pk=varnish_server_pk)).vcl_content_active()
 
     def load_vcl(self, start_processing_time, clusters):
-        processing_stats = init_processing()
         servers = ServerExtractor().extract_servers_by_clusters(clusters)
         vcl_list = ParallelRenderer(self.renderer_max_workers).render_vcl_for_servers(
             start_processing_time.strftime("%Y%m%d_%H_%M_%S"), servers
@@ -124,21 +115,10 @@ class VarnishCluster(object):
         else:
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
             if result is False:
-                if settings.STATSD_ENABLE:
-                    statsd.gauge('successful_reload_vcl', 0)
+                varnish_cluster_successful_reload_vcl.set(0)
             else:
-                if settings.STATSD_ENABLE:
-                    statsd.gauge('successful_reload_vcl', 1)
+                varnish_cluster_successful_reload_vcl.set(1)
             return result
-        finally:
-            for phase, processing in processing_stats.items():
-                self.logger.info(
-                    "vcl reload phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
-                )
-                if settings.STATSD_ENABLE:
-                    if phase in ['render_vcl_for_servers', 'use_vcl_list', '_discard_unused_vcls', '_append_vcl',
-                                 'extract_servers_by_clusters', 'fetch_render_data']:
-                        statsd.timing(phase, processing['time'])
 
     @collect_processing
     def _update_vcl_versions(self, clusters, start_processing_time, vcl_list):

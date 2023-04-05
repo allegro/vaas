@@ -41,27 +41,18 @@ env = Environment(
 
 TEMPLATE_CACHE = {}
 
-processing_stats = {}
-
-
-def init_processing():
-    global processing_stats
-    processing_stats = {}
-    return processing_stats
-
-
 def collect_processing(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        global processing_stats
+        import vaas.prometheus.metrics
+        metric = getattr(vaas.prometheus.metrics, f"s_{func.__name__}")
         start = time.perf_counter()
         r = func(*args, **kwargs)
-        name = func.__name__
-        if name not in processing_stats:
-            processing_stats[name] = {'time': 0, 'calls': 0}
-        processing_stats[name]['calls'] += 1
-        processing_stats[name]['time'] += time.perf_counter() - start
+        t = (time.perf_counter() - start).real
+        print(t)
+        metric.observe(t)
         return r
+
     return wrapper
 
 
