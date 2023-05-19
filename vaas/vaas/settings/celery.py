@@ -27,6 +27,11 @@ app.conf.beat_schedule = {
     },
 }
 
+# After redis conenction troubles 'Connection closed by server / Connection by peer' we allow to re-queued
+# task which was executed when failure occurred. "We know what we are doing."
+# https://docs.celeryq.dev/en/latest/userguide/configuration.html#task-reject-on-worker-lost
+app.conf.task_reject_on_worker_lost = True
+
 # For better handle redis ConenctionError exception we give possibility to configure keepalive and connect_timeout parameters
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-keepalive
 app.conf.redis_socket_keepalive = settings.REDIS_SOCKET_KEEPALIVE
