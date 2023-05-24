@@ -42,4 +42,4 @@ app.conf.redis_socket_connect_timeout = settings.REDIS_SOCKET_CONNECT_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-timeout
 app.conf.redis_socket_timeout = settings.REDIS_SOCKET_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html?highlight=redis_retry_on_timeout#redis-backend-health-check-interval
-app.conf.redis_backend_health_check_interval = settings.REDIS_BACKEND_HEALTH_CHECK_INTERVAL_SEC
+app.conf.redis_backend_health_check_interval = settings.REDIS_BACKEND_HEALTH_CHECK_INTERVAL
