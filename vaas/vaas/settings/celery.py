@@ -33,6 +33,7 @@ app.conf.beat_schedule = {
 app.conf.task_reject_on_worker_lost = settings.CELERY_TASK_REJECT_ON_WORKER_LOST
 app.conf.broker_transport_options = {
     'health_check_interval': 10,
+    'socket_keepalive': True,
 }
 # For better handle redis ConenctionError exception we give possibility to configure keepalive and connect_timeout parameters
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-keepalive
