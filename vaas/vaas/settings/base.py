@@ -202,6 +202,7 @@ CELERY_ROUTES = {
     'vaas.router.report.fetch_urls_async': {'queue': 'routes_test_queue'},
     'vaas.cluster.cluster.connect_command': {'queue': 'routes_test_queue'},
     'vaas.monitor.tasks.refresh_backend_statuses': {'queue': 'cron_queue'},
+    'vaas.monitor.tasks.health_check': {'queue': 'worker_queue'},
     'vaas.*': {'queue': 'worker_queue'},
 }
 
@@ -274,7 +275,6 @@ BROKER_URL = generate_redis_url(
     hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=BROKER_DB_NUMBER, password=REDIS_PASSWORD)
 CELERY_RESULT_BACKEND = generate_redis_url(
     hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=CELERY_RESULT_DB_NUMBER, password=REDIS_PASSWORD)
-
 
 ROUTES_LEFT_CONDITIONS = {}
 for condition in env.json('ROUTES_LEFT_CONDITIONS', default=[

@@ -32,17 +32,19 @@ app.conf.beat_schedule = {
 # https://docs.celeryq.dev/en/latest/userguide/configuration.html#task-reject-on-worker-lost
 app.conf.task_reject_on_worker_lost = settings.CELERY_TASK_REJECT_ON_WORKER_LOST
 app.conf.broker_transport_options = {
-    'health_check_interval': 10,
+    'health_check_interval': 5,
     'socket_keepalive': True,
+    'socket_timeout': 45,
+    'socket_connect_timeout': 60
 }
 # For better handle redis ConenctionError exception we give possibility to configure keepalive and connect_timeout parameters
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-keepalive
-app.conf.redis_socket_keepalive = settings.CELERY_REDIS_SOCKET_KEEPALIVE
+# app.conf.redis_socket_keepalive = settings.CELERY_REDIS_SOCKET_KEEPALIVE
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-retry-on-timeout
-app.conf.redis_retry_on_timeout = settings.CELERY_REDIS_RETRY_ON_TIMEOUT
+# app.conf.redis_retry_on_timeout = settings.CELERY_REDIS_RETRY_ON_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-connect-timeout
-app.conf.redis_socket_connect_timeout = settings.CELERY_REDIS_SOCKET_CONNECT_TIMEOUT
+# app.conf.redis_socket_connect_timeout = settings.CELERY_REDIS_SOCKET_CONNECT_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-timeout
-app.conf.redis_socket_timeout = settings.CELERY_REDIS_SOCKET_TIMEOUT
+# app.conf.redis_socket_timeout = settings.CELERY_REDIS_SOCKET_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html?highlight=redis_retry_on_timeout#redis-backend-health-check-interval
-app.conf.redis_backend_health_check_interval = settings.CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL
+# app.conf.redis_backend_health_check_interval = settings.CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL
