@@ -13,5 +13,4 @@ echo "Install the test requirements to allow [manage.py test] to be called withi
 pip install -r /home/app/vaas/requirements/test.txt
 
 echo "Start dev server"
-# python /home/app/vaas/manage.py runserver 0.0.0.0:3030
-exec uwsgi --ini /home/app/vaas/uwsgi.cfg --http-socket :3030 --http-timeout 120 --http-keepalive --http-connect-timeout 60 --stats :3031 --stats-http
+python /home/app/vaas/manage.py runserver 0.0.0.0:3030
