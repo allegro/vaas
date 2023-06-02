@@ -196,6 +196,7 @@ CELERY_BEAT_MAX_LOOP_INTERVAL = env.int('CELERY_BEAT_MAX_LOOP_INTERVAL', default
 
 # 5min we will wait for kill task
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SECONDS', default=300)
+CELERY_TASK_REJECT_ON_WORKER_LOST= env.bool('CELERY_TASK_REJECT_ON_WORKER_LOST', default=True)
 
 CELERY_TASK_REJECT_ON_WORKER_LOST= env.bool('CELERY_TASK_REJECT_ON_WORKER_LOST', default=False)
 
@@ -203,6 +204,7 @@ CELERY_ROUTES = {
     'vaas.router.report.fetch_urls_async': {'queue': 'routes_test_queue'},
     'vaas.cluster.cluster.connect_command': {'queue': 'routes_test_queue'},
     'vaas.monitor.tasks.refresh_backend_statuses': {'queue': 'cron_queue'},
+    'vaas.monitor.tasks.health_check': {'queue': 'worker_queue'},
     'vaas.*': {'queue': 'worker_queue'},
 }
 
@@ -264,17 +266,22 @@ REDIS_PORT = env.int('REDIS_PORT', default=6379)
 BROKER_DB_NUMBER = env.int('BROKER_DB_NUMBER', default=0)
 CELERY_RESULT_DB_NUMBER = env.int('CELERY_RESULT_DB_NUMBER', default=1)
 REDIS_PASSWORD = env.str('REDIS_PASSWORD', default=None)
-REDIS_BACKEND_HEALTH_CHECK_INTERVAL_SEC = env.int('REDIS_BACKEND_HEALTH_CHECK_INTERVAL_SEC', default=60)
-REDIS_SOCKET_KEEPALIVE = env.int('REDIS_SOCKET_KEEPALIVE', default=True)
-REDIS_RETRY_ON_TIMEOUT = env.int('REDIS_RETRY_ON_TIMEOUT', default=True)
-REDIS_SOCKET_CONNECT_TIMEOUT = env.int('REDIS_SOCKET_CONNECT_TIMEOUT', default=5)
-REDIS_SOCKET_TIMEOUT = env.int('REDIS_SOCKET_TIMEOUT', default=120)
+
+CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL = env.int('REDIS_BACKEND_HEALTH_CHECK_INTERVAL', default=60)
+CELERY_REDIS_SOCKET_KEEPALIVE = env.int('REDIS_SOCKET_KEEPALIVE', default=True)
+CELERY_REDIS_RETRY_ON_TIMEOUT = env.int('REDIS_RETRY_ON_TIMEOUT', default=True)
+CELERY_REDIS_SOCKET_CONNECT_TIMEOUT = env.int('REDIS_SOCKET_CONNECT_TIMEOUT', default=5)
+CELERY_REDIS_SOCKET_TIMEOUT = env.int('REDIS_SOCKET_TIMEOUT', default=120)
+
+CELERY_REDIS_SOCKET_KEEPALIVE_OPTIONS = env.bool('REDIS_SOCKET_KEEPALIVE_OPTIONS', default=True)
+CELERY_REDIS_SOCKET_TCP_KEEPIDLE_OPTION = env.int('REDIS_SOCKET_TCP_KEEPIDLE_OPTION', default='300')
+CELERY_REDIS_SOCKET_TCP_KEEPCNT_OPTION = env.int('REDIS_SOCKET_TCP_KEEPCNT_OPTION', default='5')
+CELERY_REDIS_SOCKET_TCP_KEEPINTVL_OPTION = env.int('REDIS_SOCKET_TCP_KEEPINTVL_OPTION', default='45')
 
 BROKER_URL = generate_redis_url(
     hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=BROKER_DB_NUMBER, password=REDIS_PASSWORD)
 CELERY_RESULT_BACKEND = generate_redis_url(
     hostname=REDIS_HOSTNAME, port=REDIS_PORT, db_number=CELERY_RESULT_DB_NUMBER, password=REDIS_PASSWORD)
-
 
 ROUTES_LEFT_CONDITIONS = {}
 for condition in env.json('ROUTES_LEFT_CONDITIONS', default=[

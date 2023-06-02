@@ -14,7 +14,8 @@ django-environ==0.4.5
 lockfile==0.12.2
 django-taggit==1.3.0
 # newer versions requires incompatible kombu
-celery[redis]==5.2.3
+# celery[redis]==5.2.3
+celery[redis] @ git+https://github.com/awmackowiak/celery.git@result_backend_transport_options_fix
 celery-beatx
 requests>=2.25.1
 GitPython==3.1.30
@@ -30,8 +31,8 @@ python-json-logger
 sentry-sdk==1.14.0
 
 # newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
-kombu==5.2.3
-redis==4.4.4
+kombu
+redis
 django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/allegro/python-varnish@0.2.2#egg=python_varnish
 django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.2#egg=django_ace

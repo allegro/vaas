@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from celery import Celery
 from django.conf import settings
+import socket
 
 app = Celery('vaas')
 
@@ -34,12 +35,27 @@ app.conf.task_reject_on_worker_lost = settings.CELERY_TASK_REJECT_ON_WORKER_LOST
 
 # For better handle redis ConenctionError exception we give possibility to configure keepalive and connect_timeout parameters
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-keepalive
-app.conf.redis_socket_keepalive = settings.REDIS_SOCKET_KEEPALIVE
+app.conf.redis_socket_keepalive = settings.CELERY_REDIS_SOCKET_KEEPALIVE
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-retry-on-timeout
-app.conf.redis_retry_on_timeout = settings.REDIS_RETRY_ON_TIMEOUT
+app.conf.redis_retry_on_timeout = settings.CELERY_REDIS_RETRY_ON_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-connect-timeout
-app.conf.redis_socket_connect_timeout = settings.REDIS_SOCKET_CONNECT_TIMEOUT
+app.conf.redis_socket_connect_timeout = settings.CELERY_REDIS_SOCKET_CONNECT_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-timeout
-app.conf.redis_socket_timeout = settings.REDIS_SOCKET_TIMEOUT
+app.conf.redis_socket_timeout = settings.CELERY_REDIS_SOCKET_TIMEOUT
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html?highlight=redis_retry_on_timeout#redis-backend-health-check-interval
-app.conf.redis_backend_health_check_interval = settings.REDIS_BACKEND_HEALTH_CHECK_INTERVAL_SEC
+app.conf.redis_backend_health_check_interval = settings.CELERY_REDIS_BACKEND_HEALTH_CHECK_INTERVAL
+
+if settings.CELERY_REDIS_SOCKET_KEEPALIVE and settings.CELERY_REDIS_SOCKET_KEEPALIVE_OPTIONS:
+    redis_socket_keepalive_options = {
+        socket.TCP_KEEPIDLE: settings.CELERY_REDIS_SOCKET_TCP_KEEPIDLE_OPTION,
+        socket.TCP_KEEPCNT: settings.CELERY_REDIS_SOCKET_TCP_KEEPCNT_OPTION,
+        socket.TCP_KEEPINTVL: settings.CELERY_REDIS_SOCKET_TCP_KEEPINTVL_OPTION
+    }
+    # Keepalive settings for worker_client
+    app.conf.broker_transport_options = {
+        'socket_keepalive_options': redis_socket_keepalive_options
+    }
+    # Keepalive settings for redis_result_backend_client
+    app.conf.result_backend_transport_options = {
+        'socket_keepalive_options': redis_socket_keepalive_options
+    }

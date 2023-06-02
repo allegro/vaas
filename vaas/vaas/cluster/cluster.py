@@ -20,11 +20,9 @@ from datetime import datetime
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
-def load_vcl_task(self, emmit_time, cluster_ids):
-    emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                                           timezone=timezone.utc)
+def load_vcl_task(self, emmit_time: datetime, cluster_ids: List[int]) -> bool:
     if settings.STATSD_ENABLE:
-        queue_time_from_order_to_execute_task = timezone.now() - emmit_time_aware
+        queue_time_from_order_to_execute_task = timezone.now() - emmit_time
         statsd.timing('queue_time_from_order_to_execute_task', queue_time_from_order_to_execute_task)
 
     start_processing_time = timezone.now()
@@ -35,14 +33,14 @@ def load_vcl_task(self, emmit_time, cluster_ids):
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
         if settings.STATSD_ENABLE:
             statsd.gauge('events_with_change', 1)
-            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
+            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time
             statsd.timing('total_time_of_processing_vcl_task_with_change',
                           total_time_of_processing_vcl_task_with_change)
         return varnish_cluster_load_vcl
 
     if settings.STATSD_ENABLE:
         statsd.gauge('events_without_change', 1)
-        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
+        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time
         statsd.timing('total_time_of_processing_vcl_task_without_change',
                       total_time_of_processing_vcl_task_without_change)
     return True
