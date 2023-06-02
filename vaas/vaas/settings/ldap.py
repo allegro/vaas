@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import os
 from __future__ import unicode_literals, absolute_import
+import os
 
 from vaas.configuration.loader import YamlConfigLoader
 from vaas.settings.base import env, serialize
