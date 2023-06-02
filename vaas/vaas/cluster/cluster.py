@@ -20,7 +20,7 @@ from datetime import datetime
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
-def load_vcl_task(self, emmit_time, cluster_ids):
+def load_vcl_task(self, emmit_time: datetime, cluster_ids: List[int]) -> bool:
     if settings.STATSD_ENABLE:
         queue_time_from_order_to_execute_task = timezone.now() - emmit_time
         statsd.timing('queue_time_from_order_to_execute_task', queue_time_from_order_to_execute_task)

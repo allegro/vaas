@@ -198,6 +198,8 @@ CELERY_BEAT_MAX_LOOP_INTERVAL = env.int('CELERY_BEAT_MAX_LOOP_INTERVAL', default
 CELERY_TASK_SOFT_TIME_LIMIT_SECONDS = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SECONDS', default=300)
 CELERY_TASK_REJECT_ON_WORKER_LOST= env.bool('CELERY_TASK_REJECT_ON_WORKER_LOST', default=True)
 
+CELERY_TASK_REJECT_ON_WORKER_LOST= env.bool('CELERY_TASK_REJECT_ON_WORKER_LOST', default=False)
+
 CELERY_ROUTES = {
     'vaas.router.report.fetch_urls_async': {'queue': 'routes_test_queue'},
     'vaas.cluster.cluster.connect_command': {'queue': 'routes_test_queue'},
