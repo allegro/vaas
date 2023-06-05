@@ -59,3 +59,6 @@ if settings.CELERY_REDIS_SOCKET_KEEPALIVE and settings.CELERY_REDIS_SOCKET_KEEPA
     app.conf.result_backend_transport_options = {
         'socket_keepalive_options': redis_socket_keepalive_options
     }
+
+# For the each time we will handle new connection to redis server
+app.conf.redis_max_connections = 0
