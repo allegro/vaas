@@ -2,7 +2,7 @@
 
 import logging
 import time
-from typing import List, Dict, Tuple
+from typing import List, Dict, Optional, Tuple
 
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor, Future
@@ -18,33 +18,42 @@ from vaas.cluster.exceptions import VclLoadException
 from statsd.defaults.django import statsd
 from datetime import datetime
 
+from prometheus_client import CollectorRegistry, Gauge, Summary, push_to_gateway
+
+GATEWAY_HOST = 'localhost:9091'
+
+registry = CollectorRegistry()
+events_with_change = Gauge('events_with_change', 'events_with_change', registry=registry)
+events_without_change = Gauge('events_without_change', 'events_without_change', registry=registry)
+time_from_order_to_execute_task_miliseconds = Gauge('queue_time_from_order_to_execute_task', 'queue_time_from_order_to_execute_task', registry=registry)
+time_total_of_processing_vcl_task_with_change_miliseconds = Summary('total_time_of_processing_vcl_task_with_change', 'total_time_of_processing_vcl_task_with_change', registry=registry)
+time_total_of_processing_vcl_task_without_change_miliseconds = Summary('total_time_of_processing_vcl_task_without_change', 'total_time_of_processing_vcl_task_without_change', ['task'], registry=registry)
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
-def load_vcl_task(self, emmit_time, cluster_ids):
+def load_vcl_task(self, emmit_time, cluster_ids) -> Optional[bool]:
     emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
                                            timezone=timezone.utc)
-    if settings.STATSD_ENABLE:
-        queue_time_from_order_to_execute_task = timezone.now() - emmit_time_aware
-        statsd.timing('queue_time_from_order_to_execute_task', queue_time_from_order_to_execute_task)
+    queue_time_from_order_to_execute_task = timezone.now() - emmit_time_aware
+    time_from_order_to_execute_task_miliseconds.set(queue_time_from_order_to_execute_task.microseconds)
 
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(
         pk__in=cluster_ids, reload_timestamp__lte=emmit_time
     ).prefetch_related('varnishserver_set')
+
     if len(clusters) > 0:
+        events_with_change.set(1)
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
-        if settings.STATSD_ENABLE:
-            statsd.gauge('events_with_change', 1)
-            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
-            statsd.timing('total_time_of_processing_vcl_task_with_change',
-                          total_time_of_processing_vcl_task_with_change)
+        total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
+        time_total_of_processing_vcl_task_with_change_miliseconds.observe(total_time_of_processing_vcl_task_with_change.microseconds)
+        push_to_gateway(gateway=GATEWAY_HOST, job=self.request.id, registry=registry)
         return varnish_cluster_load_vcl
 
-    if settings.STATSD_ENABLE:
-        statsd.gauge('events_without_change', 1)
-        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
-        statsd.timing('total_time_of_processing_vcl_task_without_change',
-                      total_time_of_processing_vcl_task_without_change)
+    events_without_change.set(1)
+    total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
+    time_total_of_processing_vcl_task_without_change_miliseconds.observe(total_time_of_processing_vcl_task_without_change.microseconds)
+    
+    push_to_gateway(gateway=GATEWAY_HOST, job=self.request.id, registry=registry)
     return True
 
 

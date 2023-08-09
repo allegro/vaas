@@ -37,3 +37,4 @@ python_varnish @ git+https://github.com/allegro/python-varnish@0.2.2#egg=python_
 django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.2#egg=django_ace
 statsd>=3.3.0
 mysqlclient
+prometheus-client
