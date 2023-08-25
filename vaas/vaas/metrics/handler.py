@@ -4,7 +4,7 @@ from vaas.metrics.prometheus import PrometheusMetrics
 from vaas.metrics.statsd import StatsdMetrics
 
 
-class MetrcisHandler:
+class MetricsHandler:
     def __init__(self) -> None:
         self.prometheus = PrometheusMetrics()
         self.statsd = StatsdMetrics()
@@ -25,4 +25,4 @@ class MetrcisHandler:
             self.prometheus.gauge(metric_name, value)
             self.prometheus.client.push()
 
-metrics = MetrcisHandler()
+metrics = MetricsHandler()
