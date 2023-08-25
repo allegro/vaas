@@ -14,7 +14,7 @@ class MetricsBucket(TypedDict, total=False):
 class PrometheusClient:
     def __init__(self) -> None:
         self.host: str = f'{settings.PROMETHEUS_GATEWAY_HOST}:{settings.PROMETHEUS_GATEWAY_PORT}'
-        self.job: str = 'vaas'
+        self.job: str = settings.PROMETHEUS_GATEWAY_JOB
         self.registry: CollectorRegistry = CollectorRegistry()
 
     def push(self) -> None:
@@ -29,17 +29,18 @@ class PrometheusMetrics(Metrics):
 
     def _get_or_create(self, name: str, type: Union[Summary, Gauge]) -> Optional[Union[Summary, Gauge]]:
         name_with_suffix: str = f'{name}_microseconds'
-        if name:
-            metric = self.metrics_bucket.get(name_with_suffix)
-            if not metric:
-                self.metrics_bucket[name_with_suffix] = type(name_with_suffix, name, registry=self.client.registry) # type: ignore
-                return self.metrics_bucket.get(name_with_suffix)
-            return metric
+        metric = self.metrics_bucket.get(name_with_suffix)
+        if not metric:
+            self.metrics_bucket[name_with_suffix] = type(name_with_suffix, name, registry=self.client.registry) # type: ignore
+            return self.metrics_bucket.get(name_with_suffix)
+        return metric
 
     def sum(self, metric_name: str, value: timedelta) -> None:
         if metric_name:
             self._get_or_create(metric_name, Summary).observe(value.microseconds) # type: ignore
+            self.client.push()
 
     def gauge(self, metric_name: str, value: Union[int, float]) -> None:
         if metric_name:
             self._get_or_create(metric_name, Gauge).set(value) # type: ignore
+            self.client.push()
