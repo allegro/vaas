@@ -1,6 +1,6 @@
 from datetime import timedelta
-from typing import Union
 from django.conf import settings
+from typing import Union
 from statsd import StatsClient
 
 from vaas.metrics.models import Metrics

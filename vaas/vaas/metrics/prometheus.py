@@ -1,3 +1,5 @@
+import logging
+
 from datetime import timedelta
 from typing import Optional, TypedDict, Union
 from django.conf import settings
@@ -5,6 +7,7 @@ from prometheus_client import CollectorRegistry, Gauge, Summary, push_to_gateway
 
 from vaas.metrics.models import Metrics
 
+logger = logging.getLogger(__name__)
 
 class MetricsBucket(TypedDict, total=False):
     name: str
@@ -12,26 +15,31 @@ class MetricsBucket(TypedDict, total=False):
 
 
 class PrometheusClient:
-    def __init__(self) -> None:
+    def __init__(self, registry: CollectorRegistry) -> None:
         self.host: str = f'{settings.PROMETHEUS_GATEWAY_HOST}:{settings.PROMETHEUS_GATEWAY_PORT}'
         self.job: str = settings.PROMETHEUS_GATEWAY_JOB
-        self.registry: CollectorRegistry = CollectorRegistry()
+        self.registry: CollectorRegistry = registry
 
     def push(self) -> None:
-        push_to_gateway(gateway=self.host, job=self.job, registry=self.registry)
+        try:
+            push_to_gateway(gateway=self.host, job=self.job, registry=self.registry)
+        except Exception as e:
+            logger.exception(f'PrometheusClient: cannot push metric to vmagent')
+            pass
 
 
 class PrometheusMetrics(Metrics):
     def __init__(self) -> None:
-        super().__init__(
-            client=PrometheusClient())
         self.metrics_bucket: MetricsBucket = {}
+        self.registry: CollectorRegistry = CollectorRegistry()
+        super().__init__(
+            client=PrometheusClient(self.registry))
 
     def _get_or_create(self, name: str, type: Union[Summary, Gauge]) -> Optional[Union[Summary, Gauge]]:
         name_with_suffix: str = f'{name}_microseconds'
         metric = self.metrics_bucket.get(name_with_suffix)
         if not metric:
-            self.metrics_bucket[name_with_suffix] = type(name_with_suffix, name, registry=self.client.registry) # type: ignore
+            self.metrics_bucket[name_with_suffix] = type(name_with_suffix, name, registry=self.registry) # type: ignore
             return self.metrics_bucket.get(name_with_suffix)
         return metric
 
