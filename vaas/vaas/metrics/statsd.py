@@ -12,7 +12,7 @@ class StatsdMetrics(Metrics):
             client=StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
         )
 
-    def sum(self, metric_name: str, value: timedelta) -> None:
+    def sum(self, metric_name: str, value: float) -> None:
         if metric_name:
             self.client.timing(metric_name, value)
 

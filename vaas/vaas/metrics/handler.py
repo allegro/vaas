@@ -9,7 +9,7 @@ class MetricsHandler:
     def __init__(self, protocols: List[MetricsProtocol]):
         self.protocols: List[MetricsProtocol] = protocols
 
-    def time(self, metric_name: str, value: timedelta) -> None:
+    def time(self, metric_name: str, value: float) -> None:
         for protocol in self.protocols:
             protocol.sum(metric_name, value)
 

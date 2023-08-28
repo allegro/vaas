@@ -42,9 +42,9 @@ class PrometheusMetrics(Metrics):
         super().__init__(
             client=PrometheusClient())
 
-    def sum(self, metric_name: str, value: timedelta) -> None:
+    def sum(self, metric_name: str, value: float) -> None:
         if metric_name:
-            self.client.get_or_create(metric_name, Summary).observe(value.microseconds)
+            self.client.get_or_create(metric_name, Summary).observe(value)
             self.client.push()
 
     def gauge(self, metric_name: str, value: Union[int, float]) -> None:

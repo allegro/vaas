@@ -8,7 +8,7 @@ class Metrics:
 
 
 class MetricsProtocol(Protocol):
-    def sum(self, metric_name: str, value: timedelta) -> None:
+    def sum(self, metric_name: str, value: float) -> None:
         ...
 
     def gauge(self, metric_name: str, value: Union[int, float]) -> None:
