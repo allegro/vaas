@@ -11,11 +11,11 @@ from vaas.settings.celery import app
 from django.conf import settings
 
 from vaas.api.client import VarnishApi, VarnishApiReadException
+from vaas.cluster.exceptions import VclLoadException
 from vaas.cluster.models import VarnishServer, LogicalCluster
+from vaas.metrics.handler import metrics
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing, Vcl
-from vaas.cluster.exceptions import VclLoadException
-from statsd.defaults.django import statsd
 from datetime import datetime
 
 
@@ -23,9 +23,7 @@ from datetime import datetime
 def load_vcl_task(self, emmit_time, cluster_ids):
     emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
                                            timezone=timezone.utc)
-    if settings.STATSD_ENABLE:
-        queue_time_from_order_to_execute_task = timezone.now() - emmit_time_aware
-        statsd.timing('queue_time_from_order_to_execute_task', queue_time_from_order_to_execute_task)
+    metrics.time('queue_time_from_order_to_execute_task', timezone.now() - emmit_time_aware)
 
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(
@@ -33,18 +31,13 @@ def load_vcl_task(self, emmit_time, cluster_ids):
     ).prefetch_related('varnishserver_set')
     if len(clusters) > 0:
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
-        if settings.STATSD_ENABLE:
-            statsd.gauge('events_with_change', 1)
-            total_time_of_processing_vcl_task_with_change = timezone.now() - emmit_time_aware
-            statsd.timing('total_time_of_processing_vcl_task_with_change',
-                          total_time_of_processing_vcl_task_with_change)
+        metrics.gauge('events_with_change', 1)
+        metrics.time('total_time_of_processing_vcl_task_with_change', timezone.now() - emmit_time_aware)
         return varnish_cluster_load_vcl
 
-    if settings.STATSD_ENABLE:
-        statsd.gauge('events_without_change', 1)
-        total_time_of_processing_vcl_task_without_change = timezone.now() - emmit_time_aware
-        statsd.timing('total_time_of_processing_vcl_task_without_change',
-                      total_time_of_processing_vcl_task_without_change)
+    metrics.gauge('events_without_change', 1)
+    metrics.time('total_time_of_processing_vcl_task_without_change', timezone.now() - emmit_time_aware)
+
     return True
 
 
@@ -124,21 +117,18 @@ class VarnishCluster(object):
         else:
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
             if result is False:
-                if settings.STATSD_ENABLE:
-                    statsd.gauge('successful_reload_vcl', 0)
+                metrics.gauge('successful_reload_vcl', 0)
             else:
-                if settings.STATSD_ENABLE:
-                    statsd.gauge('successful_reload_vcl', 1)
+                metrics.gauge('successful_reload_vcl', 1)
             return result
         finally:
             for phase, processing in processing_stats.items():
                 self.logger.info(
                     "vcl reload phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
                 )
-                if settings.STATSD_ENABLE:
-                    if phase in ['render_vcl_for_servers', 'use_vcl_list', '_discard_unused_vcls', '_append_vcl',
-                                 'extract_servers_by_clusters', 'fetch_render_data']:
-                        statsd.timing(phase, processing['time'])
+                if phase in ['render_vcl_for_servers', 'use_vcl_list', '_discard_unused_vcls', '_append_vcl',
+                             'extract_servers_by_clusters', 'fetch_render_data']:
+                    metrics.time(phase, processing['time'])
 
     @collect_processing
     def _update_vcl_versions(self, clusters, start_processing_time, vcl_list):
@@ -151,8 +141,7 @@ class VarnishCluster(object):
     @collect_processing
     def _handle_load_error(self, e, clusters, start_processing_time):
         self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-        if settings.STATSD_ENABLE:
-            statsd.gauge('successful_reload_vcl', 0)
+        metrics.gauge('successful_reload_vcl', 0)
 
         for cluster in clusters:
             cluster.error_timestamp = start_processing_time

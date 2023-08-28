@@ -13,9 +13,8 @@ from vaas.purger.purger import VarnishPurger
 from vaas.external.oauth import VaasMultiAuthentication
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
-from statsd.defaults.django import statsd
+from vaas.metrics.handler import metrics
 from vaas.vcl.renderer import init_processing
-from django.conf import settings
 
 validate_url = URLValidator()
 
@@ -84,8 +83,8 @@ class PurgeUrl(Resource):
             logger.info(
                 "purge phase {}; calls: {}. time: {}".format(phase, processing['calls'], processing['time'])
             )
-            if settings.STATSD_ENABLE:
-                statsd.timing(phase, processing['time'])
+
+            metrics.time(phase, processing['time'])
 
         if len(purger_result.get("error")) > 0:
             raise ImmediateHttpResponse(self.create_json_response(purger_result, HttpApplicationError))
