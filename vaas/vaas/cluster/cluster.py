@@ -21,9 +21,8 @@ from datetime import datetime
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
-    emmit_time_aware = timezone.make_aware(datetime.strptime(emmit_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                                           timezone=timezone.utc)
-    metrics.time('queue_time_from_order_to_execute_task', timezone.now() - emmit_time_aware)
+    emmit_time_aware = time.perf_counter()
+    metrics.time('queue_time_from_order_to_execute_task', time.perf_counter() - emmit_time_aware)
 
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(
@@ -32,11 +31,11 @@ def load_vcl_task(self, emmit_time, cluster_ids):
     if len(clusters) > 0:
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
         metrics.gauge('events_with_change', 1)
-        metrics.time('total_time_of_processing_vcl_task_with_change', timezone.now() - emmit_time_aware)
+        metrics.time('total_time_of_processing_vcl_task_with_change', time.perf_counter() - emmit_time_aware)
         return varnish_cluster_load_vcl
 
     metrics.gauge('events_without_change', 1)
-    metrics.time('total_time_of_processing_vcl_task_without_change', timezone.now() - emmit_time_aware)
+    metrics.time('total_time_of_processing_vcl_task_without_change', time.perf_counter() - emmit_time_aware)
 
     return True
 
