@@ -1,9 +1,9 @@
-from datetime import timedelta
 from django.conf import settings
 from typing import List
 from vaas.metrics.prometheus import PrometheusMetrics
 from vaas.metrics.statsd import StatsdMetrics
 from vaas.metrics.models import MetricsProtocol
+
 
 class MetricsHandler:
     def __init__(self, protocols: List[MetricsProtocol]):

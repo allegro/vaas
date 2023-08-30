@@ -1,39 +1,33 @@
 import logging
 
-from datetime import timedelta
-from typing import Dict, Optional, Protocol, Union
+from typing import Dict, Union
 from django.conf import settings
 from prometheus_client import CollectorRegistry, Gauge, Summary, push_to_gateway
-from prometheus_client.metrics import MetricWrapperBase
 
 from vaas.metrics.models import Metrics
 
 logger = logging.getLogger(__name__)
 
-class CollectorProtocol(Protocol):
-    def __call__(self, name: str, documentation: str, registry: CollectorRegistry) -> MetricWrapperBase:
-        ...
 
 class PrometheusClient:
     def __init__(self) -> None:
         self.host: str = f'{settings.PROMETHEUS_GATEWAY_HOST}:{settings.PROMETHEUS_GATEWAY_PORT}'
         self.job: str = settings.PROMETHEUS_GATEWAY_JOB
-        self.metrics_bucket: Dict[str, CollectorProtocol] = {}
+        self.metrics_bucket: Dict[str, Union[Summary, Gauge]] = {}
         self.registry: CollectorRegistry = CollectorRegistry()
 
-    def get_or_create(self, name: str, type: CollectorProtocol) -> CollectorProtocol:
-        name_with_suffix: str = f'{name}_microseconds'
-        metric: Optional[CollectorProtocol] = self.metrics_bucket.get(name_with_suffix)
+    def get_or_create(self, name: str, type: Union[Summary, Gauge]) -> Union[Summary, Gauge, None]:
+        metric: Union[Summary, Gauge, None] = self.metrics_bucket.get(name)
         if not metric:
-            self.metrics_bucket[name_with_suffix] = type(name_with_suffix, name, registry=self.registry) # type: ignore
-            return self.metrics_bucket.get(name_with_suffix) # type: ignore
+            self.metrics_bucket[name] = type(name, name, registry=self.registry)  # type: ignore
+            return self.metrics_bucket.get(name)
         return metric
 
     def push(self) -> None:
         try:
             push_to_gateway(gateway=self.host, job=self.job, registry=self.registry)
-        except Exception as e:
-            logger.exception(f'PrometheusClient: cannot push metric to vmagent')
+        except Exception:
+            logger.exception('PrometheusClient: cannot push metric to vmagent')
             pass
 
 
