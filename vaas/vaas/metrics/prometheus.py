@@ -1,6 +1,6 @@
 import logging
 
-from typing import Dict, Union
+from typing import Dict, Type, Union
 from django.conf import settings
 from prometheus_client import CollectorRegistry, Gauge, Summary, push_to_gateway
 
@@ -16,11 +16,12 @@ class PrometheusClient:
         self.metrics_bucket: Dict[str, Union[Summary, Gauge]] = {}
         self.registry: CollectorRegistry = CollectorRegistry()
 
-    def get_or_create(self, name: str, type: Union[Summary, Gauge]) -> Union[Summary, Gauge, None]:
+    def get_or_create(self, name: str, kind: Type[Union[Summary, Gauge]]) -> Union[Summary, Gauge]:
         metric: Union[Summary, Gauge, None] = self.metrics_bucket.get(name)
         if not metric:
-            self.metrics_bucket[name] = type(name, name, registry=self.registry)  # type: ignore
-            return self.metrics_bucket.get(name)
+            new_metrics: Union[Summary, Gauge] = kind(name, name, registry=self.registry)
+            self.metrics_bucket[name] = new_metrics
+            return new_metrics
         return metric
 
     def push(self) -> None:

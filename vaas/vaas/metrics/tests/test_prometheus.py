@@ -6,23 +6,24 @@ from vaas.metrics.prometheus import PrometheusClient, PrometheusMetrics
 
 
 class TestPrometheusClient(SimpleTestCase):
-    def test_should_get_or_create_metrics(self):
+    def test_create_new_metric_if_not_exists_in_registry(self):
         client = PrometheusClient()
+        self.assertEqual(len(client.metrics_bucket), 0)
 
         metric = client.get_or_create('test_sum', Summary)
+
         self.assertTrue(isinstance(metric, Summary))
         self.assertEqual(metric._name, 'test_sum')
         self.assertEqual(len(client.metrics_bucket), 1)
 
-        metric = client.get_or_create('test_gauge', Gauge)
-        self.assertTrue(isinstance(metric, Gauge))
-        self.assertEqual(metric._name, 'test_gauge')
-        self.assertEqual(len(client.metrics_bucket), 2)
+    def test_return_existsing_metric_from_registry(self):
+        client = PrometheusClient()
 
-        metric = client.get_or_create('test_gauge', Gauge)
-        self.assertTrue(isinstance(metric, Gauge))
-        self.assertEqual(metric._name, 'test_gauge')
-        self.assertEqual(len(client.metrics_bucket), 2)
+        first_metric = client.get_or_create('test_gauge', Gauge)
+        second_metric = client.get_or_create('test_gauge', Gauge)
+
+        self.assertEqual(len(client.metrics_bucket), 1)
+        self.assertEqual(first_metric, second_metric)
 
     @override_settings(PROMETHEUS_GATEWAY_HOST='1.2.3.4', PROMETHEUS_GATEWAY_PORT='123', PROMETHEUS_GATEWAY_JOB='')
     @patch('vaas.metrics.prometheus.CollectorRegistry')
@@ -42,38 +43,38 @@ class TestPrometheusClient(SimpleTestCase):
             mock_logger.exception.assert_called_once()
 
 
-class TestPrometheusMetrics2(SimpleTestCase):
+class TestPrometheusMetrics(SimpleTestCase):
     def test_should_create_metrics_and_push_them_to_gateway(self):
-        with patch('vaas.metrics.prometheus.PrometheusClient') as mock_pronetheus_client:
-            mock_summary_observe, mock_gauge_set, mock_pronetheus_client.push = Mock(), Mock(), Mock()
-            mock_pronetheus_client.get_or_create.return_value = Mock(observe=mock_summary_observe, set=mock_gauge_set)
+        with patch('vaas.metrics.prometheus.PrometheusClient') as mock_prometheus_client:
+            mock_summary_observe, mock_gauge_set, mock_prometheus_client.push = Mock(), Mock(), Mock()
+            mock_prometheus_client.get_or_create.return_value = Mock(observe=mock_summary_observe, set=mock_gauge_set)
             prometheus_metrics = PrometheusMetrics()
-            prometheus_metrics.client = mock_pronetheus_client
+            prometheus_metrics.client = mock_prometheus_client
 
-            self.assertEqual(prometheus_metrics.client.get_or_create, mock_pronetheus_client.get_or_create)
+            self.assertEqual(prometheus_metrics.client.get_or_create, mock_prometheus_client.get_or_create)
 
             prometheus_metrics.sum('test', 1.0)
-            mock_pronetheus_client.get_or_create.assert_called_with('test', Summary)
+            mock_prometheus_client.get_or_create.assert_called_with('test', Summary)
             mock_summary_observe.assert_called_with(1.0)
 
             prometheus_metrics.gauge('test', 1)
-            mock_pronetheus_client.get_or_create.assert_called_with('test', Gauge)
+            mock_prometheus_client.get_or_create.assert_called_with('test', Gauge)
             mock_gauge_set.assert_called_with(1)
 
-            mock_pronetheus_client.push.assert_has_calls([call(), call()])
+            mock_prometheus_client.push.assert_has_calls([call(), call()])
 
     def test_should_not_create_and_push_metrics_with_empty_names(self):
-        with patch('vaas.metrics.prometheus.PrometheusClient') as mock_pronetheus_client:
-            mock_pronetheus_client = Mock(get_or_create=Mock(), push=Mock())
+        with patch('vaas.metrics.prometheus.PrometheusClient') as mock_prometheus_client:
+            mock_prometheus_client = Mock(get_or_create=Mock(), push=Mock())
             prometheus_metrics = PrometheusMetrics()
-            prometheus_metrics.client = mock_pronetheus_client
+            prometheus_metrics.client = mock_prometheus_client
 
-            self.assertEqual(prometheus_metrics.client.get_or_create, mock_pronetheus_client.get_or_create)
+            self.assertEqual(prometheus_metrics.client.get_or_create, mock_prometheus_client.get_or_create)
 
             prometheus_metrics.sum('', 1.0)
-            mock_pronetheus_client.get_or_create.assert_not_called()
+            mock_prometheus_client.get_or_create.assert_not_called()
 
             prometheus_metrics.gauge('', 1)
-            mock_pronetheus_client.get_or_create.assert_not_called()
+            mock_prometheus_client.get_or_create.assert_not_called()
 
-            mock_pronetheus_client.push.assert_not_called()
+            mock_prometheus_client.push.assert_not_called()
