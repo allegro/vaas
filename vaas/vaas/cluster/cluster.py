@@ -16,7 +16,6 @@ from vaas.cluster.models import VarnishServer, LogicalCluster
 from vaas.metrics.handler import metrics
 from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing, Vcl
-from datetime import datetime
 
 
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)

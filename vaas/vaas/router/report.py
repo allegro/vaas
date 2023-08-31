@@ -17,7 +17,7 @@ def to_dict(element):
         for k, v in element.__dict__.items():
             result[k] = to_dict(v)
 
-    elif type(element) == list:
+    elif isinstance(element, list):
         result = []
         for subelement in element:
             result.append(to_dict(subelement))
