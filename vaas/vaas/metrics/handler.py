@@ -13,7 +13,7 @@ class MetricsHandler:
         for protocol in self.protocols:
             protocol.sum(metric_name, value)
 
-    def gauge(self, metric_name: str, value: int):
+    def gauge(self, metric_name: str, value: int) -> None:
         for protocol in self.protocols:
             protocol.gauge(metric_name, value)
 
