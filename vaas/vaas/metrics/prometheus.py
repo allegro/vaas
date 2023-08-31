@@ -29,7 +29,6 @@ class PrometheusClient:
             push_to_gateway(gateway=self.host, job=self.job, registry=self.registry)
         except Exception:
             logger.exception('PrometheusClient: cannot push metric to vmagent')
-            pass
 
 
 class PrometheusMetrics(Metrics):
