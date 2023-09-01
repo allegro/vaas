@@ -241,6 +241,12 @@ STATSD_HOST = env.str('STATSD_HOST', default='localhost')
 STATSD_PORT = env.int('STATSD_PORT', default=8125)
 STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 
+# PROMETHEUS PUSH_GATEWAY
+PROMETHEUS_ENABLE = env.bool('PROMETHEUS_ENABLE', default=False)
+PROMETHEUS_GATEWAY_HOST = env.str('PROMETHEUS_GATEWAY_HOST', default='localhost')
+PROMETHEUS_GATEWAY_PORT = env.int('PROMETHEUS_GATEWAY_PORT', default=9091)
+PROMETHEUS_GATEWAY_JOB = env.str('PROMETHEUS_GATEWAY_JOB', default='')
+
 # HEADER FOR PERMIT ACCESS TO /vaas/ ENDPOINT
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')
 
