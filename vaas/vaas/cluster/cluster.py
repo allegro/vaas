@@ -29,11 +29,11 @@ def load_vcl_task(self, emmit_time, cluster_ids):
     ).prefetch_related('varnishserver_set')
     if len(clusters) > 0:
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
-        metrics.gauge('events_with_change', 1)
+        metrics.counter('events_with_change')
         metrics.time('total_time_of_processing_vcl_task_with_change', time.perf_counter() - emmit_time_aware)
         return varnish_cluster_load_vcl
 
-    metrics.gauge('events_without_change', 1)
+    metrics.counter('events_without_change')
     metrics.time('total_time_of_processing_vcl_task_without_change', time.perf_counter() - emmit_time_aware)
 
     return True
@@ -115,9 +115,9 @@ class VarnishCluster(object):
         else:
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
             if result is False:
-                metrics.gauge('successful_reload_vcl', 0)
+                metrics.counter('successful_reload_vcl')
             else:
-                metrics.gauge('successful_reload_vcl', 1)
+                metrics.counter('successful_reload_vcl')
             return result
         finally:
             for phase, processing in processing_stats.items():
@@ -139,7 +139,7 @@ class VarnishCluster(object):
     @collect_processing
     def _handle_load_error(self, e, clusters, start_processing_time):
         self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-        metrics.gauge('successful_reload_vcl', 0)
+        metrics.counter('successful_reload_vcl')
 
         for cluster in clusters:
             cluster.error_timestamp = start_processing_time

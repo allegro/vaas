@@ -18,3 +18,7 @@ class MetricsHandlerTest(SimpleTestCase):
         metrics.gauge('test', 1)
         mock_statsd_metrics.gauge.assert_called_with('test', 1)
         mock_prometheus_metrics.gauge.assert_called_with('test', 1)
+
+        metrics.counter('test')
+        mock_statsd_metrics.counter.assert_called_with('test')
+        mock_prometheus_metrics.counter.assert_called_with('test')

@@ -11,6 +11,10 @@ class StatsdMetrics(Metrics):
             client=StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
         )
 
+    def counter(self, metric_name: str) -> None:
+        if metric_name:
+            self.client.incr(metric_name)
+
     def sum(self, metric_name: str, value: float) -> None:
         if metric_name:
             self.client.timing(metric_name, value)

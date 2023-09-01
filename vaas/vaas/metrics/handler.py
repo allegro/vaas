@@ -9,6 +9,10 @@ class MetricsHandler:
     def __init__(self, protocols: List[MetricsProtocol]):
         self.protocols: List[MetricsProtocol] = protocols
 
+    def counter(self, metric_name: str) -> None:
+        for protocol in self.protocols:
+            protocol.counter(metric_name)
+
     def time(self, metric_name: str, value: float) -> None:
         for protocol in self.protocols:
             protocol.sum(metric_name, value)
