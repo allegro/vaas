@@ -139,7 +139,7 @@ class VarnishCluster(object):
     @collect_processing
     def _handle_load_error(self, e, clusters, start_processing_time):
         self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-        metrics.counter('successful_reload_vcl')
+        metrics.counter('unsuccessful_reload_vcl')
 
         for cluster in clusters:
             cluster.error_timestamp = start_processing_time
