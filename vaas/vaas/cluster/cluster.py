@@ -115,7 +115,7 @@ class VarnishCluster(object):
         else:
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
             if result is False:
-                metrics.counter('successful_reload_vcl')
+                metrics.counter('unsuccessful_reload_vcl')
             else:
                 metrics.counter('successful_reload_vcl')
             return result
