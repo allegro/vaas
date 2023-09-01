@@ -46,8 +46,10 @@ class TestPrometheusClient(SimpleTestCase):
 class TestPrometheusMetrics(SimpleTestCase):
     def test_should_create_metrics_and_push_them_to_gateway(self):
         with patch('vaas.metrics.prometheus.PrometheusClient') as mock_prometheus_client:
-            mock_summary_observe, mock_gauge_set, mock_gauge_counter, mock_prometheus_client.push = Mock(), Mock(), Mock(), Mock()
-            mock_prometheus_client.get_or_create.return_value = Mock(observe=mock_summary_observe, set=mock_gauge_set, inc=mock_gauge_counter)
+            mock_summary_observe, mock_gauge_set, mock_gauge_counter, mock_prometheus_client.push = \
+                Mock(), Mock(), Mock(), Mock()
+            mock_prometheus_client.get_or_create.return_value = Mock(
+                observe=mock_summary_observe, set=mock_gauge_set, inc=mock_gauge_counter)
             prometheus_metrics = PrometheusMetrics()
             prometheus_metrics.client = mock_prometheus_client
 

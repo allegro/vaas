@@ -37,7 +37,7 @@ class PrometheusMetrics(Metrics):
     def __init__(self) -> None:
         super().__init__(
             client=PrometheusClient())
-        
+
     def counter(self, metric_name: str) -> None:
         if metric_name:
             self.client.get_or_create(metric_name, Counter).inc()
