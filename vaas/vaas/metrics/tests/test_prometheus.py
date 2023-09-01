@@ -1,6 +1,6 @@
 from unittest.mock import Mock, call, patch
 from django.test import SimpleTestCase, override_settings
-from prometheus_client import Gauge, Summary
+from prometheus_client import Counter, Gauge, Summary
 
 from vaas.metrics.prometheus import PrometheusClient, PrometheusMetrics
 
@@ -46,8 +46,10 @@ class TestPrometheusClient(SimpleTestCase):
 class TestPrometheusMetrics(SimpleTestCase):
     def test_should_create_metrics_and_push_them_to_gateway(self):
         with patch('vaas.metrics.prometheus.PrometheusClient') as mock_prometheus_client:
-            mock_summary_observe, mock_gauge_set, mock_prometheus_client.push = Mock(), Mock(), Mock()
-            mock_prometheus_client.get_or_create.return_value = Mock(observe=mock_summary_observe, set=mock_gauge_set)
+            mock_summary_observe, mock_gauge_set, mock_gauge_counter, mock_prometheus_client.push = \
+                Mock(), Mock(), Mock(), Mock()
+            mock_prometheus_client.get_or_create.return_value = Mock(
+                observe=mock_summary_observe, set=mock_gauge_set, inc=mock_gauge_counter)
             prometheus_metrics = PrometheusMetrics()
             prometheus_metrics.client = mock_prometheus_client
 
@@ -61,7 +63,11 @@ class TestPrometheusMetrics(SimpleTestCase):
             mock_prometheus_client.get_or_create.assert_called_with('test', Gauge)
             mock_gauge_set.assert_called_with(1)
 
-            mock_prometheus_client.push.assert_has_calls([call(), call()])
+            prometheus_metrics.counter('test')
+            mock_prometheus_client.get_or_create.assert_called_with('test', Counter)
+            mock_gauge_counter.assert_called_once()
+
+            mock_prometheus_client.push.assert_has_calls([call(), call(), call()])
 
     def test_should_not_create_and_push_metrics_with_empty_names(self):
         with patch('vaas.metrics.prometheus.PrometheusClient') as mock_prometheus_client:
@@ -75,6 +81,9 @@ class TestPrometheusMetrics(SimpleTestCase):
             mock_prometheus_client.get_or_create.assert_not_called()
 
             prometheus_metrics.gauge('', 1)
+            mock_prometheus_client.get_or_create.assert_not_called()
+
+            prometheus_metrics.counter('')
             mock_prometheus_client.get_or_create.assert_not_called()
 
             mock_prometheus_client.push.assert_not_called()

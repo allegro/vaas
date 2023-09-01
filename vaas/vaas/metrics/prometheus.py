@@ -1,25 +1,27 @@
 import logging
 
-from typing import Dict, Type, Union
+from typing import Dict, Optional, Type, Union
 from django.conf import settings
-from prometheus_client import CollectorRegistry, Gauge, Summary, push_to_gateway
+from prometheus_client import Counter, CollectorRegistry, Gauge, Summary, push_to_gateway
 
 from vaas.metrics.models import Metrics
 
 logger = logging.getLogger(__name__)
+
+Kind = Union[Counter, Summary, Gauge]
 
 
 class PrometheusClient:
     def __init__(self) -> None:
         self.host: str = f'{settings.PROMETHEUS_GATEWAY_HOST}:{settings.PROMETHEUS_GATEWAY_PORT}'
         self.job: str = settings.PROMETHEUS_GATEWAY_JOB
-        self.metrics_bucket: Dict[str, Union[Summary, Gauge]] = {}
+        self.metrics_bucket: Dict[str, Kind] = {}
         self.registry: CollectorRegistry = CollectorRegistry()
 
-    def get_or_create(self, name: str, kind: Type[Union[Summary, Gauge]]) -> Union[Summary, Gauge]:
-        metric: Union[Summary, Gauge, None] = self.metrics_bucket.get(name)
+    def get_or_create(self, name: str, kind: Type[Kind]) -> Kind:
+        metric: Optional[Kind] = self.metrics_bucket.get(name)
         if not metric:
-            new_metrics: Union[Summary, Gauge] = kind(name, name, registry=self.registry)
+            new_metrics: Kind = kind(name, name, registry=self.registry)
             self.metrics_bucket[name] = new_metrics
             return new_metrics
         return metric
@@ -35,6 +37,11 @@ class PrometheusMetrics(Metrics):
     def __init__(self) -> None:
         super().__init__(
             client=PrometheusClient())
+
+    def counter(self, metric_name: str) -> None:
+        if metric_name:
+            self.client.get_or_create(metric_name, Counter).inc()
+            self.client.push()
 
     def sum(self, metric_name: str, value: float) -> None:
         if metric_name:

@@ -7,6 +7,9 @@ class Metrics:
 
 
 class MetricsProtocol(Protocol):
+    def counter(self, metric_name: str) -> None:
+        ...
+
     def sum(self, metric_name: str, value: float) -> None:
         ...
 
