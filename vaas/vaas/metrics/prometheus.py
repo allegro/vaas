@@ -13,15 +13,20 @@ Kind = Union[Counter, Summary, Gauge]
 
 class PrometheusClient:
     def __init__(self) -> None:
-        self.host: str = f'{settings.PROMETHEUS_GATEWAY_HOST}:{settings.PROMETHEUS_GATEWAY_PORT}'
+        self.host: str = (f'{settings.PROMETHEUS_GATEWAY_HOST}:{settings.PROMETHEUS_GATEWAY_PORT}'
+                          f'{settings.VICTORIAMETRICS_PATH if settings.VICTORIAMETRICS_SUPPORT else ""}')
         self.job: str = settings.PROMETHEUS_GATEWAY_JOB
+        self.labels: Dict[str, str] = settings.PROMETHEUS_GATEWAY_LABELS
         self.metrics_bucket: Dict[str, Kind] = {}
         self.registry: CollectorRegistry = CollectorRegistry()
 
     def get_or_create(self, name: str, kind: Type[Kind]) -> Kind:
         metric: Optional[Kind] = self.metrics_bucket.get(name)
         if not metric:
-            new_metrics: Kind = kind(name, name, registry=self.registry)
+            if self.labels:
+                new_metrics: Kind = kind(name, name, self.labels.keys(), registry=self.registry).labels(**self.labels)
+            else:
+                new_metrics: Kind = kind(name, name, registry=self.registry)
             self.metrics_bucket[name] = new_metrics
             return new_metrics
         return metric

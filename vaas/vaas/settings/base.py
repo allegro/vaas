@@ -245,7 +245,15 @@ STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 PROMETHEUS_ENABLE = env.bool('PROMETHEUS_ENABLE', default=False)
 PROMETHEUS_GATEWAY_HOST = env.str('PROMETHEUS_GATEWAY_HOST', default='localhost')
 PROMETHEUS_GATEWAY_PORT = env.int('PROMETHEUS_GATEWAY_PORT', default=9091)
-PROMETHEUS_GATEWAY_JOB = env.str('PROMETHEUS_GATEWAY_JOB', default='')
+PROMETHEUS_GATEWAY_JOB = env.str('PROMETHEUS_GATEWAY_JOB', default='vaas')
+# Please in env definition stick to the proscription: name=value,second=value
+# It will transfer to: {name: value, second: value}.
+PROMETHEUS_GATEWAY_LABELS = env.dict('PROMETHEUS_GATEWAY_LABELS', default={})
+
+# We also allow push metric via victoriametrics agent.
+# https://docs.victoriametrics.com/#how-to-import-data-in-prometheus-exposition-format
+VICTORIAMETRICS_SUPPORT = env.bool('VICTORIAMETRICS_SUPPORT', default=False)
+VICTORIAMETRICS_PATH = env.str('VICTORIAMETRICS_PATH', default="/api/v1/import/prometheus")
 
 # HEADER FOR PERMIT ACCESS TO /vaas/ ENDPOINT
 ALLOW_METRICS_HEADER = env.bool('ALLOW_METRICS_HEADER', default='x-allow-metric-header')

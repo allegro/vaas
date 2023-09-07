@@ -6,7 +6,7 @@ from vaas.metrics.prometheus import PrometheusClient, PrometheusMetrics
 
 
 class TestPrometheusClient(SimpleTestCase):
-    def test_create_new_metric_if_not_exists_in_registry(self):
+    def test_create_new_lableless_metric_if_not_exists_in_registry(self):
         client = PrometheusClient()
         self.assertEqual(len(client.metrics_bucket), 0)
 
@@ -15,6 +15,7 @@ class TestPrometheusClient(SimpleTestCase):
         self.assertTrue(isinstance(metric, Summary))
         self.assertEqual(metric._name, 'test_sum')
         self.assertEqual(len(client.metrics_bucket), 1)
+        self.assertEqual(len(metric._labelnames), 0)
 
     def test_return_existsing_metric_from_registry(self):
         client = PrometheusClient()
@@ -25,6 +26,16 @@ class TestPrometheusClient(SimpleTestCase):
         self.assertEqual(len(client.metrics_bucket), 1)
         self.assertEqual(first_metric, second_metric)
 
+    @override_settings(PROMETHEUS_GATEWAY_LABELS={'key': 'value'})
+    def test_return_metric_with_defined_labels_from_registry(self):
+        client = PrometheusClient()
+
+        metrics = client.get_or_create('test_gauge', Gauge)
+
+        self.assertEqual(len(client.metrics_bucket), 1)
+        self.assertEqual(metrics._labelnames, ('key', ))
+        self.assertEqual(metrics._labelvalues, ('value', ))
+
     @override_settings(PROMETHEUS_GATEWAY_HOST='1.2.3.4', PROMETHEUS_GATEWAY_PORT='123', PROMETHEUS_GATEWAY_JOB='')
     @patch('vaas.metrics.prometheus.CollectorRegistry')
     @patch('vaas.metrics.prometheus.push_to_gateway')
@@ -33,6 +44,17 @@ class TestPrometheusClient(SimpleTestCase):
         client.registry = registry_mock
         client.push()
         mock_push_to_gateway.assert_called_with(gateway='1.2.3.4:123', job='', registry=registry_mock)
+
+    @override_settings(PROMETHEUS_GATEWAY_HOST='1.2.3.4', PROMETHEUS_GATEWAY_PORT='123', PROMETHEUS_GATEWAY_JOB='',
+                       VICTORIAMETRICS_SUPPORT=True, VICTORIAMETRICS_PATH='/v1/import/prometheus')
+    @patch('vaas.metrics.prometheus.CollectorRegistry')
+    @patch('vaas.metrics.prometheus.push_to_gateway')
+    def test_should_push_metrics_to_victoriametrics_gateway(self, mock_push_to_gateway, registry_mock):
+        client = PrometheusClient()
+        client.registry = registry_mock
+        client.push()
+        mock_push_to_gateway.assert_called_with(gateway='1.2.3.4:123/v1/import/prometheus',
+                                                job='', registry=registry_mock)
 
     @patch('vaas.metrics.prometheus.push_to_gateway', Mock(side_effect=Exception))
     def test_should_continue_after_push_to_gateway_raise_an_exception(self):
