@@ -1,6 +1,6 @@
 import logging
 
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Optional, Type, Union, Tuple
 from django.conf import settings
 from prometheus_client import Counter, CollectorRegistry, Gauge, Summary, push_to_gateway
 
@@ -20,16 +20,25 @@ class PrometheusClient:
         self.metrics_bucket: Dict[str, Kind] = {}
         self.registry: CollectorRegistry = CollectorRegistry()
 
-    def get_or_create(self, name: str, kind: Type[Kind]) -> Kind:
-        metric: Optional[Kind] = self.metrics_bucket.get(name)
+    def get_or_create(self, full_name: str, kind: Type[Kind]) -> Kind:
+        metric: Optional[Kind] = self.metrics_bucket.get(full_name)
         if not metric:
-            if self.labels:
-                new_metrics: Kind = kind(name, name, self.labels.keys(), registry=self.registry).labels(**self.labels)
+            name, labels = self._split_name_and_labels(full_name)
+            if labels:
+                new_metrics: Kind = kind(name, name, labels.keys(), registry=self.registry).labels(**labels)
             else:
                 new_metrics: Kind = kind(name, name, registry=self.registry)
-            self.metrics_bucket[name] = new_metrics
-            return new_metrics
-        return metric
+            self.metrics_bucket[full_name] = new_metrics
+        return self.metrics_bucket[full_name]
+
+    def _split_name_and_labels(self, name: str) -> Tuple[str, Dict[str, str]]:
+        labels = self.labels.copy()
+        parts = name.split(".")
+        name = parts.pop(0)
+        if len(parts) % 2 == 0:
+            for i in range(0, len(parts), 2):
+                labels[parts[i]] = parts[i + 1]
+        return name, labels
 
     def push(self) -> None:
         try:

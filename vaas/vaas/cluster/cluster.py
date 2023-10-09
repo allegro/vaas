@@ -21,7 +21,7 @@ from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, co
 @app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
     emmit_time_aware = time.perf_counter()
-    metrics.time('queue_time_from_order_to_execute_task', time.perf_counter() - emmit_time_aware)
+    metrics.time('load_vcl_task_performance.type.start_lag', time.perf_counter() - emmit_time_aware)
 
     start_processing_time = timezone.now()
     clusters = LogicalCluster.objects.filter(
@@ -29,12 +29,12 @@ def load_vcl_task(self, emmit_time, cluster_ids):
     ).prefetch_related('varnishserver_set')
     if len(clusters) > 0:
         varnish_cluster_load_vcl = VarnishCluster().load_vcl(start_processing_time, clusters)
-        metrics.counter('events_with_change')
-        metrics.time('total_time_of_processing_vcl_task_with_change', time.perf_counter() - emmit_time_aware)
+        metrics.counter('load_vcl_task_events.type.change')
+        metrics.time('load_vcl_task_performance.type.change', time.perf_counter() - emmit_time_aware)
         return varnish_cluster_load_vcl
 
-    metrics.counter('events_without_change')
-    metrics.time('total_time_of_processing_vcl_task_without_change', time.perf_counter() - emmit_time_aware)
+    metrics.counter('load_vcl_task_events.type.nochange')
+    metrics.time('load_vcl_task_performance.type.nochange', time.perf_counter() - emmit_time_aware)
 
     return True
 
@@ -115,9 +115,9 @@ class VarnishCluster(object):
         else:
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
             if result is False:
-                metrics.counter('unsuccessful_reload_vcl')
+                metrics.counter('reload_vcl.status.success')
             else:
-                metrics.counter('successful_reload_vcl')
+                metrics.counter('reload_vcl.status.failed')
             return result
         finally:
             for phase, processing in processing_stats.items():
@@ -126,7 +126,7 @@ class VarnishCluster(object):
                 )
                 if phase in ['render_vcl_for_servers', 'use_vcl_list', '_discard_unused_vcls', '_append_vcl',
                              'extract_servers_by_clusters', 'fetch_render_data']:
-                    metrics.time(phase, processing['time'])
+                    metrics.time(f"load_vcl_processing.phase.{phase}", processing['time'])
 
     @collect_processing
     def _update_vcl_versions(self, clusters, start_processing_time, vcl_list):
@@ -139,7 +139,7 @@ class VarnishCluster(object):
     @collect_processing
     def _handle_load_error(self, e, clusters, start_processing_time):
         self.logger.error('Loading error: {} - rendered vcl-s not used'.format(e))
-        metrics.counter('unsuccessful_reload_vcl')
+        metrics.counter('reload_vcl.status.error')
 
         for cluster in clusters:
             cluster.error_timestamp = start_processing_time

@@ -6,7 +6,7 @@ from vaas.metrics.prometheus import PrometheusClient, PrometheusMetrics
 
 
 class TestPrometheusClient(SimpleTestCase):
-    def test_create_new_lableless_metric_if_not_exists_in_registry(self):
+    def test_should_create_new_metric_without_labels_if_not_exists_in_registry(self):
         client = PrometheusClient()
         self.assertEqual(len(client.metrics_bucket), 0)
 
@@ -17,7 +17,19 @@ class TestPrometheusClient(SimpleTestCase):
         self.assertEqual(len(client.metrics_bucket), 1)
         self.assertEqual(len(metric._labelnames), 0)
 
-    def test_return_existsing_metric_from_registry(self):
+    def test_should_create_new_metric_with_labels_parsed_from_dotted_format(self):
+        client = PrometheusClient()
+        self.assertEqual(len(client.metrics_bucket), 0)
+
+        metric = client.get_or_create('name.label1.value1.label2.value2', Summary)
+
+        self.assertTrue(isinstance(metric, Summary))
+        self.assertEqual(metric._name, 'name')
+        self.assertEqual(len(client.metrics_bucket), 1)
+        self.assertEqual(metric._labelnames, ('label1', 'label2', ))
+        self.assertEqual(metric._labelvalues, ('value1', 'value2',))
+
+    def test_should_return_metric_from_registry(self):
         client = PrometheusClient()
 
         first_metric = client.get_or_create('test_gauge', Gauge)
