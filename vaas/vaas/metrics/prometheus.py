@@ -23,7 +23,7 @@ class PrometheusClient:
     def get_or_create(self, full_name: str, kind: Type[Kind]) -> Kind:
         metric: Optional[Kind] = self.metrics_bucket.get(full_name)
         if not metric:
-            name, labels = self._split_name_and_labels(full_name)
+            name, labels = self._split_dotted_name_to_short_name_and_labels(full_name)
             if labels:
                 new_metrics: Kind = kind(name, name, labels.keys(), registry=self.registry).labels(**labels)
             else:
@@ -31,7 +31,12 @@ class PrometheusClient:
             self.metrics_bucket[full_name] = new_metrics
         return self.metrics_bucket[full_name]
 
-    def _split_name_and_labels(self, name: str) -> Tuple[str, Dict[str, str]]:
+    def _split_dotted_name_to_short_name_and_labels(self, name: str) -> Tuple[str, Dict[str, str]]:
+        """
+        Splits dotted name for example "my_metric.label1.value1.label2.value2" into tuple containing:
+        - short_name -> "my_metric"
+        - labels ->  {"label1": "value1", "label2": "value2"
+        """
         labels = self.labels.copy()
         parts = name.split(".")
         name = parts.pop(0)
