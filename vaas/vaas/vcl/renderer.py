@@ -158,7 +158,7 @@ class VclDirector(object):
 
 
 class VclRedirect:
-    def __init__(self, redirect: Redirect, mapped_domain: str):
+    def __init__(self, redirect: Redirect, mapped_domain: str, destination: str):
         self.id = f"{redirect.pk}/{mapped_domain}"
         self.redirect_id = redirect.pk
         self.src_domain = redirect.src_domain
@@ -166,7 +166,7 @@ class VclRedirect:
         self.action = redirect.action
         self.preserve_query_params = redirect.preserve_query_params
         self.final_condition = redirect.final_condition
-        self.destination = redirect.get_redirect_destination(mapped_domain)
+        self.destination = destination
 
 
 class VclTagBuilder:
@@ -191,12 +191,18 @@ class VclTagBuilder:
         redirects = {}
         related_domains = MappingProvider(DomainMapping.objects.all()).provide_related_domains(self.varnish.cluster)
         for redirect in self.input.redirects:
+            destination_domain, destination_mappings = redirect.fetch_all_destinations_mappings(self.varnish.cluster)
             if str(redirect.src_domain) in related_domains:
                 for mapped_domain in redirect.src_domain.mapped_domains(self.varnish.cluster):
+                    destination = str(redirect.destination)
+                    if destination_domain == redirect.src_domain.domain:
+                        destination = destination.replace(destination_domain, mapped_domain)
+                    elif all((destination_domain, len(destination_mappings) == 1)):
+                        destination = destination.replace(destination_domain, destination_mappings[0])
                     if entries := redirects.get(mapped_domain, []):
-                        entries.append(VclRedirect(redirect, mapped_domain))
+                        entries.append(VclRedirect(redirect, mapped_domain, destination))
                     else:
-                        redirects[mapped_domain] = [VclRedirect(redirect, mapped_domain)]
+                        redirects[mapped_domain] = [VclRedirect(redirect, mapped_domain, destination)]
         return redirects
 
     @collect_processing

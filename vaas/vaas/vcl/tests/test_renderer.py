@@ -122,10 +122,14 @@ class VclTagBuilderTest(TestCase):
             service_mesh_routing=True,
             labels_list='["cluster4"]'
         )
-        self.domainapping = DomainMapping.objects.create(
+        self.example_domain_mapping = DomainMapping.objects.create(
             domain='example.com', mappings_list='["example.{env}.com", "example.{env}.org"]', type='dynamic'
         )
-        self.domainapping.clusters.add(cluster1)
+        self.example_domain_mapping.clusters.add(cluster1)
+        self.external_domain_mapping = DomainMapping.objects.create(
+            domain='external.com', mappings_list='["example-external.com"]', type='static'
+        )
+        self.external_domain_mapping.clusters.add(cluster1)
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -256,7 +260,7 @@ class VclTagBuilderTest(TestCase):
         route.clusters.add(cluster2)
 
         Redirect.objects.create(
-            src_domain=self.domainapping,
+            src_domain=self.example_domain_mapping,
             condition='req.url ~ "/source"',
             destination='http://example.com/destination',
             action=301,
@@ -266,11 +270,21 @@ class VclTagBuilderTest(TestCase):
         )
 
         Redirect.objects.create(
-            src_domain=self.domainapping,
+            src_domain=self.example_domain_mapping,
             condition='req.url ~ "/source"',
             destination='http://example.com/new_destination',
             action=301,
             priority=210,
+            preserve_query_params=False,
+            required_custom_header=False
+        )
+
+        Redirect.objects.create(
+            src_domain=self.example_domain_mapping,
+            condition='req.url ~ "/external"',
+            destination='http://external.com/external_destination',
+            action=301,
+            priority=260,
             preserve_query_params=False,
             required_custom_header=False
         )
@@ -419,7 +433,7 @@ class VclTagBuilderTest(TestCase):
 
         assert_list_equal(expected_datacenters, active_director_datacenters)
 
-    def test_should_decorate_flexible_router_tag_with_mapped_domain(self):
+    def test_should_decorate_flexible_router_tag_with_properly_mapped_destination_domain(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         assert_set_equal({'example.prod.com', 'example.prod.org'}, set(tag.parameters['redirects'].keys()))
@@ -429,6 +443,8 @@ class VclTagBuilderTest(TestCase):
                       tag.parameters['redirects']['example.prod.com'][1].destination)
         assert_equals('http://example.prod.org/destination',
                       tag.parameters['redirects']['example.prod.org'][1].destination)
+        assert_equals('http://example-external.com/external_destination',
+                      tag.parameters['redirects']['example.prod.com'][2].destination)
 
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
@@ -436,6 +452,7 @@ class VclTagBuilderTest(TestCase):
         assert_set_equal({'example.prod.com', 'example.prod.org'}, set(tag.parameters['redirects'].keys()))
         assert_equals('2/example.prod.com', tag.parameters['redirects']['example.prod.com'][0].id)
         assert_equals('1/example.prod.com', tag.parameters['redirects']['example.prod.com'][1].id)
+        assert_equals('3/example.prod.com', tag.parameters['redirects']['example.prod.com'][2].id)
 
 
 class VclRendererInputTest(TestCase):

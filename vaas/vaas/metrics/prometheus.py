@@ -35,7 +35,7 @@ class PrometheusClient:
         """
         Splits dotted name for example "my_metric.label1.value1.label2.value2" into tuple containing:
         - short_name -> "my_metric"
-        - labels ->  {"label1": "value1", "label2": "value2"
+        - labels ->  {"label1": "value1", "label2": "value2"}
         """
         labels = self.labels.copy()
         parts = name.split(".")
