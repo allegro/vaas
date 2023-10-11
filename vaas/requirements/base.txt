@@ -40,3 +40,4 @@ mysqlclient
 # Metrics
 statsd>=3.3.0
 prometheus-client>=0.17.1
+django_prometheus>=2.3.1

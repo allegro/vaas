@@ -243,6 +243,12 @@ STATSD_PREFIX = env.str('STATSD_PREFIX', default='example.statsd.path')
 
 # PROMETHEUS PUSH_GATEWAY
 PROMETHEUS_ENABLE = env.bool('PROMETHEUS_ENABLE', default=False)
+if PROMETHEUS_ENABLE:
+    INSTALLED_APPS = INSTALLED_APPS + ('django_prometheus', )
+    MIDDLEWARE.insert(0, 'django_prometheus.middleware.PrometheusBeforeMiddleware')
+    MIDDLEWARE.append('django_prometheus.middleware.PrometheusAfterMiddleware')
+
+PROMETHEUS_EXPORTER_PATH = env.str('PROMETHEUS_EXPORTER_PATH', default='metrics')
 PROMETHEUS_GATEWAY_HOST = env.str('PROMETHEUS_GATEWAY_HOST', default='localhost')
 PROMETHEUS_GATEWAY_PORT = env.int('PROMETHEUS_GATEWAY_PORT', default=9091)
 PROMETHEUS_GATEWAY_JOB = env.str('PROMETHEUS_GATEWAY_JOB', default='vaas')
