@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import django.urls as urls
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.admin.sites import NotRegistered
 from django.views.generic.base import RedirectView
+from django_prometheus import exports
 from tastypie.api import Api
 
 from vaas.cluster.api import ConnectCommandResource, DomainMappingResource, DcResource, VarnishServerResource, \
@@ -59,5 +61,9 @@ urlpatterns = [
     url(r'^plugins/', include(('vaas.external.urls', 'vaas'), namespace='plugins')),
     url('', include('social_django.urls', namespace='social')),
 ]
+if settings.PROMETHEUS_ENABLE:
+    urlpatterns += [
+        urls.path(settings.PROMETHEUS_EXPORTER_PATH, exports.ExportToDjangoView, name="prometheus-django-metrics"),
+    ]
 
 admin.site.site_header = 'VaaS Administration'
