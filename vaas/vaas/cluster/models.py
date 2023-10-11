@@ -143,7 +143,8 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
         for mapping, required_labels in self.__parse_placeholders().items():
             if not required_labels.difference(cluster_labels):
                 result.append(mapping.format(**cluster.parsed_labels()))
-        return result
+        # sort domains in order to enforce stable rendering of vcl content for the same input
+        return sorted(result)
 
     def is_cluster_related_by_labels(self, cluster: LogicalCluster) -> bool:
         result = False

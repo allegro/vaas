@@ -21,15 +21,13 @@ class PrometheusClient:
         self.registry: CollectorRegistry = CollectorRegistry()
 
     def get_or_create(self, full_name: str, kind: Type[Kind]) -> Kind:
-        metric: Optional[Kind] = self.metrics_bucket.get(full_name)
+        name, labels = self._split_dotted_name_to_short_name_and_labels(full_name)
+        metric: Optional[Kind] = self.metrics_bucket.get(name)
         if not metric:
-            name, labels = self._split_dotted_name_to_short_name_and_labels(full_name)
-            if labels:
-                new_metrics: Kind = kind(name, name, labels.keys(), registry=self.registry).labels(**labels)
-            else:
-                new_metrics: Kind = kind(name, name, registry=self.registry)
-            self.metrics_bucket[full_name] = new_metrics
-        return self.metrics_bucket[full_name]
+            self.metrics_bucket[name] = kind(name, name, labels.keys(), registry=self.registry)
+        if labels:
+            return self.metrics_bucket[name].labels(**labels)
+        return self.metrics_bucket[name]
 
     def _split_dotted_name_to_short_name_and_labels(self, name: str) -> Tuple[str, Dict[str, str]]:
         """
