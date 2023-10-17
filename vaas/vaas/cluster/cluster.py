@@ -114,10 +114,7 @@ class VarnishCluster(object):
             self._handle_load_error(e, clusters, start_processing_time)
         else:
             result = parallel_loader.use_vcl_list(start_processing_time, loaded_vcl_list)
-            if result is False:
-                metrics.counter('reload_vcl.status.success')
-            else:
-                metrics.counter('reload_vcl.status.failed')
+            metrics.counter('reload_vcl.status.success' if result else 'reload_vcl.status.failed')
             return result
         finally:
             for phase, processing in processing_stats.items():
