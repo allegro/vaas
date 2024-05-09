@@ -32,6 +32,14 @@ app.conf.beat_schedule = {
 # https://docs.celeryq.dev/en/latest/userguide/configuration.html#task-reject-on-worker-lost
 app.conf.task_reject_on_worker_lost = settings.CELERY_TASK_REJECT_ON_WORKER_LOST
 
+# Late ack means the task messages will be acknowledged after the task has been executed, not right before (the default behavior).
+# https://docs.celeryq.dev/en/latest/userguide/configuration.html#task-acks-late
+app.conf.task_acks_late = settings.CELERY_TASK_ACKS_LATE
+
+# Kill all long-running tasks with late acknowledgment enabled on connection loss.
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#std-setting-worker_cancel_long_running_tasks_on_connection_loss
+app.conf.worker_cancel_long_running_tasks_on_connection_loss = settings.CELERY_WORKER_CANCEL_LONG_RUNNING_TASKS_ON_CONNECTION_LOSS
+
 # For better handle redis ConenctionError exception we give possibility to configure keepalive and connect_timeout parameters
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-socket-keepalive
 app.conf.redis_socket_keepalive = settings.REDIS_SOCKET_KEEPALIVE

@@ -90,11 +90,7 @@ class VclRefreshMiddleware:
                                 uwsgi.suspend()
                         except:  # noqa
                             pass
-
-                    result.get()
-
-                    if isinstance(result.result, Exception):
-                        raise result.result
+                    logging.info("Task with %s has been finished with status: %s." % (result.id, result.get()))
             except SoftTimeLimitExceeded:
                 logging.error("Time for finish the task has been reached: The task with id {} will be killed.".format(
                     result.id))

@@ -18,7 +18,9 @@ from vaas.vcl.loader import VclLoader, VclStatus
 from vaas.vcl.renderer import VclRenderer, VclRendererInput, init_processing, collect_processing, Vcl
 
 
-@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+@app.task(bind=True, acks_late=settings.CELERY_TASK_ACKS_LATE,
+          reject_on_worker_lost=settings.CELERY_TASK_REJECT_ON_WORKER_LOST,
+          soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def load_vcl_task(self, emmit_time, cluster_ids):
     emmit_time_aware = time.perf_counter()
     metrics.time('queue_time_from_order_to_execute_task', time.perf_counter() - emmit_time_aware)
@@ -39,7 +41,9 @@ def load_vcl_task(self, emmit_time, cluster_ids):
     return True
 
 
-@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+@app.task(bind=True, acks_late=settings.CELERY_TASK_ACKS_LATE,
+          reject_on_worker_lost=settings.CELERY_TASK_REJECT_ON_WORKER_LOST,
+          soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def validate_vcl_command(self, vcl_id: int, content: str):
     servers = VarnishServer.objects.exclude(status='disabled').filter(
         template__pk=vcl_id).prefetch_related('dc', 'cluster')
@@ -64,7 +68,9 @@ def validate_vcl_command(self, vcl_id: int, content: str):
     return result
 
 
-@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+@app.task(bind=True, acks_late=settings.CELERY_TASK_ACKS_LATE,
+          reject_on_worker_lost=settings.CELERY_TASK_REJECT_ON_WORKER_LOST,
+          soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def connect_command(self, varnish_ids: List[int]) -> Dict[int, str]:
     result = {}
     if len(varnish_ids) > 0:

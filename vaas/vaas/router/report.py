@@ -24,12 +24,16 @@ def to_dict(element):
     return result
 
 
-@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+@app.task(bind=True, acks_late=settings.CELERY_TASK_ACKS_LATE,
+          reject_on_worker_lost=settings.CELERY_TASK_REJECT_ON_WORKER_LOST,
+          soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def fetch_urls_async(self) -> dict:
     return to_dict(Fetcher().check_urls(PositiveUrl.objects.all()))
 
 
-@app.task(bind=True, soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
+@app.task(bind=True, acks_late=settings.CELERY_TASK_ACKS_LATE,
+          reject_on_worker_lost=settings.CELERY_TASK_REJECT_ON_WORKER_LOST,
+          soft_time_limit=settings.CELERY_TASK_SOFT_TIME_LIMIT_SECONDS)
 def fetch_redirects_async(self) -> dict:
     return to_dict(Fetcher().check_redirects(RedirectAssertion.objects.all()))
 
