@@ -13,9 +13,6 @@ django-secure==1.0.2
 django-environ==0.4.5
 lockfile==0.12.2
 django-taggit==1.3.0
-# newer versions requires incompatible kombu
-celery[redis]==5.2.2
-celery-beatx
 requests>=2.25.1
 GitPython==3.1.35
 social-auth-app-django>=4.0.0
@@ -29,9 +26,12 @@ python-json-logger
 # sentry
 sentry-sdk==1.14.0
 
-# newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
+# Due to https://github.com/celery/celery/issues/8030 we need to pin celery, kombu and redis versions
+celery[redis]==5.2.2
+celery-beatx
 kombu==5.2.2
 redis>=3.4.1
+
 django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/allegro/python-varnish@0.2.2#egg=python_varnish
 django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.2#egg=django_ace
