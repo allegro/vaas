@@ -28,13 +28,28 @@ services:
       - 3030:3030
     depends_on:
       - redis
+      - rabbitmq
       - mysql
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=myvhost
+    ports:
+      - 5672:5672
+      - 15672:15672
   celery-worker:
     build:
       context: ./
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - rabbitmq
       - mysql
   celery-cron-worker:
     build:
@@ -42,6 +57,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - rabbitmq
       - mysql
   celery-routes-test:
     build:
@@ -49,11 +65,12 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - redis
+      - rabbitmq
       - mysql
-  celery-scheduler:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - mysql
+  # celery-scheduler:
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - redis
+  #     - mysql
