@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   celery-worker:
     entrypoint: [ '/entrypoint-celery-worker.sh' ]
@@ -49,42 +47,48 @@ services:
 
   # Varnishes & nginx
   nginx-0:
-    image: allegro/vaas-nginx
+    build: ./docker/nginx
+    image: vaas-nginx
     expose:
       - "80"
     networks:
       vaas:
         ipv4_address: 192.168.199.10
   nginx-1:
-    image: allegro/vaas-nginx
+    build: ./docker/nginx
+    image: vaas-nginx
     expose:
       - "80"
     networks:
       vaas:
         ipv4_address: 192.168.199.11
   nginx-2:
-    image: allegro/vaas-nginx
+    build: ./docker/nginx
+    image: vaas-nginx
     expose:
       - "80"
     networks:
       vaas:
         ipv4_address: 192.168.199.12
   nginx-3:
-    image: allegro/vaas-nginx
+    build: ./docker/nginx
+    image: vaas-nginx
     expose:
       - "80"
     networks:
       vaas:
         ipv4_address: 192.168.199.13
   nginx-4:
-    image: allegro/vaas-nginx
+    build: ./docker/nginx
+    image: vaas-nginx
     expose:
       - "80"
     networks:
       vaas:
         ipv4_address: 192.168.199.14
   nginx-5:
-    image: allegro/vaas-nginx
+    build: ./docker/nginx
+    image: vaas-nginx
     expose:
       - "80"
     networks:
