@@ -10,7 +10,7 @@ Local Development
 ===============
 This project provides a basic Docker Compose setup for Vaas. It is useful for experimentation, testing and development.
 
-Run Vaas in Docker Comose with sample configuration, two test Varnish servers and several test backends
+Run Vaas in Docker Compose with sample configuration with two test Varnish servers and several test backends
 ----------------
 To start Vaas you just have to run:
 ```bash
