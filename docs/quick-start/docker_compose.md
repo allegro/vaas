@@ -8,7 +8,7 @@ To get up and running, after cloning the repository:
 
 Local Development
 ===============
-This project provides a basic Docker Compose setup for Vaas. It is useful for experimentation, testing and development purposes.
+This project provides a basic Docker Compose setup for Vaas. It is useful for experimentation, testing and development.
 
 Run Vaas in Docker Comose with sample configuration, two test Varnish servers and several test backends
 ----------------
