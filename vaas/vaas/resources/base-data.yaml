@@ -6,7 +6,7 @@
     username: admin
     first_name: ''
     last_name: ''
-    email: admin@vaas.allegrogroup.com
+    email: admin@vaas.example.com
     is_staff: true
     is_active: true
     date_joined: '2019-11-13T07:46:40.829872+00:00'
