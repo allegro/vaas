@@ -1,30 +1,26 @@
-
-
-
-Local Development
-===============
-This project provides a basic Docker Compose setup for Vaas. It is useful for experimentation, testing and development purposes.
-
-
 Install Tools
-----------------
+===============
 To get up and running, after cloning the repository:
 
 1. Install Docker. Read about [installing Docker](https://docs.docker.com/get-docker/).
 1. Install Docker Compose. Read about [installing Docker Compose](https://docs.docker.com/compose/install/).
 
 
-Run Vaas in Docker Comose
+Local Development
+===============
+This project provides a basic Docker Compose setup for Vaas. It is useful for experimentation, testing and development.
+
+Run Vaas in Docker Compose with sample configuration with two test Varnish servers and several test backends
 ----------------
 To start Vaas you just have to run:
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 If you resume the development after a long break it is recommended to rebuild the environment by:
 
 ```bash
-docker-compose up --build -d
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 ```
 
 Check That Everything Is Working
@@ -126,3 +122,34 @@ Similarly to new Varnish instances, you can also spawn new Nginx instances:
         --name nginx-<NUMBER> allegro/vaas-nginx
 
 You will need to configure the new Nginx instance in Manager app.
+
+Production ready VaaS instance with empty configuration and without debug logs
+===============
+
+To start Vaas you just have to run:
+```bash
+docker-compose up -d
+```
+
+Check That Everything Is Working
+----------------
+To check that the build is working, run `docker-compose ps`. This should give you output similar to the below.
+
+```bash
+NAME                        IMAGE                     COMMAND                  SERVICE              CREATED          STATUS                    PORTS
+vaas-celery-cron-worker-1   vaas-celery-cron-worker   "/entrypoint-celery-…"   celery-cron-worker   49 minutes ago   Up 49 minutes             
+vaas-celery-routes-test-1   vaas-celery-routes-test   "/entrypoint-celery-…"   celery-routes-test   49 minutes ago   Up 49 minutes             
+vaas-celery-scheduler-1     vaas-celery-scheduler     "/wait-for-it.sh uws…"   celery-scheduler     49 minutes ago   Up 49 minutes             
+vaas-celery-worker-1        vaas-celery-worker        "/entrypoint-celery-…"   celery-worker        49 minutes ago   Up 49 minutes             
+vaas-mysql-1                mysql:5.7                 "docker-entrypoint.s…"   mysql                6 hours ago      Up 49 minutes (healthy)   3306/tcp, 33060/tcp
+vaas-redis-1                redis:alpine              "docker-entrypoint.s…"   redis                6 hours ago      Up 49 minutes (healthy)   6379/tcp
+vaas-uwsgi-1                vaas-uwsgi                "/wait-for-it.sh mys…"   uwsgi                49 minutes ago   Up 49 minutes             0.0.0.0:3030->3030/tcp, :::3030->3030/tcp
+```
+
+Log in to VaaS
+--------------
+Point your browser to <http://localhost:3030/> and log in using the following credentials:
+
+    User: admin
+    Password: admin
+

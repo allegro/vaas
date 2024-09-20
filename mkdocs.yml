@@ -3,8 +3,7 @@ repo_url: https://github.com/allegro/vaas
 pages:
 - 'About': 'index.md'
 - 'Quick Start':
-  - 'VaaS in Docker Compose': 'quick-start/development.md'
-  - 'VaaS in Docker': 'quick-start/docker.md'
+  - 'VaaS in Docker Compose': 'quick-start/docker_compose.md'
   - 'VaaS in Production': 'quick-start/production.md'
 - 'Documentation':
   - 'VaaS request flow': 'documentation/flow.md'

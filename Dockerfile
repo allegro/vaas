@@ -31,11 +31,18 @@ COPY ./vaas/requirements /home/app/vaas/requirements
 
 RUN pip install -r ./requirements/base.txt
 
+#copy uwsgi config
+COPY ./docker/uwsgi.cfg /etc/
+
+#copy mime types used by uwsgi
+COPY ./docker/mime.types /etc/
+
 # copy project
 COPY ./vaas /home/app/vaas
 
 # copy entrypoints.sh
 COPY \
+  docker/entrypoint-uwsgi.sh \
   docker/entrypoint-uwsgi-dev.sh \
   docker/entrypoint-celery-worker.sh \
   docker/entrypoint-celery-routes-test.sh \
