@@ -1,6 +1,6 @@
 site_name: VaaS
 repo_url: https://github.com/allegro/vaas
-pages:
+nav:
 - 'About': 'index.md'
 - 'Quick Start':
   - 'VaaS in Docker Compose': 'quick-start/docker_compose.md'
