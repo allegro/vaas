@@ -38,6 +38,134 @@
     remove_path: false
     time_profile: 1
     cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 3
+  fields:
+    name: second_service2
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second2.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 4
+  fields:
+    name: second_service4
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second4.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 5
+  fields:
+    name: second_service5
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second5.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 6
+  fields:
+    name: second_service6
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second6.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 7
+  fields:
+    name: second_service7
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second7.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 8
+  fields:
+    name: second_service8
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second8.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 9
+  fields:
+    name: second_service9
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second9.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
+- model: manager.director
+  pk: 10
+  fields:
+    name: second_service10
+    service: Order
+    mode: round-robin
+    protocol: both
+    hashing_policy: req.url
+    router: req.http.host
+    route_expression: second10.*
+    active_active: true
+    probe: 1
+    enabled: true
+    remove_path: false
+    time_profile: 1
+    cluster: [1, 2, 3, 4]
 - model: cluster.dc
   pk: 1
   fields: {name: First datacenter, symbol: dc1}
@@ -114,6 +242,21 @@
     port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
     template: 2, cluster: 1, is_canary: false}
 - model: cluster.varnishserver
+  pk: 100
+  fields: {ip: 192.168.199.100, hostname: varnish-6-1, cluster_weight: 1, http_port: 6081,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: cluster.varnishserver
+  pk: 110
+  fields: {ip: 192.168.199.110, hostname: varnish-6-2, cluster_weight: 1, http_port: 6081,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: cluster.varnishserver
+  pk: 120
+  fields: {ip: 192.168.199.120, hostname: varnish-6-3, cluster_weight: 1, http_port: 6081,
+    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
+    template: 2, cluster: 1, is_canary: false}
+- model: cluster.varnishserver
   pk: 2
   fields: {ip: 192.168.199.7, hostname: varnish-7, cluster_weight: 1, http_port: 6081,
     port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
@@ -123,6 +266,518 @@
   fields:
     condition: req.url ~ "^\/flexibleee"
     priority: 51
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 11
+  fields:
+    condition: req.url ~ "^\/flexibleee1"
+    priority: 1
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 12
+  fields:
+    condition: req.url ~ "^\/flexibleee2"
+    priority: 2
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 13
+  fields:
+    condition: req.url ~ "^\/flexibleee3"
+    priority: 3
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 14
+  fields:
+    condition: req.url ~ "^\/flexibleee4"
+    priority: 4
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 15
+  fields:
+    condition: req.url ~ "^\/flexibleee5"
+    priority: 5
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 16
+  fields:
+    condition: req.url ~ "^\/flexibleee6"
+    priority: 6
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 17
+  fields:
+    condition: req.url ~ "^\/flexibleee7"
+    priority: 7
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 18
+  fields:
+    condition: req.url ~ "^\/flexibleee8"
+    priority: 8
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 19
+  fields:
+    condition: req.url ~ "^\/flexibleee9"
+    priority: 9
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 110
+  fields:
+    condition: req.url ~ "^\/flexibleee10"
+    priority: 10
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 111
+  fields:
+    condition: req.url ~ "^\/flexibleee11"
+    priority: 11
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 112
+  fields:
+    condition: req.url ~ "^\/flexibleee12"
+    priority: 12
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 113
+  fields:
+    condition: req.url ~ "^\/flexibleee13"
+    priority: 13
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 114
+  fields:
+    condition: req.url ~ "^\/flexibleee14"
+    priority: 14
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 115
+  fields:
+    condition: req.url ~ "^\/flexibleee15"
+    priority: 15
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 116
+  fields:
+    condition: req.url ~ "^\/flexibleee16"
+    priority: 16
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 117
+  fields:
+    condition: req.url ~ "^\/flexibleee17"
+    priority: 17
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 118
+  fields:
+    condition: req.url ~ "^\/flexibleee18"
+    priority: 18
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 119
+  fields:
+    condition: req.url ~ "^\/flexibleee19"
+    priority: 19
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 120
+  fields:
+    condition: req.url ~ "^\/flexibleee20"
+    priority: 20
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 121
+  fields:
+    condition: req.url ~ "^\/flexibleee21"
+    priority: 21
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 122
+  fields:
+    condition: req.url ~ "^\/flexibleee22"
+    priority: 22
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 123
+  fields:
+    condition: req.url ~ "^\/flexibleee23"
+    priority: 23
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 124
+  fields:
+    condition: req.url ~ "^\/flexibleee24"
+    priority: 24
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 125
+  fields:
+    condition: req.url ~ "^\/flexibleee25"
+    priority: 25
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 126
+  fields:
+    condition: req.url ~ "^\/flexibleee26"
+    priority: 26
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 127
+  fields:
+    condition: req.url ~ "^\/flexibleee27"
+    priority: 27
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 128
+  fields:
+    condition: req.url ~ "^\/flexibleee28"
+    priority: 28
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 129
+  fields:
+    condition: req.url ~ "^\/flexibleee29"
+    priority: 29
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 130
+  fields:
+    condition: req.url ~ "^\/flexibleee30"
+    priority: 30
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 131
+  fields:
+    condition: req.url ~ "^\/flexibleee31"
+    priority: 31
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 132
+  fields:
+    condition: req.url ~ "^\/flexibleee32"
+    priority: 32
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 133
+  fields:
+    condition: req.url ~ "^\/flexibleee33"
+    priority: 33
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 134
+  fields:
+    condition: req.url ~ "^\/flexibleee34"
+    priority: 34
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 135
+  fields:
+    condition: req.url ~ "^\/flexibleee35"
+    priority: 35
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 136
+  fields:
+    condition: req.url ~ "^\/flexibleee36"
+    priority: 36
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 137
+  fields:
+    condition: req.url ~ "^\/flexibleee37"
+    priority: 37
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 138
+  fields:
+    condition: req.url ~ "^\/flexibleee38"
+    priority: 38
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 139
+  fields:
+    condition: req.url ~ "^\/flexibleee39"
+    priority: 39
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 140
+  fields:
+    condition: req.url ~ "^\/flexibleee40"
+    priority: 40
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 141
+  fields:
+    condition: req.url ~ "^\/flexibleee41"
+    priority: 41
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 142
+  fields:
+    condition: req.url ~ "^\/flexibleee42"
+    priority: 42
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 143
+  fields:
+    condition: req.url ~ "^\/flexibleee43"
+    priority: 43
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 144
+  fields:
+    condition: req.url ~ "^\/flexibleee44"
+    priority: 44
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 145
+  fields:
+    condition: req.url ~ "^\/flexibleee45"
+    priority: 45
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 146
+  fields:
+    condition: req.url ~ "^\/flexibleee46"
+    priority: 46
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 147
+  fields:
+    condition: req.url ~ "^\/flexibleee47"
+    priority: 47
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 148
+  fields:
+    condition: req.url ~ "^\/flexibleee48"
+    priority: 48
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 149
+  fields:
+    condition: req.url ~ "^\/flexibleee49"
+    priority: 49
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 150
+  fields:
+    condition: req.url ~ "^\/flexibleee50"
+    priority: 50
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 151
+  fields:
+    condition: req.url ~ "^\/flexibleee51"
+    priority: 51
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 152
+  fields:
+    condition: req.url ~ "^\/flexibleee52"
+    priority: 52
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 153
+  fields:
+    condition: req.url ~ "^\/flexibleee53"
+    priority: 53
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 154
+  fields:
+    condition: req.url ~ "^\/flexibleee54"
+    priority: 54
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 155
+  fields:
+    condition: req.url ~ "^\/flexibleee55"
+    priority: 55
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 156
+  fields:
+    condition: req.url ~ "^\/flexibleee56"
+    priority: 56
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 157
+  fields:
+    condition: req.url ~ "^\/flexibleee57"
+    priority: 57
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 158
+  fields:
+    condition: req.url ~ "^\/flexibleee58"
+    priority: 58
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 159
+  fields:
+    condition: req.url ~ "^\/flexibleee59"
+    priority: 59
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 160
+  fields:
+    condition: req.url ~ "^\/flexibleee60"
+    priority: 60
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 161
+  fields:
+    condition: req.url ~ "^\/flexibleee61"
+    priority: 61
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 162
+  fields:
+    condition: req.url ~ "^\/flexibleee62"
+    priority: 62
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 163
+  fields:
+    condition: req.url ~ "^\/flexibleee63"
+    priority: 63
+    director: 2
+    action: pass
+    clusters: [2]
+- model: router.route
+  pk: 164
+  fields:
+    condition: req.url ~ "^\/flexibleee64"
+    priority: 64
     director: 2
     action: pass
     clusters: [2]
