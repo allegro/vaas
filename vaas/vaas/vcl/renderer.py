@@ -189,9 +189,9 @@ class VclTagBuilder:
     @collect_processing
     def prepare_redirects(self) -> Dict[str, List[VclRedirect]]:
         redirects = {}
-        related_domains = MappingProvider(DomainMapping.objects.all()).provide_related_domains(self.varnish.cluster)
+        related_domains = MappingProvider(DomainMapping.objects.all()).provide_related_domains(self.varnish.cluster) # tutaj juz mamy dwa zapytania do bazy
         for redirect in self.input.redirects:
-            destination_domain, destination_mappings = redirect.fetch_all_destinations_mappings(self.varnish.cluster)
+            destination_domain, destination_mappings = redirect.fetch_all_destinations_mappings(self.varnish.cluster) # tutaj znów sięgamy do bazy po redirecty i liste mappingow
             if str(redirect.src_domain) in related_domains:
                 for mapped_domain in redirect.src_domain.mapped_domains(self.varnish.cluster):
                     destination = str(redirect.destination)

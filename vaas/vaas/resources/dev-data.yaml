@@ -227,7 +227,13 @@
   fields: {domain: "mydomain.com", mappings_list: '["{one}:6081","{two}:6081"]', type: dynamic, clusters: []}
 - model: cluster.domainmapping
   pk: 2
-  fields: {domain: "example.com", mappings_list: '["example.base.com"]', type: static, clusters: [3]}
+  fields: {domain: "example.com", mappings_list: '["example.base.com"]', type: static, clusters: [1]}
+- model: cluster.domainmapping
+  pk: 3
+  fields: {domain: "mydomain3.com", mappings_list: '["mydomain3.com"]', type: static, clusters: []}
+- model: cluster.domainmapping
+  pk: 4
+  fields: {domain: "example3.com", mappings_list: '["example2.base.com"]', type: static, clusters: [1]}
 - model: cluster.vcltemplate
   pk: 2
   fields: {name: vagrant_template_4, content: "<VCL/>", version: '4.0', comment: wefwef}
@@ -802,12 +808,290 @@
 - model: router.redirect
   pk: 1
   fields:
-    src_domain: 1
+    src_domain: 3
     condition: req.url ~ "/source_url"
     destination: http://mydomain.com/destination_url
     action: 301
     priority: 250
     preserve_query_params: false
+- model: router.redirect
+  pk: 10
+  fields:
+    src_domain: 3
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 210
+    preserve_query_params: false
+- model: router.redirect
+  pk: 11
+  fields:
+    src_domain: 3
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 211
+    preserve_query_params: false
+- model: router.redirect
+  pk: 12
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 212
+    preserve_query_params: false
+- model: router.redirect
+  pk: 13
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 213
+    preserve_query_params: false
+- model: router.redirect
+  pk: 14
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 214
+    preserve_query_params: false
+- model: router.redirect
+  pk: 15
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 215
+    preserve_query_params: false
+- model: router.redirect
+  pk: 16
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 216
+    preserve_query_params: false
+- model: router.redirect
+  pk: 17
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 217
+    preserve_query_params: false
+- model: router.redirect
+  pk: 18
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 218
+    preserve_query_params: false
+- model: router.redirect
+  pk: 19
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 219
+    preserve_query_params: false
+- model: router.redirect
+  pk: 20
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 220
+    preserve_query_params: false
+- model: router.redirect
+  pk: 21
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 221
+    preserve_query_params: false
+- model: router.redirect
+  pk: 22
+  fields:
+    src_domain: 1
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 222
+    preserve_query_params: false
+- model: router.redirect
+  pk: 23
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 223
+    preserve_query_params: false
+- model: router.redirect
+  pk: 24
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 224
+    preserve_query_params: false
+- model: router.redirect
+  pk: 25
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 225
+    preserve_query_params: false
+- model: router.redirect
+  pk: 26
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 226
+    preserve_query_params: false
+- model: router.redirect
+  pk: 27
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 227
+    preserve_query_params: false
+- model: router.redirect
+  pk: 28
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 228
+    preserve_query_params: false
+- model: router.redirect
+  pk: 29
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 229
+    preserve_query_params: false
+- model: router.redirect
+  pk: 30
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 230
+    preserve_query_params: false
+- model: router.redirect
+  pk: 31
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 231
+    preserve_query_params: false
+- model: router.redirect
+  pk: 32
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 232
+    preserve_query_params: false
+- model: router.redirect
+  pk: 33
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 233
+    preserve_query_params: false
+- model: router.redirect
+  pk: 34
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 234
+    preserve_query_params: false
+- model: router.redirect
+  pk: 35
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 235
+    preserve_query_params: false
+- model: router.redirect
+  pk: 36
+  fields:
+    src_domain: 2
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 236
+    preserve_query_params: false
+- model: router.redirect
+  pk: 37
+  fields:
+    src_domain: 3
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 237
+    preserve_query_params: false
+- model: router.redirect
+  pk: 38
+  fields:
+    src_domain: 3
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 238
+    preserve_query_params: false
+- model: router.redirect
+  pk: 39
+  fields:
+    src_domain: 3
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 239
+    preserve_query_params: false
+- model: router.redirect
+  pk: 40
+  fields:
+    src_domain: 3
+    condition: req.url ~ "/source_url"
+    destination: http://mydomain.com/destination_url
+    action: 301
+    priority: 240
 - model: auth.user
   fields:
     password: pbkdf2_sha256$36000$HSNx3yHNXG51$yggojN+90XWiHuGBK7YnrUZMWtMKpck45CsSel0JxUk=
