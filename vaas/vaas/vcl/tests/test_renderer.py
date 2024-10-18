@@ -436,7 +436,8 @@ class VclTagBuilderTest(TestCase):
     def test_should_decorate_flexible_router_tag_with_properly_mapped_destination_domain(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
-        assert_set_equal({'example.prod.com', 'example-external.com', 'example.prod.org'}, set(tag.parameters['redirects'].keys()))
+        assert_set_equal({'example.prod.com', 'example-external.com', 'example.prod.org'}, 
+                         set(tag.parameters['redirects'].keys()))
         assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
         assert_equals('example.com', tag.parameters['redirects']['example.prod.org'][1].src_domain.domain)
         assert_equals('http://example.prod.com/destination',
@@ -449,7 +450,8 @@ class VclTagBuilderTest(TestCase):
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
-        assert_set_equal({'example.prod.com', 'example-external.com', 'example.prod.org'}, set(tag.parameters['redirects'].keys()))
+        assert_set_equal({'example.prod.com', 'example-external.com', 'example.prod.org'}, 
+                         set(tag.parameters['redirects'].keys()))
         assert_equals('2/example.prod.com', tag.parameters['redirects']['example.prod.com'][0].id)
         assert_equals('1/example.prod.com', tag.parameters['redirects']['example.prod.com'][1].id)
         assert_equals('2/example.prod.org', tag.parameters['redirects']['example.prod.org'][0].id)
