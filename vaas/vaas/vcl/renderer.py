@@ -186,7 +186,8 @@ class VclTagBuilder:
             'mesh_routing': varnish.cluster.service_mesh_routing
         }
 
-    def fetch_all_destinations_mappings(self, cluster: LogicalCluster, redirect: str, domain_mappings: List[DomainMapping]) -> Tuple[str, List[str]]:
+    def fetch_all_destinations_mappings(self, cluster: LogicalCluster, redirect: str,
+                                        domain_mappings: List[DomainMapping]) -> Tuple[str, List[str]]:
         """
         Fetch tuple containing domain parsed from destination url and all found mappings for input cluster
         """
@@ -204,7 +205,8 @@ class VclTagBuilder:
         for related_domain in related_domains:
             if related_domain in self.input.redirects.keys():
                 for redirect in self.input.redirects.get(related_domain):
-                    destination_domain, destination_mappings = self.fetch_all_destinations_mappings(self.varnish.cluster, redirect.destination, self.input.domainmappings)
+                    destination_domain, destination_mappings = self.fetch_all_destinations_mappings(
+                        self.varnish.cluster, redirect.destination, self.input.domainmappings)
                     for mapped_domain in redirect.src_domain.mapped_domains(self.varnish.cluster):
                         destination = str(redirect.destination)
                         if destination_domain == redirect.src_domain.domain:
@@ -416,7 +418,6 @@ class VclRendererInput(object):
                 continue
             redirects[redirect.src_domain.domain].append(redirect)
         return redirects
-
 
     @collect_processing
     def distribute_backends(self, backends):

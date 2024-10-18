@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import uuid
-from typing import Dict, Tuple, List
+from typing import Dict
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
-from urllib.parse import urlsplit
 
 from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
