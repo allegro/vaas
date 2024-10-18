@@ -415,7 +415,6 @@ class VclRendererInput(object):
         for redirect in Redirect.objects.all().order_by('src_domain', 'priority'):
             if redirect.src_domain.domain not in redirects.keys():
                 redirects[redirect.src_domain.domain] = []
-                continue
             redirects[redirect.src_domain.domain].append(redirect)
         return redirects
 
