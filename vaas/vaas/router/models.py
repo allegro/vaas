@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import uuid
-from typing import Dict, Tuple, List
+from typing import Dict
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
-from urllib.parse import urlsplit
 
 from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
@@ -36,16 +35,6 @@ class Redirect(models.Model):
 
     def get_hashed_assertions_pks(self) -> Dict[int, int]:
         return {hash((a.given_url, a.expected_location)): a.pk for a in self.assertions.all()}
-
-    def fetch_all_destinations_mappings(self, cluster: LogicalCluster) -> Tuple[str, List[str]]:
-        """
-        Fetch tuple containing domain parsed from destination url and all found mappings for input cluster
-        """
-        all_mappings = set()
-        destination_domain = urlsplit(self.destination).netloc
-        for domain_mapping in DomainMapping.objects.filter(domain=destination_domain):
-            all_mappings = all_mappings.union(set(domain_mapping.mapped_domains(cluster)))
-        return destination_domain, list(all_mappings)
 
     @property
     def final_condition(self):
