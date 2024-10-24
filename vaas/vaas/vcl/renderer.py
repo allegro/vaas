@@ -405,7 +405,7 @@ class VclRendererInput(object):
         )
         self.distributed_backends = self.distribute_backends(backends)
         self.distributed_canary_backends = self.prepare_canary_backends(canary_backend_ids, backends)
-        self.domain_mappings = DomainMapping.objects.all()
+        self.domain_mappings = list(DomainMapping.objects.all())
         self.mapping_provider = MappingProvider(self.domain_mappings)
 
     @collect_processing
