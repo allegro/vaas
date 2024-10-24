@@ -339,7 +339,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "0bbef", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "ce716", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -424,12 +424,6 @@ sub vcl_recv {
         set req.http.x-response-code = "301";
         set req.http.x-action = "redirect";
     }
-    else if (req.url ~ "/external") {
-        set req.http.x-redirect = "3";
-        set req.http.x-destination = "http://example-external.com/external_destination";
-        set req.http.x-response-code = "301";
-        set req.http.x-action = "redirect";
-    }
     }
     if (req.http.host == "example.prod.org") {
     if (req.url ~ "/source") {
@@ -441,12 +435,6 @@ sub vcl_recv {
     else if (req.url ~ "/source") {
         set req.http.x-redirect = "1";
         set req.http.x-destination = "http://example.prod.org/destination";
-        set req.http.x-response-code = "301";
-        set req.http.x-action = "redirect";
-    }
-    else if (req.url ~ "/external") {
-        set req.http.x-redirect = "3";
-        set req.http.x-destination = "http://example-external.com/external_destination";
         set req.http.x-response-code = "301";
         set req.http.x-action = "redirect";
     }

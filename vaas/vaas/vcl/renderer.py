@@ -5,7 +5,7 @@ import os
 import hashlib
 import time
 import functools
-from typing import Dict, List
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.db.models import Prefetch
@@ -186,13 +186,26 @@ class VclTagBuilder:
             'mesh_routing': varnish.cluster.service_mesh_routing
         }
 
+    def fetch_all_destinations_mappings(self, cluster: LogicalCluster, redirect: str,
+                                        domain_mappings: list[DomainMapping]) -> tuple[str, list[str]]:
+        """Fetch tuple containing domain parsed from destination url and all found mappings for input cluster
+        """
+        all_mappings = set()
+        destination_domain = urlsplit(redirect).netloc
+        for domain_mapping in domain_mappings:
+            all_mappings = all_mappings.union(set(domain_mapping.mapped_domains(cluster)))
+        return destination_domain, list(all_mappings)
+
     @collect_processing
-    def prepare_redirects(self) -> Dict[str, List[VclRedirect]]:
-        redirects = {}
-        related_domains = MappingProvider(DomainMapping.objects.all()).provide_related_domains(self.varnish.cluster)
-        for redirect in self.input.redirects:
-            destination_domain, destination_mappings = redirect.fetch_all_destinations_mappings(self.varnish.cluster)
-            if str(redirect.src_domain) in related_domains:
+    def prepare_redirects(self) -> dict[str, list[VclRedirect]]:
+        redirects = dict()
+        related_domains = self.input.mapping_provider.provide_related_domains(self.varnish.cluster)
+        for related_domain in related_domains:
+            if related_domain not in self.input.redirects.keys():
+                continue
+            for redirect in self.input.redirects.get(related_domain):
+                destination_domain, destination_mappings = self.fetch_all_destinations_mappings(
+                    self.varnish.cluster, redirect.destination, self.input.domain_mappings)
                 for mapped_domain in redirect.src_domain.mapped_domains(self.varnish.cluster):
                     destination = str(redirect.destination)
                     if destination_domain == redirect.src_domain.domain:
@@ -382,7 +395,7 @@ class VclRendererInput(object):
             Prefetch('clusters', queryset=LogicalCluster.objects.only('pk'), to_attr='cluster_ids'),
         ))
         self.routes.sort(key=lambda route: "{:03d}-{}".format(route.priority, route.director.name))
-        self.redirects = list(Redirect.objects.all().order_by('src_domain', 'priority'))
+        self.redirects = self.assemble_redirects()
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all())
@@ -392,6 +405,17 @@ class VclRendererInput(object):
         )
         self.distributed_backends = self.distribute_backends(backends)
         self.distributed_canary_backends = self.prepare_canary_backends(canary_backend_ids, backends)
+        self.domain_mappings = DomainMapping.objects.all()
+        self.mapping_provider = MappingProvider(self.domain_mappings)
+
+    @collect_processing
+    def assemble_redirects(self) -> dict[str, list[Redirect]]:
+        redirects = {}
+        for redirect in Redirect.objects.all().order_by('src_domain', 'priority'):
+            if redirect.src_domain.domain not in redirects.keys():
+                redirects[redirect.src_domain.domain] = []
+            redirects[redirect.src_domain.domain].append(redirect)
+        return redirects
 
     @collect_processing
     def distribute_backends(self, backends):
