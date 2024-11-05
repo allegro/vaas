@@ -10,11 +10,18 @@ class MappingProvider:
             'dynamic': [],
         }
         for m in mappings:
-            self.mappings[m.type].append(m)
+            self.mappings[m.type].append(
+                {
+                    'cluster_keys': [c.pk for c in m.clusters.all()],
+                    'mapping': m
+                }
+            )
 
     def provide_related_domains(self, cluster: LogicalCluster) -> List[str]:
-        result = {m.domain for m in cluster.domainmapping_set.filter(type='static')}
+        print(cluster.name)
+        result = {m['mapping'].domain for m in self.mappings['static'] if cluster.pk in m['cluster_keys']}
+        cluster_labels = set(list(cluster.parsed_labels().keys()))
         for m in self.mappings['dynamic']:
-            if m.is_cluster_related_by_labels(cluster):
-                result.add(m.domain)
+            if m['mapping'].has_matching_labels(cluster_labels):
+                result.add(m['mapping'].domain)
         return sorted(list(result))

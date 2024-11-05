@@ -217,7 +217,7 @@ class LogicalClusterAdmin(admin.ModelAdmin):
 
     def get_changelist_instance(self, request):
         # refresh provider on each changelist view
-        self.provider = MappingProvider(DomainMapping.objects.all())
+        self.provider = MappingProvider(list(DomainMapping.objects.all().prefetch_related('clusters')))
         return super().get_changelist_instance(request)
 
     def get_tags(self, obj: LogicalCluster) -> str:

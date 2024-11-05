@@ -399,19 +399,21 @@ class VclRendererInput(object):
         self.dcs = list(Dc.objects.all())
         self.template_blocks = list(VclTemplateBlock.objects.all().prefetch_related('template'))
         self.vcl_variables = list(VclVariable.objects.all())
-        backends = list(Backend.objects.filter(enabled=True).prefetch_related('director', 'dc'))
+        backends = list(
+            Backend.objects.filter(enabled=True).prefetch_related('director', 'dc', 'director__time_profile')
+        )
         canary_backend_ids = list(
             Backend.objects.values_list('id', flat=True).filter(tags__name='canary').prefetch_related('director', 'dc')
         )
         self.distributed_backends = self.distribute_backends(backends)
         self.distributed_canary_backends = self.prepare_canary_backends(canary_backend_ids, backends)
-        self.domain_mappings = list(DomainMapping.objects.all())
+        self.domain_mappings = list(DomainMapping.objects.all().prefetch_related('clusters'))
         self.mapping_provider = MappingProvider(self.domain_mappings)
 
     @collect_processing
     def assemble_redirects(self) -> dict[str, list[Redirect]]:
         redirects = {}
-        for redirect in Redirect.objects.all().order_by('src_domain', 'priority'):
+        for redirect in Redirect.objects.all().select_related('src_domain').order_by('src_domain', 'priority'):
             if redirect.src_domain.domain not in redirects.keys():
                 redirects[redirect.src_domain.domain] = []
             redirects[redirect.src_domain.domain].append(redirect)
