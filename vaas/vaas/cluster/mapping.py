@@ -18,7 +18,6 @@ class MappingProvider:
             )
 
     def provide_related_domains(self, cluster: LogicalCluster) -> List[str]:
-        print(cluster.name)
         result = {m['mapping'].domain for m in self.mappings['static'] if cluster.pk in m['cluster_keys']}
         cluster_labels = set(list(cluster.parsed_labels().keys()))
         for m in self.mappings['dynamic']:
