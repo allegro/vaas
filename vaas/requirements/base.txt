@@ -4,7 +4,7 @@ django-nose==1.4.7
 enum34==1.1.10
 wheel
 PyYAML==5.4
-Jinja2==2.11.3
+Jinja2==3.1.4
 django-tastypie==0.14.3
 django-log-request-id==1.6.0
 MarkupSafe==1.1.1
@@ -28,7 +28,7 @@ flower==1.2.0
 python-json-logger
 
 # sentry
-sentry-sdk==1.14.0
+sentry-sdk==2.8.0
 
 # newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
 kombu==5.2.3
