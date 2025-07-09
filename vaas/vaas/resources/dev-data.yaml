@@ -1,11 +1,28 @@
 - model: manager.timeprofile
   pk: 1
-  fields: {name: generic profile, description: '', max_connections: 5, connect_timeout: '0.30',
-    first_byte_timeout: '5.00', between_bytes_timeout: '1.00', service_mesh_timeout: '300.00'}
+  fields:
+    {
+      name: generic profile,
+      description: "",
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      service_mesh_timeout: "300.00",
+    }
 - model: manager.probe
   pk: 1
-  fields: {name: default_probe, url: /ts.1, expected_response: 200, interval: 3, timeout: '1.0',
-    window: 5, threshold: 3, start_as_healthy: false}
+  fields:
+    {
+      name: default_probe,
+      url: /ts.1,
+      expected_response: 200,
+      interval: 3,
+      timeout: "1.0",
+      window: 5,
+      threshold: 3,
+      start_as_healthy: false,
+    }
 - model: manager.director
   pk: 1
   fields:
@@ -40,84 +57,209 @@
     cluster: [1, 2, 3, 4]
 - model: cluster.dc
   pk: 1
-  fields: {name: First datacenter, symbol: dc1}
+  fields: { name: First datacenter, symbol: dc1 }
 - model: cluster.dc
   pk: 2
-  fields: {name: Second datacenter, symbol: dc2}
+  fields: { name: Second datacenter, symbol: dc2 }
 - model: manager.backend
   pk: 1
-  fields: {address: 192.168.199.10, port: 80, weight: 1, dc: 1, max_connections: 5,
-    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
-    director: 1, enabled: true, inherit_time_profile: true}
+  fields:
+    {
+      address: 192.168.199.10,
+      port: 80,
+      weight: 1,
+      dc: 1,
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      director: 1,
+      enabled: true,
+      inherit_time_profile: true,
+    }
 - model: manager.backend
   pk: 2
-  fields: {address: 192.168.199.11, port: 80, weight: 1, dc: 1, max_connections: 5,
-    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
-    director: 1, enabled: true, inherit_time_profile: true}
+  fields:
+    {
+      address: 192.168.199.11,
+      port: 80,
+      weight: 1,
+      dc: 1,
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      director: 1,
+      enabled: true,
+      inherit_time_profile: true,
+    }
 - model: manager.backend
   pk: 3
-  fields: {address: 192.168.199.12, port: 80, weight: 2, dc: 1, max_connections: 5,
-    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
-    director: 1, enabled: true, inherit_time_profile: true}
+  fields:
+    {
+      address: 192.168.199.12,
+      port: 80,
+      weight: 2,
+      dc: 1,
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      director: 1,
+      enabled: true,
+      inherit_time_profile: true,
+    }
 - model: manager.backend
   pk: 4
-  fields: {address: 192.168.199.13, port: 80, weight: 3, dc: 1, max_connections: 5,
-    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
-    director: 2, enabled: true, inherit_time_profile: true}
+  fields:
+    {
+      address: 192.168.199.13,
+      port: 80,
+      weight: 3,
+      dc: 1,
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      director: 2,
+      enabled: true,
+      inherit_time_profile: true,
+    }
 - model: manager.backend
   pk: 5
-  fields: {address: 192.168.199.14, port: 80, weight: 4, dc: 1, max_connections: 5,
-    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
-    director: 2, enabled: true, inherit_time_profile: true}
+  fields:
+    {
+      address: 192.168.199.14,
+      port: 80,
+      weight: 4,
+      dc: 1,
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      director: 2,
+      enabled: true,
+      inherit_time_profile: true,
+    }
 - model: manager.backend
   pk: 6
-  fields: {address: 192.168.199.15, port: 80, weight: 5, dc: 1, max_connections: 5,
-    connect_timeout: '0.30', first_byte_timeout: '5.00', between_bytes_timeout: '1.00',
-    director: 2, enabled: true, inherit_time_profile: true}
+  fields:
+    {
+      address: 192.168.199.15,
+      port: 80,
+      weight: 5,
+      dc: 1,
+      max_connections: 5,
+      connect_timeout: "0.30",
+      first_byte_timeout: "5.00",
+      between_bytes_timeout: "1.00",
+      director: 2,
+      enabled: true,
+      inherit_time_profile: true,
+    }
 - model: cluster.logicalcluster
   pk: 1
-  fields: {name: cluster1_siteA_test, reload_timestamp: '2019-11-19T08:02:15.994071+00:00',
-    error_timestamp: '2019-11-13T07:46:40.450785+00:00', last_error_info: null,
-           current_vcl_versions: '[]', labels_list: '["one:192.168.199.6"]'}
+  fields:
+    {
+      name: cluster1_siteA_test,
+      reload_timestamp: "2019-11-19T08:02:15.994071+00:00",
+      error_timestamp: "2019-11-13T07:46:40.450785+00:00",
+      last_error_info: null,
+      current_vcl_versions: "[]",
+      labels_list: '["one:192.168.199.6"]',
+    }
 - model: cluster.logicalcluster
   pk: 2
-  fields: {name: cluster2_siteB_test, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
-    error_timestamp: '2019-11-13T07:46:40.453146+00:00', last_error_info: null,
-    current_vcl_versions: '[]', labels_list: '["two:192.168.199.4", "env:dev"]'}
+  fields:
+    {
+      name: cluster2_siteB_test,
+      reload_timestamp: "2019-11-18T14:16:58.664933+00:00",
+      error_timestamp: "2019-11-13T07:46:40.453146+00:00",
+      last_error_info: null,
+      current_vcl_versions: "[]",
+      labels_list: '["two:192.168.199.4", "env:dev"]',
+    }
 - model: cluster.logicalcluster
   pk: 3
-  fields: {name: cluster3_siteA_dev, reload_timestamp: '2019-11-18T14:16:58.664933+00:00',
-    error_timestamp: '2019-11-13T07:46:40.453839+00:00', last_error_info: null,
-           current_vcl_versions: '[]', labels_list: '["example.com"]'}
+  fields:
+    {
+      name: cluster3_siteA_dev,
+      reload_timestamp: "2019-11-18T14:16:58.664933+00:00",
+      error_timestamp: "2019-11-13T07:46:40.453839+00:00",
+      last_error_info: null,
+      current_vcl_versions: "[]",
+      labels_list: '["example.com"]',
+    }
 - model: cluster.logicalcluster
   pk: 4
-  fields: {name: cluster4_siteC_prod, reload_timestamp: '2019-11-18T14:30:12.551574+00:00',
-    error_timestamp: '2019-11-13T07:46:40.454405+00:00', last_error_info: null,
-            current_vcl_versions: '[]', labels_list: '["placeholder:cluster4"]'}
+  fields:
+    {
+      name: cluster4_siteC_prod,
+      reload_timestamp: "2019-11-18T14:30:12.551574+00:00",
+      error_timestamp: "2019-11-13T07:46:40.454405+00:00",
+      last_error_info: null,
+      current_vcl_versions: "[]",
+      labels_list: '["placeholder:cluster4"]',
+    }
 - model: cluster.domainmapping
   pk: 1
-  fields: {domain: "mydomain.com", mappings_list: '["{one}:6081","{two}:6081"]', type: dynamic, clusters: []}
+  fields:
+    {
+      domain: "mydomain.com",
+      mappings_list: '["{one}:6081","{two}:6081"]',
+      type: dynamic,
+      clusters: [],
+    }
 - model: cluster.domainmapping
   pk: 2
-  fields: {domain: "example.com", mappings_list: '["example.base.com"]', type: static, clusters: [3]}
+  fields:
+    {
+      domain: "example.com",
+      mappings_list: '["example.base.com"]',
+      type: static,
+      clusters: [3],
+    }
 - model: cluster.vcltemplate
   pk: 2
-  fields: {name: vagrant_template_4, content: "<VCL/>", version: '4.0', comment: wefwef}
-- model: cluster.varnishserver
-  pk: 3
-  fields: {ip: 192.168.199.4, hostname: varnish-4.1, cluster_weight: 1, http_port: 6081,
-    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
-    template: 2, cluster: 2, is_canary: false}
+  fields:
+    {
+      name: vagrant_template_4,
+      content: "<VCL/>",
+      version: "4.0",
+      comment: wefwef,
+    }
 - model: cluster.varnishserver
   pk: 4
-  fields: {ip: 192.168.199.6, hostname: varnish-6, cluster_weight: 1, http_port: 6081,
-    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
-    template: 2, cluster: 1, is_canary: false}
+  fields:
+    {
+      ip: 192.168.199.6,
+      hostname: varnish-6,
+      cluster_weight: 1,
+      http_port: 6081,
+      port: 6082,
+      secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
+      status: active,
+      dc: 1,
+      template: 2,
+      cluster: 1,
+      is_canary: false,
+    }
 - model: cluster.varnishserver
   pk: 2
-  fields: {ip: 192.168.199.7, hostname: varnish-7, cluster_weight: 1, http_port: 6081,
-    port: 6082, secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0, status: active, dc: 1,
-    template: 2, cluster: 1, is_canary: false}
+  fields:
+    {
+      ip: 192.168.199.7,
+      hostname: varnish-7,
+      cluster_weight: 1,
+      http_port: 6081,
+      port: 6082,
+      secret: edcf6c52-6f93-4d0d-82b9-cd74239146b0,
+      status: active,
+      dc: 1,
+      template: 2,
+      cluster: 1,
+      is_canary: false,
+    }
 - model: router.route
   pk: 1
   fields:
@@ -128,10 +270,10 @@
     clusters: [2]
 - model: router.positiveurl
   pk: 1
-  fields: {url: http://192.168.199.4:6081/flexibleee, route: 1}
+  fields: { url: http://192.168.199.4:6081/flexibleee, route: 1 }
 - model: router.positiveurl
   pk: 2
-  fields: {url: http://192.168.199.4:6081/wrong, route: 1}
+  fields: { url: http://192.168.199.4:6081/wrong, route: 1 }
 - model: router.redirectassertion
   pk: 1
   fields:
@@ -156,15 +298,15 @@
 - model: auth.user
   fields:
     password: pbkdf2_sha256$36000$HSNx3yHNXG51$yggojN+90XWiHuGBK7YnrUZMWtMKpck45CsSel0JxUk=
-    last_login: '2019-11-19T11:24:56.296352+00:00'
+    last_login: "2019-11-19T11:24:56.296352+00:00"
     is_superuser: true
     username: admin
-    first_name: ''
-    last_name: ''
+    first_name: ""
+    last_name: ""
     email: admin@vaas.allegrogroup.com
     is_staff: true
     is_active: true
-    date_joined: '2019-11-13T07:46:40.829872+00:00'
+    date_joined: "2019-11-13T07:46:40.829872+00:00"
     groups: []
     user_permissions: []
 - model: tastypie.apikey
@@ -174,7 +316,8 @@
     user_id: 1
 - model: cluster.vclvariable
   pk: 1
-  fields: {key: MESH_IP, value: 192.168.199.10, cluster: 1}
+  fields: { key: MESH_IP, value: 192.168.199.10, cluster: 1 }
 - model: cluster.vclvariable
   pk: 2
-  fields: {key: MESH_PORT, value: 80, cluster: 1}
+  fields: { key: MESH_PORT, value: 80, cluster: 1 }
+
