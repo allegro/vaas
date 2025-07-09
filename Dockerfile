@@ -25,7 +25,7 @@ RUN apt update \
   && apt install -y --no-install-recommends curl git default-libmysqlclient-dev build-essential default-mysql-client pkg-config
 
 # install dependencies
-# RUN pip install --upgrade pip
+RUN pip install --upgrade pip
 
 COPY ./vaas/requirements /home/app/vaas/requirements
 
