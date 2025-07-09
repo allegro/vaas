@@ -3,8 +3,8 @@ FROM python:3.9.9-slim-buster
 
 
 # set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # create directory for the app
 RUN mkdir -p /home/app
@@ -22,10 +22,10 @@ ENV PYTHONPATH=/home/app/plugins
 VOLUME ["/home/app/plugins"]
 
 RUN apt update \
-    && apt install -y --no-install-recommends curl git default-libmysqlclient-dev build-essential default-mysql-client pkg-config
+  && apt install -y --no-install-recommends curl git default-libmysqlclient-dev build-essential default-mysql-client pkg-config
 
 # install dependencies
-RUN pip install --upgrade pip
+# RUN pip install --upgrade pip
 
 COPY ./vaas/requirements /home/app/vaas/requirements
 
