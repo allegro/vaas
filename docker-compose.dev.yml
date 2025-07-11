@@ -110,9 +110,18 @@ services:
     networks:
       vaas:
         ipv4_address: 192.168.199.15
-  varnish-6.0.2:
-    build: ./docker/varnish-6.0.2
-    image: allegro/vaas-varnish-6.0.2
+  varnish-4.1:
+    build: ./docker/varnish-4.1
+    image: allegro/vaas-varnish-4.1
+    expose:
+      - "6082"
+      - "6081"
+    networks:
+      vaas:
+        ipv4_address: 192.168.199.4
+  varnish-6.0.14:
+    build: ./docker/varnish-6.0.14
+    image: allegro/vaas-varnish-6.0.14
     expose:
       - "6082"
       - "6081"
