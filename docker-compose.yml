@@ -1,7 +1,13 @@
 services:
   mysql:
     image: mysql:5.7
-    command: ['mysqld', '--character-set-server=utf8', '--collation-server=utf8_general_ci']
+    platform: "linux/amd64"
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8",
+        "--collation-server=utf8_general_ci",
+      ]
     environment:
       MYSQL_DATABASE: vaas
       MYSQL_ROOT_PASSWORD: password
@@ -14,7 +20,7 @@ services:
   redis:
     image: redis:alpine
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 1s
       timeout: 3s
       retries: 30
