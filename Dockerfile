@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.9.9-slim-buster
+FROM python:3.9.9-bullseye
 
 
 # set environment variables
@@ -25,7 +25,8 @@ RUN apt update \
   && apt install -y --no-install-recommends curl git default-libmysqlclient-dev build-essential default-mysql-client pkg-config
 
 # install dependencies
-RUN pip install --upgrade pip
+# TODO: after migration to the newst python please uncomment
+# RUN pip install --upgrade pip
 
 COPY ./vaas/requirements /home/app/vaas/requirements
 
