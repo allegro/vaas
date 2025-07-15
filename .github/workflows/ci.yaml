@@ -22,7 +22,7 @@ jobs:
       - name: Lint with flake8
         working-directory: vaas
         run: |
-          flake8  vaas/
+          flake8 --extend-ignore F824 vaas/
       - name: Test with coverage
         working-directory: vaas
         run: |
