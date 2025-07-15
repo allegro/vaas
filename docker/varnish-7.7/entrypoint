@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+set -- varnishd -a :6081 \
+  -F \
+  -T :6082 \
+  -f /etc/varnish/default.vcl \
+  -S /etc/varnish/secret \
+  -s malloc,100m
+
+echo "Starting Varnish with: $@"
+exec "$@"
