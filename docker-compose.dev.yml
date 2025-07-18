@@ -1,6 +1,6 @@
 services:
   celery-worker:
-    entrypoint: [ '/entrypoint-celery-worker.sh' ]
+    entrypoint: ["/entrypoint-celery-worker.sh"]
     env_file: ./envs/dev.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -9,7 +9,7 @@ services:
       - vaas
       - default
   celery-cron-worker:
-    entrypoint: [ '/entrypoint-celery-cron-worker.sh' ]
+    entrypoint: ["/entrypoint-celery-cron-worker.sh"]
     env_file: ./envs/dev.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -18,7 +18,7 @@ services:
       - vaas
       - default
   celery-routes-test:
-    entrypoint: [ '/entrypoint-celery-routes-test.sh' ]
+    entrypoint: ["/entrypoint-celery-routes-test.sh"]
     env_file: ./envs/dev.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -27,7 +27,15 @@ services:
       - vaas
       - default
   uwsgi:
-    entrypoint: ['/wait-for-it.sh', 'mysql:3306', '-t', '30', '--', '/entrypoint-uwsgi-dev.sh' ]
+    entrypoint:
+      [
+        "/wait-for-it.sh",
+        "mysql:3306",
+        "-t",
+        "30",
+        "--",
+        "/entrypoint-uwsgi-dev.sh",
+      ]
     env_file: ./envs/dev.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -36,7 +44,15 @@ services:
       - vaas
       - default
   celery-scheduler:
-    entrypoint: ['/wait-for-it.sh', 'uwsgi:3030', '-t', '60', '--', '/entrypoint-celery-scheduler.sh' ]
+    entrypoint:
+      [
+        "/wait-for-it.sh",
+        "uwsgi:3030",
+        "-t",
+        "60",
+        "--",
+        "/entrypoint-celery-scheduler.sh",
+      ]
     env_file: ./envs/dev.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -94,27 +110,18 @@ services:
     networks:
       vaas:
         ipv4_address: 192.168.199.15
-  varnish-4.1:
-    build: ./docker/varnish-4.1
-    image: allegro/vaas-varnish-4.1
-    expose:
-      - "6082"
-      - "6081"
-    networks:
-      vaas:
-        ipv4_address: 192.168.199.4
-  varnish-6.0.2:
-    build: ./docker/varnish-6.0.2
-    image: allegro/vaas-varnish-6.0.2
+  varnish-6.0.14:
+    build: ./docker/varnish-6.0.14
+    image: allegro/vaas-varnish-6.0.14
     expose:
       - "6082"
       - "6081"
     networks:
       vaas:
         ipv4_address: 192.168.199.6
-  varnish-7.0:
-    build: ./docker/varnish-7.0
-    image: allegro/vaas-varnish-7.0
+  varnish-7.7:
+    build: ./docker/varnish-7.7
+    image: allegro/vaas-varnish-7.7
     expose:
       - "6082"
       - "6081"
@@ -129,3 +136,4 @@ networks:
       config:
         - subnet: 192.168.199.0/24
           gateway: 192.168.199.1
+  default:

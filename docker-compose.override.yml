@@ -1,6 +1,6 @@
 services:
   celery-worker:
-    entrypoint: [ '/entrypoint-celery-worker.sh' ]
+    entrypoint: ["/entrypoint-celery-worker.sh"]
     env_file: ./envs/base.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -8,7 +8,7 @@ services:
     networks:
       - default
   celery-cron-worker:
-    entrypoint: [ '/entrypoint-celery-cron-worker.sh' ]
+    entrypoint: ["/entrypoint-celery-cron-worker.sh"]
     env_file: ./envs/base.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -16,7 +16,7 @@ services:
     networks:
       - default
   celery-routes-test:
-    entrypoint: [ '/entrypoint-celery-routes-test.sh' ]
+    entrypoint: ["/entrypoint-celery-routes-test.sh"]
     env_file: ./envs/base.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -24,7 +24,15 @@ services:
     networks:
       - default
   uwsgi:
-    entrypoint: ['/wait-for-it.sh', 'mysql:3306', '-t', '30', '--', '/entrypoint-uwsgi.sh' ]
+    entrypoint:
+      [
+        "/wait-for-it.sh",
+        "mysql:3306",
+        "-t",
+        "30",
+        "--",
+        "/entrypoint-uwsgi.sh",
+      ]
     env_file: ./envs/base.env
     volumes:
       - ./vaas:/home/app/vaas
@@ -32,7 +40,15 @@ services:
     networks:
       - default
   celery-scheduler:
-    entrypoint: ['/wait-for-it.sh', 'uwsgi:3030', '-t', '60', '--', '/entrypoint-celery-scheduler.sh' ]
+    entrypoint:
+      [
+        "/wait-for-it.sh",
+        "uwsgi:3030",
+        "-t",
+        "60",
+        "--",
+        "/entrypoint-celery-scheduler.sh",
+      ]
     env_file: ./envs/base.env
     volumes:
       - ./vaas:/home/app/vaas
