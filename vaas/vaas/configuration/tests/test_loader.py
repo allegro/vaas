@@ -64,7 +64,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: False,
             resource_path: False
         }
-        assert None == YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).determine_config_file('test.yaml')
+        assert YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).determine_config_file('test.yaml') is None
 
     @patch('builtins.open', mock_open(read_data="key1: value1\nkey2: value2"))
     def test_should_return_config_tree(self):

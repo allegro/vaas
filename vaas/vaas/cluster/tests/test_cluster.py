@@ -211,7 +211,6 @@ class ParallelLoaderTest(TestCase):
                 self.assert_loaded_vcl_contains_proper_vcl_and_server(to_use[0], first_vcl, servers[1])
                 self.assert_loaded_vcl_contains_proper_vcl_and_server(to_use[1], second_vcl, servers[2])
 
-
     @pytest.mark.raises(VclLoadException)
     def test_should_raise_custom_exception_if_error_occurred_while_loading_vcl(self):
         first_vcl = Vcl('Test-1', name='test-1')

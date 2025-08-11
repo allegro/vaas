@@ -436,23 +436,24 @@ class VclTagBuilderTest(TestCase):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         assert {'example.prod.com', 'example-external.com', 'example.prod.org'} == \
-                         set(tag.parameters['redirects'].keys())
+               set(tag.parameters['redirects'].keys())
         assert 'example.com' == tag.parameters['redirects']['example.prod.com'][1].src_domain.domain
         assert 'example.com' == tag.parameters['redirects']['example.prod.org'][1].src_domain.domain
         assert 'http://example.prod.com/destination' == \
-                      tag.parameters['redirects']['example.prod.com'][1].destination
+               tag.parameters['redirects']['example.prod.com'][1].destination
         assert 'http://example.prod.org/destination' == \
-                      tag.parameters['redirects']['example.prod.org'][1].destination
+               tag.parameters['redirects']['example.prod.org'][1].destination
         assert 'http://example-external.com/external_destination' == \
-                      tag.parameters['redirects']['example-external.com'][0].destination
+               tag.parameters['redirects']['example-external.com'][0].destination
 
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
-        assert {'example.prod.com', 'example-external.com', 'example.prod.org'} == set(tag.parameters['redirects'].keys())
+        assert {'example.prod.com', 'example-external.com', 'example.prod.org'} == \
+               set(tag.parameters['redirects'].keys())
         assert '2/example.prod.com' == tag.parameters['redirects']['example.prod.com'][0].id
         assert '1/example.prod.com' == tag.parameters['redirects']['example.prod.com'][1].id
-        assert '2/example.prod.org' ==  tag.parameters['redirects']['example.prod.org'][0].id
+        assert '2/example.prod.org' == tag.parameters['redirects']['example.prod.org'][0].id
         assert '3/example-external.com' == tag.parameters['redirects']['example-external.com'][0].id
 
 

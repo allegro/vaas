@@ -70,4 +70,3 @@ class VclVariableValidatorTest(TestCase):
             VarnishServer
         )
         self.assertIsNone(ret_val)
-

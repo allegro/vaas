@@ -29,7 +29,7 @@ class VclRefreshMiddlewareTest(TestCase):
 
         middleware = VclRefreshMiddleware(MagicMock())
 
-        assert None == middleware.process_request(request)
+        assert middleware.process_request(request) is None
         assert {'10': []} == VclRefreshState.refresh
         middleware.process_response(request, None)
 
