@@ -77,7 +77,7 @@ class ProbeFactory(DjangoModelFactory):
     class Meta:
         model = Probe
 
-    name = 'test_probe'
+    name = Sequence(lambda n: f'test_probe_{n}')
     url = '/status'
 
 
