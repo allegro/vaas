@@ -473,7 +473,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             route1.delete()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert [call([cluster_director]), call([cluster_director])] ==  regenerate_and_reload_vcl_mock.call_args_list
+            assert [call([cluster_director]), call([cluster_director])] == regenerate_and_reload_vcl_mock.call_args_list
 
     def test_vcl_update_when_route_with_director_cluster_sync_enabled_or_disabled_existing_route(self):
         settings.SIGNALS = 'on'
