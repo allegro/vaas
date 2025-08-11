@@ -339,7 +339,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "ce716", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "61f7a", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
