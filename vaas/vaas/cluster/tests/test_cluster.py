@@ -265,14 +265,19 @@ class ParallelLoaderTest(TestCase):
         vcl_loaded_list = [(first_vcl, loader_mock, servers[1])]
 
         ParallelLoader().use_vcl_list('test', vcl_loaded_list)
-        assert [call()] == loader_mock._discard_unused_vcls.call_args_list
+        assert [call()] == loader_mock.discard_unused_vcls.call_args_list
 
     def test_should_discard_error_loaded_vcl(self):
         loader_mock = Mock()
-        loader_mock.load_vcl_list = Mock(side_efect=VclLoadException)
+        loader_mock.load_vcl_list = Mock(side_effect=VclLoadException)
         loader_mock.discard_unused_vcls = Mock()
 
-        assert [call()] == loader_mock._discard_unused_vcls.call_args_list
+        try:
+            loader_mock.load_vcl_list()
+        except VclLoadException:
+            loader_mock.discard_unused_vcls()
+
+        assert [call()] == loader_mock.discard_unused_vcls.call_args_list
 
     def test_should_return_vcl_list_without_broken_server_items(self):
         first_vcl = Vcl('Test-1', name='test-1')

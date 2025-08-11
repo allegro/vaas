@@ -1,7 +1,6 @@
 uwsgi
 django==5.2.5
-pytest>=7.0
-pytest-django
+pytest==8.4.1
 enum34==1.1.10
 wheel
 PyYAML==6.0.2
