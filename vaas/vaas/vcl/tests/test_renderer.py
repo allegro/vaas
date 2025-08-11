@@ -526,9 +526,6 @@ class VclRendererTest(TestCase):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput())
 
-        print("VCL CONTENT:", vcl.content)
-        print("VCL NAME:", vcl.name)
-
         assert 'new-v4-1' == vcl.name[:-10]
         self._assert_vcl_content('expected-vcl-4.0.vcl', vcl.content)
 
@@ -543,9 +540,6 @@ class VclRendererTest(TestCase):
     def test_should_prepare_default_vcl_version4_with_canary_backend(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4_canary, '1', VclRendererInput())
-
-        print("VCL CONTENT:", vcl.content)
-        print("VCL NAME:", vcl.name)
 
         assert 'new-v4-1' == vcl.name[:-10]
         self._assert_vcl_content('expected-vcl-4.0-canary.vcl', vcl.content)
@@ -586,6 +580,8 @@ backend first_service_1_dc2_1_1_80 {
         self.varnish.template = vcl_template_with_unused_director
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
 
+        print("VCL CONTENT:", vcl.content)
+
         assert expected_content == vcl.content
 
     def test_should_replace_empty_or_disabled_director_with_information_in_error_response_varnish4(self):
@@ -622,9 +618,6 @@ backend first_service_1_dc2_1_1_80 {
     def test_should_prepare_default_vcl_varnish_with_mesh_and_standard_service(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish6_with_mesh_and_standard_service, '1', VclRendererInput())
-
-        print("VCL CONTENT:", vcl.content)
-        print("VCL NAME:", vcl.name)
 
         assert 'new-v4-1' == vcl.name[:-10]
         self._assert_vcl_content('expected-vcl-4.0-with-mesh-and-standard-service.vcl', vcl.content)
