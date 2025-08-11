@@ -85,7 +85,7 @@ class TimeProfileFactory(DjangoModelFactory):
     class Meta:
         model = TimeProfile
 
-    name = 'whatever'
+    name = Sequence(lambda n: f"time_profile_{n}")
 
 
 class DirectorFactory(DjangoModelFactory):
