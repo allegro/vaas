@@ -8,7 +8,7 @@ import directors;
 ## header vcl ###
 ## acl rules ##
 ## START director third_service ###
-probe third_service_test_probe_1 {
+probe third_service_test_probe_28_3 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -24,7 +24,7 @@ backend third_service_4_dc1_2_1_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = third_service_test_probe_1;
+    .probe = third_service_test_probe_28_3;
 }
 
 ## END director third_service ###

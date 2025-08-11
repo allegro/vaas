@@ -13,7 +13,7 @@ backend mesh_default_proxy {
 }
 
 ## START director ten_director_in_forth_hyrid_cluster ###
-probe ten_director_in_forth_hyrid_cluster_test_probe_1 {
+probe ten_director_in_forth_hyrid_cluster_test_probe_24_11 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -29,7 +29,7 @@ backend ten_director_in_forth_hyrid_cluster_11_dc1_4_1_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = ten_director_in_forth_hyrid_cluster_test_probe_1;
+    .probe = ten_director_in_forth_hyrid_cluster_test_probe_24_11;
 }
 
 ## END director ten_director_in_forth_hyrid_cluster ###
