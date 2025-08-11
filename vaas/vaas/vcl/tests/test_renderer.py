@@ -72,6 +72,7 @@ class LogicalClusterFactory(DjangoModelFactory):
 
     name = 'cluster1_siteA_test'
 
+
 class ProbeFactory(DjangoModelFactory):
     class Meta:
         model = Probe
@@ -85,6 +86,7 @@ class TimeProfileFactory(DjangoModelFactory):
         model = TimeProfile
 
     name = 'whatever'
+
 
 class DirectorFactory(DjangoModelFactory):
     class Meta:
