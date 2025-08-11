@@ -40,7 +40,6 @@ MESSAGE_STORAGE = env.str('MESSAGE_STORAGE', default='django.contrib.messages.st
 
 # Application definition
 INSTALLED_APPS = (
-    'django_nose',
     'vaas.adminext',
     'django_admin_bootstrapped',
     'django.contrib.admin',

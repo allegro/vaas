@@ -4,9 +4,7 @@ from .base import *
 
 DEBUG = True
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-NOSE_ARGS = ['--exclude-dir=vaas/settings']
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 from vaas.settings.ldap import *
 

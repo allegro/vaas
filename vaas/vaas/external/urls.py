@@ -1,6 +1,6 @@
 import logging
 import os
-from django.conf.urls import url, include
+from django.urls import include, path, re_path
 from django.conf import settings
 
 
@@ -24,7 +24,7 @@ def iterate_plugins():
 
 for app in iterate_plugins():
     try:
-        urlpatterns.append(url(r'{}/'.format(app), include('{}.urls'.format(app))))
+        urlpatterns.append(re_path(r'^%s/' % app, include(f'{app}.urls')))
         logger.info('Found urls for plugin: {}'.format(app))
     except ImportError:
         pass

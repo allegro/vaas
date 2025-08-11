@@ -1,5 +1,8 @@
 services:
   celery-worker:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     entrypoint: ["/entrypoint-celery-worker.sh"]
     env_file: ./envs/dev.env
     volumes:
@@ -9,6 +12,9 @@ services:
       - vaas
       - default
   celery-cron-worker:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     entrypoint: ["/entrypoint-celery-cron-worker.sh"]
     env_file: ./envs/dev.env
     volumes:
@@ -18,6 +24,9 @@ services:
       - vaas
       - default
   celery-routes-test:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     entrypoint: ["/entrypoint-celery-routes-test.sh"]
     env_file: ./envs/dev.env
     volumes:
@@ -27,6 +36,9 @@ services:
       - vaas
       - default
   uwsgi:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     entrypoint:
       [
         "/wait-for-it.sh",
@@ -44,6 +56,9 @@ services:
       - vaas
       - default
   celery-scheduler:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     entrypoint:
       [
         "/wait-for-it.sh",

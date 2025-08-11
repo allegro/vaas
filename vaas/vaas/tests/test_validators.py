@@ -1,4 +1,3 @@
-from nose.tools import assert_is_none, assert_raises
 from django.test import TestCase
 from django.conf import settings
 
@@ -46,13 +45,29 @@ class VclVariableValidatorTest(TestCase):
         )
 
     def test_should_raise_vcl_validator_error_if_variables_missing(self):
-        assert_raises(VclVariableValidatorError, vcl_variable_validator, self.vcl_template1.content, 1,
-                      VclVariable, VarnishServer)
+        with self.assertRaises(VclVariableValidatorError):
+            vcl_variable_validator(
+                self.vcl_template1.content,
+                1,
+                VclVariable,
+                VarnishServer
+            )
 
     def test_should_not_raise_vcl_validator_error_if_no_placeholders(self):
-        ret_val = vcl_variable_validator(self.vcl_template2.content, self.vcl_template2.pk, VclVariable, VarnishServer)
-        assert_is_none(ret_val)
+        ret_val = vcl_variable_validator(
+            self.vcl_template2.content,
+            self.vcl_template2.pk,
+            VclVariable,
+            VarnishServer
+        )
+        self.assertIsNone(ret_val)
 
     def test_should_substitute_all_variables_found(self):
-        ret_val = vcl_variable_validator(self.vcl_template3.content, self.vcl_template3.pk, VclVariable, VarnishServer)
-        assert_is_none(ret_val)
+        ret_val = vcl_variable_validator(
+            self.vcl_template3.content,
+            self.vcl_template3.pk,
+            VclVariable,
+            VarnishServer
+        )
+        self.assertIsNone(ret_val)
+

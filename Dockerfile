@@ -29,22 +29,24 @@ RUN apt update \
     build-essential \
     default-mysql-client \
     pkg-config \
-    python3 \
-    python3-pip \
+    python3.12 \
     python3.12-dev \
-    python3-venv \
+    python3.12-venv \
+    python3-pip \
+    python3-setuptools \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 # Create a virtual environment
-RUN python3 -m venv /opt/venv
+RUN python3.12 -m venv /opt/venv
 
 # Activate virtual environment and install pip packages
 ENV PATH="/opt/venv/bin:$PATH"
 
+RUN pip install --upgrade pip setuptools wheel
+
 COPY ./vaas/requirements /home/app/vaas/requirements
 
-RUN pip install --upgrade pip
 RUN pip install -r ./requirements/base.txt
 
 #copy uwsgi config

@@ -1,21 +1,21 @@
 uwsgi
-django==3.1.14
-django-nose==1.4.7
+django==5.2.5
+pytest>=7.0
+pytest-django
 enum34==1.1.10
 wheel
 PyYAML==6.0.2
 Jinja2==2.11.3
-django-tastypie==0.14.3
+django-tastypie==0.15.1
 django-log-request-id==1.6.0
 MarkupSafe==1.1.1
-nose>=1.3.7
-django-simple-history==2.12.0
+django-simple-history==3.10.1
 django-secure==1.0.2
-django-environ==0.4.5
+django-environ==0.12.0
 lockfile==0.12.2
-django-taggit==1.3.0
+django-taggit==6.1.0
 # newer versions requires incompatible kombu
-celery[redis]==5.2.3
+celery[redis]==5.5.3
 celery-beatx
 requests>=2.25.1
 GitPython==3.1.35
@@ -31,10 +31,10 @@ python-json-logger
 sentry-sdk==1.14.0
 
 # newer versions are incompatible with our fork of redis-py: https://github.com/allegro/redis-py
-kombu==5.2.3
-redis==4.4.4
+kombu==5.5.4
+redis==5.2.1
 django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
-python_varnish @ git+https://github.com/allegro/python-varnish@0.2.2#egg=python_varnish
+python_varnish @ git+https://github.com/allegro/python-varnish@0.2.4#egg=python_varnish
 django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.2#egg=django_ace
 mysqlclient
 

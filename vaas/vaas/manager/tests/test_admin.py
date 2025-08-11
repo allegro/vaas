@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from nose.tools import assert_false, assert_true
-
 from vaas import settings
 from vaas.cluster.models import Dc
 from vaas.manager.admin import switch_backend_status
@@ -24,5 +22,5 @@ def test_should_switch_backend_status():
     switch_backend_status(None, None, Backend.objects.all())
 
     objects = Backend.objects.order_by('address')
-    assert_false(objects[0].enabled)
-    assert_true(objects[1].enabled)
+    assert not objects[0].enabled
+    assert objects[1].enabled

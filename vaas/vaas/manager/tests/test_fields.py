@@ -3,7 +3,6 @@
 from decimal import Decimal
 
 from django.forms import model_to_dict
-from nose.tools import assert_equals
 from django.test import TestCase
 from django.db import models
 
@@ -36,13 +35,13 @@ def test_generate_choices():
         (Decimal(4 / div), '0.80'),
         (Decimal(5 / div), '1.00')
     ]
-    assert_equals(expected_choices, generate_choices(0, 6, 5))
+    assert expected_choices == generate_choices(0, 6, 5)
 
 
 def test_should_make_backend_name_which_contain_all_relevant_parts():
     backend = create_backend(10, 'awesomeService', 'dc666', '127.0.20.30', 8080)
     expectedBackendName = "awesomeService_10_dc666_20_30_8080"
-    assert_equals(expectedBackendName, make_backend_name(backend))
+    assert expectedBackendName == make_backend_name(backend)
 
 
 def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_length():
@@ -50,7 +49,7 @@ def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_leng
         11, 'beta_awesomeService', 'dc_longname_11111111111111111111111111111111111111', '127.0.20.30', 8080
     )
     expectedBackendName = "11_dc_longname_11111111111111111111111111111111111111_20_30_8080"
-    assert_equals(expectedBackendName, make_backend_name(backend))
+    assert expectedBackendName == make_backend_name(backend)
 
 
 def test_should_shorten_director_name_if_director_and_more_relevant_parts_are_longer_than_maximum_length():
@@ -58,7 +57,7 @@ def test_should_shorten_director_name_if_director_and_more_relevant_parts_are_lo
         12, 'awesomeService_alpha', 'dc_longname_111111111111111111111111111111', '127.0.20.30', 8080
     )
     expectedBackendName = "awesome_12_dc_longname_111111111111111111111111111111_20_30_8080"
-    assert_equals(expectedBackendName, make_backend_name(backend))
+    assert expectedBackendName == make_backend_name(backend)
 
 
 class NormalizedDecimalFieldTest(TestCase):
@@ -75,4 +74,4 @@ class NormalizedDecimalFieldTest(TestCase):
         for value, database_value in sample_values:
             sample_model.normalized_field = Decimal(database_value)
             dictionary = model_to_dict(sample_model)
-            assert_equals(str(value), str(dictionary['normalized_field']))
+            assert str(value) == str(dictionary['normalized_field'])
