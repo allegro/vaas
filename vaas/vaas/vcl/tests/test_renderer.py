@@ -582,7 +582,6 @@ backend first_service_1_dc2_1_1_80 {
         print("Actual content:\n", vcl.content)
         print("Expected content:\n", expected_content)
 
-
         assert expected_content == vcl.content
 
     def test_should_replace_empty_or_disabled_director_with_information_in_error_response_varnish4(self):
