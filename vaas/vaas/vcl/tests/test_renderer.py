@@ -569,7 +569,7 @@ backend first_service_1_dc2_1_1_80 {
     .connect_timeout = 0.50s;
     .first_byte_timeout = 0.10s;
     .between_bytes_timeout = 1.00s;
-    .probe = first_service_test_probe_1;
+    .probe = first_service_test_probe_4_1;
 }
 
 ## END director first_service ###
@@ -579,8 +579,6 @@ backend first_service_1_dc2_1_1_80 {
 
         self.varnish.template = vcl_template_with_unused_director
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
-
-        print("VCL CONTENT:", vcl.content)
 
         assert expected_content == vcl.content
 
