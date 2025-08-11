@@ -72,6 +72,19 @@ class LogicalClusterFactory(DjangoModelFactory):
 
     name = 'cluster1_siteA_test'
 
+class ProbeFactory(DjangoModelFactory):
+    class Meta:
+        model = Probe
+
+    name = 'test_probe'
+    url = '/status'
+
+
+class TimeProfileFactory(DjangoModelFactory):
+    class Meta:
+        model = TimeProfile
+
+    name = 'whatever'
 
 class DirectorFactory(DjangoModelFactory):
     class Meta:
@@ -84,9 +97,9 @@ class DirectorFactory(DjangoModelFactory):
     protocol = 'https'
     mode = 'round-robin'
     hashing_policy = 'req.http.cookie'
-    probe = Probe.objects.create(name='test_probe', url='/status')
+    probe = SubFactory(ProbeFactory)
     active_active = True
-    time_profile = TimeProfile.objects.create(name='whatever')
+    time_profile = SubFactory(TimeProfileFactory)
     reachable_via_service_mesh = False
 
 
