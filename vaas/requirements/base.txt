@@ -33,7 +33,7 @@ kombu==5.5.4
 redis==5.2.1
 django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/allegro/python-varnish@0.2.4#egg=python_varnish
-django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.2#egg=django_ace
+django_ace @ git+https://github.com/allegro/django-ace@v1.2.5.3#egg=django_ace
 mysqlclient
 
 # Metrics
