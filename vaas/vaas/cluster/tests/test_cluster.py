@@ -2,7 +2,6 @@
 from django.utils import timezone
 from unittest.mock import patch, call, Mock
 from django.test import TestCase
-import pytest
 
 from vaas.cluster.forms import VclTemplateModelForm
 from vaas.cluster.models import Dc, LogicalCluster, VarnishServer, VclTemplate
@@ -211,30 +210,28 @@ class ParallelLoaderTest(TestCase):
                 self.assert_loaded_vcl_contains_proper_vcl_and_server(to_use[0], first_vcl, servers[1])
                 self.assert_loaded_vcl_contains_proper_vcl_and_server(to_use[1], second_vcl, servers[2])
 
-    @pytest.mark.raises(VclLoadException)
     def test_should_raise_custom_exception_if_error_occurred_while_loading_vcl(self):
         first_vcl = Vcl('Test-1', name='test-1')
         vcl_list = [(servers[1], first_vcl)]
         with patch.object(VarnishApiProvider, 'get_api'):
             with patch.object(VclLoader, 'load_new_vcl', return_value=VclStatus.ERROR):
-                ParallelLoader().load_vcl_list(vcl_list)
+                with self.assertRaises(VclLoadException):
+                    ParallelLoader().load_vcl_list(vcl_list)
 
-    @pytest.mark.raises(VclLoadException)
     def test_should_raise_custom_exception_if_timeout_occurred_while_loading_vcl(self):
         first_vcl = Vcl('Test-1', name='test-1')
         vcl_list = [(servers[1], first_vcl)]
-
         with patch.object(VarnishApiProvider, 'get_api'):
             with patch.object(VclLoader, 'load_new_vcl', side_effect=VarnishApiReadException):
-                ParallelLoader().load_vcl_list(vcl_list)
+                with self.assertRaises(VclLoadException):
+                    ParallelLoader().load_vcl_list(vcl_list)
 
-    @pytest.mark.raises(VclLoadException)
     def test_should_raise_custom_exception_if_error_occurred_while_connecting_to_server(self):
         first_vcl = Vcl('Test-1', name='test-1')
         vcl_list = [(servers[1], first_vcl)]
-
         with patch.object(VarnishApi, '__init__', side_effect=Exception):
-            ParallelLoader().load_vcl_list(vcl_list)
+            with self.assertRaises(VclLoadException):
+                ParallelLoader().load_vcl_list(vcl_list)
 
     def assert_loaded_vcl_contains_proper_vcl_and_server(self, loaded_vcl_tuple, expected_vcl, expected_server):
         vcl, loader, server = loaded_vcl_tuple
