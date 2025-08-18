@@ -4,23 +4,26 @@ from vaas import settings
 from vaas.cluster.models import Dc
 from vaas.manager.admin import switch_backend_status
 from vaas.manager.models import Backend, Director, Probe, TimeProfile
+from django.test import TestCase
+
+class AdminTestCase(TestCase):
 
 
-def test_should_switch_backend_status():
-    settings.SIGNALS = 'off'
-    dc = Dc.objects.create(symbol='dc1')
-    probe = Probe.objects.create(name='first_service_probe', url='/status')
-    director = Director.objects.create(
-        name='first_service',
-        router='req.url',
-        route_expression='/first',
-        probe=probe,
-        time_profile=TimeProfile.objects.create(name='profile')
-    )
-    Backend.objects.create(address='127.0.1.1', port=80, dc=dc, director=director, enabled=True)
-    Backend.objects.create(address='127.0.1.2', port=80, dc=dc, director=director, enabled=False)
-    switch_backend_status(None, None, Backend.objects.all())
+    def test_should_switch_backend_status(self):
+        settings.SIGNALS = 'off'
+        dc = Dc.objects.create(symbol='dc1')
+        probe = Probe.objects.create(name='first_service_probe', url='/status')
+        director = Director.objects.create(
+            name='first_service',
+            router='req.url',
+            route_expression='/first',
+            probe=probe,
+            time_profile=TimeProfile.objects.create(name='profile')
+        )
+        Backend.objects.create(address='127.0.1.1', port=80, dc=dc, director=director, enabled=True)
+        Backend.objects.create(address='127.0.1.2', port=80, dc=dc, director=director, enabled=False)
+        switch_backend_status(None, None, Backend.objects.all())
 
-    objects = Backend.objects.order_by('address')
-    assert not objects[0].enabled
-    assert objects[1].enabled
+        objects = Backend.objects.order_by('address')
+        self.assertFalse(objects[0].enabled)
+        self.assertTrue(objects[1].enabled)

@@ -24,40 +24,40 @@ def create_backend(id, director_name, dc_symbol, address, port):
     )
     return Backend.objects.create(id=id, address=address, port=port, dc=dc, director=director)
 
-
-def test_generate_choices():
-    div = Decimal(5)
-    expected_choices = [
-        (Decimal(0 / div), '0.00'),
-        (Decimal(1 / div), '0.20'),
-        (Decimal(2 / div), '0.40'),
-        (Decimal(3 / div), '0.60'),
-        (Decimal(4 / div), '0.80'),
-        (Decimal(5 / div), '1.00')
-    ]
-    assert expected_choices == generate_choices(0, 6, 5)
-
-
-def test_should_make_backend_name_which_contain_all_relevant_parts():
-    backend = create_backend(10, 'awesomeService', 'dc666', '127.0.20.30', 8080)
-    expectedBackendName = "awesomeService_10_dc666_20_30_8080"
-    assert expectedBackendName == make_backend_name(backend)
+class FieldsTest(TestCase):
+    def test_generate_choices(self):
+        div = Decimal(5)
+        expected_choices = [
+            (Decimal(0 / div), '0.00'),
+            (Decimal(1 / div), '0.20'),
+            (Decimal(2 / div), '0.40'),
+            (Decimal(3 / div), '0.60'),
+            (Decimal(4 / div), '0.80'),
+            (Decimal(5 / div), '1.00')
+        ]
+        self.assertEqual(expected_choices, generate_choices(0, 6, 5))
 
 
-def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_length():
-    backend = create_backend(
-        11, 'beta_awesomeService', 'dc_longname_11111111111111111111111111111111111111', '127.0.20.30', 8080
-    )
-    expectedBackendName = "11_dc_longname_11111111111111111111111111111111111111_20_30_8080"
-    assert expectedBackendName == make_backend_name(backend)
+    def test_should_make_backend_name_which_contain_all_relevant_parts(self):
+        backend = create_backend(10, 'awesomeService', 'dc666', '127.0.20.30', 8080)
+        expectedBackendName = "awesomeService_10_dc666_20_30_8080"
+        self.assertEqual(expectedBackendName, make_backend_name(backend))
 
 
-def test_should_shorten_director_name_if_director_and_more_relevant_parts_are_longer_than_maximum_length():
-    backend = create_backend(
-        12, 'awesomeService_alpha', 'dc_longname_111111111111111111111111111111', '127.0.20.30', 8080
-    )
-    expectedBackendName = "awesome_12_dc_longname_111111111111111111111111111111_20_30_8080"
-    assert expectedBackendName == make_backend_name(backend)
+    def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_length(self):
+        backend = create_backend(
+            11, 'beta_awesomeService', 'dc_longname_11111111111111111111111111111111111111', '127.0.20.30', 8080
+        )
+        expectedBackendName = "11_dc_longname_11111111111111111111111111111111111111_20_30_8080"
+        self.assertEqual(expectedBackendName, make_backend_name(backend))
+
+
+    def test_should_shorten_director_name_if_director_and_more_relevant_parts_are_longer_than_maximum_length(self):
+        backend = create_backend(
+            12, 'awesomeService_alpha', 'dc_longname_111111111111111111111111111111', '127.0.20.30', 8080
+        )
+        expectedBackendName = "awesome_12_dc_longname_111111111111111111111111111111_20_30_8080"
+        self.assertEqual(expectedBackendName, make_backend_name(backend))
 
 
 class NormalizedDecimalFieldTest(TestCase):
@@ -74,4 +74,4 @@ class NormalizedDecimalFieldTest(TestCase):
         for value, database_value in sample_values:
             sample_model.normalized_field = Decimal(database_value)
             dictionary = model_to_dict(sample_model)
-            assert str(value) == str(dictionary['normalized_field'])
+            self.assertEqual(str(value), str(dictionary['normalized_field']))

@@ -69,8 +69,8 @@ class BackendStatusManagerTest(TestCase):
         BackendStatus.objects.create(backend_id=3, status='Healthy', timestamp=timestamp)
 
     def assert_status(self, expected_backend_id, expected_status, given_backend_status):
-        assert expected_backend_id == given_backend_status.backend_id
-        assert expected_status == given_backend_status.status
+        self.assertEqual(expected_backend_id, given_backend_status.backend_id)
+        self.assertEqual(expected_status, given_backend_status.status)
 
     def test_should_store_backend_statuses(self):
         backend_to_status_map = {
@@ -79,7 +79,7 @@ class BackendStatusManagerTest(TestCase):
         }
         BackendStatusManager(Mock(), []).store_backend_statuses(backend_to_status_map)
         statuses = BackendStatus.objects.all()
-        assert 2 == len(statuses)
+        self.assertEqual(2, len(statuses))
         self.assert_status(2, 'Sick', statuses[0])
         self.assert_status(3, 'Healthy', statuses[1])
 
@@ -102,9 +102,8 @@ class BackendStatusManagerTest(TestCase):
         varnish_api_provider_mock = Mock()
         varnish_api_provider_mock.get_api.return_value = varnish_api_mock
 
-        assert \
-            expected_result == \
-            BackendStatusManager(varnish_api_provider_mock, [varnish_server_mock], timeout).load_from_varnish()
+        self.assertEqual(expected_result,
+            BackendStatusManager(varnish_api_provider_mock, [varnish_server_mock], timeout).load_from_varnish())
 
         varnish_api_provider_mock.get_api.assert_called_once_with(varnish_server_mock, timeout)
 
@@ -118,9 +117,8 @@ class BackendStatusManagerTest(TestCase):
         varnish_api_provider_mock = Mock()
         varnish_api_provider_mock.get_api = Mock(side_effect=lambda s, _: servers[s])
 
-        assert \
-            EXPECTED_MERGED_STATUS_MAP == \
-            BackendStatusManager(varnish_api_provider_mock, servers.keys(), timeout).load_from_varnish()
+        self.assertEqual(EXPECTED_MERGED_STATUS_MAP,
+            BackendStatusManager(varnish_api_provider_mock, servers.keys(), timeout).load_from_varnish())
 
     def test_should_refresh_backend_statuses(self):
         backend_to_status_map = {
@@ -130,6 +128,6 @@ class BackendStatusManagerTest(TestCase):
         with patch('vaas.monitor.health.BackendStatusManager.load_from_varnish', return_value=backend_to_status_map):
             BackendStatusManager(Mock(), []).refresh_statuses()
             statuses = BackendStatus.objects.all()
-            assert 2 == len(statuses)
+            self.assertEqual(2, len(statuses))
             self.assert_status(2, 'Sick', statuses[0])
             self.assert_status(3, 'Healthy', statuses[1])

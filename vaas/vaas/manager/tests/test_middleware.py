@@ -12,14 +12,14 @@ class VclRefreshStateTest(TestCase):
 
     def test_should_return_default_value(self):
         non_existence_id = '1235'
-        assert not VclRefreshState.get_refresh(non_existence_id)
+        self.assertFalse(VclRefreshState.get_refresh(non_existence_id))
 
     def test_should_return_previously_set_value_and_clean_state(self):
         req_id = '1234'
         VclRefreshState.set_refresh(req_id, True)
-        assert {req_id: True} == VclRefreshState.refresh
-        assert VclRefreshState.get_refresh(req_id)
-        assert {} == VclRefreshState.refresh
+        self.assertEqual({req_id: True}, VclRefreshState.refresh)
+        self.assertTrue(VclRefreshState.get_refresh(req_id))
+        self.assertEqual({}, VclRefreshState.refresh)
 
 
 class VclRefreshMiddlewareTest(TestCase):
@@ -29,8 +29,8 @@ class VclRefreshMiddlewareTest(TestCase):
 
         middleware = VclRefreshMiddleware(MagicMock())
 
-        assert middleware.process_request(request) is None
-        assert {'10': []} == VclRefreshState.refresh
+        self.assertIsNone(middleware.process_request(request))
+        self.assertEqual({'10': []}, VclRefreshState.refresh)
         middleware.process_response(request, None)
 
     def test_should_clear_state_on_response(self):
@@ -38,8 +38,8 @@ class VclRefreshMiddlewareTest(TestCase):
 
         middleware = VclRefreshMiddleware(MagicMock())
         middleware.process_request(request)
-        assert "test" == middleware.process_response(request, "test")
-        assert {} == VclRefreshState.refresh
+        self.assertEqual("test", middleware.process_response(request, "test"))
+        self.assertEqual({}, VclRefreshState.refresh)
 
     def test_should_not_refresh_vcl_on_response_if_empty_cluster_list(self):
         request = MagicMock(id='10')
@@ -56,7 +56,7 @@ class VclRefreshMiddlewareTest(TestCase):
                 return_value=None
             ) as load_vcl_mock:
                 middleware.process_response(request, None)
-                assert 0 == len(load_vcl_mock.call_args_list)
+                self.assertEqual(0, len(load_vcl_mock.call_args_list))
 
     def test_should_return_error_message_if_exception_while_loading_vcl(self):
         with patch('vaas.cluster.cluster.load_vcl_task.delay', side_effect=Exception('load vcl failed')):
@@ -64,8 +64,8 @@ class VclRefreshMiddlewareTest(TestCase):
             middleware = VclRefreshMiddleware(MagicMock())
             VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             middleware.process_response(request, None)
-            assert 'error_message' in request.session
-            assert 'Exception: load vcl failed' == request.session['error_message']
+            self.assertIn('error_message', request.session)
+            self.assertEqual('Exception: load vcl failed', request.session['error_message'])
 
     def test_should_return_error_message_in_tastypie_if_exception_while_loading_vcl(self):
         with patch('vaas.cluster.cluster.load_vcl_task.delay', side_effect=Exception('load vcl failed')):
@@ -73,5 +73,5 @@ class VclRefreshMiddlewareTest(TestCase):
             middleware = VclRefreshMiddleware(MagicMock())
             VclRefreshState.set_refresh('10', [MagicMock(id='1')])
             response = middleware.process_response(request, HttpCreated())
-            assert isinstance(response, HttpApplicationError)
-            assert b'Exception: load vcl failed' == response.content
+            self.assertTrue(isinstance(response, HttpApplicationError))
+            self.assertEqual(b'Exception: load vcl failed', response.content)

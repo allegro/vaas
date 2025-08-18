@@ -44,8 +44,8 @@ class TestSignals(TestCase):
                 return_value=None
         ) as regenerate_and_reload_vcl_mock:
             switch_state_and_reload(queryset, True)
-            assert [call(enabled=True)] == queryset.update.call_args_list
-            assert [call([cluster1])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call(enabled=True)], queryset.update.call_args_list)
+            self.assertEqual([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
     def test_should_not_reload_clusters_if_service_mesh_is_enabled_and_director_is_reachable_via_sm(self):
         cluster_with_sm = LogicalCluster.objects.create(name="cluster_with_sm", service_mesh_routing=True)
@@ -79,8 +79,8 @@ class TestSignals(TestCase):
                 return_value=None
         ) as regenerate_and_reload_vcl_mock:
             switch_state_and_reload(queryset, True)
-            assert [call(enabled=True)] == queryset.update.call_args_list
-            assert [call([cluster_without_sm])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call(enabled=True)], queryset.update.call_args_list)
+            self.assertEqual([call([cluster_without_sm])], regenerate_and_reload_vcl_mock.call_args_list)
 
     def test_switch_state_and_reload_with_empty_list(self):
         queryset = MagicMock()
@@ -90,11 +90,11 @@ class TestSignals(TestCase):
                 return_value=None
         ) as regenerate_and_reload_vcl_mock:
             switch_state_and_reload(queryset, True)
-            assert [call(enabled=True)] == queryset.update.call_args_list
+            self.assertEqual([call(enabled=True)],queryset.update.call_args_list)
             """
             shouldn't refresh any cluster, because of empty list
             """
-            assert [call([])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([])], regenerate_and_reload_vcl_mock.call_args_list)
 
     def test_regenerate_and_reload_vcl_if_can_obtain_request(self):
         request = MagicMock(id=10)
@@ -106,7 +106,7 @@ class TestSignals(TestCase):
             ) as vcl_refresh_mock:
                 clusters = []
                 regenerate_and_reload_vcl(clusters)
-                assert [call(request.id, [])] == vcl_refresh_mock.call_args_list
+                self.assertEqual([call(request.id, [])], vcl_refresh_mock.call_args_list)
 
     def test_regenerate_and_reload_vcl_if_cannot_obtain_request(self):
         with patch('vaas.manager.signals.get_current_request', return_value=None):
@@ -116,7 +116,7 @@ class TestSignals(TestCase):
             ) as vcl_refresh_mock:
                 clusters = []
                 regenerate_and_reload_vcl(clusters)
-                assert [] == vcl_refresh_mock.call_args_list
+                self.assertEqual([], vcl_refresh_mock.call_args_list)
 
     def test_vcl_update_if_sender_allowed(self):
         settings.SIGNALS = 'on'
@@ -137,7 +137,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': director1}
             vcl_update(Director, **kwargs)
-            assert [call([])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -167,7 +167,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': director1}
             vcl_update(Director, **kwargs)
-            assert [call([cluster1])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -199,7 +199,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': time_profile}
             vcl_update(TimeProfile, **kwargs)
-            assert [call([cluster1])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -208,7 +208,7 @@ class TestSignals(TestCase):
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             vcl_update(None)
-            assert [] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([], regenerate_and_reload_vcl_mock.call_args_list)
         settings.SIGNALS = 'off'
 
     def test_vcl_update_cluster_filter_for_vcltemplate(self):
@@ -235,7 +235,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': template}
             vcl_update(VclTemplate, **kwargs)
-            assert [call([cluster1])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -269,7 +269,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': backend1}
             vcl_update(Backend, **kwargs)
-            assert [call([cluster_without_sm])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster_without_sm])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -298,7 +298,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': template_block}
             vcl_update(VclTemplateBlock, **kwargs)
-            assert [call([cluster1])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -328,7 +328,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             kwargs = {'instance': director1, 'action': 'post_add'}
             model_update(**kwargs)
-            assert [call([cluster1])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -360,12 +360,12 @@ class TestSignals(TestCase):
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director2.cluster.remove(cluster3)
-            assert [call([cluster3])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster3])], regenerate_and_reload_vcl_mock.call_args_list)
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director2.cluster.add(cluster5)
-            assert [call([cluster5])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster5])],regenerate_and_reload_vcl_mock.call_args_list)
 
         # should update all clusters when change metadata is not set
 
@@ -378,12 +378,12 @@ class TestSignals(TestCase):
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director2.cluster.remove(cluster3)
-            assert [call([cluster3, cluster4])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster3, cluster4])], regenerate_and_reload_vcl_mock.call_args_list)
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director2.cluster.add(cluster5)
-            assert [call([cluster4, cluster5])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster4, cluster5])], regenerate_and_reload_vcl_mock.call_args_list)
 
         settings.SIGNALS = 'off'
 
@@ -409,7 +409,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director3.delete()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert [call([cluster1]), call([])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1]), call([])], regenerate_and_reload_vcl_mock.call_args_list)
 
     def test_vcl_update_when_route_will_be_deleted(self):
         settings.SIGNALS = 'on'
@@ -439,7 +439,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             route1.delete()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert [call([cluster1]), call([])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster1]), call([])], regenerate_and_reload_vcl_mock.call_args_list)
 
     def test_vcl_update_when_route_with_director_cluster_sync_deleted(self):
         settings.SIGNALS = 'on'
@@ -473,7 +473,7 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             route1.delete()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert [call([cluster_director]), call([cluster_director])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster_director]), call([cluster_director])], regenerate_and_reload_vcl_mock.call_args_list)
 
     def test_vcl_update_when_route_with_director_cluster_sync_enabled_or_disabled_existing_route(self):
         settings.SIGNALS = 'on'
@@ -509,11 +509,11 @@ class TestSignals(TestCase):
             route1.clusters_in_sync = True
             route1.save()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert [call([cluster_route]), call([cluster_director])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster_route]), call([cluster_director])], regenerate_and_reload_vcl_mock.call_args_list)
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             route1.clusters_in_sync = False
             route1.save()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            assert [call([cluster_director]), call([cluster_route])] == regenerate_and_reload_vcl_mock.call_args_list
+            self.assertEqual([call([cluster_director]), call([cluster_route])], regenerate_and_reload_vcl_mock.call_args_list)

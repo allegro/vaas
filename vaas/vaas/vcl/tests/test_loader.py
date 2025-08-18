@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from unittest import TestCase
+from django.test import TestCase
 from unittest.mock import call, Mock, patch
 
 from vaas.vcl.loader import VclLoader, VclStatus
