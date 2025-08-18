@@ -334,7 +334,7 @@ class VarnishClusterTest(TestCase):
                     """
                     Here we check if only previously loaded vcl-s are used
                     """
-                    self.assertTrue([call(start_processing_time, loaded_list)], use_vcl_mock.call_args_list)
+                    self.assertEquals([call(start_processing_time, loaded_list)], use_vcl_mock.call_args_list)
 
     def test_should_not_use_vcls_on_error_while_loading_vcl(self):
         vcl = Vcl('Test-content', name='test')
