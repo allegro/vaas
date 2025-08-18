@@ -49,13 +49,13 @@ MESSAGE_STORAGE = env.str(
 INSTALLED_APPS = (
     "django_nose",
     "vaas.adminext",
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "jazzmin",
     "social_django",
     "tastypie",
     "vaas.manager",
@@ -382,60 +382,204 @@ for entry in env.json(
     ],
 ):
     DOMAIN_MAPPER[entry["name"]] = entry["value"]
-
 REDIRECT_CUSTOM_HEADER = env.str("REDIRECT_CUSTOM_HEADER", default="x-internal-network")
 REDIRECT_CUSTOM_HEADER_LABEL = env.str(
     "REDIRECT_CUSTOM_HEADER_LABEL",
     default="Require {} header".format(REDIRECT_CUSTOM_HEADER),
 )
 
-JAZZMIN_SETTINGS = {
-    "site_title": "VaaS Administration",
-    "site_logo": None,
+
+DEFAULT_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title)
+    "site_title": None,
+    # Title on the login screen (19 chars max) (will default to current_admin_site.site_header)
+    "site_header": None,
+    # Title on the brand (19 chars max) (will default to current_admin_site.site_header)
+    "site_brand": None,
+    # Relative path to logo for your site, used for brand on top left (must be present in static files)
+    "site_logo": "vendor/adminlte/img/AdminLTELogo.png",
+    # Relative path to logo for your site, used for login logo (must be present in static files. Defaults to site_logo)
     "login_logo": None,
+    # Logo to use for login form in dark themes (must be present in static files. Defaults to login_logo)
+    "login_logo_dark": None,
+    # CSS classes that are applied to the logo
+    "site_logo_classes": "img-circle",
+    # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
     "site_icon": None,
-    "welcome_sign": "Welcome to the VaaS administration",
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome",
+    # Copyright on the footer
+    "copyright": "",
+    # The model admin to search from the search bar, search bar omitted if excluded
+    "search_model": None,
+    # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
     "user_avatar": None,
+    ############
+    # Top Menu #
+    ############
+    # Links to put along the nav bar
+    "topmenu_links": [],
+    #############
+    # User Menu #
+    #############
+    # Additional links to include in the user menu on the top right ('app' url type is not allowed)
+    "usermenu_links": [],
+    #############
+    # Side Menu #
+    #############
+    # Whether to display the side menu
     "show_sidebar": True,
+    # Whether to aut expand the menu
     "navigation_expanded": True,
-    "icons": {},
+    # Hide these apps when generating side menu e.g (auth)
+    "hide_apps": [],
+    # Hide these models when generating side menu (e.g auth.user)
+    "hide_models": [],
+    # List of apps to base side menu ordering off of
+    "order_with_respect_to": [],
+    # Custom links to append to side menu app groups, keyed on lower case app label
+    # or makes a new group if the given app label doesnt exist in installed apps
+    "custom_links": {},
+    # Custom icons for side menu apps/models See the link below
+    # https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,
+    # 5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,
+    # 5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
+    # for the full list of 5.13.0 free icon classes
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+    },
+    # Icons that are used when one is not manually specified
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
+    #################
+    # Related Modal #
+    #################
+    # Activate Bootstrap modal
     "related_modal_active": False,
+    #############
+    # UI Tweaks #
+    #############
+    # Relative paths to custom CSS/JS scripts (must be present in static files)
     "custom_css": None,
     "custom_js": None,
+    # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
+    "use_google_fonts_cdn": True,
+    # Whether to show the UI customizer on the sidebar
+    "show_ui_builder": False,
+    ###############
+    # Change view #
+    ###############
+    # Render out the change view as a single form, or in tabs, current options are
+    # - single
+    # - horizontal_tabs (default)
+    # - vertical_tabs
+    # - collapsible
+    # - carousel
     "changeform_format": "horizontal_tabs",
+    # override change forms on a per modeladmin basis
+    "changeform_format_overrides": {},
+    # Add a language dropdown into the admin
+    "language_chooser": False,
 }
 
-JAZZMIN_UI_TWEAKS = {
+#######################################
+# Currently available UI tweaks       #
+# Use the UI builder to generate this #
+#######################################
+
+DEFAULT_UI_TWEAKS = {
+    # Small text on the top navbar
     "navbar_small_text": False,
+    # Small text on the footer
     "footer_small_text": False,
+    # Small text everywhere
     "body_small_text": False,
+    # Small text on the brand/logo
     "brand_small_text": False,
+    # brand/logo background colour
     "brand_colour": False,
+    # Link colour
     "accent": "accent-primary",
+    # topmenu colour
     "navbar": "navbar-white navbar-light",
+    # topmenu border
     "no_navbar_border": False,
+    # Make the top navbar sticky, keeping it in view as you scroll
     "navbar_fixed": False,
+    # Whether to constrain the page to a box (leaving big margins at the side)
     "layout_boxed": False,
+    # Make the footer sticky, keeping it in view all the time
     "footer_fixed": False,
+    # Make the sidebar sticky, keeping it in view as you scroll
     "sidebar_fixed": False,
+    # sidemenu colour
     "sidebar": "sidebar-dark-primary",
+    # sidemenu small text
     "sidebar_nav_small_text": False,
+    # Disable expanding on hover of collapsed sidebar
     "sidebar_disable_expand": False,
+    # Indent child menu items on sidebar
     "sidebar_nav_child_indent": False,
+    # Use a compact sidebar
     "sidebar_nav_compact_style": False,
+    # Use the AdminLTE2 style sidebar
     "sidebar_nav_legacy_style": False,
+    # Use a flat style sidebar
     "sidebar_nav_flat_style": False,
+    # Bootstrap theme to use (default, or from bootswatch, see THEMES below)
     "theme": "default",
-    "dark_mode_theme": "darkly",
+    # Theme to use instead if the user has opted for dark mode (e.g darkly/cyborg/slate/solar/superhero)
+    "dark_mode_theme": None,
+    # The classes/styles to use with buttons
     "button_classes": {
-        "primary": "btn-outline-primary",
-        "secondary": "btn-outline-secondary",
-        "info": "btn-outline-info",
-        "warning": "btn-outline-warning",
-        "danger": "btn-outline-danger",
-        "success": "btn-outline-success",
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
     },
 }
 
+THEMES = {
+    # light themes
+    "default": "vendor/bootswatch/default/bootstrap.min.css",
+    "cerulean": "vendor/bootswatch/cerulean/bootstrap.min.css",
+    "cosmo": "vendor/bootswatch/cosmo/bootstrap.min.css",
+    "flatly": "vendor/bootswatch/flatly/bootstrap.min.css",
+    "journal": "vendor/bootswatch/journal/bootstrap.min.css",
+    "litera": "vendor/bootswatch/litera/bootstrap.min.css",
+    "lumen": "vendor/bootswatch/lumen/bootstrap.min.css",
+    "lux": "vendor/bootswatch/lux/bootstrap.min.css",
+    "materia": "vendor/bootswatch/materia/bootstrap.min.css",
+    "morph": "vendor/bootswatch/morph/bootstrap.min.css",
+    "minty": "vendor/bootswatch/minty/bootstrap.min.css",
+    "pulse": "vendor/bootswatch/pulse/bootstrap.min.css",
+    "sandstone": "vendor/bootswatch/sandstone/bootstrap.min.css",
+    "simplex": "vendor/bootswatch/simplex/bootstrap.min.css",
+    "sketchy": "vendor/bootswatch/sketchy/bootstrap.min.css",
+    "spacelab": "vendor/bootswatch/spacelab/bootstrap.min.css",
+    "united": "vendor/bootswatch/united/bootstrap.min.css",
+    "yeti": "vendor/bootswatch/yeti/bootstrap.min.css",
+    "quartz": "vendor/bootswatch/quartz/bootstrap.min.css",
+    "zephyr": "vendor/bootswatch/zephyr/bootstrap.min.css",
+    # dark themes
+    "darkly": "vendor/bootswatch/darkly/bootstrap.min.css",
+    "cyborg": "vendor/bootswatch/cyborg/bootstrap.min.css",
+    "slate": "vendor/bootswatch/slate/bootstrap.min.css",
+    "solar": "vendor/bootswatch/solar/bootstrap.min.css",
+    "superhero": "vendor/bootswatch/superhero/bootstrap.min.css",
+    "vapor": "vendor/bootswatch/vapor/bootstrap.min.css",
+}
+
+DARK_THEMES = ("darkly", "cyborg", "slate", "solar", "superhero")
+
+CHANGEFORM_TEMPLATES = {
+    "single": "jazzmin/includes/single.html",
+    "carousel": "jazzmin/includes/carousel.html",
+    "collapsible": "jazzmin/includes/collapsible.html",
+    "horizontal_tabs": "jazzmin/includes/horizontal_tabs.html",
+    "vertical_tabs": "jazzmin/includes/vertical_tabs.html",
+}
