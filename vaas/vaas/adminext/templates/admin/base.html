@@ -1,4 +1,6 @@
-{% load i18n static bootstrapped_goodies_tags %}
+{% load i18n static jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
@@ -93,7 +95,7 @@
                         {% endblock %}
                         {% block languages %}
                         <li class="divider-vertical"></li>
-                        {% language_selector %}
+
                         {% endblock languages %}
                         {% block logs %}
                         <li class="dropdown" id="recent-actions-module">
@@ -159,7 +161,7 @@
                         {% endblock %}
                     {% block content_title %}
                     {% if title %}
-                        <span class="navbar-brand">{% render_with_template_if_exist title|lower|add:"/admin_app_name.html" title %}</span>
+                        <span class="navbar-brand"></span>
                     {% endif %}
                     {% endblock %}
                     </div>
