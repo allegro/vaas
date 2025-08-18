@@ -8,7 +8,6 @@ db.sqlite3
 *.egg
 *.log
 coverage.xml
-nosetests.xml
 nohup.out
 vaas/vaas/static/
 vagrant/puppet/manifests/build/

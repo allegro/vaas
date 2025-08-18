@@ -1,6 +1,6 @@
 import requests
 import requests_mock
-from unittest import TestCase
+from django.test import TestCase
 
 from vaas.router.models import Route, PositiveUrl, Redirect, RedirectAssertion
 from vaas.router.fetcher import Fetcher, RouteAssertionResponse, RedirectAssertionResponse

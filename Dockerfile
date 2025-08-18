@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.9.9-bullseye
+FROM ubuntu:noble
 
 
 # set environment variables
@@ -22,11 +22,28 @@ ENV PYTHONPATH=/home/app/plugins
 VOLUME ["/home/app/plugins"]
 
 RUN apt update \
-  && apt install -y --no-install-recommends curl git default-libmysqlclient-dev build-essential default-mysql-client pkg-config
+  && apt install -y --no-install-recommends \
+    curl \
+    git \
+    default-libmysqlclient-dev \
+    build-essential \
+    default-mysql-client \
+    pkg-config \
+    python3.12 \
+    python3.12-dev \
+    python3.12-venv \
+    python3-pip \
+    python3-setuptools \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-# install dependencies
-# TODO: after migration to the newst python please uncomment
-# RUN pip install --upgrade pip
+# Create a virtual environment
+RUN python3.12 -m venv /opt/venv
+
+# Activate virtual environment and install pip packages
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN pip install --upgrade pip setuptools wheel
 
 COPY ./vaas/requirements /home/app/vaas/requirements
 
