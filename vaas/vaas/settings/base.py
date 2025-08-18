@@ -41,7 +41,7 @@ MESSAGE_STORAGE = env.str('MESSAGE_STORAGE', default='django.contrib.messages.st
 # Application definition
 INSTALLED_APPS = (
     'vaas.adminext',
-    'django_admin_bootstrapped',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -316,3 +316,66 @@ for entry in env.json('DOMAIN_MAPPER', default=[
 
 REDIRECT_CUSTOM_HEADER = env.str('REDIRECT_CUSTOM_HEADER', default='x-internal-network')
 REDIRECT_CUSTOM_HEADER_LABEL = env.str('REDIRECT_CUSTOM_HEADER_LABEL', default='Require {} header'.format(REDIRECT_CUSTOM_HEADER))
+
+JAZZMIN_SETTINGS = {
+    "site_title": "VaaS Administration",
+    "site_logo": None,
+    "login_logo": None,
+    "site_icon": None,
+    "welcome_sign": "Welcome to the VaaS administration",
+    "user_avatar": None,
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "dictionary.Dc": "fas fa-building",
+        "dictionary.Environment": "fas fa-users-cog",
+        "dictionary.ServiceEnv": "fas fas fa-mail-bulk",
+        "dictionary.Service": "fas fa-window-restore",
+        "dictionary.Venture": "fas fa-folder",
+        "processing.ConfigurationPatch": "fas fa-check-double",
+        "processing.EntryDumperTask": "fas fa-copy",
+        "registry.DcEntry": "fas fa-building",
+        "registry.GlobalEntry": "fas fa-globe-europe",
+        "registry.HostEntry": "fas fa-server",
+        "registry.ServiceEntry": "fas fa-window-maximize",
+        "registry.Entry": "fas fa-file",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": False,
+    "custom_css": None,
+    "custom_js": None,
+    "changeform_format": "horizontal_tabs",
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-primary",
+    "navbar": "navbar-white navbar-light",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": False,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success",
+    },
+}

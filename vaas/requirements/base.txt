@@ -21,6 +21,9 @@ defusedxml==0.7.1
 lxml==6.0.0
 flower==2.0.1
 
+# Django Admin Theme
+django-jazzmin
+
 # JSON logging
 python-json-logger
 
@@ -29,7 +32,6 @@ sentry-sdk==2.34.1
 
 kombu==5.5.4
 redis==5.2.1
-django_admin_bootstrapped @ git+https://github.com/allegro/django-admin-bootstrapped@2.5.9.1#egg=django_admin_bootstrapped
 python_varnish @ git+https://github.com/allegro/python-varnish@0.2.4#egg=python_varnish
 mysqlclient
 
