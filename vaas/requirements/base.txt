@@ -24,6 +24,9 @@ flower==2.0.1
 # Django Admin Theme
 django-jazzmin
 
+# Django Admin Theme
+django-jazzmin
+
 # JSON logging
 python-json-logger
 
