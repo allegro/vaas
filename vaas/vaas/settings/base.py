@@ -47,7 +47,6 @@ MESSAGE_STORAGE = env.str(
 
 # Application definition
 INSTALLED_APPS = (
-    "django_nose",
     "vaas.adminext",
     "jazzmin",
     "django.contrib.admin",
