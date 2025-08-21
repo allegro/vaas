@@ -4,7 +4,6 @@ import os
 from factory.django import DjangoModelFactory
 from factory import Sequence, SubFactory
 from unittest.mock import Mock, patch
-from nose.tools import assert_equals, assert_in, assert_list_equal, assert_set_equal, assert_true
 from django.test import TestCase
 from vaas.vcl.renderer import Vcl, VclVariableExpander, VclTagExpander, VclTagBuilder, VclRenderer, VclRendererInput
 from vaas.manager.models import Director, Probe, Backend, TimeProfile
@@ -21,12 +20,12 @@ class VclTest(TestCase):
     @patch('vaas.vcl.renderer.hashlib.md5', Mock(return_value=md5_mock))
     def test_name_should_contain_version_based_on_digest(self):
         vcl = Vcl('some_content', 'new-vcl')
-        assert_equals('new-vcl-vol_ca5ef', vcl.name)
+        self.assertEqual(vcl.name, 'new-vcl-vol_ca5ef')
 
     @patch('vaas.vcl.renderer.hashlib.md5', Mock(return_value=md5_mock))
     def test_should_compare_versions(self):
         vcl = Vcl('some_content', 'new-vcl')
-        assert_true(vcl.compare_version('other-vcl-vol_ca5ef'))
+        self.assertTrue(vcl.compare_version('other-vcl-vol_ca5ef'))
 
 
 class VclTagExpanderTest(TestCase):
@@ -52,11 +51,11 @@ import directors;
 <VCL_PIPE/>
 <OTHER_FUNCTIONS/>
 <EMPTY_DIRECTOR_SYNTH/>'''
-        assert_equals(expected_v4, tag_expander.expand(self.vcl_template4))
+        self.assertTrue(tag_expander.expand(self.vcl_template4), expected_v4)
 
     def test_tag_should_be_expanded_from_database(self):
         tag_expander = VclTagExpander('ACL', 'ACL', VclRendererInput(), can_overwrite=True)
-        assert_equals('## ACL custom content ##', tag_expander.expand(self.vcl_template4))
+        self.assertEqual(tag_expander.expand(self.vcl_template4), '## ACL custom content ##')
 
 
 class DcFactory(DjangoModelFactory):
@@ -74,6 +73,21 @@ class LogicalClusterFactory(DjangoModelFactory):
     name = 'cluster1_siteA_test'
 
 
+class ProbeFactory(DjangoModelFactory):
+    class Meta:
+        model = Probe
+
+    name = Sequence(lambda n: f'test_probe_{n}')
+    url = '/status'
+
+
+class TimeProfileFactory(DjangoModelFactory):
+    class Meta:
+        model = TimeProfile
+
+    name = Sequence(lambda n: f"time_profile_{n}")
+
+
 class DirectorFactory(DjangoModelFactory):
     class Meta:
         model = Director
@@ -85,9 +99,9 @@ class DirectorFactory(DjangoModelFactory):
     protocol = 'https'
     mode = 'round-robin'
     hashing_policy = 'req.http.cookie'
-    probe = Probe.objects.create(name='test_probe', url='/status')
+    probe = SubFactory(ProbeFactory)
     active_active = True
-    time_profile = TimeProfile.objects.create(name='whatever')
+    time_profile = SubFactory(TimeProfileFactory)
     reachable_via_service_mesh = False
 
 
@@ -312,20 +326,18 @@ class VclTagBuilderTest(TestCase):
             is_canary=True
         )
 
-    @staticmethod
-    def assert_vcl_tag(vcl_tag, expected_director, expected_dc):
-        assert_equals('BACKEND_DEFINITION_LIST_%s_%s' % (expected_director, expected_dc), vcl_tag.tag)
-        assert_equals(expected_director, vcl_tag.parameters['vcl_director'].director.name)
-        assert_equals(expected_dc, vcl_tag.parameters['vcl_director'].dc.symbol)
+    def assert_vcl_tag(self, vcl_tag, expected_director, expected_dc):
+        self.assertEqual(vcl_tag.tag, 'BACKEND_DEFINITION_LIST_%s_%s' % (expected_director, expected_dc))
+        self.assertEqual(vcl_tag.parameters['vcl_director'].director.name, expected_director)
+        self.assertEqual(vcl_tag.parameters['vcl_director'].dc.symbol, expected_dc)
 
-    @staticmethod
-    def assert_vcl_tag_list_contains_directors_list(tag_list, expected_directors):
+    def assert_vcl_tag_list_contains_directors_list(self, tag_list, expected_directors):
         tag_list_directors = []
         for tag in tag_list:
             tag_list_directors.append(tag.director.name)
 
         for director in expected_directors:
-            assert_in(director, tag_list_directors)
+            self.assertIn(director, tag_list_directors)
 
     def test_should_build_tag_names_based_on_directors_and_dc(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
@@ -388,7 +400,7 @@ class VclTagBuilderTest(TestCase):
             if vcl_director.director.name == active_active_director:
                 active_director_datacenters.append(vcl_director.dc.symbol)
 
-        assert_list_equal(expected_datacenters, active_director_datacenters)
+        self.assertEqual(expected_datacenters, active_director_datacenters)
 
     def test_should_decorate_set_backend_tag_with_ordered_director_list_in_first_dc(self):
         active_active_director = 'second_service'
@@ -402,7 +414,7 @@ class VclTagBuilderTest(TestCase):
                     active_director_datacenters.append(vcl_director.dc.symbol)
                 break
 
-        assert_list_equal(expected_datacenters, active_director_datacenters)
+        self.assertEqual(expected_datacenters, active_director_datacenters)
 
     def test_should_decorate_set_backend_tag_with_ordered_director_list_in_second_dc(self):
         active_active_director = 'second_service'
@@ -416,7 +428,7 @@ class VclTagBuilderTest(TestCase):
                     active_director_datacenters.append(vcl_director.dc.symbol)
                 break
 
-        assert_list_equal(expected_datacenters, active_director_datacenters)
+        self.assertEqual(expected_datacenters, active_director_datacenters)
 
     def test_should_decorate_set_backend_tag_with_fallback_service_in_dc1(self):
 
@@ -431,31 +443,31 @@ class VclTagBuilderTest(TestCase):
                     active_director_datacenters.append(vcl_director.dc.symbol)
                 break
 
-        assert_list_equal(expected_datacenters, active_director_datacenters)
+        self.assertEqual(expected_datacenters, active_director_datacenters)
 
     def test_should_decorate_flexible_router_tag_with_properly_mapped_destination_domain(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
-        assert_set_equal({'example.prod.com', 'example-external.com', 'example.prod.org'},
+        self.assertEqual({'example.prod.com', 'example-external.com', 'example.prod.org'},
                          set(tag.parameters['redirects'].keys()))
-        assert_equals('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
-        assert_equals('example.com', tag.parameters['redirects']['example.prod.org'][1].src_domain.domain)
-        assert_equals('http://example.prod.com/destination',
-                      tag.parameters['redirects']['example.prod.com'][1].destination)
-        assert_equals('http://example.prod.org/destination',
-                      tag.parameters['redirects']['example.prod.org'][1].destination)
-        assert_equals('http://example-external.com/external_destination',
-                      tag.parameters['redirects']['example-external.com'][0].destination)
+        self.assertEqual('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
+        self.assertEqual('example.com', tag.parameters['redirects']['example.prod.org'][1].src_domain.domain)
+        self.assertEqual('http://example.prod.com/destination',
+                         tag.parameters['redirects']['example.prod.com'][1].destination)
+        self.assertEqual('http://example.prod.org/destination',
+                         tag.parameters['redirects']['example.prod.org'][1].destination)
+        self.assertEqual('http://example-external.com/external_destination',
+                         tag.parameters['redirects']['example-external.com'][0].destination)
 
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
-        assert_set_equal({'example.prod.com', 'example-external.com', 'example.prod.org'},
+        self.assertEqual({'example.prod.com', 'example-external.com', 'example.prod.org'},
                          set(tag.parameters['redirects'].keys()))
-        assert_equals('2/example.prod.com', tag.parameters['redirects']['example.prod.com'][0].id)
-        assert_equals('1/example.prod.com', tag.parameters['redirects']['example.prod.com'][1].id)
-        assert_equals('2/example.prod.org', tag.parameters['redirects']['example.prod.org'][0].id)
-        assert_equals('3/example-external.com', tag.parameters['redirects']['example-external.com'][0].id)
+        self.assertEqual('2/example.prod.com', tag.parameters['redirects']['example.prod.com'][0].id)
+        self.assertEqual('1/example.prod.com', tag.parameters['redirects']['example.prod.com'][1].id)
+        self.assertEqual('2/example.prod.org', tag.parameters['redirects']['example.prod.org'][0].id)
+        self.assertEqual('3/example-external.com', tag.parameters['redirects']['example-external.com'][0].id)
 
 
 class VclRendererInputTest(TestCase):
@@ -490,13 +502,13 @@ class VclRendererInputTest(TestCase):
             }
         }
         vcl_renderer_input = VclRendererInput()
-        assert_equals(expected_distributed_backends, vcl_renderer_input.distributed_backends)
+        self.assertEqual(expected_distributed_backends, vcl_renderer_input.distributed_backends)
 
     def test_should_sort_directors_by_router_priority(self):
         expected_directors_order = [self.second_director, self.first_director]
 
         vcl_renderer_input = VclRendererInput()
-        assert_equals(expected_directors_order, vcl_renderer_input.directors)
+        self.assertEqual(expected_directors_order, vcl_renderer_input.directors)
 
 
 class VclRendererTest(TestCase):
@@ -506,13 +518,13 @@ class VclRendererTest(TestCase):
         with open(os.path.join(os.path.dirname(__file__), expected_file), 'r') as f:
             expected_content = f.read()
         self.maxDiff = None
-        assert_equals(expected_content, actual_content)
+        self.assertEqual(expected_content, actual_content)
 
     def test_should_prepare_default_vcl_version4(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput())
 
-        assert_equals('new-v4-1', vcl.name[:-10])
+        self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0.vcl', vcl.content)
 
     def test_should_prepare_vcl_based_on_passed_content(self):
@@ -520,14 +532,14 @@ class VclRendererTest(TestCase):
         expected_content = 'sample-content'
         vcl = vcl_renderer.render(self.varnish4, '1', VclRendererInput(), expected_content)
 
-        assert_equals('new-v4-1', vcl.name[:-10])
-        assert_equals(expected_content, vcl.content)
+        self.assertEqual('new-v4-1', vcl.name[:-10])
+        self.assertEqual(expected_content, vcl.content)
 
     def test_should_prepare_default_vcl_version4_with_canary_backend(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish4_canary, '1', VclRendererInput())
 
-        assert_equals('new-v4-1', vcl.name[:-10])
+        self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0-canary.vcl', vcl.content)
 
     def test_should_comment_unused_tags(self):
@@ -539,7 +551,7 @@ class VclRendererTest(TestCase):
         )
         expected_content = '''\
 ## START director first_service ###
-probe first_service_test_probe_1 {
+probe first_service_test_probe_4_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -555,7 +567,7 @@ backend first_service_1_dc2_1_1_80 {
     .connect_timeout = 0.50s;
     .first_byte_timeout = 0.10s;
     .between_bytes_timeout = 1.00s;
-    .probe = first_service_test_probe_1;
+    .probe = first_service_test_probe_4_1;
 }
 
 ## END director first_service ###
@@ -566,7 +578,7 @@ backend first_service_1_dc2_1_1_80 {
         self.varnish.template = vcl_template_with_unused_director
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
 
-        assert_equals(expected_content, vcl.content)
+        self.assertEqual(expected_content, vcl.content)
 
     def test_should_replace_empty_or_disabled_director_with_information_in_error_response_varnish4(self):
         vcl_renderer = VclRenderer()
@@ -582,13 +594,13 @@ backend first_service_1_dc2_1_1_80 {
         self.varnish.template = vcl_template_with_unused_director
         vcl = vcl_renderer.render(self.varnish, '1', VclRendererInput())
 
-        assert_equals(expected_content, vcl.content)
+        self.assertEqual(expected_content, vcl.content)
 
     def test_should_prepare_default_vcl_version5_with_mesh_service(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
 
-        assert_equals('new-v4-1', vcl.name[:-10])
+        self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0-with-mesh_service.vcl', vcl.content)
 
     def test_should_prepare_default_vcl_version5_with_mesh_service_with_attached_backend(self):
@@ -596,14 +608,14 @@ backend first_service_1_dc2_1_1_80 {
         BackendFactory.create(address='127.11.2.10', dc=self.dc2, director=self.active_active_with_mesh_service_support)
         vcl = vcl_renderer.render(self.varnish5_with_mesh_service, '1', VclRendererInput())
 
-        assert_equals('new-v4-1', vcl.name[:-10])
+        self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0-with-mesh_service.vcl', vcl.content)
 
     def test_should_prepare_default_vcl_varnish_with_mesh_and_standard_service(self):
         vcl_renderer = VclRenderer()
         vcl = vcl_renderer.render(self.varnish6_with_mesh_and_standard_service, '1', VclRendererInput())
 
-        assert_equals('new-v4-1', vcl.name[:-10])
+        self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0-with-mesh-and-standard-service.vcl', vcl.content)
 
 
@@ -641,7 +653,7 @@ class VclVariableExpanderTest(TestCase):
 ## #{vcl_variable_2} ##
 '''
 
-        assert_equals(content, expected_content)
+        self.assertEqual(content, expected_content)
 
     def test_should_expand_variable_with_default_value_only_as_fallback(self):
         default_values = {'vcl_not_defined_variable': 'vcl_fallback_value'}
@@ -662,4 +674,4 @@ class VclVariableExpanderTest(TestCase):
 ## #{vcl_variable_2} ##
 '''
 
-        assert_equals(content, expected_content)
+        self.assertEqual(content, expected_content)

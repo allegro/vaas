@@ -8,7 +8,6 @@ from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.authentication import ApiKeyAuthentication, SessionAuthentication
 from tastypie.exceptions import NotFound, ApiFieldError
-from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist
 from vaas.external.tasty_validation import ModelCleanedDataFormValidation
 
@@ -205,10 +204,10 @@ class RouteConfigurationResource(Resource):
 
     def prepend_urls(self):
         return [
-            url(
-                r"^(?P<resource_name>%s)/$" % self._meta.resource_name,
+            re_path(
+                r'^(?P<resource_name>%s)/$' % self._meta.resource_name,
                 self.wrap_view('dispatch_detail'),
-                name="api_dispatch_detail"
+                name='api_dispatch_detail'
             ),
         ]
 

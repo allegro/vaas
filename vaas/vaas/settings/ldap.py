@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import os
 from __future__ import unicode_literals, absolute_import
 
 from vaas.configuration.loader import YamlConfigLoader
 from vaas.settings.base import env, serialize
+
+import os
+
 
 ldap_config = YamlConfigLoader(['/configuration']).get_config_tree('ldap.yaml')
 if ldap_config:

@@ -2,7 +2,7 @@
 
 import django.urls as urls
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
 from django.contrib.admin.sites import NotRegistered
 from django.views.generic.base import RedirectView
 from django_prometheus import exports
@@ -51,15 +51,15 @@ v01_api.register(ValidateRoutesCommandResource())
 v01_api.register(DomainMappingResource())
 
 urlpatterns = [
-    url(r'^admin/purger/', include('vaas.purger.urls')),
-    url(r'^$', RedirectView.as_view(url='/admin/')),
-    url(r'^manager/', include('vaas.manager.urls')),
-    urls.path('router/', urls.include(('vaas.router.urls', 'vaas'), namespace='router')),
-    url(r'^account/', include('vaas.account.urls')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/', include(v01_api.urls)),
-    url(r'^plugins/', include(('vaas.external.urls', 'vaas'), namespace='plugins')),
-    url('', include('social_django.urls', namespace='social')),
+    re_path(r'^admin/purger/', include('vaas.purger.urls')),
+    re_path(r'^$', RedirectView.as_view(url='/admin/')),
+    re_path(r'^manager/', include('vaas.manager.urls')),
+    path('router/', include(('vaas.router.urls', 'vaas'), namespace='router')),
+    re_path(r'^account/', include('vaas.account.urls')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^api/', include(v01_api.urls)),
+    path('plugins/', include(('vaas.external.urls', 'vaas'), namespace='plugins')),
+    path('', include('social_django.urls', namespace='social')),
 ]
 if settings.PROMETHEUS_ENABLE:
     urlpatterns += [
