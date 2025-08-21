@@ -9,7 +9,6 @@ python /home/app/vaas/manage.py migrate --run-syncdb
 echo "Loading base-data"
 python /home/app/vaas/manage.py loaddata ./vaas/resources/base-data.yaml
 
-echo "Install the test requirements to allow [manage.py test] to be called within the container"
 pip install -r /home/app/vaas/requirements/base.txt
 
 echo "Start uwsgi server"
