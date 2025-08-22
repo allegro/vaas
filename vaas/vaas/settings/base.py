@@ -361,9 +361,9 @@ ROUTES_LEFT_CONDITIONS = {}
 for condition in env.json(
     "ROUTES_LEFT_CONDITIONS",
     default=[
-        {"name": "req.url", "value": "URL_default"},
-        {"name": "req.http.Host", "value": "Domain_default"},
-        {"name": "req.http.X-Example", "value": "X-Example_default"},
+        {"name": "req.url", "value": "URL"},
+        {"name": "req.http.Host", "value": "Domain"},
+        {"name": "req.http.X-Example", "value": "X-Example"},
     ],
 ):
     ROUTES_LEFT_CONDITIONS[condition["name"]] = condition["value"]
