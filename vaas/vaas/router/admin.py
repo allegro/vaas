@@ -42,6 +42,7 @@ class RouteAdmin(AuditableModelAdmin):
     inlines = [PositiveURLAdmin]
     search_fields = ['condition', 'clusters__name', 'director__name']
     list_display = ['condition', 'director', 'priority', 'action', 'exposed_on_clusters']
+    change_list_template = "router/admin_app_route_description.html"
     fieldsets = (
         (None, {
             'fields': ('condition', 'priority', 'action', 'director', 'clusters_in_sync', 'clusters',)

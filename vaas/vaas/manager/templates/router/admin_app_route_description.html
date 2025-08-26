@@ -1,73 +1,7 @@
-{% if route_tests_enabled %}
-<script>
+{% extends "admin/change_list.html" %}
+{% load static %}
 
-const noDataPlaceholder = { name: 'no data', id: 'no data' };
-
-function createTestResult(records) {
-  records.sort(function(x, y) {
-    if (x.error_message && !y.error_message) {
-      return -1;
-    }
-    if (!x.error_message && y.error_message) {
-      return 1;
-    }
-    if (x.expected.route.id < y.expected.route.id) {
-      return -1;
-    }
-    return 1;
-  });
-  let html = "";
-  records.forEach(function (record) {
-    if (!record.current.route) record.current.route = noDataPlaceholder;
-    if (!record.current.director) record.current.director = noDataPlaceholder;
-    if (record.error_message) record.error_message = `<div class="alert alert-danger" role="alert">${record.error_message}</div>`;
-    html += eval('`' + $("#test-case").html() + '`');
-  });
-  return html
-}
-
-$(document).ready(function () {
-  initReport('/api/v0.1/route/validate-command/', createTestResult);
-})
-</script>
-
-<template id="test-case">
-  <div class="panel panel-${statusToClass(record.result)}">
-      <div class="panel-heading">
-        <h3 class="panel-title">${record.url}</h3>
-      </div>
-      <div class="panel-body">
-        ${record.error_message}
-        <div class="row">
-          <div class="col-md-6">
-            <div class="panel panel-default">
-              <div class="panel-body">
-                <h5><strong>Director: </strong>${record.expected.director.name}</h5>
-                <h5><strong>Route:</strong> <code>${record.expected.route.name}</code></h5>
-                <h6 class="text-muted">director.id: ${record.expected.director.id}</h6>
-                <h6 class="text-muted">route.id: ${record.expected.route.id}</h6>
-              </div>
-              <div class="panel-footer">
-                Expected
-              </div>
-            </div>
-          </div>
-            <div class="col-md-6">
-              <div class="panel panel-default">
-                <div class="panel-body">
-                  <h5>Director: ${record.current.director.name}</h5>
-                  <h5>Route: <code>${record.current.route.name}</code></h5>
-                  <h6 class="text-muted">director.id: ${record.current.director.id}</h6>
-                  <h6 class="text-muted">route.id: ${record.current.route.id}</h6>
-                </div>
-                <div class="panel-footer">Current</div>
-              </div>
-            </div>
-        </div>
-      </div>
-    </div>
-</template>
-
+{% block result_list %}
 <div class='pull-right'>
   <button id="test" type="button" class="btn btn-info" data-toggle="modal" data-target="#testResultModal">
     Run routes test
@@ -106,4 +40,78 @@ $(document).ready(function () {
     </div>
   </div>
 </div>
-{% endif %}
+{{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+
+  const noDataPlaceholder = { name: 'no data', id: 'no data' };
+
+  function createTestResult(records) {
+    records.sort(function (x, y) {
+      if (x.error_message && !y.error_message) {
+        return -1;
+      }
+      if (!x.error_message && y.error_message) {
+        return 1;
+      }
+      if (x.expected.route.id < y.expected.route.id) {
+        return -1;
+      }
+      return 1;
+    });
+    let html = "";
+    records.forEach(function (record) {
+      if (!record.current.route) record.current.route = noDataPlaceholder;
+      if (!record.current.director) record.current.director = noDataPlaceholder;
+      if (record.error_message) record.error_message = `<div class="alert alert-danger" role="alert">${record.error_message}</div>`;
+      html += eval('`' + $("#test-case").html() + '`');
+    });
+    return html
+  }
+
+  $(document).ready(function () {
+    initReport('/api/v0.1/route/validate-command/', createTestResult);
+  })
+</script>
+
+<template id="test-case">
+  <div class="panel panel-${statusToClass(record.result)}">
+    <div class="panel-heading">
+      <h3 class="panel-title">${record.url}</h3>
+    </div>
+    <div class="panel-body">
+      ${record.error_message}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <h5><strong>Director: </strong>${record.expected.director.name}</h5>
+              <h5><strong>Route:</strong> <code>${record.expected.route.name}</code></h5>
+              <h6 class="text-muted">director.id: ${record.expected.director.id}</h6>
+              <h6 class="text-muted">route.id: ${record.expected.route.id}</h6>
+            </div>
+            <div class="panel-footer">
+              Expected
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <h5>Director: ${record.current.director.name}</h5>
+              <h5>Route: <code>${record.current.route.name}</code></h5>
+              <h6 class="text-muted">director.id: ${record.current.director.id}</h6>
+              <h6 class="text-muted">route.id: ${record.current.route.id}</h6>
+            </div>
+            <div class="panel-footer">Current</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+{% endblock %}
