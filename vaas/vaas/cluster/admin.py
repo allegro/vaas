@@ -16,8 +16,7 @@ from vaas.cluster.forms import DomainMappingForm, VclTemplateModelForm, VarnishS
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
 
-ace_widget = AceWidget(theme='solarized_dark', mode='c_cpp', width='700px', height='400px')
-
+ace_widget = AceWidget(theme='solarized_dark', mode='c_cpp', width='100%', height='400px')
 
 def enable_varnish_servers(modeladmin, request, queryset):
     switch_status_and_reload(queryset, 'active')
@@ -164,6 +163,10 @@ class VarnishServerAdmin(AuditableModelAdmin):
 
 
 class VclTemplateBlockAdmin(SimpleHistoryAdmin):
+    class Media:
+        css = {
+            'all': ('css/ace-widget-custom-styles.css',)
+        }
     formfield_overrides = {
         models.TextField: {'widget': ace_widget},
     }
@@ -188,6 +191,10 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
 
 
 class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
+    class Media:
+        css = {
+            'all': ('css/ace-widget-custom-styles.css',)
+        }
     form = VclTemplateModelForm
     search_fields = ['name']
     formfield_overrides = {
