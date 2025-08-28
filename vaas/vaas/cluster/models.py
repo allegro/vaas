@@ -245,6 +245,9 @@ class VclTemplateBlock(models.Model):
     def clean(self):
         vcl_variable_validator(self.content, self.template.pk, VclVariable, VarnishServer)
 
+    def __str__(self):
+        return f"{self.template.name} - {self.tag}"
+
     class Meta:
         unique_together = (('tag', 'template'))
 
