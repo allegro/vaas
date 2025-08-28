@@ -127,6 +127,8 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
     clusters = models.ManyToManyField(LogicalCluster)
     _mappings = None
 
+    history = HistoricalRecords()
+
     @property
     def mappings(self) -> Set[str]:
         return self._get_parsed_field(self._mappings, self.mappings_list)
