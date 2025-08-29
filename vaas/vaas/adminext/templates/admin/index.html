@@ -52,6 +52,18 @@
                                         </td>
                                     </tr>
                                 {% endfor %}
+                                {% if app.name == 'Manager' %}
+                                  <tr>
+                                      <td>
+                                        <a href="/admin/purger/">Purger</a>
+                                      </td>
+                                      <td>
+                                        <div class="btn-group float-right">
+                                            <a href="/admin/purger" class="btn btn-xs {{ jazzmin_ui.button_classes.info }} purge">{% trans 'Purge' %}</a>
+                                        </div>
+                                      </td>
+                                  </tr>
+                                {% endif %}
                                 </tbody>
                             </table>
                         </div>
