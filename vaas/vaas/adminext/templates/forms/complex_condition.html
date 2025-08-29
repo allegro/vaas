@@ -1,57 +1,84 @@
 {% spaceless %}
-{% for widget in widget.subwidgets %}
-    <div id="condition_{{forloop.counter}}">
-    {% include widget.template_name %}
+<div id="conditions-container" class="row">
+    {% for widget in widget.subwidgets %}
+    <div class="condition-item row mb-2" data-condition="{{ forloop.counter }}">
+        {% include widget.template_name %}
     </div>
+    {% if not forloop.last %}
+    <div class="row mb-2" id="conjunction_{{ forloop.counter }}">
+        <div class="col text-center"><strong>AND</strong></div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
 
-    {% if forloop.last %}
-    <div class="row finish"></div>
-    <hr/>
-    <div class="col-sm-1">
+<div class="row mt-3">
+    <div class="col-auto">
         <button type="button" class="btn btn-danger" id="del_condition">-</button>
     </div>
-    <div class="col-sm-1">
+    <div class="col-auto">
         <button type="button" class="btn btn-primary" id="add_condition">+</button>
     </div>
-    {% else %}
-    <div class="row" id="conjunction_{{forloop.counter}}"><strong>AND </strong></div>
-    {% endif %}
-
-{% endfor %}
+</div>
 {% endspaceless %}
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
 
 <script>
-    var conditionNumbers = {{ widget.subwidgets|length }};
-    (function ($) {
-        function addCondition() {
-            conditionNumbers++;
-            var newCondition = $('#condition_1').clone();
-            newCondition.find("[name]").each(function(){
-                $(this).attr('name', $(this).attr('name').replace('condition_0','condition_' + conditionNumbers));
-                $(this).attr('id', $(this).attr('id').replace('id_condition_0','id_condition_' + conditionNumbers));
-            });
-            newCondition.find("input").each(function(){
-                $(this).attr("value", "");
-            });
-            $('.finish').before('<div class="row" id="conjunction_' + conditionNumbers + '"><strong>AND </strong></div><div id="condition_' + conditionNumbers + '">' + newCondition.html() + '</div>');
-        }
+$(document).ready(function() {
+    let conditionCounter = $('#conditions-container .condition-item').length;
 
-        function delCondition() {
-            var lastCondition = $("[id^='condition_']").last();
-            if (lastCondition.attr('id') != 'condition_1') {
-                lastCondition.remove();
-                $("[id^='conjunction_']").last().remove();
-            }
-            conditionNumbers--;
-        }
+    // Initialize Select2 on the first row
+    $('#conditions-container .condition-item select').select2({ width: '100%' });
 
-        window.addEventListener('load', (event) => {
-            document.getElementById("add_condition").addEventListener("click", addCondition);
-            document.getElementById("del_condition").addEventListener("click", delCondition);
+    function addCondition() {
+        conditionCounter++;
+
+        // Clone first condition
+        const newCondition = $('#conditions-container .condition-item').first().clone();
+
+        // Remove old Select2 containers
+        newCondition.find('.select2-container').remove();
+
+        // Reset input/select values
+        newCondition.find('input, select').val('');
+
+        // Update names and IDs
+        newCondition.find('[name]').each(function() {
+            const oldName = $(this).attr('name');
+            if (oldName) $(this).attr('name', oldName.replace(/condition_\d+/, 'condition_' + conditionCounter));
+            const oldId = $(this).attr('id');
+            if (oldId) $(this).attr('id', oldId.replace(/id_condition_\d+/, 'id_condition_' + conditionCounter));
         });
 
+        // Add conjunction row before the new row
+        const conjunctionRow = $(`
+            <div class="row mb-2" id="conjunction_${conditionCounter}">
+                <div class="col text-center"><strong>AND</strong></div>
+            </div>
+        `);
 
-    })(django.jQuery);
+        $('#conditions-container').append(conjunctionRow);
+        $('#conditions-container').append(newCondition);
 
+        // Re-initialize Select2 on cloned selects
+        newCondition.find('select').select2({ width: '100%' });
+    }
+
+    function delCondition() {
+        const lastCondition = $('#conditions-container .condition-item').last();
+        const lastConjunction = $('#conditions-container .row[id^="conjunction_"]').last();
+
+        if ($('#conditions-container .condition-item').length > 1) {
+            lastCondition.remove();
+            lastConjunction.remove();
+            conditionCounter--;
+        }
+    }
+
+    $('#add_condition').on('click', addCondition);
+    $('#del_condition').on('click', delCondition);
+});
 </script>
