@@ -388,7 +388,7 @@ REDIRECT_CUSTOM_HEADER_LABEL = env.str(
 )
 
 
-DEFAULT_SETTINGS = {
+JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title)
     "site_title": None,
     # Title on the login screen (19 chars max) (will default to current_admin_site.site_header)
@@ -456,7 +456,7 @@ DEFAULT_SETTINGS = {
     # Related Modal #
     #################
     # Activate Bootstrap modal
-    "related_modal_active": False,
+    "related_modal_active": True,
     #############
     # UI Tweaks #
     #############
@@ -488,7 +488,7 @@ DEFAULT_SETTINGS = {
 # Use the UI builder to generate this #
 #######################################
 
-DEFAULT_UI_TWEAKS = {
+JAZZMIN_UI_TWEAKS = {
     # Small text on the top navbar
     "navbar_small_text": False,
     # Small text on the footer
