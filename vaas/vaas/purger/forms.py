@@ -4,7 +4,7 @@ from vaas.cluster.models import LogicalCluster
 
 
 class PurgeForm(forms.Form):
-    url = forms.CharField(label='Url to purge', validators=[URLValidator()])
+    url = forms.CharField(label="Url to purge", validators=[URLValidator()])
     cluster = forms.ModelChoiceField(
-        label='Varnish cluster', queryset=LogicalCluster.objects.all()
+        label="Varnish cluster", queryset=LogicalCluster.objects.all()
     )
