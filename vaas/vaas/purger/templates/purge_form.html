@@ -7,14 +7,6 @@
     <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
 {% endblock %}
 
-{% block extrahead %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-    {{ media }}
-{% endblock %}
-
-{% block coltype %}colM{% endblock %}
-
 {% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
 
 {% if not is_popup %}
@@ -68,13 +60,13 @@
                 {% block inline_field_sets %}{% endblock %}
 
                 {% block after_related_objects %}{% endblock %}
-                    <div class="col-12 col-lg-3">
-                      <div class="form-actions">
-                        <div class="pull-right">
-                          <input type="submit" value="purge" class="btn btn-success form-control" />
-                        </div>
-                      </div>
+                <div class="col-12 col-lg-3">
+                  <div class="form-actions">
+                    <div class="pull-right">
+                      <input type="submit" value="Purge" class="btn btn-success form-control" />
                     </div>
+                  </div>
+                </div>
             </div>
         </form>
     </div>
@@ -83,8 +75,4 @@
     {{ block.super }}
     <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/change_form.js' %}"></script>
-    {% if jazzmin_settings.related_modal_active %}
-    <script type="text/javascript" src="{% static 'jazzmin/plugins/bootstrap-show-modal/bootstrap-show-modal.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'jazzmin/js/related-modal.js' %}"></script>
-    {% endif %}
 {% endblock %}
