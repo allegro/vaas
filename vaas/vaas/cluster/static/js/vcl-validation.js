@@ -77,6 +77,7 @@ function handleVclValidateResponse(data, textStatus, request) {
     if (status === 'FAILURE') {
       setCommandStatus('done');
       $('#spinner').hide()
+    $('#command-result').removeClass().addClass(`badge-${statusToClass(validationStatus(data.output.is_valid))}`).text(validationStatus(data.output.is_valid));
     }
     else if (status === 'SUCCESS') {
       setCommandStatus('done');
