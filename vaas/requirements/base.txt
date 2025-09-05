@@ -32,7 +32,7 @@ sentry-sdk==2.34.1
 
 kombu==5.5.4
 redis==5.2.1
-python_varnish @ git+https://github.com/allegro/python-varnish@0.2.4#egg=python_varnish
+python_varnish @ git+https://github.com/allegro/python-varnish@0.2.5#egg=python_varnish
 mysqlclient
 
 # Metrics

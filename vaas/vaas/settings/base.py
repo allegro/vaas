@@ -387,7 +387,6 @@ REDIRECT_CUSTOM_HEADER_LABEL = env.str(
     default="Require {} header".format(REDIRECT_CUSTOM_HEADER),
 )
 
-X_FRAME_OPTIONS = "SAMEORIGIN"
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title)
     "site_title": None,
@@ -466,7 +465,7 @@ JAZZMIN_SETTINGS = {
     # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
     "use_google_fonts_cdn": True,
     # Whether to show the UI customizer on the sidebar
-    "show_ui_builder": True,
+    "show_ui_builder": False,
     ###############
     # Change view #
     ###############

@@ -10,3 +10,7 @@
 }
 
 .wrapper, .content-wrapper { transform: none !important; filter: none !important; }
+
+.vcltemplate {
+  background-color: #f5f5f5;
+}
