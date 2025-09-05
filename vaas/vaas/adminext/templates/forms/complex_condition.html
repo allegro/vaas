@@ -22,63 +22,45 @@
 </div>
 {% endspaceless %}
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
-
+{% block extrajs %}
 <script>
-$(document).ready(function() {
-    let conditionCounter = $('#conditions-container .condition-item').length;
+    (function ($) {
+        let conditionCounter = $('#conditions-container .condition-item').length;
 
-    // Initialize Select2 on the first row
-    $('#conditions-container .condition-item select').select2({ width: '100%' });
+        function addCondition() {
+            conditionCounter++;
+            console.log("add", conditionCounter);
+            $.ajax({
+                url: '/router/add_condition/',
+                type: 'GET',
+                success: function (response) {
+                    const conjunctionRow = $(`
+                <div class="row mb-2" id="conjunction_${conditionCounter}">
+                    <div class="col text-center"><strong>AND</strong></div>
+                </div>
+            `);
+                $('#conditions-container')
+                    .append(conjunctionRow)
+                    .append(response.html);
+            }
+            });
+        }
 
-    function addCondition() {
-        conditionCounter++;
+        $('#add_condition').on('click', addCondition);
 
-        // Clone first condition
-        const newCondition = $('#conditions-container .condition-item').first().clone();
 
-        // Remove old Select2 containers
-        newCondition.find('.select2-container').remove();
-
-        // Reset input/select values
-        newCondition.find('input, select').val('');
-
-        // Update names and IDs
-        newCondition.find('[name]').each(function() {
-            const oldName = $(this).attr('name');
-            if (oldName) $(this).attr('name', oldName.replace(/condition_\d+/, 'condition_' + conditionCounter));
-            const oldId = $(this).attr('id');
-            if (oldId) $(this).attr('id', oldId.replace(/id_condition_\d+/, 'id_condition_' + conditionCounter));
-        });
-
-        // Add conjunction row before the new row
-        const conjunctionRow = $(`
-            <div class="row mb-2" id="conjunction_${conditionCounter}">
-                <div class="col text-center"><strong>AND</strong></div>
-            </div>
-        `);
-
-        $('#conditions-container').append(conjunctionRow);
-        $('#conditions-container').append(newCondition);
-
-        // Re-initialize Select2 on cloned selects
-        newCondition.find('select').select2({ width: '100%' });
-    }
-
-    function delCondition() {
-        const lastCondition = $('#conditions-container .condition-item').last();
-        const lastConjunction = $('#conditions-container .row[id^="conjunction_"]').last();
-
-        if ($('#conditions-container .condition-item').length > 1) {
-            lastCondition.remove();
+        function delCondition() {
+            if ($('#conditions-container .condition-item').length <= 1) {
+                return
+            }
+            console.log("delete", conditionCounter);
+            const lastCondition = $('#conditions-container .condition-item').last();
+            const lastConjunction = $('#conditions-container .row[id^="conjunction_"]').last();
             lastConjunction.remove();
+            lastCondition.remove();
             conditionCounter--;
         }
-    }
-
-    $('#add_condition').on('click', addCondition);
-    $('#del_condition').on('click', delCondition);
-});
+        $('#del_condition').on('click', delCondition);
+    })(django.jQuery);
 </script>
+{% endblock %}

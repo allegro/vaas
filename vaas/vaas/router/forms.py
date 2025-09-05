@@ -68,7 +68,7 @@ class RouteModelForm(ModelForm):
             'condition': ComplexConditionWidget(
                 variables=tuple((left.left, left.name) for left in configuration.lefts),
                 operators=tuple((operator.operator, operator.name) for operator in configuration.operators)
-            ),
+            ), # when this is commented out, a text box is spawned instead - probably based on the "raw representation" of a condition
             'action': Select(
                 choices=tuple((action.action, action.name) for action in configuration.actions)
             ),
