@@ -1,4 +1,0 @@
-.modal { z-index: 1060 !important; } /* Modal nad backdropem */
-.modal-backdrop, .modal-backdrop.show {
-  z-index: 1050 !important;          /* Backdrop poniżej modału */
-}
