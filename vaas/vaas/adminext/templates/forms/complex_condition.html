@@ -1,17 +1,11 @@
 {% spaceless %}
 <div id="conditions-container" class="row">
-    {% for widget in widget.subwidgets %}
-    <div class="condition-item row mb-2" data-condition="{{ forloop.counter }}">
+    <div class="condition-item row mb-2">
+    {% for widget in widget.widgets %}
         {% include widget.template_name %}
-    </div>
-    {% if not forloop.last %}
-    <div class="row mb-2" id="conjunction_{{ forloop.counter }}">
-        <div class="col text-center"><strong>AND</strong></div>
-    </div>
-    {% endif %}
     {% endfor %}
+    </div>
 </div>
-
 <div class="row mt-3">
     <div class="col-auto">
         <button type="button" class="btn btn-danger" id="del_condition">-</button>
@@ -26,10 +20,8 @@
 <script>
     (function ($) {
         let conditionCounter = $('#conditions-container .condition-item').length;
-
         function addCondition() {
             conditionCounter++;
-            console.log("add", conditionCounter);
             $.ajax({
                 url: '/router/add_condition/',
                 type: 'GET',
@@ -39,10 +31,10 @@
                     <div class="col text-center"><strong>AND</strong></div>
                 </div>
             `);
-                $('#conditions-container')
-                    .append(conjunctionRow)
-                    .append(response.html);
-            }
+                    $('#conditions-container')
+                        .append(conjunctionRow)
+                        .append(response);
+                }
             });
         }
 
@@ -50,10 +42,9 @@
 
 
         function delCondition() {
-            if ($('#conditions-container .condition-item').length <= 1) {
+            if (conditionCounter <= 1) {
                 return
             }
-            console.log("delete", conditionCounter);
             const lastCondition = $('#conditions-container .condition-item').last();
             const lastConjunction = $('#conditions-container .row[id^="conjunction_"]').last();
             lastConjunction.remove();

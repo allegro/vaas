@@ -6,6 +6,8 @@ from typing import Set, List
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_GET
 from django.template.loader import render_to_string
+from django import forms
+from django.shortcuts import render
 
 from vaas.router.models import Route, Redirect, provide_route_configuration
 from vaas.manager.models import Director
@@ -43,20 +45,7 @@ def add_condition(request: HttpRequest) -> HttpResponse:
     variables = tuple((left.left, left.name) for left in configuration.lefts)
     operators = tuple((operator.operator, operator.name) for operator in configuration.operators)
     widget = ConditionWidget(variables, operators)
-    print("Widget template name:", widget.template_name)
-    print("Widget attributes:", widget.attrs) # empty
-    print("Subwidgets:", widget.widgets) # three, correct
-    print("boss", widget.template_name)
-    print("0th", widget.widgets[0].attrs)
-    html_content = render_to_string(
-        widget.template_name,
-        {
-            "widget": widget,
-            'value': None,
-        }
-    )
-    # html_content = "<button>button_content</button>"
-    return HttpResponse(json.dumps({'html': html_content}), content_type="application/json")
+    return render(request, widget.template_name, {"widget": widget})
 
 def _provide_priority_response(existing_priorities: Set[int], current: int) -> HttpResponse:
     priorities_set = set(range(1, MAX_PRIORITY))

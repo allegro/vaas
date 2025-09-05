@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from typing import List, Optional, Tuple
+from typing import List, Optional
 from django import forms
 from vaas.router.models import DomainMapping
 from django.core.exceptions import ValidationError
@@ -60,11 +60,9 @@ class ComplexConditionWidget(forms.MultiWidget):
         self.variables = variables
         self.operators = operators
         self.base_widget = ConditionWidget(self.variables, self.operators, *args, **kwargs)
-        # self.base_widget = ConditionWidget((("a", "b"), ("c", "d")), (("1", "2"), ("3", "4")), *args, **kwargs)
         widgets = [
             self.base_widget,
         ]
-        self.test = 0
         super(ComplexConditionWidget, self).__init__(widgets, *args, **kwargs)
         self.template_name = 'forms/complex_condition.html'
 
