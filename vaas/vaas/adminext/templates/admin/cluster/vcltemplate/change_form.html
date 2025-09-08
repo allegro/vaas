@@ -3,8 +3,19 @@
 {% get_jazzmin_settings request as jazzmin_settings %}
 
 {% block extrastyle %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+  <style>
+    .loader {
+      margin: auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 {% endblock %}
 
 {% block extrahead %}
@@ -144,7 +155,9 @@
           </div>
         </div>
         <h2>Compilation status: <span id="command-result" class="badge badge-light">UNKNOWN</span></h2>
-        <div id="spinner" class="loader center-block"></div>
+        <div class="d-flex justify-content-center align-items-center">
+          <i id="spinner" class='fa-solid fa-spinner fa-2xl loader'></i>
+        </div>
         <div id="result" class="alert alert-danger">
           <h4 id="error-type"></h4>
           <pre id="error-message" class="vcltemplate"></pre>
