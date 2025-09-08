@@ -4,11 +4,6 @@
 .modal-backdrop,
 .modal-backdrop.show { z-index: 1050 !important; }
 
-.main-header, .main-sidebar, .content-wrapper, .control-sidebar {
-  position: relative;
-  z-index: 1030 !important;
-}
-
 .wrapper, .content-wrapper { transform: none !important; filter: none !important; }
 
 .vcltemplate {
