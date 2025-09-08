@@ -1,23 +1,24 @@
-<!-- Modal -->
-<style>
-  .loader {
-    border: 10px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 10px solid #555;
-    -webkit-animation: spin 1s linear infinite;
-    animation: spin 1s linear infinite;
-  }
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
 
-  @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
-  }
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .loader {
+      animation: spin 1s linear infinite;
+    }
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-</style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+{% endblock %}
+
+{% block extrajs %}
+  {{ block.super }}
+
 <script>
     var task_status = '';
     $(document).ready(function () {
@@ -67,7 +68,7 @@
           task_status = 'done';
           $('[data-varnish-id]').each(function(index) {
             $(this).addClass('btn-info')
-            $(this).children('i').removeClass('loader').addClass('glyphicon-remove')
+            $(this).children('i').removeClass('loader').addClass('fa-solid fa-xmark')
           })
         }
         else if (status === 'SUCCESS') {
@@ -81,11 +82,11 @@
                     $(this).text(result)
                 } else {
                     $(this).addClass('btn-danger')
-                    $(this).children('i').removeClass('loader').addClass('glyphicon-off')
+                    $(this).children('i').removeClass('fa-spinner loader').addClass('fa-power-off')
                 }
             }
             $(this).addClass('btn-secondary')
-            $(this).children('i').removeClass('loader').addClass('glyphicon-remove')
+            $(this).children('i').removeClass('fa-spinner loader').addClass('fa-xmark')
           })
         }
     }
@@ -97,13 +98,17 @@
         return result;
     }
 </script>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
 <div class="modal fade" id="vclModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Online vcl preview</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Online vcl preview</h4>
             </div>
             <xmp class="modal-body" style="overflow-x: auto;">
 
@@ -114,3 +119,4 @@
         </div>
     </div>
 </div>
+{% endblock %}
