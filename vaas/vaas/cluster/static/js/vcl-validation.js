@@ -3,7 +3,7 @@ $(document).ready(function () {
   if ($('#validation-modal').length > 0) {
     // add validate button only for change form, we can recognize that by delete button
     if ($('.compile-vcl')) {
-      var templateId = parseTemplateId()
+      var templateId = parseTemplateId();
       $("[name=_vcl_validate]").click(function (event) {
         var commandId = Date.now().toString(36) + Math.random().toString(36).substring(2);
         event.preventDefault();
@@ -21,16 +21,16 @@ function clearModal(commandId) {
   $('#spinner').show();
   $('#result').hide();
   $('#command-status').removeClass();
-  $('#command-status').addClass(`badge badge-light`).text("unknown");
+  $('#command-status').addClass('badge badge-light').text("unknown");
   $('#command-result').removeClass();
-  $('#command-result').addClass(`badge badge-light`).text("UNKNOWN");
+  $('#command-result').addClass('badge badge-light').text("UNKNOWN");
   $('#validation-modal').modal('show');
   $('#command-id').text(commandId);
   $('#command-id').data("status", "started");
 }
 
 function parseTemplateId() {
-  var linkParts = $('.btn.btn-danger').attr('href').split('/')
+  var linkParts = document.URL.split('/')
   return linkParts[linkParts.length - 3]
 }
 
@@ -60,7 +60,7 @@ function poolVclValidateResult(url) {
 }
 
 function handleErrorResponse(request, textStatus, errorThrown) {
-  const status = data.status
+  const status = data.status;
   setCommandStatus('done');
   console.error(textStatus, errorThrown)
   $('#command-result').removeClass().addClass(`badge-${statusToClass(validationStatus(false))}`).text(validationStatus('Error'));
@@ -72,7 +72,7 @@ function handleErrorResponse(request, textStatus, errorThrown) {
 }
 
 function handleVclValidateResponse(data, textStatus, request) {
-  const status = data.status
+  const status = data.status;
   if (checkCommandStatus(data.pk, 'done')) return;
   if (status === 'FAILURE') {
     setCommandStatus('done');
