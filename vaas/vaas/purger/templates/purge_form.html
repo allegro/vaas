@@ -1,86 +1,78 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static admin_modify jazzmin %}
-{% load admin_urls %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
 
-{% block extrahead %}{{ block.super }}
-{% url 'admin:jsi18n' as jsi18nurl %}
-<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
-{{ media }}
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />{% endblock %}
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
 
-{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+            <li class="breadcrumb-item">Purger</li>
+        </ol>
+    {% endblock %}
+{% endif %}
 
-    {% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
-
-{% block breadcrumbs %}
-<ul class="breadcrumb">
-        <li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
-    <li><a href="/purger/">Purger</a> <span class="divider">/</span></li>
-</ul>
-{% endblock %}
-
-
-{% block object-tools %}
-<a class="brand">Purge url</a>
-{% endblock %}
+{% block content_title %} Purger {% endblock %}
 
 {% block content %}
-<form action="/admin/purger/" method="post" class="form-horizontal">
-<div class="alert alert-warning">Fields in <strong>bold</strong> are required.</div>
+    <div id="content-main" class="col-12">
+        <form action="/admin/purger/" method="post">
+            {% csrf_token %}
+            {% block form_top %}{% endblock %}
+            <div class="row">
+                {% block field_sets %}
+                    <div class="col-12 col-lg-9">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="form-group {% if form.url.errors %} error {% endif %}">
+                            <div>
+                                <div class="col-form-label">
+                                    <label class="required" for="{{ form.url.id_for_label }}">{{ form.url.label }}</label>
+                                </div>
+                                {{form.url}}
+                                {% if form.url.errors %}
+                                    <span class="help-inline">{{ form.url.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                          <div class="form-group">
+                              <div>
+                                  <div class="col-form-label">
+                                      <label class="required" for="{{ form.cluster.id_for_label }}">{{ form.cluster.label }}</label>
+                                  </div>
+                                  {{form.cluster}}
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
 
-<div class="row-fluid">
-    <div id="content-main" class="span12">
-        <div>
-<fieldset class="_module _aligned" id="fieldset-1" style="background:transparent">
+                {% endblock %}
 
-<div class="fields ">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
+                {% block after_field_sets %}{% endblock %}
 
-    <div class="control-group {% if form.url.errors %} error {% endif %}">
-        <div>
-            <div class="control-label">
-                <label class="required" for="{{ form.url.id_for_label }}">{{ form.url.label }}</label>
+                {% block inline_field_sets %}{% endblock %}
 
+                {% block after_related_objects %}{% endblock %}
+                <div class="col-12 col-lg-3">
+                  <div class="form-actions">
+                    <div class="pull-right">
+                      <input type="submit" value="Purge" class="btn btn-success form-control" />
+                    </div>
+                  </div>
+                </div>
             </div>
-            <div class="controls">
-                {{form.url}}
-                {% if form.url.errors %}
-                    <span class="help-inline">{{ form.url.errors.0 }}</span>
-                {% endif %}
-            </div>
-        </div>
+        </form>
     </div>
-
-    <div class="control-group">
-        <div>
-            <div class="control-label">
-                <label class="required" for="{{ form.cluster.id_for_label }}">{{ form.cluster.label }}</label>
-            </div>
-            <div class="controls">
-                {{form.cluster}}
-            </div>
-        </div>
-    </div>
-
-
-
-    <div class="row-fluid">
-        <div class="form-actions">
-            <div class="pull-right">
-                <input type="submit" value="Purge" class="btn btn-primary default" />
-             </div>
-
-        </div>
-    </div>
-
-</div>
-</fieldset>
-
-</div>
-</div>
-</div>
-</form>
+{% endblock %}
+{% block extrajs %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jazzmin/js/change_form.js' %}"></script>
 {% endblock %}

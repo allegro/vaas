@@ -1,0 +1,16 @@
+{% extends "admin/submit_line.html" %}
+{% load jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block extra-actions %}
+
+{# Simple link #}
+
+<!-- Button trigger modal -->
+<div class="form-group">
+  <button type="button" class="btn btn-warning form-control" data-toggle="modal" data-target="#validation-modal" name="_vcl_validate">
+    Compile vcl
+  </button>
+</div>
+
+{% endblock %}

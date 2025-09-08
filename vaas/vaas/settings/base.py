@@ -387,7 +387,6 @@ REDIRECT_CUSTOM_HEADER_LABEL = env.str(
     default="Require {} header".format(REDIRECT_CUSTOM_HEADER),
 )
 
-
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title)
     "site_title": None,
@@ -456,7 +455,7 @@ JAZZMIN_SETTINGS = {
     # Related Modal #
     #################
     # Activate Bootstrap modal
-    "related_modal_active": False,
+    "related_modal_active": True,
     #############
     # UI Tweaks #
     #############
