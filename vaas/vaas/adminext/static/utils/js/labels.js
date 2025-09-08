@@ -9,6 +9,6 @@ function statusToClass(status) {
     case 'FAILURE':
       return 'danger'
     default:
-      return 'scondary'
+      return 'secondary'
   }
 }
