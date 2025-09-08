@@ -1,7 +1,7 @@
 {% spaceless %}
 <div id="conditions-container" class="row">
     <div class="condition-item row mb-2">
-    {% for widget in widget.widgets %}
+    {% for widget in widget.subwidgets %}
         {% include widget.template_name %}
     {% endfor %}
     </div>
@@ -23,7 +23,7 @@
         function addCondition() {
             conditionCounter++;
             $.ajax({
-                url: '/router/add_condition/',
+                url: '/router/render-condition/',
                 type: 'GET',
                 success: function (response) {
                     const conjunctionRow = $(`

@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
-from typing import Set, List
 
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_GET
-from django.template.loader import render_to_string
-from django import forms
 from django.shortcuts import render
 
 from vaas.router.models import Route, Redirect, provide_route_configuration
@@ -39,15 +36,18 @@ def allowed_redirect_priorities(request: HttpRequest, domain: str, redirect_id: 
     )
     return _provide_priority_response(existing_priorities, current)
 
+NEW_CONDITION_TEMPLATE = "forms/new_condition.html"
 @require_GET
-def add_condition(request: HttpRequest) -> HttpResponse:
+def render_condition(request: HttpRequest) -> HttpResponse:
     configuration = provide_route_configuration()
     variables = tuple((left.left, left.name) for left in configuration.lefts)
     operators = tuple((operator.operator, operator.name) for operator in configuration.operators)
     widget = ConditionWidget(variables, operators)
-    return render(request, widget.template_name, {"widget": widget})
+    rendered_subwidgets = widget.get_rendered_subwidgets()
+    return render(request, NEW_CONDITION_TEMPLATE, {"subwidgets": rendered_subwidgets})
 
-def _provide_priority_response(existing_priorities: Set[int], current: int) -> HttpResponse:
+
+def _provide_priority_response(existing_priorities: set[int], current: int) -> HttpResponse:
     priorities_set = set(range(1, MAX_PRIORITY))
     priorities = list(priorities_set.difference(existing_priorities))
     sorted(priorities)
@@ -57,7 +57,7 @@ def _provide_priority_response(existing_priorities: Set[int], current: int) -> H
     return HttpResponse(json.dumps({'values': priorities, 'choose': current}), content_type="application/json")
 
 
-def _choose_closest(priorities: List[int], current) -> int:
+def _choose_closest(priorities: list[int], current: int) -> int:
     result = -1
     diff = MAX_PRIORITY
     for priority in priorities:

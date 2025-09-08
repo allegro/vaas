@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from vaas.router.views import allowed_redirect_priorities, allowed_route_priorities, add_condition
+from vaas.router.views import allowed_redirect_priorities, allowed_route_priorities, render_condition
 
 urlpatterns = [
     path(
@@ -16,8 +16,8 @@ urlpatterns = [
         name='redirect_priorities'
     ),
     path(
-        "add_condition/",
-        add_condition,
-        name="add_condition"
+        "render-condition/",
+        render_condition,
+        name="render_condition"
     ),
 ]
