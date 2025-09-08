@@ -387,7 +387,6 @@ REDIRECT_CUSTOM_HEADER_LABEL = env.str(
     default="Require {} header".format(REDIRECT_CUSTOM_HEADER),
 )
 
-
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title)
     "site_title": None,
@@ -461,7 +460,7 @@ JAZZMIN_SETTINGS = {
     # UI Tweaks #
     #############
     # Relative paths to custom CSS/JS scripts (must be present in static files)
-    "custom_css": None,
+    "custom_css": "modal.css",
     "custom_js": None,
     # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
     "use_google_fonts_cdn": True,
