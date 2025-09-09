@@ -154,11 +154,14 @@
                         <i class="far fa-user" aria-hidden="true"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-usermenu">
-                        <span class="dropdown-header">{% trans 'Account' %}</span>
+                        <span class="dropdown-header">{% trans 'Welcome' %}, {{ request.user }}</span>
                         <div class="dropdown-divider"></div>
                         <a href="{% url 'admin:password_change' %}" class="dropdown-item">
-                            <i class="fas fa-key mr-2"></i> {% trans 'Change password' %}
+                            <i class="fas fa-lock mr-2"></i> {% trans 'Change password' %}
                         </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'api_key' %}" class="dropdown-item">
+                            <i class="fas fa-key mr-3"></i>Api Key</a>
                         <div class="dropdown-divider"></div>
                         <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
                             {% csrf_token %}
@@ -362,12 +365,16 @@
 
 <!-- jQuery -->
 <script src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
-<!-- Bootstrap 5 -->
+<!-- Bootstrap 4 -->
 <script src="{% static "vendor/bootstrap/js/bootstrap.min.js" %}"></script>
 <!-- AdminLTE App -->
 <script src="{% static "vendor/adminlte/js/adminlte.min.js" %}"></script>
 <!-- Django customisations -->
 <script src="{% static "jazzmin/js/main.js" %}"></script>
+<!-- csrf functions -->
+<script src="{% static "utils/js/csrf.js" %}"></script>
+<!-- labels functions -->
+<script src="{% static "utils/js/labels.js" %}"></script>
 
 {% if jazzmin_settings.custom_js %}
 <script src="{% static jazzmin_settings.custom_js %}"></script>

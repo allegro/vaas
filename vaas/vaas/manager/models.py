@@ -161,26 +161,26 @@ class Backend(models.Model):
         default='5',
         choices=[(x, x) for x in range(1, 101)]
     )
-    connect_timeout = NormalizedDecimalField(
-        default='0.30',
+    connect_timeout = models.DecimalField(
+        default=0.30,
         decimal_places=2,
         max_digits=4,
-        choices=generate_choices(1, 101, 100),
-        verbose_name='Connect timeout (s)'
+        verbose_name='Connect timeout (s)',
+        validators=[MinValueValidator(0.1), MaxValueValidator(1.0)]
     )
-    first_byte_timeout = NormalizedDecimalField(
-        default='5',
+    first_byte_timeout = models.DecimalField(
+        default=5.00,
         decimal_places=2,
         max_digits=5,
-        choices=generate_choices(1, 8001, 100),
-        verbose_name='First byte timeout (s)'
+        verbose_name='First byte timeout (s)',
+        validators=[MinValueValidator(0.1), MaxValueValidator(80.0)]
     )
-    between_bytes_timeout = NormalizedDecimalField(
-        default='1',
+    between_bytes_timeout = models.DecimalField(
+        default=1.00,
         decimal_places=2,
         max_digits=5,
-        choices=generate_choices(1, 8001, 100),
-        verbose_name='Between bytes timeout (s)'
+        verbose_name='Between bytes timeout (s)',
+        validators=[MinValueValidator(0.1), MaxValueValidator(80.0)]
     )
     director = models.ForeignKey(
         Director,

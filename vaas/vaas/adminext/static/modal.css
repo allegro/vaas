@@ -1,0 +1,11 @@
+.modal,
+.modal.show { z-index: 1060 !important; }
+
+.modal-backdrop,
+.modal-backdrop.show { z-index: 1050 !important; }
+
+.wrapper, .content-wrapper { transform: none !important; filter: none !important; }
+
+.vcltemplate {
+  background-color: #f5f5f5;
+}

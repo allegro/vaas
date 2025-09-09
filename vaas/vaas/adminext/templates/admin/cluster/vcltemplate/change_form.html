@@ -114,15 +114,46 @@
             </div>
         </form>
     </div>
-
 {% endblock %}
 
 {% block extrajs %}
-    {{  block.super }}
     <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/change_form.js' %}"></script>
-    {% if jazzmin_settings.related_modal_active %}
     <script type="text/javascript" src="{% static 'jazzmin/plugins/bootstrap-show-modal/bootstrap-show-modal.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/related-modal.js' %}"></script>
-    {% endif %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <div class="modal fade" id="validation-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Checking vcl compilation result</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="card">
+          <div class="card-header bg-light">
+            <p class="card-title h3">Task info</p>
+          </div>
+          <div class="card-body">
+            <p class="h6 mb-0">Command status: <span id="command-status" class="badge badge-light">unknown</span></p>
+            <p class="h6 mb-0">Command ID: <span id="command-id" class="badge badge-light"></span></p>
+            <p class="h6 mb-0">Affected servers: <span id="servers-no" class="badge badge-light">0</span></p>
+          </div>
+        </div>
+        <h2>Compilation status: <span id="command-result" class="badge badge-light">UNKNOWN</span></h2>
+        <div id="spinner" class="loader center-block"></div>
+        <div id="result" class="alert alert-danger">
+          <h4 id="error-type"></h4>
+          <pre id="error-message" class="vcltemplate"></pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

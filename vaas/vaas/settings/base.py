@@ -387,8 +387,7 @@ REDIRECT_CUSTOM_HEADER_LABEL = env.str(
     default="Require {} header".format(REDIRECT_CUSTOM_HEADER),
 )
 
-
-DEFAULT_SETTINGS = {
+JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title)
     "site_title": None,
     # Title on the login screen (19 chars max) (will default to current_admin_site.site_header)
@@ -456,12 +455,12 @@ DEFAULT_SETTINGS = {
     # Related Modal #
     #################
     # Activate Bootstrap modal
-    "related_modal_active": False,
+    "related_modal_active": True,
     #############
     # UI Tweaks #
     #############
     # Relative paths to custom CSS/JS scripts (must be present in static files)
-    "custom_css": None,
+    "custom_css": "modal.css",
     "custom_js": None,
     # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
     "use_google_fonts_cdn": True,
@@ -488,7 +487,7 @@ DEFAULT_SETTINGS = {
 # Use the UI builder to generate this #
 #######################################
 
-DEFAULT_UI_TWEAKS = {
+JAZZMIN_UI_TWEAKS = {
     # Small text on the top navbar
     "navbar_small_text": False,
     # Small text on the footer
