@@ -1,133 +1,30 @@
 {% extends "admin/change_list.html" %}
-{% load static %}
-
-{% block result_list %}
-<div class='pull-right'>
-    <button id="test" type="button" class="btn btn-info" data-toggle="modal" data-target="#testResultModal">
-        Run routes test
-    </button>
-</div>
-
-
-<script>document.getElementById('new-button').addEventListener('click', function() {
-    alert("CLICKED");
-});</script>
-
-<div class="modal" id="testResultModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document" style="width: 80%;">
-        <div class="modal-content">
-            <!-- <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Routes Test Report</h4>
-            </div>
-            <div class="modal-body">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Task info</h3>
-                    </div>
-                    <div id="command-details" class="panel-body">
-                        <h5>Command status: <span id="command-status" class="label label-default">unknown</span></h5>
-                        <h5>Command ID: <span id="command-id" class="label label-default"></span></h5>
-                    </div>
-                </div>
-                <h2>Tests report result: <span id="command-result" class="label label-default">UNKNOWN</span></h2>
-                <h4>
-                    Details:
-                    <span class="label label-success">PASS <span id="pass-count" class="badge">0</span></span>
-                    <span class="label label-danger">FAILED <span id="failed-count" class="badge">0</span></span>
-                </h4>
-                <div id="spinner" class="loader center-block"></div>
-                <div id="results"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div> -->
-            <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Modal Header</h4>
-        </div>
-        <div class="modal-body">
-          <p>Some text in the modal.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-        </div>
-    </div>
-</div>
+{% block content %}
 {{ block.super }}
-{% endblock %}
-
-{% block extrahead %}
-{{ block.super }}
-<script>
-
-    const noDataPlaceholder = { name: 'no data', id: 'no data' };
-
-    function createTestResult(records) {
-        records.sort(function (x, y) {
-            if (x.error_message && !y.error_message) {
-                return -1;
-            }
-            if (!x.error_message && y.error_message) {
-                return 1;
-            }
-            if (x.expected.route.id < y.expected.route.id) {
-                return -1;
-            }
-            return 1;
-        });
-        let html = "";
-        records.forEach(function (record) {
-            if (!record.current.route) record.current.route = noDataPlaceholder;
-            if (!record.current.director) record.current.director = noDataPlaceholder;
-            if (record.error_message) record.error_message = `<div class="alert alert-danger" role="alert">${record.error_message}</div>`;
-            html += eval('`' + $("#test-case").html() + '`');
-        });
-        return html
-    }
-
-    $(document).ready(function () {
-        initReport('/api/v0.1/route/validate-command/', createTestResult);
-    })
-</script>
-
 <template id="test-case">
-    <div class="panel panel-${statusToClass(record.result)}">
-        <div class="panel-heading">
-            <h3 class="panel-title">${record.url}</h3>
-        </div>
-        <div class="panel-body">
-            ${record.error_message}
+    <div class="card bg-${statusToClass(record.result)}">
+        <h5 class="card-header">${record.url}</h5>
+        <div class="card-body bg-white">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <h5><strong>Director: </strong>${record.expected.director.name}</h5>
-                            <h5><strong>Route:</strong> <code>${record.expected.route.name}</code></h5>
-                            <h6 class="text-muted">director.id: ${record.expected.director.id}</h6>
-                            <h6 class="text-muted">route.id: ${record.expected.route.id}</h6>
-                        </div>
-                        <div class="panel-footer">
-                            Expected
-                        </div>
-                    </div>
+                <div class="col-md-6 mb-3">
+                    <p class="card-text"><b>Current</b></p>
+                    <p class="card-text">Director: <code>${record.current.director.name}</code></p>
+                    <p class="card-text">Route: <code>${record.current.route.name}</code></p>
+                    <p class="card-text">director.id: ${record.current.director.id}</p>
+                    <p class="card-text">route.id: ${record.current.route.id}</p>
                 </div>
-                <div class="col-md-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <h5>Director: ${record.current.director.name}</h5>
-                            <h5>Route: <code>${record.current.route.name}</code></h5>
-                            <h6 class="text-muted">director.id: ${record.current.director.id}</h6>
-                            <h6 class="text-muted">route.id: ${record.current.route.id}</h6>
-                        </div>
-                        <div class="panel-footer">Current</div>
-                    </div>
+                <div class="col-md-6 mb-3">
+                    <p class="card-text"><b>Expected</b></p>
+                    <p class="card-text">Director: <code>${record.expected.director.name}</code></p>
+                    <p class="card-text">Route: <code>${record.expected.route.name}</code></p>
+                    <p class="card-text">director.id: ${record.expected.director.id}</p>
+                    <p class="card-text">route.id: ${record.expected.route.id}</p>
                 </div>
             </div>
+        </div>
+        <div class="card-footer">
+            ${record.error_message}
         </div>
     </div>
 </template>
-
 {% endblock %}
