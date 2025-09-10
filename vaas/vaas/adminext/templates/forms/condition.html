@@ -1,11 +1,9 @@
 {% spaceless %}
 <div class="row">
 {% for widget in widget.subwidgets %}
-<div class="col px-1" style="padding-left: 0px">
-    <div class="{{ widget.attrs.col }}" style="padding-left: 0px">
+    <div class="{{wdiget.attrs.col}}" style="padding-left: 1px">
         {% include widget.template_name %}
     </div>
-</div>
 {% endfor %}
 </div>
 {% endspaceless %}

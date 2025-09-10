@@ -34,9 +34,9 @@ class SearchableSelect(forms.Select):
 class ConditionWidget(forms.MultiWidget):
     def __init__(self, variables: tuple[tuple[str, str],...], operators: tuple[tuple[str, str],...], *args, **kwargs):
         widgets: tuple[forms.Select, forms.Select, forms.TextInput] = (
-            forms.Select(choices=variables, attrs={'class': 'form-control', 'col': 'col-md-2'}),
-            forms.Select(choices=operators, attrs={'class': 'form-control', 'col': 'col-md-3'}),
-            forms.TextInput(attrs={'class': 'form-control', 'col': 'col-md-4'}),
+            forms.Select(choices=variables, attrs={'class': 'form-control', 'col': 'col-3'}),
+            forms.Select(choices=operators, attrs={'class': 'form-control', 'col': 'col-3'}),
+            forms.TextInput(attrs={'class': 'form-control', 'col': 'col-6'}),
         )
         super(ConditionWidget, self).__init__(widgets, *args, **kwargs)
         self.template_name = 'forms/condition.html'
