@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
-from typing import List, Optional
+from typing import Optional
 from django import forms
 from vaas.router.models import DomainMapping
 from django.core.exceptions import ValidationError
-from django.utils.safestring import SafeText
 CONJUNCTION = ' && '
 
 
@@ -40,7 +39,6 @@ class ConditionWidget(forms.MultiWidget):
             forms.TextInput(attrs={'class': 'form-control', 'col': 'col-md-4'}),
         )
         super(ConditionWidget, self).__init__(widgets, *args, **kwargs)
-        self.rendered_widgets = tuple(subwidget.render(f"subwidget_{i}", None) for i, subwidget in enumerate(self.widgets))
         self.template_name = 'forms/condition.html'
 
     def decompress(self, value: str) -> list[str]:
@@ -53,8 +51,6 @@ class ConditionWidget(forms.MultiWidget):
             parts[2] = '"{}"'.format(parts[2])
         return ' '.join(parts)
 
-    def get_rendered_subwidgets(self) -> tuple[SafeText,...]:
-        return self.rendered_widgets
 
 class ComplexConditionWidget(forms.MultiWidget):
     def __init__(self, variables: tuple[tuple[str, str],...], operators: tuple[tuple[str, str],...], *args, **kwargs):
@@ -147,7 +143,7 @@ class ComplexRedirectConditionField(forms.MultiValueField):
         widget = ComplexRedirectConditionWidget(domains)
         super().__init__(fields=fields, widget=widget, **kwargs)
 
-    def compress(self, data_list: List) -> Optional[str]:
+    def compress(self, data_list: list[str]) -> Optional[str]:
         if data_list:
             _, src_path = data_list
             return f"req.url ~ \"{src_path}\""

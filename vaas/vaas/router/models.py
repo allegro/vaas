@@ -7,7 +7,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
-from typing import Optional, Self
+from typing import Optional
 
 class RedirectAssertion(models.Model):
     given_url = models.URLField()
@@ -92,7 +92,7 @@ class DictEqual(object):
 
 class Left(DictEqual):
     def __init__(self, left: str, name: str):
-        self.pk: str = left
+        self.pk = left
         self.left = left
         self.name = name
 

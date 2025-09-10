@@ -3,12 +3,9 @@
 import json
 
 from django.http import HttpRequest, HttpResponse
-from django.views.decorators.http import require_GET
-from django.shortcuts import render
 
-from vaas.router.models import Route, Redirect, provide_route_configuration
+from vaas.router.models import Route, Redirect
 from vaas.manager.models import Director
-from vaas.adminext.widgets import ConditionWidget
 
 MAX_PRIORITY = 500
 
@@ -35,16 +32,6 @@ def allowed_redirect_priorities(request: HttpRequest, domain: str, redirect_id: 
         ))
     )
     return _provide_priority_response(existing_priorities, current)
-
-NEW_CONDITION_TEMPLATE = "forms/new_condition.html"
-@require_GET
-def render_condition(request: HttpRequest) -> HttpResponse:
-    configuration = provide_route_configuration()
-    variables = tuple((left.left, left.name) for left in configuration.lefts)
-    operators = tuple((operator.operator, operator.name) for operator in configuration.operators)
-    widget = ConditionWidget(variables, operators)
-    rendered_subwidgets = widget.get_rendered_subwidgets()
-    return render(request, NEW_CONDITION_TEMPLATE, {"subwidgets": rendered_subwidgets})
 
 
 def _provide_priority_response(existing_priorities: set[int], current: int) -> HttpResponse:
