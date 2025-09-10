@@ -1,4 +1,5 @@
 {% spaceless %}
+<div class="row">
 {% for widget in widget.subwidgets %}
 <div class="col px-1" style="padding-left: 0px">
     <div class="{{ widget.attrs.col }}" style="padding-left: 0px">
@@ -6,4 +7,5 @@
     </div>
 </div>
 {% endfor %}
+</div>
 {% endspaceless %}

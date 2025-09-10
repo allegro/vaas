@@ -6,11 +6,13 @@
 {% if forloop.last %}
 <div class="row finish"></div>
 <hr />
-<div class="col-sm-1">
-    <button type="button" class="btn btn-danger" id="del_condition">-</button>
-</div>
-<div class="col-sm-1">
-    <button type="button" class="btn btn-primary" id="add_condition">+</button>
+<div class="row mt-3">
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-danger" id="del_condition">-</button>
+    </div>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-primary" id="add_condition">+</button>
+    </div>
 </div>
 {% else %}
 <div class="row" id="conjunction_{{forloop.counter}}"><strong>AND </strong></div>
