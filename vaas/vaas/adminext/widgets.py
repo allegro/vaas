@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
-from typing import List, Optional, Tuple
+from typing import Optional
 from django import forms
 from vaas.router.models import DomainMapping
 from django.core.exceptions import ValidationError
-
-
 CONJUNCTION = ' && '
 
 
@@ -34,16 +32,16 @@ class SearchableSelect(forms.Select):
 
 
 class ConditionWidget(forms.MultiWidget):
-    def __init__(self, variables, operators, *args, **kwargs):
-        widgets = [
-            forms.Select(choices=variables, attrs={'class': 'form-control', 'col': 'col-md-2'}),
-            forms.Select(choices=operators, attrs={'class': 'form-control', 'col': 'col-md-3'}),
-            forms.TextInput(attrs={'class': 'form-control', 'col': 'col-md-4'}),
-        ]
+    def __init__(self, variables: tuple[tuple[str, str],...], operators: tuple[tuple[str, str],...], *args, **kwargs):
+        widgets: tuple[forms.Select, forms.Select, forms.TextInput] = (
+            forms.Select(choices=variables, attrs={'class': 'form-control', 'col': 'col-3'}),
+            forms.Select(choices=operators, attrs={'class': 'form-control', 'col': 'col-3'}),
+            forms.TextInput(attrs={'class': 'form-control', 'col': 'col-6'}),
+        )
         super(ConditionWidget, self).__init__(widgets, *args, **kwargs)
         self.template_name = 'forms/condition.html'
 
-    def decompress(self, value):
+    def decompress(self, value: str) -> list[str]:
         return split_condition(value)
 
     def value_from_datadict(self, data, files, name):
@@ -55,7 +53,7 @@ class ConditionWidget(forms.MultiWidget):
 
 
 class ComplexConditionWidget(forms.MultiWidget):
-    def __init__(self, variables, operators, *args, **kwargs):
+    def __init__(self, variables: tuple[tuple[str, str],...], operators: tuple[tuple[str, str],...], *args, **kwargs):
         self.conjunction = CONJUNCTION
         self.variables = variables
         self.operators = operators
@@ -63,11 +61,10 @@ class ComplexConditionWidget(forms.MultiWidget):
         widgets = [
             self.base_widget,
         ]
-        self.test = 0
         super(ComplexConditionWidget, self).__init__(widgets, *args, **kwargs)
         self.template_name = 'forms/complex_condition.html'
 
-    def decompress(self, value):
+    def decompress(self, value: str) -> list[str]:
         result = split_complex_condition(value)
         if len(result) > 1:
             self.widgets = [ConditionWidget(self.variables, self.operators) for _ in range(0, len(result))]
@@ -90,13 +87,13 @@ class ComplexConditionWidget(forms.MultiWidget):
         return ids
 
 
-def split_complex_condition(value):
+def split_complex_condition(value: str) -> list[str]:
     if value:
         return value.split(CONJUNCTION)
     return ['req.url ~ ""']
 
 
-def split_condition(value):
+def split_condition(value: str) -> list[str]:
     if value:
         parts = value.split(' ')
         if len(parts) > 1:
@@ -107,7 +104,7 @@ def split_condition(value):
                 right = right[1:]
             if right[-1] == '"':
                 right = right[:-1]
-            return left, operator, right
+            return [left, operator, right]
     return ['req.url', '~', '']
 
 
@@ -120,7 +117,7 @@ def split_redirect_condition(value: str) -> str:
 
 
 class ComplexRedirectConditionWidget(forms.MultiWidget):
-    def __init__(self, domains: Tuple, attrs=None):
+    def __init__(self, domains: tuple[tuple[str, str],...], attrs: Optional[dict[str, str]] = None):
         widgets = (
             forms.Select(choices=domains,
                          attrs={'class': 'form-control', 'style': 'display: inline-block; width:40%'}),
@@ -130,7 +127,7 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
         )
         super().__init__(widgets, attrs)
 
-    def decompress(self, value: str) -> Tuple[str, str]:
+    def decompress(self, value: str) -> tuple[Optional[str], str]:
         path = split_redirect_condition(value)
         domain = self.attrs.get('condition_domain', None)
         return domain, path
@@ -138,7 +135,7 @@ class ComplexRedirectConditionWidget(forms.MultiWidget):
 
 class ComplexRedirectConditionField(forms.MultiValueField):
     def __init__(self, **kwargs):
-        domains: Tuple = tuple((domain.pk, domain.domain) for domain in DomainMapping.objects.all())
+        domains: tuple[tuple[str, str],...] = tuple((domain.pk, domain.domain) for domain in DomainMapping.objects.all())
         fields = (
             forms.ChoiceField(choices=domains),
             forms.CharField(),
@@ -146,7 +143,7 @@ class ComplexRedirectConditionField(forms.MultiValueField):
         widget = ComplexRedirectConditionWidget(domains)
         super().__init__(fields=fields, widget=widget, **kwargs)
 
-    def compress(self, data_list: List) -> Optional[str]:
+    def compress(self, data_list: list[str]) -> Optional[str]:
         if data_list:
             _, src_path = data_list
             return f"req.url ~ \"{src_path}\""

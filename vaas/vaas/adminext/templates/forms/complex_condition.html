@@ -1,57 +1,72 @@
 {% spaceless %}
 {% for widget in widget.subwidgets %}
-    <div id="condition_{{forloop.counter}}">
+<div id="condition_{{forloop.counter}}">
     {% include widget.template_name %}
-    </div>
-
-    {% if forloop.last %}
-    <div class="row finish"></div>
-    <hr/>
+</div>
+{% if forloop.last %}
+<div class="row finish"></div>
+<hr />
+<div class="row mt-3">
     <div class="col-sm-1">
         <button type="button" class="btn btn-danger" id="del_condition">-</button>
     </div>
     <div class="col-sm-1">
         <button type="button" class="btn btn-primary" id="add_condition">+</button>
     </div>
-    {% else %}
-    <div class="row" id="conjunction_{{forloop.counter}}"><strong>AND </strong></div>
-    {% endif %}
+</div>
+{% else %}
+<div class="row" id="conjunction_{{forloop.counter}}"><strong>AND </strong></div>
+{% endif %}
 
 {% endfor %}
 {% endspaceless %}
 
 
 <script>
-    var conditionNumbers = {{ widget.subwidgets|length }};
-    (function ($) {
-        function addCondition() {
-            conditionNumbers++;
-            var newCondition = $('#condition_1').clone();
-            newCondition.find("[name]").each(function(){
-                $(this).attr('name', $(this).attr('name').replace('condition_0','condition_' + conditionNumbers));
-                $(this).attr('id', $(this).attr('id').replace('id_condition_0','id_condition_' + conditionNumbers));
-            });
-            newCondition.find("input").each(function(){
-                $(this).attr("value", "");
-            });
-            $('.finish').before('<div class="row" id="conjunction_' + conditionNumbers + '"><strong>AND </strong></div><div id="condition_' + conditionNumbers + '">' + newCondition.html() + '</div>');
-        }
+    var numConditions = {{ widget.subwidgets| length }};
+    document.addEventListener('DOMContentLoaded', function () {
+        (function ($) {
+            function addCondition() {
+                numConditions++;
+                // we must destroy select2 from dropdowns before clone because there is some logic under the hood,
+                // which causes the original element to be modified instead of its clone
+                var actBefore = $('#condition_1 select').each(function () {
+                    $(this).select2("destroy");
+                });
+                var newCondition = $('#condition_1').clone();
 
-        function delCondition() {
-            var lastCondition = $("[id^='condition_']").last();
-            if (lastCondition.attr('id') != 'condition_1') {
-                lastCondition.remove();
-                $("[id^='conjunction_']").last().remove();
+                newCondition.find("[name]").each(function () {
+                    $(this).attr('name', $(this).attr('name').replace('condition_0', 'condition_' + numConditions));
+                    $(this).attr('id', $(this).attr('id').replace('id_condition_0', 'id_condition_' + numConditions));
+                });
+                newCondition.find("input").each(function () {
+                    $(this).attr("value", "");
+                });
+                newCondition.attr("id", "condition_" + numConditions);
+
+                $('.finish').before('<div class="row" id="conjunction_' + numConditions + '"><strong>AND </strong></div>');
+                $(newCondition).insertBefore(".row.finish");
+
+                const elId = "#condition_" + numConditions;
+
+                $('[id*="condition_"]').find("select").each(function () {
+                    $(this).select2();
+                });
             }
-            conditionNumbers--;
-        }
 
-        window.addEventListener('load', (event) => {
-            document.getElementById("add_condition").addEventListener("click", addCondition);
-            document.getElementById("del_condition").addEventListener("click", delCondition);
-        });
+            function delCondition() {
+                var lastCondition = $("[id^='condition_']").last();
+                if (lastCondition.attr('id') != 'condition_1') {
+                    lastCondition.remove();
+                    $("[id^='conjunction_']").last().remove();
+                }
+                numConditions--;
+            }
 
-
-    })(django.jQuery);
-
+            window.addEventListener('load', (event) => {
+                document.getElementById("add_condition").addEventListener("click", addCondition);
+                document.getElementById("del_condition").addEventListener("click", delCondition);
+            });
+        })(jQuery);
+    });
 </script>
