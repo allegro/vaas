@@ -1,7 +1,7 @@
 {% spaceless %}
 <div class="row">
 {% for widget in widget.subwidgets %}
-    <div class="{{wdiget.attrs.col}}" style="padding-left: 1px">
+    <div class="form-inline">
         {% include widget.template_name %}
     </div>
 {% endfor %}
