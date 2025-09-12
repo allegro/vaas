@@ -7,7 +7,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
-
+from typing import Optional
 
 class RedirectAssertion(models.Model):
     given_url = models.URLField()
@@ -70,12 +70,12 @@ class PositiveUrl(models.Model):
 
 
 class RoutesTestTask(object):
-    def __init__(self, pk=None, status=None, info=None):
+    def __init__(self, pk: Optional[str] = None, status: Optional[str] = None, info: Optional[str] = None):
         self.pk = pk
         self.status = status
         self.info = info
 
-    def __eq__(self, other):
+    def __eq__(self, other: object):
         return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
 
     def __repr__(self):
@@ -86,40 +86,40 @@ class DictEqual(object):
     def __repr__(self):
         return '{}'.format(self.__dict__)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object):
         return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
 
 
 class Left(DictEqual):
-    def __init__(self, left, name):
+    def __init__(self, left: str, name: str):
         self.pk = left
         self.left = left
         self.name = name
 
 
 class Operator(DictEqual):
-    def __init__(self, operator, name):
-        self.pk = operator
+    def __init__(self, operator: str, name: str):
+        self.pk: str = operator
         self.operator = operator
         self.name = name
 
 
 class Action(DictEqual):
-    def __init__(self, action, name):
+    def __init__(self, action: str, name: str):
         self.pk = action
         self.action = action
         self.name = name
 
 
 class RouteConfiguration(DictEqual):
-    def __init__(self, lefts, operators, actions):
+    def __init__(self, lefts: list[Left], operators: list[Operator], actions: list[Action]):
         self.pk = 'configuration'
         self.lefts = lefts
         self.operators = operators
         self.actions = actions
 
 
-def provide_route_configuration():
+def provide_route_configuration() -> RouteConfiguration:
     return RouteConfiguration(
         [Left(left=k, name=v) for k, v in settings.ROUTES_LEFT_CONDITIONS.items()],
         [

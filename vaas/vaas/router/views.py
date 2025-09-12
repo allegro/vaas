@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import json
-from typing import Set, List
 
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 
 from vaas.router.models import Route, Redirect
 from vaas.manager.models import Director
@@ -11,7 +10,7 @@ from vaas.manager.models import Director
 MAX_PRIORITY = 500
 
 
-def allowed_route_priorities(request, director_id: int, route_id: int, current: int) -> HttpResponse:
+def allowed_route_priorities(request: HttpRequest, director_id: int, route_id: int, current: int) -> HttpResponse:
     clusters = request.GET.getlist("clusters")
     if request.GET.get("clusters_sync"):
         clusters = Director.objects.filter(pk=director_id).values_list('cluster__id', flat=True)
@@ -26,7 +25,7 @@ def allowed_route_priorities(request, director_id: int, route_id: int, current: 
     return _provide_priority_response(existing_priorities, current)
 
 
-def allowed_redirect_priorities(request, domain: str, redirect_id: int, current: int) -> HttpResponse:
+def allowed_redirect_priorities(request: HttpRequest, domain: str, redirect_id: int, current: int) -> HttpResponse:
     existing_priorities = set(
         list(Redirect.objects.filter(src_domain__domain=domain).exclude(id=redirect_id).values_list(
             'priority', flat=True
@@ -35,7 +34,7 @@ def allowed_redirect_priorities(request, domain: str, redirect_id: int, current:
     return _provide_priority_response(existing_priorities, current)
 
 
-def _provide_priority_response(existing_priorities: Set[int], current: int) -> HttpResponse:
+def _provide_priority_response(existing_priorities: set[int], current: int) -> HttpResponse:
     priorities_set = set(range(1, MAX_PRIORITY))
     priorities = list(priorities_set.difference(existing_priorities))
     sorted(priorities)
@@ -45,7 +44,7 @@ def _provide_priority_response(existing_priorities: Set[int], current: int) -> H
     return HttpResponse(json.dumps({'values': priorities, 'choose': current}), content_type="application/json")
 
 
-def _choose_closest(priorities: List[int], current) -> int:
+def _choose_closest(priorities: list[int], current: int) -> int:
     result = -1
     diff = MAX_PRIORITY
     for priority in priorities:

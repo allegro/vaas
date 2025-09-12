@@ -10,9 +10,9 @@ class ReportGateway {
     $('#failed-count').text(0);
     $('#error-message').remove();
     $('#command-status').removeClass();
-    $('#command-status').addClass(`label label-default`).text("unknown");
+    $('#command-status').addClass(`badge badge-default`).text("UNKNOWN");
     $('#command-result').removeClass();
-    $('#command-result').addClass(`label label-default`).text("UNKNOWN");
+    $('#command-result').addClass(`badge badge-default`).text("UNKNOWN");
     $('#command-id').text(this.commandId);
     $('#command-id').data("status", "started");
   }
@@ -60,11 +60,11 @@ class ReportGateway {
       $('#results').append(this.renderResults(data.output.validation_results));
       $('#pass-count').text(this.countResult('PASS', data.output.validation_results));
       $('#failed-count').text(this.countResult('FAIL', data.output.validation_results));
-      $('#command-result').addClass(`label-${statusToClass(data.output.validation_status)}`).text(data.output.validation_status);
+      $('#command-result').addClass(`badge-${statusToClass(data.output.validation_status)}`).text(data.output.validation_status);
     }
     $('#spinner').hide();
     $('#command-status').removeClass();
-    $('#command-status').addClass(`label label-${statusToClass(status)}`).text(status);
+    $('#command-status').addClass(`badge badge-${statusToClass(status)}`).text(status);
   }
 
   countResult(resultString, records) {
@@ -81,7 +81,7 @@ class ReportGateway {
     this.setCommandStatus('done');
     console.error(textStatus, errorThrown);
     $('#command-details').append(`<div id="error-message" class="alert alert-danger" role="alert">${request.responseText || errorThrown}</div>`);
-    $('#command-result').addClass(`label-${statusToClass('FAIL')}`).text(validationStatus('Error'));
+    $('#command-result').addClass(`badge-${statusToClass('FAIL')}`).text(validationStatus('Error'));
     $('#spinner').hide();
   }
 
