@@ -175,9 +175,6 @@
                             </a>
                         {% endfor %}
                         <div class="dropdown-divider"></div>
-                        {% if perms|can_view_self %}
-                            <a href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" class="dropdown-item dropdown-footer">{% trans 'See Profile' %}</a>
-                        {% endif %}
                     </div>
                 </li>
             </ul>
