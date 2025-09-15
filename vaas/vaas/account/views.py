@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from tastypie.models import ApiKey
@@ -5,35 +6,37 @@ from tastypie.models import ApiKey
 
 def api_key(request):
     app_dict = {
-        'name': 'Account',
-        'app_label': 'Account',
-        'app_url': '',
-        'has_module_perms': False,
-        'models': [
+        "name": "Account",
+        "app_label": "Account",
+        "app_url": "",
+        "has_module_perms": False,
+        "models": [
             {
-                'name': 'Api key',
-                'object_name': 'Api key',
-                'perms': [],
-                'admin_url': '/account/api-key'
+                "name": "Api key",
+                "object_name": "Api key",
+                "perms": [],
+                "admin_url": "/account/api-key",
             }
         ],
     }
 
     context = {
-        'title': 'Account - api key',
-        'app_list': [app_dict],
-        'api_key': None,
-        'has_permission': True
+        "title": "Account - api key",
+        "app_list": [app_dict],
+        "api_key": None,
+        "has_permission": True,
     }
 
-    if hasattr(request.user, 'api_key'):
-        context['api_key'] = request.user.api_key
+    if hasattr(request.user, "api_key"):
+        context["api_key"] = request.user.api_key
 
-    return TemplateResponse(request, 'api_key.html', context)
+    context.update(admin.site.each_context(request))
+
+    return TemplateResponse(request, "api_key.html", context)
 
 
 def generate_api_key(request):
-    if hasattr(request.user, 'api_key') is False:
+    if hasattr(request.user, "api_key") is False:
         ApiKey.objects.create(user=request.user)
 
-    return redirect('api_key')
+    return redirect("api_key")
