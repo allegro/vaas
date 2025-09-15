@@ -45,55 +45,6 @@ def switch_backend_status(modeladmin, request, queryset):
     switch_state_and_reload(enabledSet, False)
 
 
-def export_to_csv(modeladmin, request, queryset):
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=backend_list.csv"
-    writer = csv.writer(response, csv.excel)
-    response.write("\ufeff".encode("utf8"))
-    writer.writerow(
-        [
-            smart_str("id"),
-            smart_str("address"),
-            smart_str("port"),
-            smart_str("director"),
-            smart_str("dc"),
-            smart_str("status"),
-            smart_str("enabled"),
-            smart_str("inherit_time_profile"),
-            smart_str("weight"),
-            smart_str("tags"),
-        ]
-    )
-    backend_status_list = BackendStatus.objects.all()
-    for obj in queryset:
-        status_list = list(
-            filter(
-                lambda backend_status: backend_status.address == obj.address
-                and backend_status.port == obj.port,
-                backend_status_list,
-            )
-        )
-        status = "unknown"
-        if len(status_list) == 1:
-            status = status_list[0].status
-
-        writer.writerow(
-            [
-                smart_str(obj.pk),
-                smart_str(obj.address),
-                smart_str(obj.port),
-                smart_str(obj.director),
-                smart_str(obj.dc),
-                smart_str(status),
-                smart_str(obj.enabled),
-                smart_str(obj.inherit_time_profile),
-                smart_str(obj.weight),
-                smart_str(obj.tags.all()),
-            ]
-        )
-    return response
-
-
 def enable_director(modeladmin, request, queryset):
     switch_state_and_reload(queryset, True)
 
@@ -169,7 +120,7 @@ class BackendAdmin(AuditableModelAdmin):
         "director__cluster__name",
         "dc__symbol",
     ]
-    actions = [enable_backend, disable_backend, switch_backend_status, export_to_csv]
+    actions = [enable_backend, disable_backend, switch_backend_status]
     fieldsets = (
         (
             None,
