@@ -249,7 +249,7 @@ class BackendAdmin(AuditableModelAdmin):
             else:
                 return format_html(
                     "<div class='span13 text-center'><a class='btn btn-xs btn-danger' href='#'>"
-                    "<i class=;fa-solid fa-ban'></i></a></div>"
+                    "<i class='fa-solid fa-ban'></i></a></div>"
                 )
         else:
             return format_html(
