@@ -29,7 +29,7 @@
                             </p>
                         </div>
                     </div>
-                    <div class="text-center">
+                    <div class="d-flex justify-content-center">
                         <div id="spinner" class="spinner-border" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
@@ -66,6 +66,8 @@
                     if (pageType === 'route' && !record.current.director) record.current.director = noDataPlaceholder;
                     html += eval('`' + $("#test-case").html() + '`');
                 });
+                // After gathering all the responses, we return the generated HTML report and hide the spinner
+                $("#spinner").hide();
                 return html
             }
 

@@ -2,7 +2,12 @@ from django.contrib import admin
 
 from vaas.external.audit import AuditableModelAdmin
 from vaas.router.models import PositiveUrl, Route, Redirect, RedirectAssertion
-from vaas.router.forms import PositiveUrlForm, RedirectAssertionForm, RouteModelForm, RedirectModelForm
+from vaas.router.forms import (
+    PositiveUrlForm,
+    RedirectAssertionForm,
+    RouteModelForm,
+    RedirectModelForm,
+)
 from django.conf import settings
 
 
@@ -29,23 +34,48 @@ class PositiveURLAdmin(admin.TabularInline):
 class RedirectAdmin(AuditableModelAdmin):
     form = RedirectModelForm
     inlines = [RedirectAssertionAdmin]
-    search_fields = ['condition', 'src_domain__domain', 'destination']
-    list_display = ['condition', 'src_domain', 'destination', 'action', 'priority', 'preserve_query_params']
+    search_fields = ["condition", "src_domain__domain", "destination"]
+    list_display = [
+        "condition",
+        "src_domain",
+        "destination",
+        "action",
+        "priority",
+        "preserve_query_params",
+    ]
 
     class Media:
-        js = ('utils/js/labels.js', 'js/test-report.js', )
-        css = {'all': ('css/test-report.css', )}
+        js = (
+            "utils/js/labels.js",
+            "js/test-report.js",
+        )
 
 
 class RouteAdmin(AuditableModelAdmin):
     form = RouteModelForm
     inlines = [PositiveURLAdmin]
-    search_fields = ['condition', 'clusters__name', 'director__name']
-    list_display = ['condition', 'director', 'priority', 'action', 'exposed_on_clusters']
+    search_fields = ["condition", "clusters__name", "director__name"]
+    list_display = [
+        "condition",
+        "director",
+        "priority",
+        "action",
+        "exposed_on_clusters",
+    ]
     fieldsets = (
-        (None, {
-            'fields': ('condition', 'priority', 'action', 'director', 'clusters_in_sync', 'clusters',)
-        }),
+        (
+            None,
+            {
+                "fields": (
+                    "condition",
+                    "priority",
+                    "action",
+                    "director",
+                    "clusters_in_sync",
+                    "clusters",
+                )
+            },
+        ),
     )
 
     def exposed_on_clusters(self, obj):
@@ -54,12 +84,11 @@ class RouteAdmin(AuditableModelAdmin):
         return [c.name for c in obj.clusters.all()]
 
     def changelist_view(self, request, extra_context=None):
-        ctx = {'route_tests_enabled': settings.ROUTE_TESTS_ENABLED}
+        ctx = {"route_tests_enabled": settings.ROUTE_TESTS_ENABLED}
         return super().changelist_view(request, extra_context=ctx)
 
     class Media:
-        js = ('js/test-report.js', 'utils/js/labels.js')
-        css = {'all': ('css/test-report.css', )}
+        js = ("js/test-report.js", "utils/js/labels.js")
 
 
 admin.site.register(Route, RouteAdmin)

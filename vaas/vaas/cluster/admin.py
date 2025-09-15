@@ -9,46 +9,63 @@ from django_ace import AceWidget
 from vaas.cluster.mapping import MappingProvider
 from vaas.external.audit import AuditableModelAdmin
 from vaas.cluster.coherency import OutdatedServerManager
-from vaas.cluster.models import DomainMapping, VarnishServer, VclTemplate, VclTemplateBlock, Dc, LogicalCluster, \
-    VclVariable
-from vaas.cluster.forms import DomainMappingForm, VclTemplateModelForm, VarnishServerModelForm, VclVariableModelForm, \
-    LogicalCLusterModelForm
+from vaas.cluster.models import (
+    DomainMapping,
+    VarnishServer,
+    VclTemplate,
+    VclTemplateBlock,
+    Dc,
+    LogicalCluster,
+    VclVariable,
+)
+from vaas.cluster.forms import (
+    DomainMappingForm,
+    VclTemplateModelForm,
+    VarnishServerModelForm,
+    VclVariableModelForm,
+    LogicalCLusterModelForm,
+)
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
 
-ace_widget = AceWidget(theme='solarized_dark', mode='c_cpp', width='100%', height='400px')
+ace_widget = AceWidget(
+    theme="solarized_dark", mode="c_cpp", width="100%", height="400px"
+)
+
 
 def enable_varnish_servers(modeladmin, request, queryset):
-    switch_status_and_reload(queryset, 'active')
+    switch_status_and_reload(queryset, "active")
 
 
 enable_varnish_servers.short_description = "Enable varnish servers"
 
 
 def maintenance_varnish_servers(modeladmin, request, queryset):
-    switch_status_and_reload(queryset, 'maintenance')
+    switch_status_and_reload(queryset, "maintenance")
 
 
 maintenance_varnish_servers.short_description = "Maintenance varnish servers"
 
 
 def disable_varnish_servers(modeladmin, request, queryset):
-    switch_status_and_reload(queryset, 'disabled')
+    switch_status_and_reload(queryset, "disabled")
 
 
 disable_varnish_servers.short_description = "Disable varnish servers"
 
 
 class OutdatedFilter(SimpleListFilter):
-    title = 'VCL Status'
-    parameter_name = 'outdated'
+    title = "VCL Status"
+    parameter_name = "outdated"
 
     def lookups(self, request, model_admin):
-        return (('actual', 'Actual'), ('outdated', 'Outdated'))
+        return (("actual", "Actual"), ("outdated", "Outdated"))
 
     def queryset(self, request, queryset):
         if self.value():
-            result = OutdatedServerManager().filter(servers=queryset, outdated=(self.value() == 'outdated'))
+            result = OutdatedServerManager().filter(
+                servers=queryset, outdated=(self.value() == "outdated")
+            )
             return queryset.filter(id__in=[server.id for server, _ in result])
 
         return queryset
@@ -56,24 +73,28 @@ class OutdatedFilter(SimpleListFilter):
 
 class VarnishServerAdmin(AuditableModelAdmin):
     form = VarnishServerModelForm
-    search_fields = ['dc__symbol', 'ip', 'hostname', 'template__name']
-    list_filter = ['cluster__name', OutdatedFilter]
+    search_fields = ["dc__symbol", "ip", "hostname", "template__name"]
+    list_filter = ["cluster__name", OutdatedFilter]
     list_display = (
-        'hostname',
-        'ip',
-        'port',
-        'http_port',
-        'dc',
-        'cluster',
-        'cluster_weight',
-        'template',
-        'template_version',
-        'custom_enabled',
-        'is_connected',
-        'custom_is_canary',
-        'vcl'
+        "hostname",
+        "ip",
+        "port",
+        "http_port",
+        "dc",
+        "cluster",
+        "cluster_weight",
+        "template",
+        "template_version",
+        "custom_enabled",
+        "is_connected",
+        "custom_is_canary",
+        "vcl",
     )
-    actions = [enable_varnish_servers, maintenance_varnish_servers, disable_varnish_servers]
+    actions = [
+        enable_varnish_servers,
+        maintenance_varnish_servers,
+        disable_varnish_servers,
+    ]
     varnish_api_provider = None
 
     def get_list_display(self, request):
@@ -84,48 +105,49 @@ class VarnishServerAdmin(AuditableModelAdmin):
         return obj.template.get_template_version()
 
     def custom_enabled(self, obj):
-        if obj.status == 'active':
+        if obj.status == "active":
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs btn-success' href='#'>"
-                "<i class='glyphicon glyphicon-ok-sign'></i></a>"
+                "<i class='fa-solid fa-circle-check'></i>"
                 "</div>"
             )
-        elif obj.status == 'maintenance':
+        elif obj.status == "maintenance":
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs btn-warning' href='#'>"
-                "<i class='glyphicon glyphicon-wrench'></i></a>"
+                "<i class='fa-solid fa-screwdriver-wrench'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
                 "<div class='span13 text-center'>"
-                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>"
+                "<a class='btn btn-xs' href='#'><i class='fa-solid fa-ban'></i></a>"
                 "</div>"
             )
-    custom_enabled.short_description = 'Enabled'
+
+    custom_enabled.short_description = "Enabled"
 
     def is_connected(self, obj):
-        if obj.status == 'active':
+        if obj.status == "active":
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs' data-varnish-id='" + str(obj.pk) + "' href='#'>"
-                "<i class='glyphicon loader'></i>"
+                "<i class='spinner-border spinner-border-sm' role='status'></i>"
                 "</a>"
                 "</div>"
             )
-        elif obj.status == 'maintenance':
+        elif obj.status == "maintenance":
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs btn-warning' href='#'>"
-                "<i class='glyphicon glyphicon-wrench'></i></a>"
+                "<i class='fa-solid fa-screwdriver-wrench'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
                 "<div class='span13 text-center'>"
-                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>"
+                "<a class='btn btn-xs' href='#'><i class='fa-solid fa-ban'></i></a>"
                 "</div>"
             )
 
@@ -134,49 +156,54 @@ class VarnishServerAdmin(AuditableModelAdmin):
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs btn-success' href='#'>"
-                "<i class='glyphicon glyphicon-ok-sign'></i></a>"
+                "<i class='fa-solid fa-circle-check'></i></a>"
                 "</div>"
             )
         else:
             return format_html(
                 "<div class='span13 text-center'>"
-                "<a class='btn btn-xs' href='#'><i class='glyphicon glyphicon-ban-circle'></i></a>"
+                "<a class='btn btn-xs' href='#'><i class='fa-solid fa-ban'></i></a>"
                 "</div>"
             )
-    custom_is_canary.short_description = 'Canary'
+
+    custom_is_canary.short_description = "Canary"
 
     def vcl(self, obj):
-        if obj.status in ('active', 'maintenance'):
+        if obj.status in ("active", "maintenance"):
             return format_html(
-                ("<div class='span13 text-center'>"
-                 "<button type='button' class='btn btn-success' data-toggle='modal' "
-                 "data-vcl='/manager/varnish/vcl/%s/'"
-                 "data-target='#vclModal'>Show vcl</button>"
-                 "</div>") % obj.id
+                (
+                    "<div class='span13 text-center'>"
+                    "<button type='button' class='btn btn-success' data-toggle='modal' "
+                    "data-vcl='/manager/varnish/vcl/%s/'"
+                    "data-target='#vclModal'>Show vcl</button>"
+                    "</div>"
+                )
+                % obj.id
             )
         else:
             return format_html(
-                ("<div class='span13 text-center'>"
-                 "<button class='btn btn-danger' disabled>Show vcl</button>"
-                 "</div>")
+                (
+                    "<div class='span13 text-center'>"
+                    "<button class='btn btn-danger' disabled>Show vcl</button>"
+                    "</div>"
+                )
             )
 
 
 class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     class Media:
-        css = {
-            'all': ('css/ace-widget-custom-styles.css',)
-        }
+        css = {"all": ("css/ace-widget-custom-styles.css",)}
+
     formfield_overrides = {
-        models.TextField: {'widget': ace_widget},
+        models.TextField: {"widget": ace_widget},
     }
-    list_display = ['tag', 'template']
+    list_display = ["tag", "template"]
 
 
 class DomainMappingAdmin(SimpleHistoryAdmin):
     form = DomainMappingForm
-    search_fields = ['domain', 'get_mappings', 'type', 'clusters__name']
-    list_display = ['domain', 'get_mappings', 'type', 'get_clusters']
+    search_fields = ["domain", "get_mappings", "type", "clusters__name"]
+    list_display = ["domain", "get_mappings", "type", "get_clusters"]
 
     def get_mappings(self, obj: DomainMapping) -> str:
         return ", ".join(sorted(list(obj.mappings)))
@@ -186,85 +213,92 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
             return "clusters are connected by appropriate labels"
         return ", ".join([c.name for c in obj.clusters.all()])
 
-    get_mappings.short_description = 'Mappings'
-    get_clusters.short_description = 'Related clusters'
+    get_mappings.short_description = "Mappings"
+    get_clusters.short_description = "Related clusters"
 
 
 class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
     class Media:
-        css = {
-            'all': ('css/ace-widget-custom-styles.css',)
-        }
+        css = {"all": ("css/ace-widget-custom-styles.css",)}
+
     form = VclTemplateModelForm
-    search_fields = ['name']
+    search_fields = ["name"]
     formfield_overrides = {
-        models.TextField: {'widget': ace_widget},
+        models.TextField: {"widget": ace_widget},
     }
-    list_display = ['name', 'version']
+    list_display = ["name", "version"]
     object_history_template = "custom_simple_history/object_history.html"
 
 
 class LogicalClusterAdmin(admin.ModelAdmin):
     form = LogicalCLusterModelForm
-    search_fields = ['name', 'labels_list']
+    search_fields = ["name", "labels_list"]
     list_display = [
-        'name',
-        'service_mesh_routing',
-        'partial_reload',
-        'reload_timestamp',
-        'error_timestamp',
-        'last_error_info',
-        'get_tags',
-        'labels',
-        'get_domains',
-        'varnish_servers'
+        "name",
+        "service_mesh_routing",
+        "partial_reload",
+        "reload_timestamp",
+        "error_timestamp",
+        "last_error_info",
+        "get_tags",
+        "labels",
+        "get_domains",
+        "varnish_servers",
     ]
-    exclude = ('last_error_info', 'reload_timestamp', 'error_timestamp')
+    exclude = ("last_error_info", "reload_timestamp", "error_timestamp")
     provider = None
 
     def get_changelist_instance(self, request):
         # refresh provider on each changelist view
-        self.provider = MappingProvider(list(DomainMapping.objects.all().prefetch_related('clusters')))
+        self.provider = MappingProvider(
+            list(DomainMapping.objects.all().prefetch_related("clusters"))
+        )
         return super().get_changelist_instance(request)
 
     def get_tags(self, obj: LogicalCluster) -> str:
         return ", ".join(obj.current_vcls)
 
-    get_tags.short_description = 'Current vcls'
+    get_tags.short_description = "Current vcls"
 
     def labels(self, obj: LogicalCluster) -> SafeText:
-        labels_list_html = ''
+        labels_list_html = ""
         if obj.labels:
             for label in obj.labels:
-                labels_list_html += "<span class='label label-default' style='display: inline-block;'>%s</span>" % label
+                labels_list_html += (
+                    "<span class='label label-default' style='display: inline-block;'>%s</span>"
+                    % label
+                )
         return format_html(labels_list_html)
 
-    labels.short_description = 'Labels'
+    labels.short_description = "Labels"
 
     def get_domains(self, obj: LogicalCluster) -> SafeText:
-        domains_html = ''
+        domains_html = ""
         for domain in self.provider.provide_related_domains(obj):
             domains_html += f"<span class='label label-primary' style='display: inline-block;'>{domain}</span>"
         return format_html(domains_html)
 
-    get_domains.short_description = 'Related Domains'
+    get_domains.short_description = "Related Domains"
 
     def varnish_servers(self, obj: LogicalCluster) -> SafeText:
         return format_html(
-            ("<div class='span13 text-center'>"
-             "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "
-             ">Show varnish servers (%d)</a>"
-             "</div><br/>"
-             "<div class='span13 text-center'>"
-             "<a class='btn btn-danger' href='/admin/cluster/varnishserver/?cluster__name=%s&outdated=outdated' "
-             ">Show outdated servers</a>"
-             "</div>") % (obj.name, obj.varnish_count(), obj.name)
+            (
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-success' href='/admin/cluster/varnishserver/?cluster__name=%s' "
+                ">Show varnish servers (%d)</a>"
+                "</div><br/>"
+                "<div class='span13 text-center'>"
+                "<a class='btn btn-danger' href='/admin/cluster/varnishserver/?cluster__name=%s&outdated=outdated' "
+                ">Show outdated servers</a>"
+                "</div>"
+            )
+            % (obj.name, obj.varnish_count(), obj.name)
         )
 
 
 class VclVariableAdmin(admin.ModelAdmin):
     form = VclVariableModelForm
-    list_display = ['key', 'value', 'cluster']
+    list_display = ["key", "value", "cluster"]
 
 
 admin.site.register(VarnishServer, VarnishServerAdmin)
