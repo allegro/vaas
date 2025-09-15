@@ -62,7 +62,6 @@ class ReportGateway {
       $('#failed-count').text(this.countResult('FAIL', data.output.validation_results));
       $('#command-result').addClass(`badge-${statusToClass(data.output.validation_status)}`).text(data.output.validation_status);
     }
-    $('#spinner').hide();
     $('#command-status').removeClass();
     $('#command-status').addClass(`badge badge-${statusToClass(status)}`).text(status);
   }

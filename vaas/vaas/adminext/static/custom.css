@@ -4,15 +4,6 @@
 .modal-backdrop,
 .modal-backdrop.show { z-index: 1050 !important; }
 
-.loader {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .wrapper, .content-wrapper { transform: none !important; filter: none !important; }
 
 .vcltemplate {

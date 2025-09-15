@@ -116,7 +116,7 @@ class VarnishServerAdmin(AuditableModelAdmin):
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs btn-warning' href='#'>"
-                "<i class='fa-solid fa-screwdriver-wrench'></i</a>"
+                "<i class='fa-solid fa-screwdriver-wrench'></i></a>"
                 "</div>"
             )
         else:
@@ -133,7 +133,7 @@ class VarnishServerAdmin(AuditableModelAdmin):
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs' data-varnish-id='" + str(obj.pk) + "' href='#'>"
-                "<i class='fa-solid fa-spinner fa-2xl loader'></i>"
+                "<i class='spinner-border spinner-border-sm' role='status'></i>"
                 "</a>"
                 "</div>"
             )
@@ -156,7 +156,7 @@ class VarnishServerAdmin(AuditableModelAdmin):
             return format_html(
                 "<div class='span13 text-center'>"
                 "<a class='btn btn-xs btn-success' href='#'>"
-                "<i class='fa-solid fa-circle-check'></i></a?"
+                "<i class='fa-solid fa-circle-check'></i></a>"
                 "</div>"
             )
         else:
