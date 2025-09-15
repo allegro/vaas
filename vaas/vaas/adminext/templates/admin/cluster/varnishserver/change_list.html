@@ -54,7 +54,7 @@
           task_status = 'done';
           $('[data-varnish-id]').each(function(index) {
             $(this).addClass('btn-info')
-            $(this).children('i').removeClass('loader').addClass('fa-solid fa-xmark')
+            $(this).children('i').removeClass('spinner-border spinner-border-sm').addClass('fa-solid fa-xmark')
           })
         }
         else if (status === 'SUCCESS') {
@@ -68,11 +68,11 @@
                     $(this).text(result)
                 } else {
                     $(this).addClass('btn-danger')
-                    $(this).children('i').removeClass('fa-spinner loader').addClass('fa-power-off')
+                    $(this).children('i').removeClass('spinner-border spinner-border-sm').addClass('fa-power-off')
                 }
             }
             $(this).addClass('btn-secondary')
-            $(this).children('i').removeClass('fa-spinner loader').addClass('fa-xmark')
+            $(this).children('i').removeClass('spinner-border spinner-border-sm').addClass('fa-solid fa-xmark')
           })
         }
     }
