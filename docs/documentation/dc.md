@@ -4,7 +4,7 @@ VaaS can be used in a multiple DC architecture.
 
 Single DC
 ---------
-The easiest set up is a set-up where all Varnish servers and their backends are located in the same DC. Just assign directors to the same cluster as your Varnish servers, and you are ready to go. Varnish will generate a single director in the actual VCL per a director defined in VaaS.
+The easiest use case is a set-up where all Varnish servers and their backends are located in the same DC. Just assign directors to the same cluster as your Varnish servers, and you are ready to go. Varnish will generate a single director in the actual VCL per a director defined in VaaS.
 
 Two DCs in active / standby mode
 --------------------------------
