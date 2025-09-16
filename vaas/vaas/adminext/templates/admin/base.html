@@ -17,10 +17,10 @@
     <title>{% block title %}{{ title }} | {{ jazzmin_settings.site_title }}{% endblock %}</title>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{% static " vendor/fontawesome-free/css/all.min.css" %}">
+    <link rel="stylesheet" href="{% static "vendor/fontawesome-free/css/all.min.css" %}">
 
     <!-- Bootstrap and adminLTE -->
-    <link rel="stylesheet" href="{% static " vendor/adminlte/css/adminlte.min.css" %}" id="adminlte-css">
+    <link rel="stylesheet" href="{% static "vendor/adminlte/css/adminlte.min.css" %}" id="adminlte-css">
 
     <!-- Bootswatch theme -->
     {% if jazzmin_ui.theme.name != 'default' %}
@@ -33,11 +33,11 @@
     {% endif %}
 
     <!-- Custom fixes for django -->
-    <link rel="stylesheet" href="{% static " jazzmin/css/main.css" %}">
+    <link rel="stylesheet" href="{% static "jazzmin/css/main.css" %}">
 
     {% if jazzmin_settings.custom_css %}
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}">
+        <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}">
     {% endif %}
 
     <!-- favicons -->
@@ -371,17 +371,17 @@
     {% endif %}
 
     <!-- jQuery -->
-    <script src="{% static " admin/js/vendor/jquery/jquery.js" %}"></script>
+    <script src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
     <!-- Bootstrap 4 -->
-    <script src="{% static " vendor/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "vendor/bootstrap/js/bootstrap.min.js" %}"></script>
     <!-- AdminLTE App -->
-    <script src="{% static " vendor/adminlte/js/adminlte.min.js" %}"></script>
+    <script src="{% static "vendor/adminlte/js/adminlte.min.js" %}"></script>
     <!-- Django customisations -->
-    <script src="{% static " jazzmin/js/main.js" %}"></script>
+    <script src="{% static "jazzmin/js/main.js" %}"></script>
     <!-- csrf functions -->
-    <script src="{% static " utils/js/csrf.js" %}"></script>
+    <script src="{% static "utils/js/csrf.js" %}"></script>
     <!-- labels functions -->
-    <script src="{% static " utils/js/labels.js" %}"></script>
+    <script src="{% static "utils/js/labels.js" %}"></script>
 
     {% if jazzmin_settings.custom_js %}
     <script src="{% static jazzmin_settings.custom_js %}"></script>
@@ -391,7 +391,7 @@
     <script>
         window.ui_changes = {{ jazzmin_ui.raw | as_json | safe }};
     </script>
-    <script src="{% static " jazzmin/js/ui-builder.js" %}"></script>
+    <script src="{% static "jazzmin/js/ui-builder.js" %}"></script>
     {% endif %}
 
     {% block extrajs %}{% endblock %}
