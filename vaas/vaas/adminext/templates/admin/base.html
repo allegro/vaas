@@ -87,8 +87,7 @@
                     </a>
                     <div class="dropdown-menu">
                         {% for child in link.children %}
-                        <a class="dropdown-item" href="{{ child.url }}" {% if link.new_window %}target="_blank" {% endif
-                            %}>{{ child.name }}</a>
+                        <a class="dropdown-item" href="{{ child.url }}" {% if link.new_window %}target="_blank" {% endif %}>{{ child.name }}</a>
                         {% endfor %}
                     </div>
                     {% else %}
@@ -174,14 +173,12 @@
                         <div class="dropdown-divider"></div>
                         <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="dropdown-item"><i class="fas fa-users mr-2"></i> {% translate
-                                'Log out' %}</button>
+                            <button type="submit" class="dropdown-item"><i class="fas fa-users mr-2"></i> {% translate 'Log out' %}</button>
                         </form>
                         {% get_user_menu user request.current_app|default:"admin" as user_menu %}
                         {% for link in user_menu %}
                         <div class="dropdown-divider"></div>
-                        <a href="{{ link.url }}" class="dropdown-item" {% if link.new_window %}target="_blank" {% endif
-                            %}>
+                        <a href="{{ link.url }}" class="dropdown-item" {% if link.new_window %}target="_blank" {% endif %}>
                             <i class="{{ link.icon }} mr-2"></i> {% trans link.name %}
                         </a>
                         {% endfor %}
@@ -341,8 +338,7 @@
                 <b>{% trans 'Jazzmin version' %}</b> {% get_jazzmin_version %}
             </div>
             {% autoescape off %}
-            <strong>{% trans 'Copyright' %} &copy; {% now 'Y' %} {{ jazzmin_settings.copyright }}.</strong> {% trans
-            'All rights reserved.' %}
+            <strong>{% trans 'Copyright' %} &copy; {% now 'Y' %} {{ jazzmin_settings.copyright }}.</strong> {% trans 'All rights reserved.' %}
             {% endautoescape %}
         </footer>
         {% if jazzmin_settings.show_ui_builder %}
@@ -366,8 +362,7 @@
                     <pre><code></code></pre>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn {{ jazzmin_ui.button_classes.danger }}" data-dismiss="modal">{%
-                        trans 'Close' %}</button>
+                    <button type="button" class="btn {{ jazzmin_ui.button_classes.danger }}" data-dismiss="modal">{% trans 'Close' %}</button>
                 </div>
             </div>
 
