@@ -594,3 +594,5 @@ CHANGEFORM_TEMPLATES = {
     "horizontal_tabs": "jazzmin/includes/horizontal_tabs.html",
     "vertical_tabs": "jazzmin/includes/vertical_tabs.html",
 }
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
