@@ -2,7 +2,7 @@ VaaS GUI
 ========
 This article will demonstrate the features of VaaS GUI. The screenshots below come from [VaaS in Docker Compose](../quick-start/development.md).
 
-VaaS comprises several Django apps, two of which are available via a web browser: *Cluster* and *Manager*.
+VaaS consists of several Django apps, three of which are available via a web browser: *Cluster*, *Manager*, and *Router*.
 
 ![VaaS GUI - admin page](img/admin_page.png)
 
