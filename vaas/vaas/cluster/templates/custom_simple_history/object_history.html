@@ -9,7 +9,7 @@
     <p>{% blocktrans %}Choose a date from the list below to revert to a previous version of this object.{% endblocktrans %}</p>
 
     <div class="module">
-        {% if action_list %}
+    {% if object.history.exists %}
         <table id="change-history" class="table table-bordered table-striped">
             <thead>
             <tr>
@@ -21,8 +21,8 @@
             </tr>
             </thead>
             <tbody>
-            {% for action in action_list %}
-            <tr>
+                {% for action in object.history.all %}
+                    <tr>
                 <td><a href="{% url opts|admin_urlname:'simple_history' object.pk action.pk %}">{{ action.history_object }}</a></td>
                 <td>{{ action.history_date }}</td>
                 <td>{{ action.get_history_type_display }}</td>
