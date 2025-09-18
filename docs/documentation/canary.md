@@ -8,10 +8,10 @@ In VaaS you can designate specified varnish server as canary varnish. If a direc
 one backend with tag 'canary', then varnish server designated as canary will only have canary backends in this director.
 
 At this point you can test your new version of application by adding canary varnish to production traffic. 
-* For example you can add this varnish to the load balacer with lower ratio then other varnishes.
+* For example, you can add this varnish to the load balancer with lower ratio then other varnishes.
 
 The second option is testing site by browsing it only through varnish tagged as canary. 
-* For example you can configure your load balancer in such way, that if http request contains the specified header,
+* For example, you can configure your load balancer in such way, that if http request contains the specified header,
 the load balancer will pass traffic only to the canary varnish server.
 
 

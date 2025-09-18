@@ -4,7 +4,7 @@ VaaS enables you to manage cluster(s) of Varnish servers from one place, via a w
 
 How it works
 ------------
-By default, VaaS generates a very basic VCL using data from the database and sends it to Varnish servers in a matter of seconds, using native Varnish API (no agent required). If you require a more complex VCL, you can overwrite sections of the default VCL or create your own template intermingling ordinary VCL with mark ups. These mark ups tell VaaS where in the VCL to generate backends and directors or where to generate hints telling Varnish how to route traffic. You can wrap backend hints with complex rules to suit your needs.
+By default, VaaS generates a very basic VCL using data from the database and sends it to Varnish servers in a matter of seconds, using native Varnish API (no agent required). If you require a more complex VCL, you can overwrite sections of the default VCL or create your own template intermingling ordinary VCL with mark-ups. These mark-ups tell VaaS where in the VCL to generate backends and directors or where to generate hints telling Varnish how to route traffic. You can wrap backend hints with complex rules to suit your needs.
 
 What it offers
 --------------

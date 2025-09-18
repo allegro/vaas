@@ -20,7 +20,7 @@ A request arrives at a LB via HTTPS protocol. The LB terminates SSL and adds a h
 Varnish. If the header is set to https, Varnish will check whether you backend supports https communication (set per
 director using appropriate flag: BOTH or HTTPS).
 
-If the director supports supports https (PROTOCOL flag set to HTTPS or BOTH), Varnish will simply pass the request to
+If the director supports https (PROTOCOL flag set to HTTPS or BOTH), Varnish will simply pass the request to
 backend.
 
 If the director does not support https (PROTOCOL flag set to HTTP), Varnish will send a response containing Location
