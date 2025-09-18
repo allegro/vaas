@@ -6,7 +6,7 @@ VaaS consists of several Django apps, three of which are available via a web bro
 
 ![VaaS GUI - admin page](img/admin_page.png)
 
-In the **Cluster** app you can:
+In the **Cluster** section you can:
 
 * Define and edit Varnish Servers
 * Group Varnish servers into Clusters
@@ -15,7 +15,7 @@ In the **Cluster** app you can:
 * Overwrite default VCL template blocks
 * Assign VCL templates to Varnish Servers
 
-In the **Manager** app you can:
+In the **Manager** section you can:
 
 * Define and edit Backends
 * Define and edit Directors
@@ -23,12 +23,12 @@ In the **Manager** app you can:
 * Associate Directors with Varnish Server clusters
 * Purge urls
 
-In the **Route** app you can:
+In the **Route** section you can:
 
 * Define and edit Routes
 * Define and edit Redirects
 
-Cluster app
+Cluster section
 ===========
 
 ## [Cluster] Varnish servers
@@ -37,8 +37,7 @@ To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varn
 ![Cluster - add Varnish server](img/cluster_add_v_server.png)
 
 * **Ip:** IP address of the new Varnish server
-* **Hostname:** hostname or a descriptive name 
-* **Cluster weight:** unused
+* **Hostname:** hostname or a descriptive name
 * **Http port:** Varnish HTTP port number
 * **Port:** Varnish API port number
 * **Secret:** contents of /etc/varnish/secret file
@@ -75,7 +74,7 @@ VaaS supports multiple DCs. A DC in the application consists of a DC name and a 
 
 In VaaS, Varnish servers can be grouped into clusters. Each cluster can use a different set of directors.
 
-Manager app
+Manager section
 ===========
 
 ## [Manager] Directors
@@ -146,7 +145,7 @@ To purge object from varnishes from a given cluster, click on *Manager -> Purger
 * **Url to purge:** url of object to purge e.g., http://example.com/contact
 * **Varnish Cluster:** select cluster to purge
 
-Router app
+Router section
 ===========
 
 ## [Router] Routes
