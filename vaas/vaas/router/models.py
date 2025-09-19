@@ -9,6 +9,7 @@ from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
 from typing import Optional
 
+
 class RedirectAssertion(models.Model):
     given_url = models.URLField()
     expected_location = models.CharField(max_length=512)

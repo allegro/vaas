@@ -24,6 +24,7 @@ def create_backend(id, director_name, dc_symbol, address, port):
     )
     return Backend.objects.create(id=id, address=address, port=port, dc=dc, director=director)
 
+
 class FieldsTest(TestCase):
     def test_generate_choices(self):
         div = Decimal(5)
@@ -37,12 +38,10 @@ class FieldsTest(TestCase):
         ]
         self.assertEqual(expected_choices, generate_choices(0, 6, 5))
 
-
     def test_should_make_backend_name_which_contain_all_relevant_parts(self):
         backend = create_backend(10, 'awesomeService', 'dc666', '127.0.20.30', 8080)
         expectedBackendName = "awesomeService_10_dc666_20_30_8080"
         self.assertEqual(expectedBackendName, make_backend_name(backend))
-
 
     def test_should_cut_director_if_more_relevant_parts_are_longer_than_maximum_length(self):
         backend = create_backend(
@@ -50,7 +49,6 @@ class FieldsTest(TestCase):
         )
         expectedBackendName = "11_dc_longname_11111111111111111111111111111111111111_20_30_8080"
         self.assertEqual(expectedBackendName, make_backend_name(backend))
-
 
     def test_should_shorten_director_name_if_director_and_more_relevant_parts_are_longer_than_maximum_length(self):
         backend = create_backend(

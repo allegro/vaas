@@ -1,5 +1,3 @@
-import csv
-
 from django.contrib import admin
 
 from vaas.manager.models import Director, Backend, Probe, TimeProfile
@@ -10,10 +8,7 @@ from taggit.models import Tag
 from taggit.admin import TagAdmin
 from tastypie.models import ApiKey
 from django.utils.html import format_html
-from vaas.monitor.models import BackendStatus
 from vaas.manager.signals import switch_state_and_reload
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
 from vaas.external.audit import AuditableModelAdmin
 
 try:
