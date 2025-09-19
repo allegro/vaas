@@ -1,0 +1,54 @@
+{% extends "admin/object_history.html" %}
+{% load i18n admin_urls static jazzmin %}
+
+{% block content %}
+<div class="row col-md-12">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header with-border">
+                <h4 class="card-title">
+                    {% trans 'History' %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <div id="content-main">
+                    <div class="module">
+                        <div class="timeline">
+                            {% for action in action_list reversed %}
+                              <div class="time-label">
+                                <span class="bg-info">{{ action.action_time|date:"DATETIME_FORMAT" }}</span>
+                              </div>
+                                {% action_message_to_list action as action_message_list %}
+                                {% for action_message in action_message_list %}
+                                  <div>
+                                    <i class="fas fa-{{ action_message.icon }} bg-{{ action_message.colour }}"></i>
+                                    <div class="timeline-item">
+                                      <h3 class="timeline-header no-border">
+                                        <span class="badge badge-pill badge-primary">
+                                            {{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}
+                                        </span>
+                                        {{ action_message.msg|style_bold_first_word }}
+                                      </h3>
+                                    </div>
+                                  </div>
+                                {% endfor %}
+                            {% endfor %}
+                          <div>
+                            <i class="fas fa-clock bg-gray"></i>
+                              {% if not action_list %}
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header no-border">
+                                        {% trans "This object doesn't have a change history. It probably wasn't added via this admin site." %}
+                                    </h3>
+                                </div>
+                              {% endif %}
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
