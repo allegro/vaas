@@ -95,7 +95,7 @@ class ComplexConditionWidget(forms.MultiWidget):
         prefix = "{}_".format(name)
         for field_name in data:
             if field_name.startswith(prefix):
-                field_id = int(field_name[len(prefix) :].split("_")[0])
+                field_id = int(field_name[len(prefix):].split("_")[0])
                 if field_id not in ids:
                     ids.append(field_id)
         ids.sort()
