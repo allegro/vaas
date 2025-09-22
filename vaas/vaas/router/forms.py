@@ -13,8 +13,8 @@ from vaas.router.models import Route, Redirect, PositiveUrl, provide_route_confi
 
 class MultipleUrl(MultiValueField):
     default_error_messages = {
-        'invalid': 'Enter a list of proper urls.',
-        'incomplete': 'Enter a complete url.',
+        "invalid": "Enter a list of proper urls.",
+        "incomplete": "Enter a complete url.",
     }
 
     def clean(self, value):
@@ -35,89 +35,91 @@ class MultipleUrl(MultiValueField):
 
 
 class RouteModelForm(ModelForm):
-    clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by('name'),
-                                        widget=FilteredSelectMultiple(is_stacked=False, verbose_name='clusters'))
+    clusters = ModelMultipleChoiceField(queryset=LogicalCluster.objects.order_by("name"),
+                                        widget=FilteredSelectMultiple(is_stacked=False, verbose_name="clusters"))
 
     clusters_in_sync = BooleanField(required=False, initial=settings.CLUSTER_IN_SYNC_ENABLED,
-                                    label='Clusters in sync with director',
+                                    label="Clusters in sync with director",
                                     widget=HiddenInput() if settings.CLUSTER_IN_SYNC_HIDDEN else None)
 
     def __init__(self, *args, **kwargs):
-        if kwargs.get('instance', None):
-            if not kwargs.get('initial', None):
-                kwargs['initial'] = {}
+        if kwargs.get("instance", None):
+            if not kwargs.get("initial", None):
+                kwargs["initial"] = {}
             # if clusters_in_sync is not manageable then forcibly set default value
             if settings.CLUSTER_IN_SYNC_HIDDEN:
-                kwargs['initial']['clusters_in_sync'] = settings.CLUSTER_IN_SYNC_ENABLED
+                kwargs["initial"]["clusters_in_sync"] = settings.CLUSTER_IN_SYNC_ENABLED
 
         super().__init__(*args, **kwargs)
         if self.instance.pk is None:
-            self.fields['clusters_in_sync'].widget.attrs.update({'disabled': True})
+            self.fields["clusters_in_sync"].widget.attrs.update({"disabled": True})
 
         prettify_fields(self.fields.values())
-        self.fields['priority'].initial = 250
-        if hasattr(self.fields['director'], 'widget') and hasattr(self.fields['director'].widget, 'widget'):
-            self.fields['director'].widget = self.fields['director'].widget.widget
-            self.fields['director'].queryset = Director.objects.exclude(virtual=True).order_by('name')
+        if "priority" in self.fields:
+            self.fields["priority"].initial = 250
+    
+        if "director" in self.fields and hasattr(self.fields["director"], "widget") and hasattr(self.fields["director"].widget, "widget"):
+            self.fields["director"].widget = self.fields["director"].widget.widget
+            self.fields["director"].queryset = Director.objects.exclude(virtual=True).order_by("name")
 
     class Meta:
         model = Route
-        fields = '__all__'
+        fields = "__all__"
         configuration = provide_route_configuration()
         widgets = {
-            'condition': ComplexConditionWidget(
+            "condition": ComplexConditionWidget(
                 variables=tuple((left.left, left.name) for left in configuration.lefts),
                 operators=tuple((operator.operator, operator.name) for operator in configuration.operators)
             ),
-            'action': Select(
+            "action": Select(
                 choices=tuple((action.action, action.name) for action in configuration.actions)
             ),
-            'priority': Select(
+            "priority": Select(
                 choices=tuple([(i, i) for i in range(1, 500)]),
             ),
-            'director': SearchableSelect(),
+            "director": SearchableSelect(),
         }
 
     class Media:
-        js = ('js/route-form.js', 'utils/js/refresh-select.js',)
+        js = ("js/route-form.js", "utils/js/refresh-select.js",)
 
     def clean_condition(self):
-        complex_condition = self.cleaned_data['condition']
+        complex_condition = self.cleaned_data["condition"]
 
         for condition in split_complex_condition(complex_condition):
             if condition.count('"') > 2:
-                raise ValidationError(message='Double quotes not allowed')
+                raise ValidationError(message="Double quotes not allowed")
             if '""' in condition:
-                raise ValidationError(message='Condition cannot be empty')
-        return self.cleaned_data['condition']
+                raise ValidationError(message="Condition cannot be empty")
+        return self.cleaned_data["condition"]
 
     def clean(self):
-        if self.cleaned_data.get('clusters_in_sync'):
-            if not self.cleaned_data.get('clusters'):
-                self.cleaned_data['clusters'] = []
-                del self._errors['clusters']
-            if 'clusters' in self.changed_data:
+        if self.cleaned_data.get("clusters_in_sync"):
+            if not self.cleaned_data.get("clusters"):
+                self.cleaned_data["clusters"] = []
+                del self._errors["clusters"]
+            if "clusters" in self.changed_data:
                 if self.instance.pk is not None:
-                    self.cleaned_data['clusters'] = self.instance.clusters.all()
+                    self.cleaned_data["clusters"] = self.instance.clusters.all()
         cleaned_data = super(RouteModelForm, self).clean()
         if self._errors:
             return cleaned_data
 
-        if cleaned_data.get('clusters_in_sync'):
-            clusters = cleaned_data.get('director').cluster.values_list('id', flat=True)
+        if cleaned_data.get("clusters_in_sync"):
+            clusters = cleaned_data.get("director").cluster.values_list("id", flat=True)
         else:
-            clusters = cleaned_data.get('clusters')
+            clusters = cleaned_data.get("clusters")
 
         routes_with_sync = Route.objects.filter(
             clusters_in_sync=True,
-            director=cleaned_data.get('director'),
-            priority=cleaned_data.get('priority'),
+            director=cleaned_data.get("director"),
+            priority=cleaned_data.get("priority"),
             director__cluster__in=clusters)
 
         routes_without_sync = Route.objects.filter(
             clusters_in_sync=False,
-            director=cleaned_data.get('director'),
-            priority=cleaned_data.get('priority'),
+            director=cleaned_data.get("director"),
+            priority=cleaned_data.get("priority"),
             clusters__id__in=clusters)
 
         routes = routes_with_sync | routes_without_sync
@@ -127,83 +129,92 @@ class RouteModelForm(ModelForm):
             return
         if self.instance.pk:
             if routes.exclude(pk=self.instance.pk).exists():
-                raise ValidationError('This combination of director, cluster and priority already exists')
+                raise ValidationError("This combination of director, cluster and priority already exists")
             else:
                 return
-        raise ValidationError('This combination of director, cluster and priority already exists')
+        raise ValidationError("This combination of director, cluster and priority already exists")
 
 
 class RedirectModelForm(ModelForm):
-    preserve_query_params = BooleanField(required=False, label='Preserve query params')
+    preserve_query_params = BooleanField(required=False, label="Preserve query params")
     required_custom_header = BooleanField(required=False, label=settings.REDIRECT_CUSTOM_HEADER_LABEL)
     src_domain = ModelChoiceField(queryset=DomainMapping.objects.all(), widget=HiddenInput(), required=False)
     rewrite_groups = RewriteGroupsField(required=False)
 
     class Meta:
         model = Redirect
-        fields = '__all__'
+        fields = "__all__"
         widgets = {
-            'priority': Select(
+            "priority": Select(
                 choices=tuple([(i, i) for i in range(1, 500)]),
             ),
         }
 
     class Media:
-        js = ('js/redirect-form.js', 'utils/js/refresh-select.js',)
+        js = ("js/redirect-form.js", "utils/js/refresh-select.js",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         condition_domain, rewrite_groups = "", ""
-        if instance := kwargs.get('instance', None):
+
+        if instance := kwargs.get("instance", None):
             condition_domain = instance.src_domain.pk
             rewrite_groups = instance.rewrite_groups
-        self.fields['priority'].initial = 250
-        self.fields['condition'] = ComplexRedirectConditionField()
-        self.fields['condition'].widget.attrs.update({'condition_domain': condition_domain})
-        self.fields['destination'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Destination path'})
+
+        if "priority" in self.fields:
+            self.fields["priority"].initial = 250
+        
+        if "condition" in self.fields:
+            self.fields["condition"] = ComplexRedirectConditionField()
+            self.fields["condition"].widget.attrs.update({"condition_domain": condition_domain})
+
+        if "desination" in self.fields:
+            self.fields["destination"].widget.attrs.update({"class": "form-control", "placeholder": "Destination path"})
+
         if rewrite_groups:
-            self.fields['preserve_query_params'].widget.attrs.update({'disabled': True})
+            self.fields["preserve_query_params"].widget.attrs.update({"disabled": True})
+
         prettify_fields(self.fields.values())
 
     def clean(self) -> Dict[str, Any]:
         cleaned_data = super().clean()
-        src_domain = DomainMapping.objects.get(pk=self.data['condition_0'])
-        cleaned_data['src_domain'] = src_domain
+        src_domain = DomainMapping.objects.get(pk=self.data["condition_0"])
+        cleaned_data["src_domain"] = src_domain
 
         redirects = Redirect.objects.filter(
             src_domain=src_domain,
-            priority=cleaned_data.get('priority'))
+            priority=cleaned_data.get("priority"))
 
         if redirects.count() == 0:
             return cleaned_data
         if self.instance.pk:
             if redirects.exclude(pk=self.instance.pk).exists():
-                raise ValidationError('This combination of source domain and priority already exists')
+                raise ValidationError("This combination of source domain and priority already exists")
             else:
                 return cleaned_data
-        raise ValidationError('This combination of source domain and priority already exists')
+        raise ValidationError("This combination of source domain and priority already exists")
 
 
 class RedirectAssertionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['given_url'].widget = URLInput()
+        self.fields["given_url"].widget = URLInput()
         prettify_fields(self.fields.values())
 
     class Meta:
         model = RedirectAssertion
-        fields = '__all__'
+        fields = "__all__"
 
 
 class PositiveUrlForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['url'].widget = URLInput()
+        self.fields["url"].widget = URLInput()
         prettify_fields(self.fields.values())
 
     class Meta:
         model = PositiveUrl
-        fields = '__all__'
+        fields = "__all__"
 
 
 def prettify_fields(fields: List[Any]) -> None:
@@ -217,4 +228,4 @@ def prettify_fields(fields: List[Any]) -> None:
 
 def add_form_control(widget: Widget) -> None:
     if not isinstance(widget, CheckboxInput):
-        widget.attrs.update({'class': 'form-control'})
+        widget.attrs.update({"class": "form-control"})

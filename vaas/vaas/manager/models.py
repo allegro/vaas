@@ -8,8 +8,11 @@ from vaas.cluster.models import Dc, LogicalCluster
 from vaas.manager.fields import generate_choices, NormalizedDecimalField, make_backend_name
 from vaas.validators import name_validator
 
+from simple_history.models import HistoricalRecords
+
 
 class Probe(models.Model):
+    history = HistoricalRecords()
     name = models.CharField(max_length=30, validators=[name_validator], unique=True)
     url = models.CharField(max_length=50)
     expected_response = models.PositiveIntegerField(default='200')
@@ -45,6 +48,7 @@ class Probe(models.Model):
 
 
 class TimeProfile(models.Model):
+    history = HistoricalRecords()
     name = models.CharField(max_length=128, unique=True)
     description = models.TextField(blank=True)
     max_connections = models.PositiveIntegerField(default='5')
@@ -70,6 +74,7 @@ class TimeProfile(models.Model):
 
 
 class Director(models.Model):
+    history = HistoricalRecords()
     MODE_CHOICES = (
         ('round-robin', 'Round Robin'),
         ('random', 'Random'),
@@ -147,6 +152,7 @@ class Director(models.Model):
 
 
 class Backend(models.Model):
+    history = HistoricalRecords()
     address = models.GenericIPAddressField(protocol='IPv4')
     port = models.PositiveIntegerField(
         default='80',

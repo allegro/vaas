@@ -35,6 +35,7 @@ class AbsModelWithJsonField:
 
 class LogicalCluster(models.Model, AbsModelWithJsonField):
     """Model representing a cluster of varnish servers"""
+    history = HistoricalRecords()
     name = models.CharField(max_length=100, validators=[name_validator], unique=True)
     directors = fields.ToManyField('vaas.manager.api.DirectorResource', 'directors')
     reload_timestamp = models.DateTimeField(default=timezone.now)
@@ -87,6 +88,7 @@ class LogicalCluster(models.Model, AbsModelWithJsonField):
 
 
 class Dc(models.Model):
+    history = HistoricalRecords()
     name = models.CharField(max_length=50)
     symbol = models.CharField(
         max_length=25, unique=True, validators=[dc_symbol_validator, ]
@@ -117,6 +119,7 @@ class Dc(models.Model):
 
 
 class DomainMapping(models.Model, AbsModelWithJsonField):
+    history = HistoricalRecords()
     TYPE_CHOICES = (
         ('static', 'Static'),
         ('dynamic', 'Dynamic')
@@ -175,6 +178,7 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
 
 
 class VclTemplate(models.Model):
+    history = HistoricalRecords()
     name = models.CharField(max_length=100, unique=True, validators=[name_validator])
     content = models.TextField()
     version = models.CharField(max_length=3, choices=(('4.0', 'Vcl 4.0'),), default='4.0')
@@ -192,6 +196,7 @@ class VclTemplate(models.Model):
 
 
 class VarnishServer(models.Model):
+    history = HistoricalRecords()
     STATUS_CHOICES = (
         ('active', 'Active'),
         ('maintenance', 'Maintenance'),
@@ -227,6 +232,7 @@ class VarnishServer(models.Model):
 
 
 class VclTemplateBlock(models.Model):
+    history = HistoricalRecords()
     TAG_CHOICES = (
         ('VCL', 'VCL'),
         ('HEADERS', 'VCL/HEADERS'),
@@ -255,6 +261,7 @@ class VclTemplateBlock(models.Model):
 
 
 class VclVariable(models.Model):
+    history = HistoricalRecords()
     key = models.CharField(max_length=100, validators=[vcl_variable_key_validator])
     value = models.CharField(max_length=254)
     cluster = models.ForeignKey(LogicalCluster, on_delete=models.DO_NOTHING)

@@ -9,6 +9,8 @@ from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
 from typing import Optional
 
+from simple_history.models import HistoricalRecords
+
 class RedirectAssertion(models.Model):
     given_url = models.URLField()
     expected_location = models.CharField(max_length=512)
@@ -23,6 +25,7 @@ class Redirect(models.Model):
         FOUND = 302
         TEMPORARY_REDIRECT = 307
 
+    history = HistoricalRecords()
     src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
     condition = models.CharField(max_length=512)
     rewrite_groups = models.CharField(max_length=512, default='', blank=True)
@@ -44,6 +47,7 @@ class Redirect(models.Model):
 
 
 class Route(models.Model):
+    history = HistoricalRecords()
     condition = models.CharField(max_length=512)
     priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     clusters = models.ManyToManyField(LogicalCluster)

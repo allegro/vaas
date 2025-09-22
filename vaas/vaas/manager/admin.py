@@ -16,6 +16,9 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from vaas.external.audit import AuditableModelAdmin
 
+from simple_history.admin import SimpleHistoryAdmin
+from vaas.adminext.utils import HistoryMixinAdmin
+
 try:
     admin.site.unregister(Group)
     admin.site.unregister(User)
@@ -53,7 +56,7 @@ def disable_director(modeladmin, request, queryset):
     switch_state_and_reload(queryset, False)
 
 
-class DirectorAdmin(AuditableModelAdmin):
+class DirectorAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
     search_fields = ["name", "route_expression"]
     form = DirectorModelForm
     list_display = (
@@ -103,7 +106,7 @@ class DirectorAdmin(AuditableModelAdmin):
     custom_enabled.short_description = "Enabled"
 
 
-class BackendAdmin(AuditableModelAdmin):
+class BackendAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
     search_fields = ["address", "director__name", "tags__name"]
     list_display = (
         "address",
@@ -152,7 +155,8 @@ class BackendAdmin(AuditableModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(BackendAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields["dc"].widget.can_add_related = False
+        if "dc" in form.base_fields:
+            form.base_fields["dc"].widget.can_add_related = False
         return form
 
     def get_tags(self, obj):
@@ -212,7 +216,7 @@ class BackendAdmin(AuditableModelAdmin):
         js = ("js/switch-inherit-profile.js",)
 
 
-class ProbeAdmin(admin.ModelAdmin):
+class ProbeAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("name", "url", "expected_response", "start_as_healthy")}),
         (
@@ -225,7 +229,7 @@ class ProbeAdmin(admin.ModelAdmin):
     )
 
 
-class TimeProfileAdmin(admin.ModelAdmin):
+class TimeProfileAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, admin.ModelAdmin):
     list_display = (
         "name",
         "max_connections",
