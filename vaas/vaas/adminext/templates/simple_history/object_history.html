@@ -17,6 +17,10 @@
                         <i class="fas fa-info-circle" aria-hidden="true"></i>
                         {% if not revert_disabled %}Click on the object link below to revert to a previous version.{% endif %}
                     </div>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-lightbulb" aria-hidden="true"></i>
+                        Display of certain changes, including clusters, tags, redirect assertions, and positive URLs, is not presently supported in this view.
+                    </div>
                 </p>
                 <div id="content-main">
                     <div class="module">
@@ -67,6 +71,8 @@
                                                                         </li>
                                                                     {% endfor %}
                                                                 </ul>
+                                                            {% else %}
+                                                                <p>Details for this change are unavailable in this view. Refer to the warning for specifics.</p>
                                                             {% endif %}
                                                         {% endblock %}
                                                         </td>
