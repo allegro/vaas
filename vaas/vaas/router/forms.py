@@ -55,10 +55,8 @@ class RouteModelForm(ModelForm):
             self.fields["clusters_in_sync"].widget.attrs.update({"disabled": True})
 
         prettify_fields(self.fields.values())
-        if "priority" in self.fields:
-            self.fields["priority"].initial = 250
-    
-        if "director" in self.fields and hasattr(self.fields["director"], "widget") and hasattr(self.fields["director"].widget, "widget"):
+        self.fields["priority"].initial = 250
+        if hasattr(self.fields["director"], "widget") and hasattr(self.fields["director"].widget, "widget"):
             self.fields["director"].widget = self.fields["director"].widget.widget
             self.fields["director"].queryset = Director.objects.exclude(virtual=True).order_by("name")
 
@@ -161,15 +159,10 @@ class RedirectModelForm(ModelForm):
             condition_domain = instance.src_domain.pk
             rewrite_groups = instance.rewrite_groups
 
-        if "priority" in self.fields:
-            self.fields["priority"].initial = 250
-        
-        if "condition" in self.fields:
-            self.fields["condition"] = ComplexRedirectConditionField()
-            self.fields["condition"].widget.attrs.update({"condition_domain": condition_domain})
-
-        if "desination" in self.fields:
-            self.fields["destination"].widget.attrs.update({"class": "form-control", "placeholder": "Destination path"})
+        self.fields["priority"].initial = 250
+        self.fields["condition"] = ComplexRedirectConditionField()
+        self.fields["condition"].widget.attrs.update({"condition_domain": condition_domain})
+        self.fields["destination"].widget.attrs.update({"class": "form-control", "placeholder": "Destination path"})
 
         if rewrite_groups:
             self.fields["preserve_query_params"].widget.attrs.update({"disabled": True})

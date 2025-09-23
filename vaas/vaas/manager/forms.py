@@ -42,12 +42,10 @@ class DirectorModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DirectorModelForm, self).__init__(*args, **kwargs)
-        if "cluster" in self.fields:
-            self.fields["cluster"].required = False
-        if "probe" in self.fields:
-            self.fields["probe"].queryset = Probe.objects.order_by("name")
+        self.fields["cluster"].required = False
+        self.fields["probe"].queryset = Probe.objects.order_by("name")   
         for related in ("probe", "time_profile"):
-            if related in self.fields and hasattr(self.fields[related].widget, "widget"):
+            if hasattr(self.fields[related].widget, "widget"):
                 self.fields[related].widget = self.fields[related].widget.widget
 
     def clean_name(self):

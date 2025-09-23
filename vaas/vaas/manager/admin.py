@@ -155,8 +155,7 @@ class BackendAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(BackendAdmin, self).get_form(request, obj, **kwargs)
-        if "dc" in form.base_fields:
-            form.base_fields["dc"].widget.can_add_related = False
+        form.base_fields["dc"].widget.can_add_related = False   
         return form
 
     def get_tags(self, obj):
