@@ -102,8 +102,10 @@ class BackendStatusManagerTest(TestCase):
         varnish_api_provider_mock = Mock()
         varnish_api_provider_mock.get_api.return_value = varnish_api_mock
 
-        self.assertEqual(expected_result,
-            BackendStatusManager(varnish_api_provider_mock, [varnish_server_mock], timeout).load_from_varnish())
+        self.assertEqual(
+            expected_result,
+            BackendStatusManager(varnish_api_provider_mock, [varnish_server_mock], timeout).load_from_varnish()
+        )
 
         varnish_api_provider_mock.get_api.assert_called_once_with(varnish_server_mock, timeout)
 
@@ -117,8 +119,10 @@ class BackendStatusManagerTest(TestCase):
         varnish_api_provider_mock = Mock()
         varnish_api_provider_mock.get_api = Mock(side_effect=lambda s, _: servers[s])
 
-        self.assertEqual(EXPECTED_MERGED_STATUS_MAP,
-            BackendStatusManager(varnish_api_provider_mock, servers.keys(), timeout).load_from_varnish())
+        self.assertEqual(
+            EXPECTED_MERGED_STATUS_MAP,
+            BackendStatusManager(varnish_api_provider_mock, servers.keys(), timeout).load_from_varnish()
+        )
 
     def test_should_refresh_backend_statuses(self):
         backend_to_status_map = {

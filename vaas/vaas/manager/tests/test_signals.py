@@ -90,7 +90,10 @@ class TestSignals(TestCase):
                 return_value=None
         ) as regenerate_and_reload_vcl_mock:
             switch_state_and_reload(queryset, True)
-            self.assertEqual([call(enabled=True)],queryset.update.call_args_list)
+            self.assertEqual(
+                [call(enabled=True)],
+                queryset.update.call_args_list
+            )
             """
             shouldn't refresh any cluster, because of empty list
             """
@@ -365,7 +368,10 @@ class TestSignals(TestCase):
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             director2.cluster.add(cluster5)
-            self.assertEqual([call([cluster5])],regenerate_and_reload_vcl_mock.call_args_list)
+            self.assertEqual(
+                [call([cluster5])],
+                regenerate_and_reload_vcl_mock.call_args_list
+            )
 
         # should update all clusters when change metadata is not set
 
@@ -473,7 +479,10 @@ class TestSignals(TestCase):
                    return_value=None) as regenerate_and_reload_vcl_mock:
             route1.delete()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            self.assertEqual([call([cluster_director]), call([cluster_director])], regenerate_and_reload_vcl_mock.call_args_list)
+            self.assertEqual(
+                [call([cluster_director]), call([cluster_director])],
+                regenerate_and_reload_vcl_mock.call_args_list
+            )
 
     def test_vcl_update_when_route_with_director_cluster_sync_enabled_or_disabled_existing_route(self):
         settings.SIGNALS = 'on'
@@ -509,11 +518,17 @@ class TestSignals(TestCase):
             route1.clusters_in_sync = True
             route1.save()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            self.assertEqual([call([cluster_route]), call([cluster_director])], regenerate_and_reload_vcl_mock.call_args_list)
+            self.assertEqual(
+                [call([cluster_route]), call([cluster_director])],
+                regenerate_and_reload_vcl_mock.call_args_list
+            )
 
         with patch('vaas.manager.signals.regenerate_and_reload_vcl',
                    return_value=None) as regenerate_and_reload_vcl_mock:
             route1.clusters_in_sync = False
             route1.save()
             # We check that regenerate_and_reload_vcl was run in pre_save and post_save signal
-            self.assertEqual([call([cluster_director]), call([cluster_route])], regenerate_and_reload_vcl_mock.call_args_list)
+            self.assertEqual(
+                [call([cluster_director]), call([cluster_route])],
+                regenerate_and_reload_vcl_mock.call_args_list
+            )

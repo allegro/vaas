@@ -33,6 +33,7 @@ query_set.prefetch_related = Mock(return_value=servers)
 
 sample_vcl = Vcl('Test-content', name='test')
 
+
 class ClusterTest(TestCase):
     def test_should_return_connection_status_for_active_server(self):
         server = VarnishServer(pk=11, ip='127.0.0.1', port='6082', status='active')
@@ -43,12 +44,10 @@ class ClusterTest(TestCase):
 
         varnish_api_mock.daemon_version.assert_called_once()
 
-
     def test_should_return_object_status_for_inactive_server(self):
         for inactive_status in ('maintenance', 'disabled',):
             inactive_server = VarnishServer(pk=11, ip='127.0.0.1', port='6082', status=inactive_status)
             self.assertEqual(inactive_status, connect_status(inactive_server))
-
 
     def test_command_should_return_connection_statuses_for_each_server(self):
         statuses = {
@@ -66,7 +65,6 @@ class ClusterTest(TestCase):
                 self.assertEqual('varnish-7.0.3', result[11])
                 self.assertEqual('maintenance', result[12])
 
-
     def test_if_vcl_validation_returns_ok_for_template_not_linked_to_any_servers(self):
         expected_result = {
             'is_valid': True,
@@ -74,7 +72,6 @@ class ClusterTest(TestCase):
         }
         result = validate_vcl_command(None, VclTemplate())
         self.assertEqual(expected_result, result)
-
 
     def test_if_vcl_validation_returns_fail_for_vcl_that_can_not_be_loaded(self):
         expected_result = {
@@ -96,7 +93,6 @@ class ClusterTest(TestCase):
                 with patch.object(ParallelLoader, 'load_vcl_list', side_effect=VclLoadException("compilation failed")):
                     result = validate_vcl_command(None, VclTemplate())
                     self.assertEqual(expected_result, result)
-
 
     def test_if_vcl_validation_returns_ok_for_vcl_that_is_successfully_loaded(self):
         expected_result = {

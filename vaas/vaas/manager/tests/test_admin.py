@@ -6,9 +6,8 @@ from vaas.manager.admin import switch_backend_status
 from vaas.manager.models import Backend, Director, Probe, TimeProfile
 from django.test import TestCase
 
+
 class AdminTestCase(TestCase):
-
-
     def test_should_switch_backend_status(self):
         settings.SIGNALS = 'off'
         dc = Dc.objects.create(symbol='dc1')
