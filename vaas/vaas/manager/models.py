@@ -73,7 +73,6 @@ class TimeProfile(models.Model):
 
 
 class Director(models.Model):
-    history = HistoricalRecords()
     MODE_CHOICES = (
         ("round-robin", "Round Robin"),
         ("random", "Random"),
@@ -98,6 +97,7 @@ class Director(models.Model):
     service_mesh_label = models.CharField(max_length=128, default="")
     service_tag = models.CharField(max_length=128, default="", blank=True)
     cluster = models.ManyToManyField(LogicalCluster)
+    history = HistoricalRecords(m2m_fields=[cluster])
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
     protocol = models.CharField(max_length=5, choices=PROTOCOL_CHOICES, default="both")
     hashing_policy = models.CharField(

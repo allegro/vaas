@@ -46,10 +46,10 @@ class Redirect(models.Model):
 
 
 class Route(models.Model):
-    history = HistoricalRecords()
     condition = models.CharField(max_length=512)
     priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     clusters = models.ManyToManyField(LogicalCluster)
+    history = HistoricalRecords(m2m_fields=[clusters])
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
     action = models.CharField(max_length=20)
     clusters_in_sync = models.BooleanField(default=False)

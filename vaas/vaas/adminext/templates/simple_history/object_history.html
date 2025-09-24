@@ -12,16 +12,18 @@
                 <h4 class="card-title">{% trans 'History' %}</h4>
             </div>
             <div class="card-body">
-                <p class="card-subtitle mb-3">
+                {% if page_obj.object_list %}
+                <div class="card-subtitle mb-3">
                     <div class="alert alert-info" role="alert">
                         <i class="fas fa-info-circle" aria-hidden="true"></i>
-                        {% if not revert_disabled %}Click on the object link below to revert to a previous version.{% endif %}
+                        Click on the object link below to revert to a previous version.
                     </div>
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-lightbulb" aria-hidden="true"></i>
-                        Display of certain changes, including clusters, tags, redirect assertions, and positive URLs, is not presently supported in this view.
+                        Display of certain changes, including tags, redirect assertions, and positive URLs, is not presently supported in this view.
                     </div>
-                </p>
+                </div>
+                {% endif %}
                 <div id="content-main">
                     <div class="module">
                         <div class="timeline">
@@ -42,46 +44,46 @@
                                             {% endif %}
                                         </span> has modified
                                         <a href="{% url opts|admin_urlname:'simple_history' object.pk record.pk %}">{{ record.history_object }}</a>
-                                        </h3>
-                                        <div class="timeline-body">
-                                            <table class="table table-striped mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        {% for column in history_list_display %}
-                                                            <th scope="col">{% trans column %}</th>
+                                    </h3>
+                                    <div class="timeline-body">
+                                        <table class="table table-striped mb-0">
+                                            <thead>
+                                                <tr>
+                                                    {% for column in history_list_display %}
+                                                        <th scope="col">{% trans column %}</th>
+                                                    {% endfor %}
+                                                    <th scope="col">{% trans 'Comment' %}</th>
+                                                    <th scope="col" class="w-75">{% trans 'Changes' %}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr scope="row">
+                                                    {% for column in history_list_display %}
+                                                    <td>{{ record|getattribute:column }}</td>
+                                                    {% endfor %}
+                                                    <td>{{ record.get_history_type_display }}</td>
+                                                    <td>
+                                                    {% block history_delta_changes %}
+                                                    {% if record.history_delta_changes %}
+                                                        <ul class="list-group">
+                                                        {% for change in record.history_delta_changes %}
+                                                            <li class="list-group-item">
+                                                                <b>{{ change.field }}: </b>
+                                                                <code>{{ change.old }}</code>&nbsp;&rarr;&nbsp;&nbsp;<code class="text-success">{{ change.new }}</code>
+                                                            </li>
                                                         {% endfor %}
-                                                        <th scope="col">{% trans 'Comment' %}</th>
-                                                        <th scope="col" class="w-75">{% trans 'Changes' %}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr scope="row">
-                                                        {% for column in history_list_display %}
-                                                            <td>{{ record|getattribute:column }}</td>
-                                                        {% endfor %}
-                                                        <td>{{ record.get_history_type_display }}</td>
-                                                        <td>
-                                                        {% block history_delta_changes %}
-                                                            {% if record.history_delta_changes %}
-                                                                <ul class="list-group">
-                                                                    {% for change in record.history_delta_changes %}
-                                                                        <li class="list-group-item">
-                                                                            <b>{{ change.field }}: </b>
-                                                                            <code>{{ change.old }}</code>&nbsp;&rarr;&nbsp;&nbsp;<code class="text-success">{{ change.new }}</code>
-                                                                        </li>
-                                                                    {% endfor %}
-                                                                </ul>
-                                                            {% else %}
-                                                                <p>Details for this change are unavailable in this view. Refer to the warning for specifics.</p>
-                                                            {% endif %}
-                                                        {% endblock %}
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                        </ul>
+                                                    {% else %}
+                                                        <p>Details for this change are unavailable in this view. Refer to the warning for specifics.</p>
+                                                    {% endif %}
+                                                    {% endblock %}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
+                            </div>
                             {% endfor %}
                             <div>
                                 <i class="fas fa-clock bg-gray"></i>

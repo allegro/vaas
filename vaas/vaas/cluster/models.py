@@ -119,7 +119,6 @@ class Dc(models.Model):
 
 
 class DomainMapping(models.Model, AbsModelWithJsonField):
-    history = HistoricalRecords()
     TYPE_CHOICES = (
         ("static", "Static"),
         ("dynamic", "Dynamic")
@@ -129,8 +128,7 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
     type = models.CharField(max_length=7, choices=TYPE_CHOICES, default="static")
     clusters = models.ManyToManyField(LogicalCluster)
     _mappings = None
-
-    history = HistoricalRecords()
+    history = HistoricalRecords(m2m_fields=[clusters])
 
     @property
     def mappings(self) -> Set[str]:
