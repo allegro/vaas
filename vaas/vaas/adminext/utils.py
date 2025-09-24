@@ -1,7 +1,5 @@
 from django import forms
 
-from vaas.cluster.forms import DomainMappingForm
-
 class HistoryMixinAdmin:
     history_list_per_page = 10
     ## The problem here is that History Form (during Revert operation) is giving us editable form. Below is making all fields as read-only
