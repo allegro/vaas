@@ -24,9 +24,11 @@ from vaas.cluster.forms import (
     VarnishServerModelForm,
     VclVariableModelForm,
     LogicalCLusterModelForm,
+    DcModelForm,
 )
 from vaas.cluster.cluster import VarnishApiProvider
 from vaas.manager.signals import switch_status_and_reload
+from vaas.adminext.utils import HistoryMixinAdmin
 
 ace_widget = AceWidget(
     theme="solarized_dark", mode="c_cpp", width="100%", height="400px"
@@ -71,7 +73,7 @@ class OutdatedFilter(SimpleListFilter):
         return queryset
 
 
-class VarnishServerAdmin(AuditableModelAdmin):
+class VarnishServerAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
     form = VarnishServerModelForm
     search_fields = ["dc__symbol", "ip", "hostname", "template__name"]
     list_filter = ["cluster__name", OutdatedFilter]
@@ -190,7 +192,7 @@ class VarnishServerAdmin(AuditableModelAdmin):
             )
 
 
-class VclTemplateBlockAdmin(SimpleHistoryAdmin):
+class VclTemplateBlockAdmin(HistoryMixinAdmin, SimpleHistoryAdmin):
     class Media:
         css = {"all": ("css/ace-widget-custom-styles.css",)}
 
@@ -200,7 +202,7 @@ class VclTemplateBlockAdmin(SimpleHistoryAdmin):
     list_display = ["tag", "template"]
 
 
-class DomainMappingAdmin(SimpleHistoryAdmin):
+class DomainMappingAdmin(HistoryMixinAdmin, SimpleHistoryAdmin):
     form = DomainMappingForm
     search_fields = ["domain", "get_mappings", "type", "clusters__name"]
     list_display = ["domain", "get_mappings", "type", "get_clusters"]
@@ -217,7 +219,7 @@ class DomainMappingAdmin(SimpleHistoryAdmin):
     get_clusters.short_description = "Related clusters"
 
 
-class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
+class VclTemplateAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
     class Media:
         css = {"all": ("css/ace-widget-custom-styles.css",)}
 
@@ -227,10 +229,9 @@ class VclTemplateAdmin(SimpleHistoryAdmin, AuditableModelAdmin):
         models.TextField: {"widget": ace_widget},
     }
     list_display = ["name", "version"]
-    object_history_template = "custom_simple_history/object_history.html"
 
 
-class LogicalClusterAdmin(admin.ModelAdmin):
+class LogicalClusterAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, admin.ModelAdmin):
     form = LogicalCLusterModelForm
     search_fields = ["name", "labels_list"]
     list_display = [
@@ -296,15 +297,18 @@ class LogicalClusterAdmin(admin.ModelAdmin):
         )
 
 
-class VclVariableAdmin(admin.ModelAdmin):
+class VclVariableAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, admin.ModelAdmin):
     form = VclVariableModelForm
     list_display = ["key", "value", "cluster"]
+
+class DcAdmin(HistoryMixinAdmin, SimpleHistoryAdmin):
+    form = DcModelForm
 
 
 admin.site.register(VarnishServer, VarnishServerAdmin)
 admin.site.register(VclTemplate, VclTemplateAdmin)
 admin.site.register(VclTemplateBlock, VclTemplateBlockAdmin)
-admin.site.register(Dc)
+admin.site.register(Dc, DcAdmin)
 admin.site.register(DomainMapping, DomainMappingAdmin)
 admin.site.register(LogicalCluster, LogicalClusterAdmin)
 admin.site.register(VclVariable, VclVariableAdmin)

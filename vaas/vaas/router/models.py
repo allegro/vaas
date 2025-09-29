@@ -9,24 +9,25 @@ from vaas.cluster.models import DomainMapping, LogicalCluster
 from vaas.manager.models import Director
 from typing import Optional
 
+from simple_history.models import HistoricalRecords
 
 class RedirectAssertion(models.Model):
     given_url = models.URLField()
     expected_location = models.CharField(max_length=512)
     redirect = models.ForeignKey(
-        'Redirect', on_delete=models.CASCADE, related_name='assertions',
-        related_query_name='redirect_assertions')
+        "Redirect", on_delete=models.CASCADE, related_name="assertions",
+        related_query_name="redirect_assertions")
 
 
 class Redirect(models.Model):
+    history = HistoricalRecords()
     class ResponseStatusCode(models.IntegerChoices):
         MOVE_PERMANENTLY = 301
         FOUND = 302
         TEMPORARY_REDIRECT = 307
-
     src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
     condition = models.CharField(max_length=512)
-    rewrite_groups = models.CharField(max_length=512, default='', blank=True)
+    rewrite_groups = models.CharField(max_length=512, default="", blank=True)
     destination = models.CharField(max_length=512)
     action = models.IntegerField(choices=ResponseStatusCode.choices, default=301)
     priority = models.PositiveIntegerField()
@@ -40,7 +41,7 @@ class Redirect(models.Model):
     @property
     def final_condition(self):
         if self.required_custom_header:
-            return f'{self.condition} && req.http.{settings.REDIRECT_CUSTOM_HEADER}'
+            return f"{self.condition} && req.http.{settings.REDIRECT_CUSTOM_HEADER}"
         return self.condition
 
 
@@ -48,6 +49,7 @@ class Route(models.Model):
     condition = models.CharField(max_length=512)
     priority = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     clusters = models.ManyToManyField(LogicalCluster)
+    history = HistoricalRecords(m2m_fields=[clusters])
     director = models.ForeignKey(Director, on_delete=models.PROTECT)
     action = models.CharField(max_length=20)
     clusters_in_sync = models.BooleanField(default=False)
@@ -66,7 +68,7 @@ class Route(models.Model):
 class PositiveUrl(models.Model):
     url = models.URLField()
     route = models.ForeignKey(
-        'Route', on_delete=models.CASCADE, related_name='positive_urls', related_query_name='positive_url'
+        "Route", on_delete=models.CASCADE, related_name="positive_urls", related_query_name="positive_url"
     )
 
 
@@ -77,18 +79,18 @@ class RoutesTestTask(object):
         self.info = info
 
     def __eq__(self, other: object):
-        return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
+        return hasattr(other, "__dict__") and self.__dict__ == other.__dict__
 
     def __repr__(self):
-        return '{}'.format(self.__dict__)
+        return "{}".format(self.__dict__)
 
 
 class DictEqual(object):
     def __repr__(self):
-        return '{}'.format(self.__dict__)
+        return "{}".format(self.__dict__)
 
     def __eq__(self, other: object):
-        return hasattr(other, '__dict__') and self.__dict__ == other.__dict__
+        return hasattr(other, "__dict__") and self.__dict__ == other.__dict__
 
 
 class Left(DictEqual):
@@ -114,7 +116,7 @@ class Action(DictEqual):
 
 class RouteConfiguration(DictEqual):
     def __init__(self, lefts: list[Left], operators: list[Operator], actions: list[Action]):
-        self.pk = 'configuration'
+        self.pk = "configuration"
         self.lefts = lefts
         self.operators = operators
         self.actions = actions
@@ -124,16 +126,16 @@ def provide_route_configuration() -> RouteConfiguration:
     return RouteConfiguration(
         [Left(left=k, name=v) for k, v in settings.ROUTES_LEFT_CONDITIONS.items()],
         [
-            Operator(operator='==', name='exact'),
-            Operator(operator='!=', name='is different'),
-            Operator(operator='>', name='greater'),
-            Operator(operator='<', name='less'),
-            Operator(operator='~', name='match'),
-            Operator(operator='!~', name='not match'),
+            Operator(operator="==", name="exact"),
+            Operator(operator="!=", name="is different"),
+            Operator(operator=">", name="greater"),
+            Operator(operator="<", name="less"),
+            Operator(operator="~", name="match"),
+            Operator(operator="!~", name="not match"),
         ],
         [
-            Action(action='pass', name='pass route directly'),
-            Action(action='pipe', name='bypass the cache')
+            Action(action="pass", name="pass route directly"),
+            Action(action="pipe", name="bypass the cache")
         ],
     )
 
@@ -169,4 +171,4 @@ class ValidationReport(object):
     def __init__(self, validation_results, validation_status):
         self.validation_results = validation_results
         self.validation_status = validation_status
-        self.task_status = 'Unknown'
+        self.task_status = "Unknown"

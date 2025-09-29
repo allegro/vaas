@@ -10,6 +10,9 @@ from vaas.router.forms import (
 )
 from django.conf import settings
 
+from simple_history.admin import SimpleHistoryAdmin
+from vaas.adminext.utils import HistoryMixinAdmin
+
 
 class RedirectAssertionAdmin(admin.TabularInline):
     model = RedirectAssertion
@@ -31,7 +34,7 @@ class PositiveURLAdmin(admin.TabularInline):
         return 1
 
 
-class RedirectAdmin(AuditableModelAdmin):
+class RedirectAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
     form = RedirectModelForm
     inlines = [RedirectAssertionAdmin]
     search_fields = ["condition", "src_domain__domain", "destination"]
@@ -51,7 +54,7 @@ class RedirectAdmin(AuditableModelAdmin):
         )
 
 
-class RouteAdmin(AuditableModelAdmin):
+class RouteAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, AuditableModelAdmin):
     form = RouteModelForm
     inlines = [PositiveURLAdmin]
     search_fields = ["condition", "clusters__name", "director__name"]
