@@ -43,7 +43,7 @@ class DirectorModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(DirectorModelForm, self).__init__(*args, **kwargs)
         self.fields["cluster"].required = False
-        self.fields["probe"].queryset = Probe.objects.order_by("name")   
+        self.fields["probe"].queryset = Probe.objects.order_by("name")
         for related in ("probe", "time_profile"):
             if hasattr(self.fields[related].widget, "widget"):
                 self.fields[related].widget = self.fields[related].widget.widget

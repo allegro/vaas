@@ -11,6 +11,7 @@ from typing import Optional
 
 from simple_history.models import HistoricalRecords
 
+
 class RedirectAssertion(models.Model):
     given_url = models.URLField()
     expected_location = models.CharField(max_length=512)
@@ -21,6 +22,7 @@ class RedirectAssertion(models.Model):
 
 class Redirect(models.Model):
     history = HistoricalRecords()
+
     class ResponseStatusCode(models.IntegerChoices):
         MOVE_PERMANENTLY = 301
         FOUND = 302

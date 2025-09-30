@@ -301,6 +301,7 @@ class VclVariableAdmin(HistoryMixinAdmin, SimpleHistoryAdmin, admin.ModelAdmin):
     form = VclVariableModelForm
     list_display = ["key", "value", "cluster"]
 
+
 class DcAdmin(HistoryMixinAdmin, SimpleHistoryAdmin):
     form = DcModelForm
 

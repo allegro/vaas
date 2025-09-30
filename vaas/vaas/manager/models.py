@@ -10,6 +10,7 @@ from vaas.validators import name_validator
 
 from simple_history.models import HistoricalRecords
 
+
 class Probe(models.Model):
     history = HistoricalRecords()
     name = models.CharField(max_length=30, validators=[name_validator], unique=True)
