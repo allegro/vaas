@@ -4,13 +4,13 @@ VaaS is a Django application. It can be run in multiple ways, as documented in [
 
 Python Support
 --------------
-VaaS run on Python3.9 versions.
+VaaS run on Python3.12 versions.
 
 Ubuntu system packages requirements
 -----------------------------------
 Make sure you have installed packages on machine:
 
-     sudo apt-get install python3.9-dev python3.9-venv libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
+     sudo apt-get install python3.12 python3.12-dev python3.12-venv python3-pip python3-setuptools libssl-dev libtool libldap2-dev libssl-dev libsasl2-dev libmysqlclient-dev libcurl4-openssl-dev
 
 Build VaaS package
 ------------------
@@ -18,7 +18,7 @@ Use the commands below to build VaaS from source:
 
     cd ~/
     git clone https://github.com/allegro/vaas.git
-    python3.9 -m venv dist-env
+    python3.12 -m venv dist-env
     . dist-env/bin/activate
     pip install --upgrade pip
     cd vaas/vaas-app
@@ -33,7 +33,7 @@ Install VaaS package
 Use the commands below to install VaaS package built in the previous step on a web server:
 
     cd ~/
-    python3.9 -m venv prod-env
+    python3.12 -m venv prod-env
     . prod-env/bin/activate
     pip install --upgrade pip
     pip install python-ldap==3.3.1
@@ -170,7 +170,7 @@ If you cannot create virtualenv on Ubuntu 16.04 and have error like this:
     You may need to use sudo with that command.  After installing the python3-venv
     package, recreate your virtual environment.
 
-    Failing command: ['/tmp/vaas/dist-venv/bin/python3.9', '-Im', 'ensurepip', '--upgrade', '--default-pip']
+    Failing command: ['/tmp/vaas/dist-venv/bin/python3.12', '-Im', 'ensurepip', '--upgrade', '--default-pip']
 
 You need to update your locale. For example:
 
@@ -178,4 +178,4 @@ You need to update your locale. For example:
     export LC_CTYPE="en_US.UTF-8"
     sudo dpkg-reconfigure locales
 
-After that commend ```sudo python3.9 -m venv dist-venv``` will work properly.
+After that commend ```sudo python3.12 -m venv dist-venv``` will work properly.

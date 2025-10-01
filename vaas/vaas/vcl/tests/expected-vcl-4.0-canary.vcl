@@ -8,7 +8,7 @@ import directors;
 ## header vcl ###
 ## acl rules ##
 ## START director third_service ###
-probe third_service_test_probe_1 {
+probe third_service_test_probe_39_3 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -24,12 +24,12 @@ backend third_service_4_dc1_2_1_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = third_service_test_probe_1;
+    .probe = third_service_test_probe_39_3;
 }
 
 ## END director third_service ###
 ## START director fourth_director_which_has_a_ridiculously_long_name ###
-probe fourth_director_which_has_a_ridiculously_long_name_test_probe_1 {
+probe fourth_director_which_has_a_ridiculously_long_name_test_probe_40_4 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -45,12 +45,12 @@ backend fourth_director_which_has_a_ridiculously_lon_5_dc1_255_254_65535 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = fourth_director_which_has_a_ridiculously_long_name_test_probe_1;
+    .probe = fourth_director_which_has_a_ridiculously_long_name_test_probe_40_4;
 }
 
 ## END director fourth_director_which_has_a_ridiculously_long_name ###
 ## START director first_service ###
-probe first_service_test_probe_1 {
+probe first_service_test_probe_37_1 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -66,12 +66,12 @@ backend first_service_1_dc2_1_1_80 {
     .connect_timeout = 0.50s;
     .first_byte_timeout = 0.10s;
     .between_bytes_timeout = 1.00s;
-    .probe = first_service_test_probe_1;
+    .probe = first_service_test_probe_37_1;
 }
 
 ## END director first_service ###
 ## START director second_service ###
-probe second_service_test_probe_1 {
+probe second_service_test_probe_38_2 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -87,12 +87,12 @@ backend second_service_9_dc1_2_2_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = second_service_test_probe_1;
+    .probe = second_service_test_probe_38_2;
 }
 
 ## END director second_service ###
 ## START director sixth_director_hashing_by_cookie ###
-probe sixth_director_hashing_by_cookie_test_probe_1 {
+probe sixth_director_hashing_by_cookie_test_probe_42_6 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -108,12 +108,12 @@ backend sixth_director_hashing_by_cookie_7_dc1_2_1_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = sixth_director_hashing_by_cookie_test_probe_1;
+    .probe = sixth_director_hashing_by_cookie_test_probe_42_6;
 }
 
 ## END director sixth_director_hashing_by_cookie ###
 ## START director seventh_director_hashing_by_url ###
-probe seventh_director_hashing_by_url_test_probe_1 {
+probe seventh_director_hashing_by_url_test_probe_43_7 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -129,12 +129,12 @@ backend seventh_director_hashing_by_url_8_dc1_2_1_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = seventh_director_hashing_by_url_test_probe_1;
+    .probe = seventh_director_hashing_by_url_test_probe_43_7;
 }
 
 ## END director seventh_director_hashing_by_url ###
 ## START director eighth_service ###
-probe eighth_service_test_probe_start_as_healthy_2 {
+probe eighth_service_test_probe_start_as_healthy_8 {
     .url = "/status";
     .expected_response = 200;
     .interval = 3s;
@@ -151,7 +151,7 @@ backend eighth_service_10_dc1_3_1_80 {
     .connect_timeout = 0.30s;
     .first_byte_timeout = 5.00s;
     .between_bytes_timeout = 1.00s;
-    .probe = eighth_service_test_probe_start_as_healthy_2;
+    .probe = eighth_service_test_probe_start_as_healthy_8;
 }
 
 ## END director eighth_service ###
@@ -339,7 +339,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "ce716", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "61f7a", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }

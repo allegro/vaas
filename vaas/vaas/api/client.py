@@ -8,7 +8,7 @@ from django.conf import settings
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s %(message)s',
+    format="%(asctime)s %(levelname)s %(message)s",
 )
 
 
@@ -23,7 +23,7 @@ class VarnishApi(varnish.VarnishHandler):
 
     def vcl_list(self):
         vcls = {}
-        for line in self.fetch('vcl.list')[1].splitlines():
+        for line in self.fetch("vcl.list")[1].splitlines():
             a = line.split()
             vcls[a[-1]] = tuple(a[:-1])
         return vcls
@@ -32,28 +32,28 @@ class VarnishApi(varnish.VarnishHandler):
         """List active vcl and available vcls"""
         vcl_list = self.vcl_list()
         available = []
-        active = ''
+        active = ""
         for vcl in vcl_list.keys():
-            if 'active' in vcl_list[vcl]:
+            if "active" in vcl_list[vcl]:
                 active = vcl
-            elif 'available' in vcl_list[vcl]:
+            elif "available" in vcl_list[vcl]:
                 available.append(vcl)
 
-        return {'active': active, 'available': available}
+        return {"active": active, "available": available}
 
     def vcl_content_active(self):
         """Show content of active vcl"""
         return self.vcl_show(self.vcl_active_name())[1][:-1]
 
     def vcl_active_name(self):
-        return self.vcls()['active']
+        return self.vcls()["active"]
 
     def daemon_version(self):
-        version = 'unknown'
-        _, result = self.fetch('banner')
+        version = "unknown"
+        _, result = self.fetch("banner")
         for line in result.splitlines():
-            if line.startswith('varnish'):
-                version = line.split(' ')[0]
+            if line.startswith("varnish"):
+                version = line.split(" ")[0]
 
         return version
 
@@ -61,14 +61,15 @@ class VarnishApi(varnish.VarnishHandler):
         """
         vcl.show configname overloaded due to syntax error in original class
         """
-        return self.fetch('vcl.show %s' % configname)
+        return self.fetch("vcl.show %s" % configname)
 
     def vcl_inline(self, configname, vclcontent):
         """
         vcl.inline - overloaded due to use internal fetch() method with configurable timout
         """
         return self.fetch(
-            'vcl.inline %s %s' % (configname, vclcontent), timeout=settings.VARNISH_VCL_INLINE_COMMAND_TIMEOUT
+            "vcl.inline %s %s" % (configname, vclcontent),
+            timeout=settings.VARNISH_VCL_INLINE_COMMAND_TIMEOUT,
         )
 
     def fetch(self, command, timeout=None):
@@ -76,8 +77,8 @@ class VarnishApi(varnish.VarnishHandler):
         Run a command on the Varnish backend and return the result
         return value is a tuple of ((status, length), content)
         """
-        self.write(command.encode('utf-8') + b'\n')
-        buffer = self.read_until(b'\n', timeout).strip()
+        self.write(command.encode("utf-8") + b"\n")
+        buffer = self.read_until(b"\n", timeout).strip()
         elements = buffer.split()
         # turn of assertion temporary (we need to solve problem of data left in buffer)
         # assert len(elements) == 2, f"cannot split response into two elements {elements}"
@@ -85,17 +86,18 @@ class VarnishApi(varnish.VarnishHandler):
             status, length = map(int, elements)
         except:  # noqa
             raise VarnishApiReadException(
-                f'Cannot extract response code from {elements} for command {command}'
+                f"Cannot extract response code from {elements} for command {command}"
             )
-        content = b''
+        content = b""
         while len(content) < length:
-            content += self.read_until(b'\n', timeout)
-        assert status == 200, 'Bad response code: {status}\nResponse:\n{text}\n\nCommand: {command}'.format(
-            status=status,
-            text=content.decode(),
-            command=command)
+            content += self.read_until(b"\n", timeout)
+        assert status == 200, (
+            "Bad response code: {status}\nResponse:\n{text}\n\nCommand: {command}".format(
+                status=status, text=content.decode(), command=command
+            )
+        )
         self.read_eager()
-        return (status, length), str(content, 'utf-8')
+        return (status, length), str(content, "utf-8")
 
     def read_until(self, match, timeout=None):
         # override timeout for case when socket is open but process not responding
@@ -105,5 +107,7 @@ class VarnishApi(varnish.VarnishHandler):
         if len(buffer):
             return buffer
         raise VarnishApiReadException(
-            'Timeout during varnish.VarnishHandler.read_until(self, {}, {}) on {}'.format(match, timeout, self.id)
+            "Timeout during varnish.VarnishHandler.read_until(self, {}, {}) on {}".format(
+                match, timeout, self.id
+            )
         )

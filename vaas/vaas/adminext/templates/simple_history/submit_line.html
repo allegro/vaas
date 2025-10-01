@@ -1,0 +1,16 @@
+{% load i18n %}
+<div class="submit-row">
+    {% if not revert_disabled %}
+    <div class="form-group">
+        <input type="submit" value="{% trans 'Revert' %}" class="btn btn-success form-control" name="_save" {{ onclick_attrib }}/>
+    </div>
+    {% endif %}
+    {% if change_history %}
+    <div class="form-group">
+        <input type="submit" value="{% trans 'Change History' %}" class="btn btn-info form-control" name="_change_history" {{ onclick_attrib }}/>
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <a href="{{ history_url }}" class="btn btn-outline-secondary form-control">{% trans 'Close' %}</a>
+    </div>
+</div>

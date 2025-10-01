@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+{% block content %}
+{{ block.super }}
+<template id="test-case">
+    <div class="card bg-${statusToClass(record.result)}">
+        <h5 class="card-header">${record.url}</h5>
+        <div class="card-body bg-white">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <p class="card-text"><b>Current</b></p>
+                    <p class="card-text">Director: <code>${record.current.director.name}</code></p>
+                    <p class="card-text">Route: <code>${record.current.route.name}</code></p>
+                    <p class="card-text">director.id: ${record.current.director.id}</p>
+                    <p class="card-text">route.id: ${record.current.route.id}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p class="card-text"><b>Expected</b></p>
+                    <p class="card-text">Director: <code>${record.expected.director.name}</code></p>
+                    <p class="card-text">Route: <code>${record.expected.route.name}</code></p>
+                    <p class="card-text">director.id: ${record.expected.director.id}</p>
+                    <p class="card-text">route.id: ${record.expected.route.id}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            ${record.error_message}
+        </div>
+    </div>
+</template>
+{% endblock %}

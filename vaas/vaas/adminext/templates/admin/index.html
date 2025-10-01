@@ -1,102 +1,146 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static bootstrapped_goodies_tags %}
-
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
-
-{% block coltype %}colMS{% endblock %}
+{% load i18n static jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
 
 {% block bodyclass %}{{ block.super }} dashboard{% endblock %}
 
+{% block content_title %} {% trans 'Dashboard' %} {% endblock %}
+
 {% block breadcrumbs %}
-<ul class="breadcrumb">
-<li>{% trans 'Home' %}</li>
-</ul>
-{% endblock %}
-
-{% block content-navbar-collapse %}
-{% endblock %}
-
-{% block object-tools %}
-<ul class="nav navbar-nav">
-    <li class="dropdown">
-        <a role="button" href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Applications" %} <span class="caret"></span></a>
-        <ul class="dropdown-menu" role="menu">
-            {% for app in app_list %}
-            <li>
-                <a href="#"><strong>{% render_app_name app %}</strong></a>
-            </li>
-            {% if app.name == 'Manager' %}
-            <li>
-                <a href="/admin/purger/">Purger</a>
-            </li>
-            {% endif %}
-            {% for model in app.models %}
-            <li>
-                {% if model.admin_url %}
-                    <a href="{{ model.admin_url }}">{{ model.name }}</a>
-                {% else %}
-                   {{ model.name }}
-                {% endif %}
-            </li>
-            {% endfor %}
-            {% if not forloop.last %}
-            <li role="presentation" class="divider"></li>
-            {% endif %}
-            {% endfor %}
-        </ul>
-    </li>
-</ul>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+    </ol>
 {% endblock %}
 
 
 {% block content %}
-<div class="row">
-    <div id="content-main" class="col-sm-12">
+    {% get_side_menu using="app_list" as dashboard_list %}
+    {% if dashboard_list %}
+        {% widthratio dashboard_list|length 2 1 as middle %}
+    {% endif %}
 
-        <div class="tabbable">
-            {% for app in app_list %}
-                {% include "admin/bootstrapped_extra/app_name.html" %}
-                {% render_app_description app %}
-                <table summary="{% blocktrans with name=app.name %}Models available in the {{ name }} application.{% endblocktrans %}" class="table table-striped table-bordered">
-                {% for model in app.models %}
-                    <tr>
-                        <th scope="row">
-                            {% if model.admin_url %}
-                            <a href="{{ model.admin_url }}">{{ model.name }}</a>
-                            {% else %}
-                            {{ model.name }}
-                            {% endif %}
+    <div class="col-lg-9 col-12">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                {% for app in dashboard_list %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="m-0">{{ app.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tbody>
+                                {% for model in app.models %}
+                                    <tr>
+                                        <td>
+                                            {% if model.url %}<a href="{{ model.url }}">{{ model.name }}</a>{% else %}{{ model.name }}{% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group float-right">
+                                                {% if model.add_url %}
+                                                    <a href="{{ model.add_url }}" class="btn btn-xs {{ jazzmin_ui.button_classes.success }} addlink">{% trans 'Add' %}</a>
+                                                {% endif %}
+                                                {% if model.url %}
+                                                    {% if model.view_only %}
+                                                        <a href="{{ model.url }}" class="btn btn-xs {{ jazzmin_ui.button_classes.info }} viewlink">{% trans 'View' %}</a>
+                                                    {% else %}
+                                                        <a href="{{ model.url }}" class="btn btn-xs {{ jazzmin_ui.button_classes.info }} changelink">{% if model.custom %}{% trans 'Go' %}{% else %}{% trans 'Change' %}{% endif %}</a>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                {% if app.name == 'Manager' %}
+                                  <tr>
+                                      <td>
+                                        <a href="/admin/purger/">Purger</a>
+                                      </td>
+                                      <td>
+                                        <div class="btn-group float-right">
+                                            <a href="/admin/purger" class="btn btn-xs {{ jazzmin_ui.button_classes.info }} purge">{% trans 'Purge' %}</a>
+                                        </div>
+                                      </td>
+                                  </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                            {% if model.add_url or model.admin_url%}
-                            <div class="pull-right">
-                                {% if model.add_url %}
-                                <a href="{{ model.add_url }}" class="btn btn-xs addlink"><span class="glyphicon glyphicon-plus"></span>
-                                {% trans 'Add' %}</a>
-                                {% endif %}
-                                {% if model.admin_url %}
-                                <a href="{{ model.admin_url }}" class="btn btn-xs changelink"><span class="glyphicon glyphicon-edit"></span>
-                                {% trans 'Change' %}</a>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                        </th>
-                    </tr>
-                {% endfor %}
-                    {% if app.name == 'Manager' %}
-                    <tr>
-                        <th scope="row">
-                            <a href="/admin/purger/">Purger</a>
-                        </th>
-                    </tr>
+                    {% if forloop.counter == middle|add:"0" %}
+                    </div>
+                    <div class="col-md-6 col-sm-12">
                     {% endif %}
-                </table>
-            {% empty %}
-                <p>{% trans "You don't have permission to edit anything." %}</p>
-            {% endfor %}
+
+                {% endfor %}
+                </div>
+        </div>
+
+    </div>
+    <div class="col-lg-3 col-12">
+        <div id="content-related">
+            <div class="module" id="recent-actions-module">
+                <h4 class="mb-3">{% trans 'Recent actions' %}</h4>
+                {% load log %}
+                {% get_admin_log 6 as admin_log for_user user %}
+                {% if not admin_log %}
+                    <p>{% trans 'None available' %}</p>
+                {% else %}
+                    <div class="timeline">
+                        {% for entry in admin_log %}
+                            <div>
+                                {% if entry.is_change %}
+                                    <i class="fas fa-edit bg-gray text-xs"></i>
+                                {% elif entry.is_deletion %}
+                                    <i class="fas fa-trash bg-danger text-xs"></i>
+                                {% elif entry.is_addition %}
+                                    <i class="fas fa-plus-circle bg-success text-xs"></i>
+                                {% endif %}
+
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fas fa-clock"></i> {% blocktrans with timesince=entry.action_time|timesince %}{{ timesince }} ago{% endblocktrans %}</span>
+                                    <h3 class="timeline-header no-border">
+                                        {% if entry.is_deletion or not entry.get_admin_url %}
+                                            {{ entry.object_repr }}
+                                        {% else %}
+                                            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                                        {% endif %}
+
+                                        {% if entry.model %}
+                                            <span class="mini quiet">
+                                                {% filter capfirst %}
+                                                    {{ entry.model }}
+                                                {% endfilter %}
+                                            </span>
+                                        {% endif %}
+                                    </h3>
+                                    {% if not entry.is_deletion %}
+                                        <div class="timeline-body">
+                                            {% if entry.is_addition %}
+                                                {{ entry }}
+                                            {% else %}
+                                                <ul style="list-style: none; padding: 0;">
+                                                    {% action_message_to_list entry as action_message_list %}
+                                                    {% for action_message in action_message_list %}
+                                                        <li>{{ action_message.msg|style_bold_first_word }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div>
+                            <i class="fa fa-clock bg-gray"></i>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
+
 {% endblock %}
 
-{% block sidebar %}
-{% endblock %}

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals, absolute_import
 
 from unittest.mock import patch, mock_open
-from nose.tools import assert_equals
 from django.test import TestCase
 
 from vaas.configuration.loader import YamlConfigLoader
@@ -40,8 +39,8 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: True
         }
         directories = YamlConfigLoader([USER_HOME_PATH, VAAS_APP_RESOURCES_PATH]).config_directories
-        assert_equals(2, len(directories))
-        assert_equals([USER_HOME_PATH, VAAS_APP_RESOURCES_PATH], directories)
+        self.assertEqual(2, len(directories))
+        self.assertEqual([USER_HOME_PATH, VAAS_APP_RESOURCES_PATH], directories)
 
     def test_should_determine_file_from_users_location_if_exists(self):
         expected_path = "{}/{}".format(USER_HOME_PATH, 'test.yaml')
@@ -49,7 +48,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: True,
             expected_path: True
         }
-        assert_equals(expected_path, YamlConfigLoader([USER_HOME_PATH]).determine_config_file('test.yaml'))
+        self.assertEqual(expected_path, YamlConfigLoader([USER_HOME_PATH]).determine_config_file('test.yaml'))
 
     def test_should_determine_file_from_resource_location_if_exists(self):
         expected_path = "{}/{}".format(VAAS_APP_RESOURCES_PATH, 'test.yaml')
@@ -57,7 +56,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: False,
             expected_path: True
         }
-        assert_equals(expected_path, YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).determine_config_file('test.yaml'))
+        self.assertEqual(expected_path, YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).determine_config_file('test.yaml'))
 
     def test_should_not_determine_file_if_not_exists_in_any_location(self):
         resource_path = "{}/{}".format(VAAS_APP_RESOURCES_PATH, 'test.yaml')
@@ -65,7 +64,7 @@ class YamlConfigLoaderTest(TestCase):
             USER_HOME_PATH: False,
             resource_path: False
         }
-        assert_equals(None, YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).determine_config_file('test.yaml'))
+        self.assertIsNone(YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).determine_config_file('test.yaml'))
 
     @patch('builtins.open', mock_open(read_data="key1: value1\nkey2: value2"))
     def test_should_return_config_tree(self):
@@ -75,4 +74,4 @@ class YamlConfigLoaderTest(TestCase):
             "{}/{}".format(VAAS_APP_RESOURCES_PATH, 'test.yaml'): True
         }
 
-        assert_equals(expected_tree, YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).get_config_tree('test.yaml'))
+        self.assertEqual(expected_tree, YamlConfigLoader([VAAS_APP_RESOURCES_PATH]).get_config_tree('test.yaml'))

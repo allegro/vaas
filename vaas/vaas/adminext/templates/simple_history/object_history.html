@@ -1,0 +1,130 @@
+{% extends "admin/object_history.html" %}
+{% load i18n admin_urls static jazzmin %}
+{% load getattribute from getattributes %}
+
+{% block content_title %} {{ opts.verbose_name_plural|capfirst }} {% endblock %}
+
+{% block content %}
+<div class="row col-md-12">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header with-border">
+                <h4 class="card-title">{% trans 'History' %}</h4>
+            </div>
+            <div class="card-body">
+                {% if page_obj.object_list %}
+                <div class="card-subtitle mb-3">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle" aria-hidden="true"></i>
+                        Click on the object link below to revert to a previous version.
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-lightbulb" aria-hidden="true"></i>
+                        Display of certain changes, including tags, redirect assertions, and positive URLs, is not presently supported in this view.
+                    </div>
+                </div>
+                {% endif %}
+                <div id="content-main">
+                    <div class="module">
+                        <div class="timeline">
+                            {% if page_obj.object_list %}
+                            {% for record in page_obj %}
+                            <div class="time-label">
+                                <span class="bg-white">{{ record.history_date|date:"DATETIME_FORMAT" }}</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-edit bg-blue"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header no-border">
+                                        <span class="badge badge-pill badge-primary">
+                                            {% if record.history_user %}
+                                                {{ record.history_user }}
+                                            {% else %}
+                                                {% trans "Unknown" %}
+                                            {% endif %}
+                                        </span> has modified
+                                        <a href="{% url opts|admin_urlname:'simple_history' object.pk record.pk %}">{{ record.history_object }}</a>
+                                    </h3>
+                                    <div class="timeline-body">
+                                        <table class="table table-striped mb-0">
+                                            <thead>
+                                                <tr>
+                                                    {% for column in history_list_display %}
+                                                        <th scope="col">{% trans column %}</th>
+                                                    {% endfor %}
+                                                    <th scope="col">{% trans 'Comment' %}</th>
+                                                    <th scope="col" class="w-75">{% trans 'Changes' %}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr scope="row">
+                                                    {% for column in history_list_display %}
+                                                    <td>{{ record|getattribute:column }}</td>
+                                                    {% endfor %}
+                                                    <td>{{ record.get_history_type_display }}</td>
+                                                    <td>
+                                                    {% block history_delta_changes %}
+                                                    {% if record.history_delta_changes %}
+                                                        <ul class="list-group">
+                                                        {% for change in record.history_delta_changes %}
+                                                            <li class="list-group-item">
+                                                                <b>{{ change.field }}: </b>
+                                                                <code>{{ change.old }}</code>&nbsp;&rarr;&nbsp;&nbsp;<code class="text-success">{{ change.new }}</code>
+                                                            </li>
+                                                        {% endfor %}
+                                                        </ul>
+                                                    {% else %}
+                                                        <p>Details for this change are unavailable in this view. Refer to the warning for specifics.</p>
+                                                    {% endif %}
+                                                    {% endblock %}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div>
+                                <i class="fas fa-clock bg-gray"></i>
+                            </div>
+                            {% else %} 
+                            <div>
+                                <i class="fas fa-clock bg-gray"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header no-border">
+                                        {% trans "This object doesn't have a change history. It probably wasn't added via this admin site." %}
+                                    </h3>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                {% if pagination_required %}
+                <nav aria-label="History pagination">
+                    <ul class="pagination">
+                        {% for i in page_range %}
+                        {% if i == page_obj.paginator.ELLIPSIS %}
+                            {{ page_obj.paginator.ELLIPSIS }}
+                        {% elif i == page_obj.number %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a href="?{{ page_var }}={{ i }}" {% if i == page_obj.paginator.num_pages %} {% endif %} class="page-link">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                    </nav>
+                {% endif %}
+                <p class="mb-0">{{ page_obj.paginator.count }} {% blocktranslate count counter=page_obj.paginator.count %}entry{% plural %}entries{% endblocktranslate %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

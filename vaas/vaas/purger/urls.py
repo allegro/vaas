@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
-from django.conf.urls import url
+from django.urls import re_path
 
 from vaas.purger.views import purge_view
 
 urlpatterns = [
-    url(r'^$', purge_view, name='purge_view'),
+    re_path("^$", purge_view, name="purge_view"),
 ]

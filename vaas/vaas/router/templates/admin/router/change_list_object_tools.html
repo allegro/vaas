@@ -1,0 +1,78 @@
+{% extends "admin/change_list_object_tools.html" %}
+{% load i18n admin_urls jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+{% block object-tools-items %}
+    {{ block.super }}
+        <button type="button" class="btn btn-primary" id="test" data-toggle="modal" data-target="#testResultModal">
+            <i class="fa-solid fa-list-check"></i> &nbsp; Run {{ cl.opts.verbose_name }}s test
+        </button>
+
+        <div class="modal fade" id="testResultModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{ cl.opts.verbose_name|capfirst }}s Test Report</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card bg-light mb-3">
+                        <h5 class="card-header">Task info</h5>
+                        <div class="card-body bg-white" id="command-details">
+                            <p class="card-text"><b>Command status: </b><span id="command-status" class="badge badge-default">UNKNOWN</span></p>
+                            <p class="card-text"><b>Command ID: </b><span id="command-id" class="badge badge-secondary"></span></p>
+                            <p class="card-text"><b>Tests report result: </b><span id="command-result" class="badge badge-default">UNKNOWN</span></p>
+                            <p class="card-text"><b>Details: </b>
+                                <span class="badge badge-success">PASS <span id="pass-count" class="badge">0</span></span>
+                                <span class="badge badge-danger">FAILED <span id="failed-count" class="badge">0</span></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <div id="spinner" class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="results"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const noDataPlaceholder = { name: 'no data', id: 'no data' };
+            const pageType = '{{ cl.opts.verbose_name }}';
+
+            function createTestResult(records) {
+                records.sort(function (x, y) {
+                    if (x.error_message && !y.error_message) {
+                        return -1;
+                    }
+                    if (!x.error_message && y.error_message) {
+                        return 1;
+                    }
+                    if (x.expected[pageType].id < y.expected[pageType].id) {
+                        return -1;
+                    }
+                    return 1;
+                });
+                let html = "";
+                records.forEach(function (record) {
+                    if (!record.current[pageType]) record.current[pageType] = noDataPlaceholder;
+                    if (pageType === 'route' && !record.current.director) record.current.director = noDataPlaceholder;
+                    html += eval('`' + $("#test-case").html() + '`');
+                });
+                // After gathering all the responses, we return the generated HTML report and hide the spinner
+                $("#spinner").hide();
+                return html
+            }
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                initReport(`/api/v0.1/${pageType}/validate-command/`, createTestResult);
+            });
+        </script>
+{% endblock %}

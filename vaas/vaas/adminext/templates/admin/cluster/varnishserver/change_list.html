@@ -1,0 +1,108 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+
+{% block extrajs %}
+  {{ block.super }}
+
+<script>
+    var task_status = '';
+    $(document).ready(function () {
+        var command_url = '/api/v0.1/varnish_server/connect-command/' + Date.now().toString(36) + Math.random().toString(36).substring(2) + '/';
+        var vcl_modal = $('#vclModal');
+        vcl_modal.on('show.bs.modal', function (event) {
+            var vcl = $(event.relatedTarget).data('vcl');
+            $(this).find('.modal-body').load(vcl)
+        });
+        vcl_modal.on('hidden.bs.modal', function (e) {
+            $(this).find('.modal-body').empty();
+        });
+        connectCommand(findServers(), command_url);
+    });
+
+    function handleError(request, textStatus, errorThrown) {
+        console.error(textStatus, errorThrown)
+    }
+    function connectCommand(servers, url) {
+        return $.ajax({
+          type: 'PUT',
+          url: url,
+          data: JSON.stringify({'varnish_ids': servers}),
+          dataType: 'json',
+          contentType: "application/json; charset=utf-8",
+          error: handleError,
+          success: handleCommandResponse,
+          beforeSend: setCRSFToken,
+          complete: function () { if (task_status != 'done') { setTimeout(function () { poolCommandResult(url) }, 500) } },
+        });
+    }
+
+    function poolCommandResult(url) {
+        $.ajax({
+          url: url,
+          dataType: 'json',
+          error: handleError,
+          success: handleCommandResponse,
+          complete: function () { if (task_status != 'done') { setTimeout(function () { poolCommandResult(url) }, 500) } },
+          timeout: 5000
+        });
+    }
+
+    function handleCommandResponse(data, textStatus, request) {
+        const status = data.status
+        if (status === 'FAILURE') {
+          task_status = 'done';
+          $('[data-varnish-id]').each(function(index) {
+            $(this).addClass('btn-info')
+            $(this).children('i').removeClass('spinner-border spinner-border-sm').addClass('fa-solid fa-xmark')
+          })
+        }
+        else if (status === 'SUCCESS') {
+          task_status = 'done';
+          $('[data-varnish-id]').each(function(index) {
+            if ($(this).data('varnish-id') in data.output) {
+                var result = data.output[$(this).data('varnish-id')];
+                if (result !== 'error') {
+                    $(this).addClass('btn-success')
+                    $(this).children('i').remove()
+                    $(this).text(result)
+                } else {
+                    $(this).addClass('btn-danger')
+                    $(this).children('i').removeClass('spinner-border spinner-border-sm').addClass('fa-power-off')
+                }
+            }
+            $(this).addClass('btn-secondary')
+            $(this).children('i').removeClass('spinner-border spinner-border-sm').addClass('fa-solid fa-xmark')
+          })
+        }
+    }
+    function findServers() {
+        var result = [];
+        $('[data-varnish-id]').each(function(index) {
+            result.push($(this).data('varnish-id'));
+        })
+        return result;
+    }
+</script>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<div class="modal fade" id="vclModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Online vcl preview</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <xmp class="modal-body" style="overflow-x: auto;">
+
+            </xmp>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

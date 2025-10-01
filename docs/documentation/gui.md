@@ -1,10 +1,12 @@
 VaaS GUI
 ========
-This article will demonstrate the features of VaaS GUI. Screen shots below come from [VaaS in Docker Compose](../quick-start/development.md).
+This article will demonstrate the features of VaaS GUI. The screenshots below come from a locally deployed VaaS instance, as explained in [docker_compose.md](../quick-start/docker_compose.md).
 
-VaaS comprises of several Django apps, two of which are available via a web browser: *Cluster* and *Manager*.
+VaaS consists of several Django apps, three of which are available via a web browser: *Cluster*, *Manager*, and *Router*.
 
-In the **Cluster** app you can:
+![VaaS GUI - admin page](img/admin_page.png)
+
+In the **Cluster** section you can:
 
 * Define and edit Varnish Servers
 * Group Varnish servers into Clusters
@@ -13,14 +15,20 @@ In the **Cluster** app you can:
 * Overwrite default VCL template blocks
 * Assign VCL templates to Varnish Servers
 
-In the **Manager** app you can:
+In the **Manager** section you can:
 
 * Define and edit Backends
 * Define and edit Directors
 * Define and edit Probes
 * Associate Directors with Varnish Server clusters
+* Purge urls
 
-Cluster app
+In the **Route** section you can:
+
+* Define and edit Routes
+* Define and edit Redirects
+
+Cluster section
 ===========
 
 ## [Cluster] Varnish servers
@@ -29,11 +37,11 @@ To define a new Varnish server, click on *Cluster -> Varnish servers -> Add varn
 ![Cluster - add Varnish server](img/cluster_add_v_server.png)
 
 * **Ip:** IP address of the new Varnish server
-* **Hostname:** hostname or a descriptive name 
-* **Cluster weight:** unused
+* **Hostname:** hostname or a descriptive name
+* **Http port:** Varnish HTTP port number
 * **Port:** Varnish API port number
 * **Secret:** contents of /etc/varnish/secret file
-* **Enabled:** enable / disable the server (only tells VaaS to update VCLs; does not start / stop Varnish service)
+* **Status:** enable / disable the server (only tells VaaS to update VCLs; does not start / stop Varnish service)
 * **Dc:** data centre in which the server is located (used to determine active and fallback directors)
 * **Template:** VCL template to be used by the server
 * **Cluster:** name of the cluster the server belongs to
@@ -66,7 +74,7 @@ VaaS supports multiple DCs. A DC in the application consists of a DC name and a 
 
 In VaaS, Varnish servers can be grouped into clusters. Each cluster can use a different set of directors.
 
-Manager app
+Manager section
 ===========
 
 ## [Manager] Directors
@@ -81,7 +89,8 @@ To define a new director, click on *Manager -> Directors -> Add director* and fi
 * **Service tag:** specify a service tag which will be passed to service mesh through configurable header
 * **Cluster:** select cluster(s) in which the director should be used
 * **Mode:** specify balancing algorithm
-* **Hasing policy:** specify hashing policy
+* **Protocol:** specify protocol to use when communicating with backends
+* **Hashing policy:** specify hashing policy
 * **Router:** specify how to route traffic to the director (may be overwritten in VCL template)
 * **Path or domain regex:** url or domain regex used to route the traffic to the director
 * **DC aware fallback:** route traffic to primary DC first; use other DCs as fallback (see [using VaaS across multiple DCs](../documentation/dc.md))
@@ -126,32 +135,36 @@ To define a new time profile, click on *Manager -> Time Profiles -> Add time pro
 * **Connect timeouts:** limits how long we wait for a TCP connection to the backend to come up
 * **First byte timeouts:** limits how long the processing time of the backend may be. The first byte of the response must come down the TCP connection within this timeout
 * **Between bytes timeouts:** limits how long we will wait between for two subsequent successful reads on the backend connection
+* **Service mesh timeouts:** timeout for service mesh connection
 
 ## [Manager] Purger
 To purge object from varnishes from a given cluster, click on *Manager -> Purger -> and fill in the form:
 
 ![Manager - Purger](img/manager_purger.png)
 
-* **Url to purge:** url of object to purge eg. http://example.com/contact
+* **Url to purge:** url of object to purge e.g., http://example.com/contact
 * **Varnish Cluster:** select cluster to purge
 
+Router section
+===========
+
 ## [Router] Routes
-![Router - Routes](img/manager_add_route.png)
+![Router - Routes](img/router_add_route.png)
 
 * **Condition:** condition to be met
-* **Positive url:** example of url which could match for defined route condition
 * **Priority:** priority of the route
 * **Action:** action for the route
-* **Cluster:** related cluster
 * **Director:** related director
+* **Cluster:** related cluster
+* * **Positive urls:** example of urls which could match for defined route condition
 
 ## [Router] Redirects
-![Router - Redirects](img/manager_add_redirect.png)
+![Router - Redirects](img/router_add_redirect.png)
 
 * **Condition** condition to be met
 * **Rewrite groups (optional)** build complex redirect with regex rewrites 
 * **Destination** destination for the redirect, this value will be present in `Location` header
 * **Action** response code of the redirect (ex. `301`,`302`)
 * **Priority** priority of the redirect
-* **Preserve query params** if checked, all query params will be preserved in destionation
+* **Preserve query params** if checked, all query params will be preserved in destination
 * **Require x-header-name header** if checked, redirect will be executed only if header `x-header-name` will be present
