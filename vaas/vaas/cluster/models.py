@@ -181,7 +181,6 @@ class VclTemplate(models.Model):
     content = models.TextField()
     version = models.CharField(max_length=3, choices=(("4.0", "Vcl 4.0"),), default="4.0")
     comment = models.CharField(max_length=64, validators=[vcl_template_comment_validator])
-    history = HistoricalRecords()
 
     def __str__(self) -> str:
         return self.name
