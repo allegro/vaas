@@ -1,5 +1,6 @@
 from django.db import connection
 
+
 def create_model_if_not_exists_factory(table_name, app_label, model_name):
     def create_model_if_not_exists(apps, schema_editor):
         with connection.cursor() as cursor:
