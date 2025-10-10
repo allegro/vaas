@@ -3,7 +3,7 @@
 import django.db.models.deletion
 import simple_history.models
 from django.db import migrations, models
-
+from vaas.utils.migrations import create_model_if_not_exists_factory
 
 class Migration(migrations.Migration):
 
@@ -13,18 +13,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='HistoricalDirector_cluster',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('m2m_history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('director', models.ForeignKey(blank=True, db_constraint=False, db_tablespace='', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manager.director')),
-                ('history', models.ForeignKey(db_constraint=False, on_delete=django.db.models.deletion.DO_NOTHING, to='manager.historicaldirector')),
-                ('logicalcluster', models.ForeignKey(blank=True, db_constraint=False, db_tablespace='', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='cluster.logicalcluster')),
-            ],
-            options={
-                'verbose_name': 'HistoricalDirector_cluster',
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='manager_historicaldirector_cluster',
+                app_label='manager',
+                model_name='HistoricalDirector_cluster'
+            )
         ),
     ]

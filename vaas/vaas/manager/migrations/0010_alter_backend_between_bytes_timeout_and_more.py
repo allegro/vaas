@@ -8,7 +8,7 @@ import vaas.manager.fields
 from decimal import Decimal
 from django.conf import settings
 from django.db import migrations, models
-
+from vaas.utils.migrations import create_model_if_not_exists_factory
 
 class Migration(migrations.Migration):
 
@@ -34,118 +34,35 @@ class Migration(migrations.Migration):
             name='first_byte_timeout',
             field=models.DecimalField(decimal_places=2, default=5.0, max_digits=5, validators=[django.core.validators.MinValueValidator(0.1), django.core.validators.MaxValueValidator(80.0)], verbose_name='First byte timeout (s)'),
         ),
-        migrations.CreateModel(
-            name='HistoricalBackend',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('address', models.GenericIPAddressField(protocol='IPv4')),
-                ('port', models.PositiveIntegerField(default='80', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(65535)])),
-                ('weight', models.PositiveIntegerField(choices=[(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10), (11, 11), (12, 12), (13, 13), (14, 14), (15, 15), (16, 16), (17, 17), (18, 18), (19, 19), (20, 20), (21, 21), (22, 22), (23, 23), (24, 24), (25, 25), (26, 26), (27, 27), (28, 28), (29, 29), (30, 30), (31, 31), (32, 32), (33, 33), (34, 34), (35, 35), (36, 36), (37, 37), (38, 38), (39, 39), (40, 40), (41, 41), (42, 42), (43, 43), (44, 44), (45, 45), (46, 46), (47, 47), (48, 48), (49, 49), (50, 50), (51, 51), (52, 52), (53, 53), (54, 54), (55, 55), (56, 56), (57, 57), (58, 58), (59, 59), (60, 60), (61, 61), (62, 62), (63, 63), (64, 64), (65, 65), (66, 66), (67, 67), (68, 68), (69, 69), (70, 70), (71, 71), (72, 72), (73, 73), (74, 74), (75, 75), (76, 76), (77, 77), (78, 78), (79, 79), (80, 80), (81, 81), (82, 82), (83, 83), (84, 84), (85, 85), (86, 86), (87, 87), (88, 88), (89, 89), (90, 90), (91, 91), (92, 92), (93, 93), (94, 94), (95, 95), (96, 96), (97, 97), (98, 98), (99, 99), (100, 100)], default='1')),
-                ('max_connections', models.PositiveIntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10), (11, 11), (12, 12), (13, 13), (14, 14), (15, 15), (16, 16), (17, 17), (18, 18), (19, 19), (20, 20), (21, 21), (22, 22), (23, 23), (24, 24), (25, 25), (26, 26), (27, 27), (28, 28), (29, 29), (30, 30), (31, 31), (32, 32), (33, 33), (34, 34), (35, 35), (36, 36), (37, 37), (38, 38), (39, 39), (40, 40), (41, 41), (42, 42), (43, 43), (44, 44), (45, 45), (46, 46), (47, 47), (48, 48), (49, 49), (50, 50), (51, 51), (52, 52), (53, 53), (54, 54), (55, 55), (56, 56), (57, 57), (58, 58), (59, 59), (60, 60), (61, 61), (62, 62), (63, 63), (64, 64), (65, 65), (66, 66), (67, 67), (68, 68), (69, 69), (70, 70), (71, 71), (72, 72), (73, 73), (74, 74), (75, 75), (76, 76), (77, 77), (78, 78), (79, 79), (80, 80), (81, 81), (82, 82), (83, 83), (84, 84), (85, 85), (86, 86), (87, 87), (88, 88), (89, 89), (90, 90), (91, 91), (92, 92), (93, 93), (94, 94), (95, 95), (96, 96), (97, 97), (98, 98), (99, 99), (100, 100)], default='5')),
-                ('connect_timeout', models.DecimalField(decimal_places=2, default=0.3, max_digits=4, validators=[django.core.validators.MinValueValidator(0.1), django.core.validators.MaxValueValidator(1.0)], verbose_name='Connect timeout (s)')),
-                ('first_byte_timeout', models.DecimalField(decimal_places=2, default=5.0, max_digits=5, validators=[django.core.validators.MinValueValidator(0.1), django.core.validators.MaxValueValidator(80.0)], verbose_name='First byte timeout (s)')),
-                ('between_bytes_timeout', models.DecimalField(decimal_places=2, default=1.0, max_digits=5, validators=[django.core.validators.MinValueValidator(0.1), django.core.validators.MaxValueValidator(80.0)], verbose_name='Between bytes timeout (s)')),
-                ('enabled', models.BooleanField(default=True)),
-                ('inherit_time_profile', models.BooleanField(default=False)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('dc', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='cluster.dc')),
-                ('director', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manager.director')),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'historical backend',
-                'verbose_name_plural': 'historical backends',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='manager_historicalbackend',
+                app_label='manager',
+                model_name='HistoricalBackend'
+            )
         ),
-        migrations.CreateModel(
-            name='HistoricalDirector',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('name', models.CharField(db_index=True, max_length=54, validators=[django.core.validators.RegexValidator(re.compile('^[a-zA-Z0-9_]+$'), 'Allowed characters: letters, numbers and underscores.', 'invalid')])),
-                ('service', models.CharField(default='', max_length=128)),
-                ('service_mesh_label', models.CharField(default='', max_length=128)),
-                ('service_tag', models.CharField(blank=True, default='', max_length=128)),
-                ('mode', models.CharField(choices=[('round-robin', 'Round Robin'), ('random', 'Random'), ('hash', 'Hash'), ('fallback', 'Fallback')], max_length=20)),
-                ('protocol', models.CharField(choices=[('http', 'HTTP'), ('https', 'HTTPS'), ('both', 'BOTH')], default='both', max_length=5)),
-                ('hashing_policy', models.CharField(choices=[('req.http.cookie', 'Cookie'), ('req.url', 'Url')], default='req.url', help_text='<i>Hashing policy only respected in Varnish v4 clusters. Hash mode must be selected.</i>', max_length=20)),
-                ('router', models.CharField(choices=[('req.url', 'Path'), ('req.http.host', 'Domain')], default='req.url', max_length=20)),
-                ('route_expression', models.CharField(max_length=512, verbose_name='Path or domain regex')),
-                ('active_active', models.BooleanField(default=True, help_text='<i>If no backends in primary DC available, use backends from other DC(s)</i>', verbose_name='DC aware fallback')),
-                ('enabled', models.BooleanField(default=True)),
-                ('remove_path', models.BooleanField(default=False)),
-                ('virtual', models.BooleanField(default=False, help_text='<i>Virtual director will not be available in routes</i>')),
-                ('reachable_via_service_mesh', models.BooleanField(default=False, help_text='<i>Pass traffic to backends via service mesh if varnish cluster supports it</i>')),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('probe', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manager.probe')),
-                ('time_profile', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manager.timeprofile')),
-            ],
-            options={
-                'verbose_name': 'historical director',
-                'verbose_name_plural': 'historical directors',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        # HistoricalDirector
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='manager_historicaldirector',
+                app_label='manager',
+                model_name='HistoricalDirector'
+            )
         ),
-        migrations.CreateModel(
-            name='HistoricalProbe',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('name', models.CharField(db_index=True, max_length=30, validators=[django.core.validators.RegexValidator(re.compile('^[a-zA-Z0-9_]+$'), 'Allowed characters: letters, numbers and underscores.', 'invalid')])),
-                ('url', models.CharField(max_length=50)),
-                ('expected_response', models.PositiveIntegerField(default='200')),
-                ('interval', models.PositiveIntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10), (11, 11), (12, 12), (13, 13), (14, 14), (15, 15), (16, 16), (17, 17), (18, 18), (19, 19), (20, 20), (21, 21), (22, 22), (23, 23), (24, 24), (25, 25), (26, 26), (27, 27), (28, 28), (29, 29), (30, 30), (31, 31), (32, 32), (33, 33), (34, 34), (35, 35), (36, 36), (37, 37), (38, 38), (39, 39), (40, 40), (41, 41), (42, 42), (43, 43), (44, 44), (45, 45), (46, 46), (47, 47), (48, 48), (49, 49), (50, 50), (51, 51), (52, 52), (53, 53), (54, 54), (55, 55), (56, 56), (57, 57), (58, 58), (59, 59), (60, 60), (61, 61), (62, 62), (63, 63), (64, 64), (65, 65), (66, 66), (67, 67), (68, 68), (69, 69), (70, 70), (71, 71), (72, 72), (73, 73), (74, 74), (75, 75), (76, 76), (77, 77), (78, 78), (79, 79), (80, 80), (81, 81), (82, 82), (83, 83), (84, 84), (85, 85), (86, 86), (87, 87), (88, 88), (89, 89), (90, 90), (91, 91), (92, 92), (93, 93), (94, 94), (95, 95), (96, 96), (97, 97), (98, 98), (99, 99), (100, 100), (101, 101), (102, 102), (103, 103), (104, 104), (105, 105), (106, 106), (107, 107), (108, 108), (109, 109), (110, 110), (111, 111), (112, 112), (113, 113), (114, 114), (115, 115), (116, 116), (117, 117), (118, 118), (119, 119), (120, 120), (121, 121), (122, 122), (123, 123), (124, 124), (125, 125), (126, 126), (127, 127), (128, 128), (129, 129), (130, 130), (131, 131), (132, 132), (133, 133), (134, 134), (135, 135), (136, 136), (137, 137), (138, 138), (139, 139), (140, 140), (141, 141), (142, 142), (143, 143), (144, 144), (145, 145), (146, 146), (147, 147), (148, 148), (149, 149), (150, 150), (151, 151), (152, 152), (153, 153), (154, 154), (155, 155), (156, 156), (157, 157), (158, 158), (159, 159), (160, 160), (161, 161), (162, 162), (163, 163), (164, 164), (165, 165), (166, 166), (167, 167), (168, 168), (169, 169), (170, 170), (171, 171), (172, 172), (173, 173), (174, 174), (175, 175), (176, 176), (177, 177), (178, 178), (179, 179), (180, 180), (181, 181), (182, 182), (183, 183), (184, 184), (185, 185), (186, 186), (187, 187), (188, 188), (189, 189), (190, 190), (191, 191), (192, 192), (193, 193), (194, 194), (195, 195), (196, 196), (197, 197), (198, 198), (199, 199), (200, 200), (201, 201), (202, 202), (203, 203), (204, 204), (205, 205), (206, 206), (207, 207), (208, 208), (209, 209), (210, 210), (211, 211), (212, 212), (213, 213), (214, 214), (215, 215), (216, 216), (217, 217), (218, 218), (219, 219), (220, 220), (221, 221), (222, 222), (223, 223), (224, 224), (225, 225), (226, 226), (227, 227), (228, 228), (229, 229), (230, 230), (231, 231), (232, 232), (233, 233), (234, 234), (235, 235), (236, 236), (237, 237), (238, 238), (239, 239), (240, 240), (241, 241), (242, 242), (243, 243), (244, 244), (245, 245), (246, 246), (247, 247), (248, 248), (249, 249), (250, 250), (251, 251), (252, 252), (253, 253), (254, 254), (255, 255), (256, 256), (257, 257), (258, 258), (259, 259), (260, 260), (261, 261), (262, 262), (263, 263), (264, 264), (265, 265), (266, 266), (267, 267), (268, 268), (269, 269), (270, 270), (271, 271), (272, 272), (273, 273), (274, 274), (275, 275), (276, 276), (277, 277), (278, 278), (279, 279), (280, 280), (281, 281), (282, 282), (283, 283), (284, 284), (285, 285), (286, 286), (287, 287), (288, 288), (289, 289), (290, 290), (291, 291), (292, 292), (293, 293), (294, 294), (295, 295), (296, 296), (297, 297), (298, 298), (299, 299), (300, 300)], default='3', verbose_name='Interval (s)')),
-                ('timeout', vaas.manager.fields.NormalizedDecimalField(choices=[(Decimal('0.1'), '0.1'), (Decimal('0.2'), '0.2'), (Decimal('0.3'), '0.3'), (Decimal('0.4'), '0.4'), (Decimal('0.5'), '0.5'), (Decimal('0.6'), '0.6'), (Decimal('0.7'), '0.7'), (Decimal('0.8'), '0.8'), (Decimal('0.9'), '0.9'), (Decimal('1.0'), '1.0'), (Decimal('1.1'), '1.1'), (Decimal('1.2'), '1.2'), (Decimal('1.3'), '1.3'), (Decimal('1.4'), '1.4'), (Decimal('1.5'), '1.5'), (Decimal('1.6'), '1.6'), (Decimal('1.7'), '1.7'), (Decimal('1.8'), '1.8'), (Decimal('1.9'), '1.9'), (Decimal('2.0'), '2.0'), (Decimal('2.1'), '2.1'), (Decimal('2.2'), '2.2'), (Decimal('2.3'), '2.3'), (Decimal('2.4'), '2.4'), (Decimal('2.5'), '2.5'), (Decimal('2.6'), '2.6'), (Decimal('2.7'), '2.7'), (Decimal('2.8'), '2.8'), (Decimal('2.9'), '2.9'), (Decimal('3.0'), '3.0'), (Decimal('3.1'), '3.1'), (Decimal('3.2'), '3.2'), (Decimal('3.3'), '3.3'), (Decimal('3.4'), '3.4'), (Decimal('3.5'), '3.5'), (Decimal('3.6'), '3.6'), (Decimal('3.7'), '3.7'), (Decimal('3.8'), '3.8'), (Decimal('3.9'), '3.9'), (Decimal('4.0'), '4.0'), (Decimal('4.1'), '4.1'), (Decimal('4.2'), '4.2'), (Decimal('4.3'), '4.3'), (Decimal('4.4'), '4.4'), (Decimal('4.5'), '4.5'), (Decimal('4.6'), '4.6'), (Decimal('4.7'), '4.7'), (Decimal('4.8'), '4.8'), (Decimal('4.9'), '4.9'), (Decimal('5.0'), '5.0')], decimal_places=1, default='1', max_digits=4, verbose_name='Timeout (s)')),
-                ('window', models.PositiveIntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)], default='5', verbose_name='Window (s)')),
-                ('threshold', models.PositiveIntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10), (11, 11), (12, 12), (13, 13), (14, 14), (15, 15), (16, 16), (17, 17), (18, 18), (19, 19), (20, 20), (21, 21), (22, 22), (23, 23), (24, 24), (25, 25), (26, 26), (27, 27), (28, 28), (29, 29), (30, 30), (31, 31), (32, 32), (33, 33), (34, 34), (35, 35), (36, 36), (37, 37), (38, 38), (39, 39), (40, 40), (41, 41), (42, 42), (43, 43), (44, 44), (45, 45), (46, 46), (47, 47), (48, 48), (49, 49), (50, 50), (51, 51), (52, 52), (53, 53), (54, 54), (55, 55), (56, 56), (57, 57), (58, 58), (59, 59), (60, 60), (61, 61), (62, 62), (63, 63), (64, 64), (65, 65), (66, 66), (67, 67), (68, 68), (69, 69), (70, 70), (71, 71), (72, 72), (73, 73), (74, 74), (75, 75), (76, 76), (77, 77), (78, 78), (79, 79), (80, 80), (81, 81), (82, 82), (83, 83), (84, 84), (85, 85), (86, 86), (87, 87), (88, 88), (89, 89), (90, 90), (91, 91), (92, 92), (93, 93), (94, 94), (95, 95), (96, 96), (97, 97), (98, 98), (99, 99), (100, 100), (101, 101), (102, 102), (103, 103), (104, 104), (105, 105), (106, 106), (107, 107), (108, 108), (109, 109), (110, 110), (111, 111), (112, 112), (113, 113), (114, 114), (115, 115), (116, 116), (117, 117), (118, 118), (119, 119), (120, 120), (121, 121), (122, 122), (123, 123), (124, 124), (125, 125), (126, 126), (127, 127), (128, 128), (129, 129), (130, 130), (131, 131), (132, 132), (133, 133), (134, 134), (135, 135), (136, 136), (137, 137), (138, 138), (139, 139), (140, 140), (141, 141), (142, 142), (143, 143), (144, 144), (145, 145), (146, 146), (147, 147), (148, 148), (149, 149), (150, 150), (151, 151), (152, 152), (153, 153), (154, 154), (155, 155), (156, 156), (157, 157), (158, 158), (159, 159), (160, 160), (161, 161), (162, 162), (163, 163), (164, 164), (165, 165), (166, 166), (167, 167), (168, 168), (169, 169), (170, 170), (171, 171), (172, 172), (173, 173), (174, 174), (175, 175), (176, 176), (177, 177), (178, 178), (179, 179), (180, 180), (181, 181), (182, 182), (183, 183), (184, 184), (185, 185), (186, 186), (187, 187), (188, 188), (189, 189), (190, 190), (191, 191), (192, 192), (193, 193), (194, 194), (195, 195), (196, 196), (197, 197), (198, 198), (199, 199), (200, 200), (201, 201), (202, 202), (203, 203), (204, 204), (205, 205), (206, 206), (207, 207), (208, 208), (209, 209), (210, 210), (211, 211), (212, 212), (213, 213), (214, 214), (215, 215), (216, 216), (217, 217), (218, 218), (219, 219), (220, 220), (221, 221), (222, 222), (223, 223), (224, 224), (225, 225), (226, 226), (227, 227), (228, 228), (229, 229), (230, 230), (231, 231), (232, 232), (233, 233), (234, 234), (235, 235), (236, 236), (237, 237), (238, 238), (239, 239), (240, 240), (241, 241), (242, 242), (243, 243), (244, 244), (245, 245), (246, 246), (247, 247), (248, 248), (249, 249), (250, 250), (251, 251), (252, 252), (253, 253), (254, 254), (255, 255), (256, 256), (257, 257), (258, 258), (259, 259), (260, 260), (261, 261), (262, 262), (263, 263), (264, 264), (265, 265), (266, 266), (267, 267), (268, 268), (269, 269), (270, 270), (271, 271), (272, 272), (273, 273), (274, 274), (275, 275), (276, 276), (277, 277), (278, 278), (279, 279), (280, 280), (281, 281), (282, 282), (283, 283), (284, 284), (285, 285), (286, 286), (287, 287), (288, 288), (289, 289), (290, 290), (291, 291), (292, 292), (293, 293), (294, 294), (295, 295), (296, 296), (297, 297), (298, 298), (299, 299), (300, 300)], default='3')),
-                ('start_as_healthy', models.BooleanField(default=False, help_text='<i>New backend is starting with healthy status, there is no need to initial health check pass</i>', verbose_name='Start backend as healthy')),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'historical probe',
-                'verbose_name_plural': 'historical probes',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        # HistoricalProbe
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='manager_historicalprobe',
+                app_label='manager',
+                model_name='HistoricalProbe'
+            )
         ),
-        migrations.CreateModel(
-            name='HistoricalTimeProfile',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('name', models.CharField(db_index=True, max_length=128)),
-                ('description', models.TextField(blank=True)),
-                ('max_connections', models.PositiveIntegerField(default='5')),
-                ('connect_timeout', vaas.manager.fields.NormalizedDecimalField(decimal_places=2, default='0.30', max_digits=4, verbose_name='Connect timeout (s)')),
-                ('first_byte_timeout', vaas.manager.fields.NormalizedDecimalField(decimal_places=2, default='5', max_digits=5, verbose_name='First byte timeout (s)')),
-                ('between_bytes_timeout', vaas.manager.fields.NormalizedDecimalField(decimal_places=2, default='1', max_digits=5, verbose_name='Between bytes timeout (s)')),
-                ('service_mesh_timeout', vaas.manager.fields.NormalizedDecimalField(decimal_places=2, default='300', max_digits=5, verbose_name='Service mesh timeout (s)')),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'historical time profile',
-                'verbose_name_plural': 'historical time profiles',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        # HistoricalTimeProfile
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='manager_historicaltimeprofile',
+                app_label='manager',
+                model_name='HistoricalTimeProfile'
+            )
         ),
     ]

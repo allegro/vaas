@@ -3,7 +3,7 @@
 import django.db.models.deletion
 import simple_history.models
 from django.db import migrations, models
-
+from vaas.utils.migrations import create_model_if_not_exists_factory
 
 class Migration(migrations.Migration):
 
@@ -13,18 +13,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='HistoricalRoute_clusters',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('m2m_history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history', models.ForeignKey(db_constraint=False, on_delete=django.db.models.deletion.DO_NOTHING, to='router.historicalroute')),
-                ('logicalcluster', models.ForeignKey(blank=True, db_constraint=False, db_tablespace='', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='cluster.logicalcluster')),
-                ('route', models.ForeignKey(blank=True, db_constraint=False, db_tablespace='', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='router.route')),
-            ],
-            options={
-                'verbose_name': 'HistoricalRoute_clusters',
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='router_historicalroute_clusters',
+                app_label='router',
+                model_name='HistoricalRoute_clusters'
+            )
         ),
     ]

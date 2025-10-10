@@ -6,7 +6,7 @@ import simple_history.models
 import uuid
 from django.conf import settings
 from django.db import migrations, models
-
+from vaas.utils.migrations import create_model_if_not_exists_factory
 
 class Migration(migrations.Migration):
 
@@ -18,54 +18,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='HistoricalRedirect',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('condition', models.CharField(max_length=512)),
-                ('rewrite_groups', models.CharField(blank=True, default='', max_length=512)),
-                ('destination', models.CharField(max_length=512)),
-                ('action', models.IntegerField(choices=[(301, 'Move Permanently'), (302, 'Found'), (307, 'Temporary Redirect')], default=301)),
-                ('priority', models.PositiveIntegerField()),
-                ('preserve_query_params', models.BooleanField(default=True)),
-                ('required_custom_header', models.BooleanField(default=False)),
-                ('uuid', models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('src_domain', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='cluster.domainmapping')),
-            ],
-            options={
-                'verbose_name': 'historical redirect',
-                'verbose_name_plural': 'historical redirects',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='router_historicalredirect',
+                app_label='router',
+                model_name='HistoricalRedirect'
+            )
         ),
-        migrations.CreateModel(
-            name='HistoricalRoute',
-            fields=[
-                ('id', models.IntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('condition', models.CharField(max_length=512)),
-                ('priority', models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(500)])),
-                ('action', models.CharField(max_length=20)),
-                ('clusters_in_sync', models.BooleanField(default=False)),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('director', models.ForeignKey(blank=True, db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='manager.director')),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'historical route',
-                'verbose_name_plural': 'historical routes',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
-            },
-            bases=(simple_history.models.HistoricalChanges, models.Model),
+        migrations.RunPython(
+            create_model_if_not_exists_factory(
+                table_name='router_historicalroute',
+                app_label='router',
+                model_name='HistoricalRoute'
+            )
         ),
     ]
