@@ -21,6 +21,7 @@ class MappingProviderTest(TestCase):
 
         # when looking for related mappings for cluster
         provider = MappingProvider(static_mappings)
+        # TODO(mfalkowski): add tests
         domains = provider.provide_related_domains(cluster)
 
         # then static domain mappings should be returned

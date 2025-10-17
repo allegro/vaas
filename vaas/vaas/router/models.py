@@ -27,7 +27,7 @@ class Redirect(models.Model):
         MOVE_PERMANENTLY = 301
         FOUND = 302
         TEMPORARY_REDIRECT = 307
-    src_domain = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
+    src_domain: DomainMapping = models.ForeignKey(DomainMapping, on_delete=models.PROTECT)
     condition = models.CharField(max_length=512)
     rewrite_groups = models.CharField(max_length=512, default="", blank=True)
     destination = models.CharField(max_length=512)
