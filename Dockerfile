@@ -29,6 +29,10 @@ RUN apt update \
     build-essential \
     default-mysql-client \
     pkg-config \
+    libxml2  \
+    libxml2-dev \
+    libxslt1.1 \
+    libxslt1.1-dev \
     python3.12 \
     python3.12-dev \
     python3.12-venv \
