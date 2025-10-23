@@ -31,6 +31,8 @@ RUN apt update \
     pkg-config \
     libxml2  \
     libxml2-dev \
+    libxslt1 \
+    libxslt1-dev \
     python3.12 \
     python3.12-dev \
     python3.12-venv \
