@@ -445,20 +445,22 @@ class VclTagBuilderTest(TestCase):
 
         self.assertEqual(expected_datacenters, active_director_datacenters)
 
+    # TODO(mfalkowski): similiar test? Or add to this test?
     def test_should_decorate_flexible_router_tag_with_properly_mapped_destination_domain(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         self.assertEqual({'example.prod.com', 'example-external.com', 'example.prod.org'},
-                         set(tag.parameters['redirects'].keys()))
-        self.assertEqual('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
-        self.assertEqual('example.com', tag.parameters['redirects']['example.prod.org'][1].src_domain.domain)
+                         set(tag.parameters['redirects'].literal.keys()))
+        self.assertEqual('example.com', tag.parameters['redirects'].literal['example.prod.com'][1].src_domain.domain)
+        self.assertEqual('example.com', tag.parameters['redirects'].literal['example.prod.org'][1].src_domain.domain)
         self.assertEqual('http://example.prod.com/destination',
-                         tag.parameters['redirects']['example.prod.com'][1].destination)
+                         tag.parameters['redirects'].literal['example.prod.com'][1].destination)
         self.assertEqual('http://example.prod.org/destination',
-                         tag.parameters['redirects']['example.prod.org'][1].destination)
+                         tag.parameters['redirects'].literal['example.prod.org'][1].destination)
         self.assertEqual('http://example-external.com/external_destination',
-                         tag.parameters['redirects']['example-external.com'][0].destination)
+                         tag.parameters['redirects'].literal['example-external.com'][0].destination)
 
+    # TODO(mfalkowski): similiar test?
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
