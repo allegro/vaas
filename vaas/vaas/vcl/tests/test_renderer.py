@@ -463,11 +463,11 @@ class VclTagBuilderTest(TestCase):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         self.assertEqual({'example.prod.com', 'example-external.com', 'example.prod.org'},
-                         set(tag.parameters['redirects'].keys()))
-        self.assertEqual('2/example.prod.com', tag.parameters['redirects']['example.prod.com'][0].id)
-        self.assertEqual('1/example.prod.com', tag.parameters['redirects']['example.prod.com'][1].id)
-        self.assertEqual('2/example.prod.org', tag.parameters['redirects']['example.prod.org'][0].id)
-        self.assertEqual('3/example-external.com', tag.parameters['redirects']['example-external.com'][0].id)
+                         set(tag.parameters['redirects'].literal.keys()))
+        self.assertEqual('2/example.prod.com', tag.parameters['redirects'].literal['example.prod.com'][0].id)
+        self.assertEqual('1/example.prod.com', tag.parameters['redirects'].literal['example.prod.com'][1].id)
+        self.assertEqual('2/example.prod.org', tag.parameters['redirects'].literal['example.prod.org'][0].id)
+        self.assertEqual('3/example-external.com', tag.parameters['redirects'].literal['example-external.com'][0].id)
 
 
 class VclRendererInputTest(TestCase):
