@@ -151,8 +151,8 @@ sub vcl_recv {
 
     unset req.http.x-canary-random;
 
-
 # Flexible REDIRECT
+
 
 # Test ROUTER
 if (req.http.x-validation == "1") {
