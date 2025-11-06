@@ -205,6 +205,7 @@ class VclTagBuilder:
 
     RedirectsByHost = dict[str, list[VclRedirect]]
     class Redirects:
+        
         def __init__(self):
             self.literal: VclTagBuilder.RedirectsByHost = dict()
             self.regex: VclTagBuilder.RedirectsByHost = dict()
