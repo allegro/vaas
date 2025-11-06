@@ -339,7 +339,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "61f7a", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "fe6b6", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -439,6 +439,7 @@ sub vcl_recv {
         set req.http.x-action = "redirect";
     }
     }
+
 
 # Test ROUTER
 if (req.http.x-validation == "1") {
