@@ -467,6 +467,14 @@ sub vcl_recv {
     }
     }
 
+    if (req.http.host ~ "sub\.[^.]+\.example\.com") {
+    if (req.url ~ "/old_path") {
+        set req.http.x-redirect = "4";
+        set req.http.x-destination = "/new_path";
+        set req.http.x-response-code = "301";
+        set req.http.x-action = "redirect";
+    }
+    }
 
 # Test ROUTER
 if (req.http.x-validation == "1") {

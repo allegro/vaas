@@ -144,6 +144,12 @@ class VclTagBuilderTest(TestCase):
             domain='external.com', mappings_list='["example-external.com"]', type='static'
         )
         self.external_domain_mapping.clusters.add(cluster1)
+        self.regex_domain_mapping = DomainMapping.objects.create(
+            domain='sub.example.com', mappings_list=r'["sub\\.[^.]+\\.example\\.com"]', type='static_regex'
+        )
+        self.regex_domain_mapping.clusters.add(cluster1, cluster2)
+
+
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -297,6 +303,16 @@ class VclTagBuilderTest(TestCase):
             src_domain=self.external_domain_mapping,
             condition='req.url ~ "/external"',
             destination='http://external.com/external_destination',
+            action=301,
+            priority=260,
+            preserve_query_params=False,
+            required_custom_header=False
+        )
+
+        Redirect.objects.create(
+            src_domain=self.regex_domain_mapping,
+            condition='req.url ~ "/old_path"',
+            destination='/new_path',
             action=301,
             priority=260,
             preserve_query_params=False,
@@ -460,6 +476,14 @@ class VclTagBuilderTest(TestCase):
         self.assertEqual('http://example-external.com/external_destination',
                          tag.parameters['redirects'].literal['example-external.com'][0].destination)
 
+    def test_should_properly_map_regex_domain_in_redirect(self):
+        vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
+        tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
+
+        self.assertEqual({r'sub\.[^.]+\.example\.com'}, set(tag.parameters['redirects'].regex.keys()))
+        self.assertEqual('sub.example.com', tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].src_domain.domain)
+        self.assertEqual('/new_path', tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].destination)
+
     # TODO(mfalkowski): similiar test?
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
@@ -619,6 +643,10 @@ backend first_service_1_dc2_1_1_80 {
 
         self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0-with-mesh-and-standard-service.vcl', vcl.content)
+
+    def test_should_prepare_redirects_with_literal_and_regex_domain_mappings(self):
+        vcl_renderer = VclRenderer()
+
 
 
 class VclVariableExpanderTest(TestCase):
