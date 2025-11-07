@@ -196,7 +196,6 @@ class VclTagBuilder:
         """
         all_mappings: set[str] = set()
         destination_domain = urlsplit(redirect).netloc
-        # TODO(mfalkowski): probably DONE, to test
         for domain_mapping in domain_mappings:
             replacement = domain_mapping.mapped_domains(cluster)
             if not replacement.is_regex:
@@ -223,7 +222,6 @@ class VclTagBuilder:
     @collect_processing
     def prepare_redirects(self) -> Redirects:
         redirects = VclTagBuilder.Redirects()
-        # TODO(mfalkowski). UPDATE: chyba done tutaj
         related_domains = self.input.mapping_provider.provide_related_domains(self.varnish.cluster)
         for related_domain in related_domains:
             if related_domain not in self.input.redirects.keys():
@@ -236,8 +234,6 @@ class VclTagBuilder:
                 for mapped_domain in replacement.domains:
                     destination = str(redirect.destination)
                     if destination_domain == redirect.src_domain.domain:
-                        # TODO(mfalkowski): podmianka domeny w destination? Jak to ma dzialac z regexem?
-                        #   update: na razie zrobbiłem że fetch_all_destinations_mappings nie zwraca regexowych
                         destination = destination.replace(destination_domain, mapped_domain)
                     elif all((destination_domain, len(destination_mappings) == 1)):
                         destination = destination.replace(destination_domain, destination_mappings[0])
@@ -358,7 +354,6 @@ class VclTagBuilder:
 
         if tag_name.endswith('{REDIRECT}'):
             applied_rules = True
-            # TODO(mfalkowski): error here. UPDATE: fixed, to test
             redirects: VclTagBuilder.Redirects = self.placeholders['redirects']
             for redirect in redirects.all_by_id().values():
                 result.append(

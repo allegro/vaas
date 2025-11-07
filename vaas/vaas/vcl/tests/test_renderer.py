@@ -460,7 +460,6 @@ class VclTagBuilderTest(TestCase):
 
         self.assertEqual(expected_datacenters, active_director_datacenters)
 
-    # TODO(mfalkowski): similiar test? Or add to this test?
     def test_should_decorate_flexible_router_tag_with_properly_mapped_destination_domain(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
@@ -484,7 +483,6 @@ class VclTagBuilderTest(TestCase):
                          tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].src_domain.domain)
         self.assertEqual('/new_path', tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].destination)
 
-    # TODO(mfalkowski): similiar test?
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()

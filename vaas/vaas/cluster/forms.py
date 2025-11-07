@@ -38,7 +38,6 @@ class DomainMappingForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(DomainMappingForm, self).clean()
-        # TODO(mfalkowski): probably DONE, to test
         if cleaned_data.get("type", "static") in ["static", "static_regex"]:
             if len(cleaned_data.get("clusters", None)) == 0:
                 self._errors["clusters"] = self.error_class(

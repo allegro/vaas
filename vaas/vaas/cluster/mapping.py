@@ -5,7 +5,6 @@ from vaas.cluster.models import DomainMapping, LogicalCluster
 
 class MappingProvider:
     def __init__(self, mappings: List[DomainMapping]):
-        # TODO(mfalkowski): probably DONE, to test
         self.mappings: dict[str, list[dict]] = {
             'static': [],
             'static_regex': [],

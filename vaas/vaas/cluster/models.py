@@ -118,7 +118,6 @@ class Dc(models.Model):
                     )
 
 
-# TODO(mfalkowski)
 class DomainMapping(models.Model, AbsModelWithJsonField):
     TYPE_CHOICES = (
         ("static", "Static"),
