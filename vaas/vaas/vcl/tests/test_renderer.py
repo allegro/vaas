@@ -149,7 +149,6 @@ class VclTagBuilderTest(TestCase):
         )
         self.regex_domain_mapping.clusters.add(cluster1, cluster2)
 
-
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -481,7 +480,8 @@ class VclTagBuilderTest(TestCase):
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
 
         self.assertEqual({r'sub\.[^.]+\.example\.com'}, set(tag.parameters['redirects'].regex.keys()))
-        self.assertEqual('sub.example.com', tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].src_domain.domain)
+        self.assertEqual('sub.example.com',
+                         tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].src_domain.domain)
         self.assertEqual('/new_path', tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].destination)
 
     # TODO(mfalkowski): similiar test?
@@ -643,10 +643,6 @@ backend first_service_1_dc2_1_1_80 {
 
         self.assertEqual('new-v4-1', vcl.name[:-10])
         self._assert_vcl_content('expected-vcl-4.0-with-mesh-and-standard-service.vcl', vcl.content)
-
-    def test_should_prepare_redirects_with_literal_and_regex_domain_mappings(self):
-        vcl_renderer = VclRenderer()
-
 
 
 class VclVariableExpanderTest(TestCase):
