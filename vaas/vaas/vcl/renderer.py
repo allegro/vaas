@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import copy
+import itertools
 import logging
 import os
 import hashlib
@@ -170,7 +173,7 @@ class VclRedirect:
 
 
 class VclTagBuilder:
-    def __init__(self, varnish, input_data):
+    def __init__(self, varnish, input_data: VclRendererInput):
         self.input = input_data
         self.varnish = varnish
         cluster_directors = self.prepare_cluster_directors()
@@ -188,34 +191,58 @@ class VclTagBuilder:
 
     def fetch_all_destinations_mappings(self, cluster: LogicalCluster, redirect: str,
                                         domain_mappings: list[DomainMapping]) -> tuple[str, list[str]]:
-        """Fetch tuple containing domain parsed from destination url and all found mappings for input cluster
+        """Fetch tuple containing domain parsed from destination url and all found mappings for input cluster.
+        Only non-regex mappings are considered here.
         """
-        all_mappings = set()
+        all_mappings: set[str] = set()
         destination_domain = urlsplit(redirect).netloc
         for domain_mapping in domain_mappings:
-            all_mappings = all_mappings.union(set(domain_mapping.mapped_domains(cluster)))
+            replacement = domain_mapping.mapped_domains(cluster)
+            if not replacement.is_regex:
+                all_mappings = all_mappings.union(set(replacement.domains))
         return destination_domain, list(all_mappings)
 
+    RedirectsByHost = dict[str, list[VclRedirect]]
+
+    class Redirects:
+
+        def __init__(self):
+            self.literal: VclTagBuilder.RedirectsByHost = dict()
+            self.regex: VclTagBuilder.RedirectsByHost = dict()
+
+        def all_by_id(self) -> dict[str, VclRedirect]:
+            result = {}
+            for redirects_list in itertools.chain(self.literal.values(), self.regex.values()):
+                for redirect in redirects_list:
+                    if redirect.id in result:
+                        raise ValueError(f"Duplicate redirect ID found: {redirect.id}")
+                    result[redirect.id] = redirect
+            return result
+
     @collect_processing
-    def prepare_redirects(self) -> dict[str, list[VclRedirect]]:
-        redirects = dict()
+    def prepare_redirects(self) -> Redirects:
+        redirects = VclTagBuilder.Redirects()
         related_domains = self.input.mapping_provider.provide_related_domains(self.varnish.cluster)
         for related_domain in related_domains:
             if related_domain not in self.input.redirects.keys():
                 continue
+            redirect: Redirect
             for redirect in self.input.redirects.get(related_domain):
                 destination_domain, destination_mappings = self.fetch_all_destinations_mappings(
                     self.varnish.cluster, redirect.destination, self.input.domain_mappings)
-                for mapped_domain in redirect.src_domain.mapped_domains(self.varnish.cluster):
+                replacement = redirect.src_domain.mapped_domains(self.varnish.cluster)
+                for mapped_domain in replacement.domains:
                     destination = str(redirect.destination)
                     if destination_domain == redirect.src_domain.domain:
                         destination = destination.replace(destination_domain, mapped_domain)
                     elif all((destination_domain, len(destination_mappings) == 1)):
                         destination = destination.replace(destination_domain, destination_mappings[0])
-                    if entries := redirects.get(mapped_domain, []):
+
+                    redirects_by_host = redirects.regex if replacement.is_regex else redirects.literal
+                    if entries := redirects_by_host.get(mapped_domain, []):
                         entries.append(VclRedirect(redirect, mapped_domain, destination))
                     else:
-                        redirects[mapped_domain] = [VclRedirect(redirect, mapped_domain, destination)]
+                        redirects_by_host[mapped_domain] = [VclRedirect(redirect, mapped_domain, destination)]
         return redirects
 
     @collect_processing
@@ -327,18 +354,18 @@ class VclTagBuilder:
 
         if tag_name.endswith('{REDIRECT}'):
             applied_rules = True
-            for _, redirects in self.placeholders['redirects'].items():
-                for redirect in redirects:
-                    result.append(
-                        VclTagExpander(
-                            tag_name.replace('{REDIRECT}', str(redirect.id)),
-                            self.get_tag_template_name(tag_name),
-                            self.input,
-                            parameters={
-                                'redirect': redirect
-                            }
-                        )
+            redirects: VclTagBuilder.Redirects = self.placeholders['redirects']
+            for redirect in redirects.all_by_id().values():
+                result.append(
+                    VclTagExpander(
+                        tag_name.replace('{REDIRECT}', str(redirect.id)),
+                        self.get_tag_template_name(tag_name),
+                        self.input,
+                        parameters={
+                            'redirect': redirect
+                        }
                     )
+                )
 
         if not applied_rules:
             return [self.decorate_single_tag(tag_name)]

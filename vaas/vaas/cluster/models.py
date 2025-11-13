@@ -121,11 +121,12 @@ class Dc(models.Model):
 class DomainMapping(models.Model, AbsModelWithJsonField):
     TYPE_CHOICES = (
         ("static", "Static"),
+        ("static_regex", "Static Regex"),
         ("dynamic", "Dynamic")
     )
     domain = models.CharField(max_length=128, unique=True)
     mappings_list = models.CharField(max_length=500, default="[]")
-    type = models.CharField(max_length=7, choices=TYPE_CHOICES, default="static")
+    type = models.CharField(max_length=12, choices=TYPE_CHOICES, default="static")
     clusters = models.ManyToManyField(LogicalCluster)
     _mappings = None
     history = HistoricalRecords(m2m_fields=[clusters])
@@ -138,16 +139,24 @@ class DomainMapping(models.Model, AbsModelWithJsonField):
     def labels(self, mappings: Union[List, Set]) -> None:
         self._mappings, self.mappings_list = self._prepare_set_and_json(mappings)
 
-    def mapped_domains(self, cluster: LogicalCluster) -> List[str]:
+    class Replacement:
+        def __init__(self, domains: List[str], is_regex: bool):
+            self.domains = domains
+            self.is_regex = is_regex
+
+    def mapped_domains(self, cluster: LogicalCluster) -> Replacement:
         if self.type == "static":
-            return list(self.mappings)
-        result = []
+            return DomainMapping.Replacement(domains=list(self.mappings), is_regex=False)
+        elif self.type == "static_regex":
+            return DomainMapping.Replacement(domains=list(self.mappings), is_regex=True)
+
+        result: List[str] = []
         cluster_labels = set(list(cluster.parsed_labels().keys()))
         for mapping, required_labels in self.__parse_placeholders().items():
             if not required_labels.difference(cluster_labels):
                 result.append(mapping.format(**cluster.parsed_labels()))
         # sort domains in order to enforce stable rendering of vcl content for the same input
-        return sorted(result)
+        return DomainMapping.Replacement(domains=sorted(result), is_regex=False)
 
     def has_matching_labels(self, labels: Set[str]) -> bool:
         result = False

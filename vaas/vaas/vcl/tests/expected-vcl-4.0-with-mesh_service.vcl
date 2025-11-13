@@ -79,7 +79,7 @@ sub vcl_synth {
     if (resp.status == 989) {
         set resp.status = 200;
         set resp.http.Content-Type = "application/json";
-        synthetic ( {"{ "vcl_version" : "69882", "varnish_status": "disabled" }"} );
+        synthetic ( {"{ "vcl_version" : "162ac", "varnish_status": "disabled" }"} );
         return (deliver);
     }
 }
@@ -127,6 +127,7 @@ sub vcl_recv {
     unset req.http.x-canary-random;
 
 # Flexible REDIRECT
+
 
 # Test ROUTER
 if (req.http.x-validation == "1") {

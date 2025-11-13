@@ -38,7 +38,7 @@ class DomainMappingForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(DomainMappingForm, self).clean()
-        if cleaned_data.get("type", "static") == "static":
+        if cleaned_data.get("type", "static") in ["static", "static_regex"]:
             if len(cleaned_data.get("clusters", None)) == 0:
                 self._errors["clusters"] = self.error_class(
                     ["Selecting clusters is required for static mapping"]

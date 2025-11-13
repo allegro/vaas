@@ -144,6 +144,11 @@ class VclTagBuilderTest(TestCase):
             domain='external.com', mappings_list='["example-external.com"]', type='static'
         )
         self.external_domain_mapping.clusters.add(cluster1)
+        self.regex_domain_mapping = DomainMapping.objects.create(
+            domain='sub.example.com', mappings_list=r'["sub\\.[^.]+\\.example\\.com"]', type='static_regex'
+        )
+        self.regex_domain_mapping.clusters.add(cluster1, cluster2)
+
         time_profile = TimeProfile.objects.create(
             name='generic', max_connections=1, connect_timeout=0.5, first_byte_timeout=0.1, between_bytes_timeout=1
         )
@@ -303,6 +308,16 @@ class VclTagBuilderTest(TestCase):
             required_custom_header=False
         )
 
+        Redirect.objects.create(
+            src_domain=self.regex_domain_mapping,
+            condition='req.url ~ "/old_path"',
+            destination='/new_path',
+            action=301,
+            priority=260,
+            preserve_query_params=False,
+            required_custom_header=False
+        )
+
         self.varnish = VarnishServer.objects.create(ip='127.0.0.1', dc=self.dc2, template=template_v4_with_tag,
                                                     cluster=cluster1)
         self.varnish_dc1 = VarnishServer.objects.create(ip='127.4.0.1', dc=self.dc1, template=template_v4_with_tag,
@@ -449,25 +464,34 @@ class VclTagBuilderTest(TestCase):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         self.assertEqual({'example.prod.com', 'example-external.com', 'example.prod.org'},
-                         set(tag.parameters['redirects'].keys()))
-        self.assertEqual('example.com', tag.parameters['redirects']['example.prod.com'][1].src_domain.domain)
-        self.assertEqual('example.com', tag.parameters['redirects']['example.prod.org'][1].src_domain.domain)
+                         set(tag.parameters['redirects'].literal.keys()))
+        self.assertEqual('example.com', tag.parameters['redirects'].literal['example.prod.com'][1].src_domain.domain)
+        self.assertEqual('example.com', tag.parameters['redirects'].literal['example.prod.org'][1].src_domain.domain)
         self.assertEqual('http://example.prod.com/destination',
-                         tag.parameters['redirects']['example.prod.com'][1].destination)
+                         tag.parameters['redirects'].literal['example.prod.com'][1].destination)
         self.assertEqual('http://example.prod.org/destination',
-                         tag.parameters['redirects']['example.prod.org'][1].destination)
+                         tag.parameters['redirects'].literal['example.prod.org'][1].destination)
         self.assertEqual('http://example-external.com/external_destination',
-                         tag.parameters['redirects']['example-external.com'][0].destination)
+                         tag.parameters['redirects'].literal['example-external.com'][0].destination)
+
+    def test_should_properly_map_regex_domain_in_redirect(self):
+        vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
+        tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
+
+        self.assertEqual({r'sub\.[^.]+\.example\.com'}, set(tag.parameters['redirects'].regex.keys()))
+        self.assertEqual('sub.example.com',
+                         tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].src_domain.domain)
+        self.assertEqual('/new_path', tag.parameters['redirects'].regex[r'sub\.[^.]+\.example\.com'][0].destination)
 
     def test_should_sort_redirects_by_priority(self):
         vcl_tag_builder = VclTagBuilder(self.varnish, VclRendererInput())
         tag = vcl_tag_builder.get_expanded_tags('FLEXIBLE_ROUTER').pop()
         self.assertEqual({'example.prod.com', 'example-external.com', 'example.prod.org'},
-                         set(tag.parameters['redirects'].keys()))
-        self.assertEqual('2/example.prod.com', tag.parameters['redirects']['example.prod.com'][0].id)
-        self.assertEqual('1/example.prod.com', tag.parameters['redirects']['example.prod.com'][1].id)
-        self.assertEqual('2/example.prod.org', tag.parameters['redirects']['example.prod.org'][0].id)
-        self.assertEqual('3/example-external.com', tag.parameters['redirects']['example-external.com'][0].id)
+                         set(tag.parameters['redirects'].literal.keys()))
+        self.assertEqual('2/example.prod.com', tag.parameters['redirects'].literal['example.prod.com'][0].id)
+        self.assertEqual('1/example.prod.com', tag.parameters['redirects'].literal['example.prod.com'][1].id)
+        self.assertEqual('2/example.prod.org', tag.parameters['redirects'].literal['example.prod.org'][0].id)
+        self.assertEqual('3/example-external.com', tag.parameters['redirects'].literal['example-external.com'][0].id)
 
 
 class VclRendererInputTest(TestCase):

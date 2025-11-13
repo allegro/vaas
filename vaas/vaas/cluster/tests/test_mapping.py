@@ -15,6 +15,7 @@ class MappingProviderTest(TestCase):
         static_mappings = [
             DomainMapping(id=1, type="static", domain="b-static.example.com"),
             DomainMapping(id=2, type="static", domain="a-static.example.com"),
+            DomainMapping(id=3, type="static_regex", domain="c-static.example.com"),
         ]
         cluster = LogicalCluster(id=100)
         clusters_mock.all = Mock(return_value=[cluster])
@@ -24,7 +25,7 @@ class MappingProviderTest(TestCase):
         domains = provider.provide_related_domains(cluster)
 
         # then static domain mappings should be returned
-        self.assertEqual(["a-static.example.com", "b-static.example.com"], domains)
+        self.assertEqual(["a-static.example.com", "b-static.example.com", "c-static.example.com"], domains)
 
     @patch('vaas.cluster.models.LogicalCluster.domainmapping_set', Mock(filter=Mock(return_value=[])))
     def test_should_return_dynamic_domains_matched_by_common_labels(self):
