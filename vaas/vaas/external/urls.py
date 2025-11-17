@@ -9,11 +9,11 @@ logger = logging.getLogger(__name__)
 
 urlpatterns = []
 
-PLUGIN_DIR = os.path.abspath('{}/../../../plugins/'.format(os.path.dirname(__file__)))
+PLUGIN_DIR = os.path.abspath("{}/../../../plugins/".format(os.path.dirname(__file__)))
 
 
 def iterate_plugins():
-    for app in getattr(settings, 'INSTALLED_PLUGINS', []):
+    for app in getattr(settings, "INSTALLED_PLUGINS", []):
         yield app
     try:
         for app in next(os.walk(PLUGIN_DIR))[1]:
@@ -24,7 +24,8 @@ def iterate_plugins():
 
 for app in iterate_plugins():
     try:
-        urlpatterns.append(re_path(r'^%s/' % app, include(f'{app}.urls')))
-        logger.info('Found urls for plugin: {}'.format(app))
-    except ImportError:
+        urlpatterns.append(re_path(r"^%s/" % app, include(f"{app}.urls")))
+        logger.info("Found urls for plugin: {}".format(app))
+    except ImportError as e:
+        logger.debug("No urls for plugin: {}, {}".format(app, e))
         pass
