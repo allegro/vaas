@@ -28,7 +28,7 @@ django-jazzmin
 python-json-logger
 
 # sentry
-sentry-sdk==2.34.1
+sentry-sdk
 
 kombu==5.5.4
 redis==5.2.1
