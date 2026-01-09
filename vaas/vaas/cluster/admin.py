@@ -204,7 +204,7 @@ class VclTemplateBlockAdmin(HistoryMixinAdmin, SimpleHistoryAdmin):
 
 class DomainMappingAdmin(HistoryMixinAdmin, SimpleHistoryAdmin):
     form = DomainMappingForm
-    search_fields = ["domain", "get_mappings", "type", "clusters__name"]
+    search_fields = ["domain", "mappings_list", "type", "clusters__name"]
     list_display = ["domain", "get_mappings", "type", "get_clusters"]
 
     def get_mappings(self, obj: DomainMapping) -> str:
