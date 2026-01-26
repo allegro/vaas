@@ -158,8 +158,12 @@ LOGGING = {
             "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
         },
         "json": {
-            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "()": "vaas.settings.logger.CustomJsonFormatter",
             "fmt": "%(levelname)s %(asctime)s %(name)s %(module)s %(message)s",
+            "rename_fields": {
+                "levelname": "level",
+                "asctime": "@timestamp",
+            },
         },
     },
     "handlers": {
