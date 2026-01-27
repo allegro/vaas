@@ -169,6 +169,7 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            'stream': 'ext://sys.stdout',
             "formatter": env.str("CONSOLE_LOG_FORMATTER", default="verbose"),
         },
     },
