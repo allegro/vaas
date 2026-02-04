@@ -21,7 +21,7 @@ def debug_task(self):
     print("Request: {0!r}".format(self.request))
 
 
-# For overrode the celery.log by the defined in setettings
+# Override the celery.log as defined in settings LOGGING
 app.conf.worker_hijack_root_logger = settings.CELERY_WORKER_HIJACK_ROOT_LOGGER
 
 app.conf.beatx_store = settings.BROKER_URL
