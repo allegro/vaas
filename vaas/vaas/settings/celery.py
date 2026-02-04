@@ -24,6 +24,12 @@ def debug_task(self):
 # Override the celery.log as defined in settings LOGGING
 app.conf.worker_hijack_root_logger = settings.CELERY_WORKER_HIJACK_ROOT_LOGGER
 
+
+@setup_logging.connect
+def configure_celery_logging(*args, **kwargs):
+    logging.config.dictConfig(settings.LOGGING)
+
+
 app.conf.beatx_store = settings.BROKER_URL
 app.conf.beat_max_loop_interval = settings.CELERY_BEAT_MAX_LOOP_INTERVAL
 app.conf.beat_schedule = {
