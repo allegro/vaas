@@ -218,6 +218,9 @@ REFRESH_TRIGGERS_CLASS = tuple(
     )
 )
 
+CELERY_WORKER_HIJACK_ROOT_LOGGER = env.bool(
+    "CELERY_WORKER_HIJACK_ROOT_LOGGER", default=False
+)
 CELERY_TASK_RESULT_EXPIRES = env.int("CELERY_TASK_RESULT_EXPIRES", default=600)
 CELERY_TASK_SERIALIZER = env.str("CELERY_TASK_SERIALIZER", default="json")
 CELERY_RESULT_SERIALIZER = env.str("CELERY_RESULT_SERIALIZER", default="json")
@@ -459,7 +462,7 @@ JAZZMIN_SETTINGS = {
         "manager.probe": "fas fa-heartbeat",
         "manager.timeprofile": "fas fa-clock",
         "router.redirect": "fas fa-directions",
-        "router.route": "fas fa-route"
+        "router.route": "fas fa-route",
     },
     # Icons that are used when one is not manually specified
     "default_icon_parents": "fas fa-chevron-circle-right",
@@ -596,3 +599,4 @@ CHANGEFORM_TEMPLATES = {
 }
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
+
