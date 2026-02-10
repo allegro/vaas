@@ -23,22 +23,23 @@ VOLUME ["/home/app/plugins"]
 
 RUN apt update \
   && apt install -y --no-install-recommends \
-  curl \
-  git \
-  gcc \
-  libpcre3-dev \
-  default-libmysqlclient-dev \
-  build-essential \
-  default-mysql-client \
-  pkg-config \
-  libxml2  \
-  libxml2-dev \
-  libxslt1.1 \
-  python3.12 \
-  python3.12-dev \
-  python3.12-venv \
-  python3-pip \
-  python3-setuptools \
+    curl \
+    git \
+    gcc \
+    libpcre3-dev \
+    default-libmysqlclient-dev \
+    build-essential \
+    default-mysql-client \
+    pkg-config \
+    libxml2  \
+    libxml2-dev \
+    libxslt1.1 \
+    libxslt1-dev \
+    python3.12 \
+    python3.12-dev \
+    python3.12-venv \
+    python3-pip \
+    python3-setuptools \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
