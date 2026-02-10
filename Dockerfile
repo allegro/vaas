@@ -32,7 +32,7 @@ RUN apt update \
     libxml2  \
     libxml2-dev \
     libxslt1.1 \
-    libxslt1.1-dev \
+    libxslt1-dev \
     python3.12 \
     python3.12-dev \
     python3.12-venv \
