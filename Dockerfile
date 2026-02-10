@@ -25,6 +25,8 @@ RUN apt update \
   && apt install -y --no-install-recommends \
     curl \
     git \
+    gcc \
+    libpcre3-dev \
     default-libmysqlclient-dev \
     build-essential \
     default-mysql-client \
