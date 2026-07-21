@@ -1,3 +1,18 @@
+> [!WARNING]
+> As of July 2026 this open-source project is no longer actively developed or supported. The repository has been set to **read-only**.
+## 🛑 Project Status: Archived & Unsupported
+
+### ⚠️ Maintenance Notice
+
+* **Why it's archived:** We are no longer able to dedicate the time required to maintain this project, review pull requests, or patch issues.
+* **What you can do:** You are welcome to view the codebase, clone it, or fork it under the terms of the Apache 2.0 License for your own use. However, we will not be merging changes, fixing bugs, or responding to issues.
+
+### ❤️ Thank You!
+
+Thank you to everyone who contributed, filed feedback, and used VaaS over the years!
+
+---
+
 VaaS
 ----
 
