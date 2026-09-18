@@ -1,5 +1,5 @@
 uwsgi
-django==5.2.5
+django==5.2.15
 wheel
 PyYAML==6.0.2
 Jinja2==3.1.6
@@ -18,7 +18,7 @@ requests>=2.25.1
 GitPython==3.1.45
 social-auth-app-django>=4.0.0
 defusedxml==0.7.1
-lxml==6.0.0
+lxml==6.1.0
 flower==2.0.1
 
 # Django Admin Theme
